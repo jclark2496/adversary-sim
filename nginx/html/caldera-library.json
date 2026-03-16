@@ -1,0 +1,420 @@
+{
+  "generated_at": "2026-03-04T04:47:35.076273+00:00",
+  "adversaries": [
+    {
+      "adversary_id": "scn001-credential-dumping",
+      "name": "SCN-001 | Credential Dumping via LSASS",
+      "description": "Simulates a threat actor dumping credentials from LSASS memory using native Windows tools (comsvcs.dll MiniDump). No external binaries required for the dump stage \u2014 classic living-off-the-land technique. Mapped to T1003.001. Commonly observed in MDR cases as a precursor to lateral movement.",
+      "techniques": [
+        "T1033",
+        "T1003.001"
+      ],
+      "abilities": [
+        "scn001-a1-check-privs",
+        "scn001-a2-lsass-dump-comsvcs",
+        "scn001-a3-mimikatz-sekurlsa"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-001",
+      "tags": [
+        "credential-access",
+        "lsass",
+        "mimikatz",
+        "t1003.001",
+        "demo-ready",
+        "easy"
+      ]
+    },
+    {
+      "adversary_id": "scn002-discovery-chain",
+      "name": "SCN-002 | Discovery & Enumeration Chain",
+      "description": "Simulates post-compromise discovery activity \u2014 the first thing an attacker does after gaining a foothold. Runs four sequential LOLBin techniques: system info collection (T1082), network configuration mapping (T1016), running process enumeration with security tool detection (T1057), and local user/gr",
+      "techniques": [
+        "T1082",
+        "T1016",
+        "T1057",
+        "T1087.001"
+      ],
+      "abilities": [
+        "scn002-a1-system-discovery",
+        "scn002-a2-network-discovery",
+        "scn002-a3-process-discovery",
+        "scn002-a4-user-enumeration"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-002",
+      "tags": [
+        "discovery",
+        "enumeration",
+        "lolbins",
+        "t1082",
+        "t1016",
+        "t1057",
+        "t1087",
+        "demo-ready",
+        "easy"
+      ]
+    },
+    {
+      "adversary_id": "scn003-phishing-persistence",
+      "name": "SCN-003 | Phishing \u2192 Payload \u2192 Persistence",
+      "description": "Simulates a phishing-initiated compromise. Phase 1 (GoPhish email delivery) is narrated in the SE runbook \u2014 demo starts post-click with the CALDERA agent already running. Phase 2 establishes dual persistence: a scheduled task disguised as MicrosoftEdgeUpdateTaskMachineCore (T1053.005) and a registry",
+      "techniques": [
+        "T1204.002",
+        "T1053.005",
+        "T1547.001"
+      ],
+      "abilities": [
+        "scn003-a1-payload-execution",
+        "scn003-a2-scheduled-task-persistence",
+        "scn003-a3-registry-persistence"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-003",
+      "tags": [
+        "phishing",
+        "execution",
+        "persistence",
+        "t1204.002",
+        "t1053.005",
+        "t1547.001",
+        "demo-ready",
+        "medium"
+      ]
+    },
+    {
+      "adversary_id": "scn005-pass-the-hash",
+      "name": "SCN-005 | Pass the Hash Lateral Movement",
+      "description": "Simulates post-compromise lateral movement using NTLM hashes extracted in a prior credential dumping stage. Enumerates network shares to identify targets, narrates SAM hash extraction, then demonstrates Pass the Hash authentication without a plaintext password. Represents the natural continuation of",
+      "techniques": [
+        "T1135",
+        "T1003.002",
+        "T1550.002"
+      ],
+      "abilities": [
+        "scn005-a1-enumerate-shares",
+        "scn005-a2-extract-ntlm-hash",
+        "scn005-a3-pth-authentication"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-005",
+      "tags": [
+        "lateral-movement",
+        "credential-access",
+        "t1135",
+        "t1003.002",
+        "t1550.002",
+        "demo-ready",
+        "medium"
+      ]
+    },
+    {
+      "adversary_id": "scn006-powershell-amsi-bypass",
+      "name": "SCN-006 | PowerShell Execution & AMSI Bypass",
+      "description": "Simulates attacker abuse of PowerShell for execution and defense evasion. Step 1 demonstrates Base64-encoded command execution to bypass string-matching defenses. Step 2 narrates AMSI bypass via AmsiScanBuffer memory patching \u2014 explaining how attackers disable PowerShell's security scanning layer. S",
+      "techniques": [
+        "T1059.001",
+        "T1562.001"
+      ],
+      "abilities": [
+        "scn006-a1-powershell-enumeration",
+        "scn006-a2-amsi-bypass-attempt",
+        "scn006-a3-payload-download-exec"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-006",
+      "tags": [
+        "execution",
+        "defense-evasion",
+        "powershell",
+        "amsi",
+        "t1059.001",
+        "t1562.001",
+        "demo-ready",
+        "medium"
+      ]
+    },
+    {
+      "adversary_id": "scn008-ransomware-simulation",
+      "name": "SCN-008 | Ransomware Pre-Deployment Simulation",
+      "description": "Simulates the four-phase pre-deployment sequence used by ransomware operators before encrypting files: disable backup services (VSS, WBEngine), narrate shadow copy deletion, stage a realistic ransom note and encrypted file markers, then summarize all detections for the Taegis handoff. No actual file",
+      "techniques": [
+        "T1562.001",
+        "T1490",
+        "T1486"
+      ],
+      "abilities": [
+        "scn008-a1-disable-defenses",
+        "scn008-a2-delete-shadow-copies",
+        "scn008-a3-stage-ransom-note",
+        "scn008-a4-impact-report"
+      ],
+      "audience": "technical",
+      "scenario_id": "SCN-008",
+      "tags": [
+        "impact",
+        "defense-evasion",
+        "ransomware",
+        "t1490",
+        "t1489",
+        "t1486",
+        "t1562.001",
+        "demo-ready",
+        "hard"
+      ]
+    }
+  ],
+  "abilities": [
+    {
+      "ability_id": "scn005-a3-pth-authentication",
+      "name": "SCN-005 | Simulate Pass the Hash Authentication",
+      "tactic": "lateral-movement",
+      "technique_id": "T1550.002",
+      "technique_name": "Use Alternate Authentication Material: Pass the Hash",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Demonstrates Pass the Hash lateral movement: authenticates to a remote\nhost using an NTLM hash instead of a plaintext password. Enumerates\naccessible shares using the compromised token, narrates how I"
+    },
+    {
+      "ability_id": "scn002-a2-network-discovery",
+      "name": "SCN-002 | Network Configuration Discovery",
+      "tactic": "discovery",
+      "technique_id": "T1016",
+      "technique_name": "System Network Configuration Discovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Enumerates network interfaces, IP addresses, active connections, routing\ntable, and DNS configuration. Attacker uses this to map the internal network,\nidentify reachable hosts, and plan lateral moveme"
+    },
+    {
+      "ability_id": "scn002-a3-process-discovery",
+      "name": "SCN-002 | Running Process Discovery",
+      "tactic": "discovery",
+      "technique_id": "T1057",
+      "technique_name": "Process Discovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Enumerates running processes, identifies security tools (AV/EDR), and\nlooks for juicy targets (browsers with creds, password managers, VPN clients).\nAttacker uses this to identify defenses and priorit"
+    },
+    {
+      "ability_id": "scn002-a1-system-discovery",
+      "name": "SCN-002 | System Information Discovery",
+      "tactic": "discovery",
+      "technique_id": "T1082",
+      "technique_name": "System Information Discovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Collects OS version, hostname, domain membership, hardware specs, and\ncurrent user context. First thing an attacker does after gaining a foothold\n\u2014 builds the target profile used to plan next steps.\nA"
+    },
+    {
+      "ability_id": "scn002-a4-user-enumeration",
+      "name": "SCN-002 | Local User and Group Enumeration",
+      "tactic": "discovery",
+      "technique_id": "T1087.001",
+      "technique_name": "Account Discovery: Local Account",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Enumerates local user accounts, local groups, and Administrators group\nmembers. Attacker uses this to identify privileged accounts for targeted\nlateral movement or credential theft.\nAll native Windows"
+    },
+    {
+      "ability_id": "scn005-a1-enumerate-shares",
+      "name": "SCN-005 | Enumerate Network Shares",
+      "tactic": "discovery",
+      "technique_id": "T1135",
+      "technique_name": "Network Share Discovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Discovers accessible network shares on the local host and connected network\nusing native Windows commands. Attacker uses share enumeration to identify\nfile servers, admin shares (C$, ADMIN$), and data"
+    },
+    {
+      "ability_id": "scn003-a1-payload-execution",
+      "name": "SCN-003 | Phishing Payload Execution",
+      "tactic": "execution",
+      "technique_id": "T1204.002",
+      "technique_name": "User Execution: Malicious File",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Simulates a user executing a phishing-delivered payload \u2014 the moment after\na malicious Office macro runs or a link is clicked. Narrates that GoPhish\nhandled the email delivery; this step represents th"
+    },
+    {
+      "ability_id": "scn006-a1-powershell-enumeration",
+      "name": "SCN-006 | PowerShell Encoded Command Execution",
+      "tactic": "execution",
+      "technique_id": "T1059.001",
+      "technique_name": "Command and Scripting Interpreter: PowerShell",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Executes a Base64-encoded PowerShell command to simulate the obfuscation\ntechnique attackers use to bypass basic string-matching defenses. Encodes\na process enumeration payload, prints the encoded str"
+    },
+    {
+      "ability_id": "scn006-a3-payload-download-exec",
+      "name": "SCN-006 | Simulated Payload Download and Execute",
+      "tactic": "execution",
+      "technique_id": "T1059.001",
+      "technique_name": "Command and Scripting Interpreter: PowerShell",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Simulates an IEX (Invoke-Expression) download cradle \u2014 the most common\nPowerShell payload delivery technique. Creates a WebClient with a spoofed\nbrowser user-agent string to blend with normal traffic,"
+    },
+    {
+      "ability_id": "scn003-a3-registry-persistence",
+      "name": "SCN-003 | Establish Persistence via Registry Run Key",
+      "tactic": "persistence",
+      "technique_id": "T1547.001",
+      "technique_name": "Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Writes a Run key entry to HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\ndisguised as \"OneDriveSync\" to execute the implant at every user login.\nProvides redundant persistence alongside the schedu"
+    },
+    {
+      "ability_id": "scn003-a2-scheduled-task-persistence",
+      "name": "SCN-003 | Establish Persistence via Scheduled Task",
+      "tactic": "persistence",
+      "technique_id": "T1053.005",
+      "technique_name": "Scheduled Task/Job: Scheduled Task",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Creates a scheduled task that re-runs the implant on user logon and\nat system startup, ensuring the attacker maintains access even after\na reboot or session timeout. Uses native schtasks.exe \u2014 no exte"
+    },
+    {
+      "ability_id": "scn006-a2-amsi-bypass-attempt",
+      "name": "SCN-006 | AMSI Bypass via Memory Patching (Simulation)",
+      "tactic": "defense-evasion",
+      "technique_id": "T1562.001",
+      "technique_name": "Impair Defenses: Disable or Modify Tools",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Checks AMSI (Antimalware Scan Interface) assembly status and narrates the\nreal-world bypass techniques attackers use to disable PowerShell script\nscanning \u2014 including AmsiScanBuffer memory patching, r"
+    },
+    {
+      "ability_id": "scn008-a1-disable-defenses",
+      "name": "SCN-008 | Disable Backup and Recovery Services",
+      "tactic": "defense-evasion",
+      "technique_id": "T1562.001",
+      "technique_name": "Impair Defenses: Disable or Modify Tools",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Disables Volume Shadow Copy (VSS) and Windows Backup (WBEngine) services\nto prevent recovery after ransomware encryption \u2014 a standard ransomware\npre-deployment step. Also checks Windows Defender real-"
+    },
+    {
+      "ability_id": "scn001-a1-check-privs",
+      "name": "SCN-001 | Check Current User Privileges",
+      "tactic": "discovery",
+      "technique_id": "T1033",
+      "technique_name": "System Owner/User Discovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Enumerates the current user's identity, group memberships, and privilege\ntokens before attempting credential dumping. Establishes whether the agent\nis running with admin or SYSTEM context \u2014 a prerequi"
+    },
+    {
+      "ability_id": "scn001-a2-lsass-dump-comsvcs",
+      "name": "SCN-001 | Dump LSASS via comsvcs.dll (MiniDump)",
+      "tactic": "credential-access",
+      "technique_id": "T1003.001",
+      "technique_name": "OS Credential Dumping: LSASS Memory",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Dumps LSASS process memory to disk using the built-in comsvcs.dll MiniDump export.\nThis is a living-off-the-land technique \u2014 no external tooling required.\nCommonly used by threat actors to avoid AV de"
+    },
+    {
+      "ability_id": "scn001-a3-mimikatz-sekurlsa",
+      "name": "SCN-001 | Extract Credentials via Mimikatz sekurlsa",
+      "tactic": "credential-access",
+      "technique_id": "T1003.001",
+      "technique_name": "OS Credential Dumping: LSASS Memory",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Runs Mimikatz sekurlsa::logonpasswords to extract plaintext credentials,\nNTLM hashes, and Kerberos tickets from LSASS memory. This is the high-\nfidelity detection step \u2014 Sophos Intercept X will block "
+    },
+    {
+      "ability_id": "scn005-a2-extract-ntlm-hash",
+      "name": "SCN-005 | Extract NTLM Hash from Registry (SAM)",
+      "tactic": "credential-access",
+      "technique_id": "T1003.002",
+      "technique_name": "OS Credential Dumping: Security Account Manager",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Simulates NTLM hash extraction from the Security Account Manager (SAM)\nregistry hive. Checks LM compatibility level, enumerates the target\nidentity, and verifies SeDebugPrivilege status. Narrates how "
+    },
+    {
+      "ability_id": "scn008-a2-delete-shadow-copies",
+      "name": "SCN-008 | Delete Volume Shadow Copies (VSS)",
+      "tactic": "impact",
+      "technique_id": "T1490",
+      "technique_name": "Inhibit System Recovery",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Enumerates existing Volume Shadow Copies and narrates the vssadmin/wmic\ndeletion commands used by ransomware groups to prevent file recovery.\nShadow copy deletion is simulated \u2014 not executed \u2014 to pres"
+    },
+    {
+      "ability_id": "scn008-a3-stage-ransom-note",
+      "name": "SCN-008 | Stage Ransom Note and Encrypted File Markers",
+      "tactic": "impact",
+      "technique_id": "T1486",
+      "technique_name": "Data Encrypted for Impact",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Creates a realistic ransom note (README_RECOVER_FILES.txt) and five\nsimulated .encrypted file markers in a temp directory. Demonstrates\nthe artifacts a ransomware operator stages on disk after encrypt"
+    },
+    {
+      "ability_id": "scn008-a4-impact-report",
+      "name": "SCN-008 | Generate Attack Impact Summary",
+      "tactic": "impact",
+      "technique_id": "T1486",
+      "technique_name": "Data Encrypted for Impact",
+      "platform": "windows",
+      "executor": "psh",
+      "description": "Prints a structured summary of the ransomware simulation \u2014 what happened\non the endpoint, what Sophos MDR detects in Taegis, and the prompt to\nswitch to the Taegis console. Designed as the final \"hand"
+    }
+  ],
+  "technique_to_adversary_map": {
+    "T1003.001": [
+      "scn001-credential-dumping"
+    ],
+    "T1003.002": [
+      "scn005-pass-the-hash"
+    ],
+    "T1016": [
+      "scn002-discovery-chain"
+    ],
+    "T1033": [
+      "scn001-credential-dumping"
+    ],
+    "T1053.005": [
+      "scn003-phishing-persistence"
+    ],
+    "T1057": [
+      "scn002-discovery-chain"
+    ],
+    "T1059.001": [
+      "scn006-powershell-amsi-bypass"
+    ],
+    "T1082": [
+      "scn002-discovery-chain"
+    ],
+    "T1087.001": [
+      "scn002-discovery-chain"
+    ],
+    "T1135": [
+      "scn005-pass-the-hash"
+    ],
+    "T1204.002": [
+      "scn003-phishing-persistence"
+    ],
+    "T1486": [
+      "scn008-ransomware-simulation"
+    ],
+    "T1490": [
+      "scn008-ransomware-simulation"
+    ],
+    "T1547.001": [
+      "scn003-phishing-persistence"
+    ],
+    "T1550.002": [
+      "scn005-pass-the-hash"
+    ],
+    "T1562.001": [
+      "scn006-powershell-amsi-bypass",
+      "scn008-ransomware-simulation"
+    ]
+  }
+}

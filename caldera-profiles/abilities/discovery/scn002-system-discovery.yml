@@ -1,0 +1,41 @@
+---
+- id: scn002-a1-system-discovery
+  name: "SCN-002 | System Information Discovery"
+  description: |
+    Collects OS version, hostname, domain membership, hardware specs, and
+    current user context. First thing an attacker does after gaining a foothold
+    — builds the target profile used to plan next steps.
+    All native Windows commands. Maps to T1082.
+  tactic: discovery
+  technique:
+    attack_id: T1082
+    name: "System Information Discovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== SYSTEM DISCOVERY (T1082) ===";
+          Write-Output "[*] Hostname / Domain:";
+          Write-Output "  Hostname : $env:COMPUTERNAME";
+          Write-Output "  Domain   : $((Get-WmiObject Win32_ComputerSystem).Domain)";
+          Write-Output "  User     : $env:USERDOMAIN\$env:USERNAME";
+          Write-Output "";
+          Write-Output "[*] OS Details:";
+          Get-WmiObject Win32_OperatingSystem | Select-Object Caption, Version, OSArchitecture, BuildNumber | Format-List;
+          Write-Output "[*] Hardware:";
+          $cs = Get-WmiObject Win32_ComputerSystem;
+          Write-Output "  RAM (GB) : $([math]::Round($cs.TotalPhysicalMemory/1GB,1))";
+          Write-Output "  CPUs     : $($cs.NumberOfLogicalProcessors)";
+          Write-Output "  Model    : $($cs.Model)";
+          Write-Output "";
+          Write-Output "[*] Uptime:";
+          $boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime;
+          Write-Output "  Last Boot: $boot";
+          Write-Output "  Uptime   : $((New-TimeSpan -Start $boot).ToString('d\.hh\:mm'))";
+          Write-Output "=== END SYSTEM DISCOVERY ==="
+        cleanup: ""
+        parsers:
+          org.mitre.caldera.parsers.basic:
+            - source: host.system.info
+              edge: has_system_profile
+              target: COMPUTERNAME

@@ -1,0 +1,26 @@
+# Environment secrets
+.env
+.labops-mode
+docker-compose.override.yml
+
+# Terraform (if used via labops)
+*.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+
+# Atomic Runner results
+atomic-runner/results/
+atomic-runner/tests/

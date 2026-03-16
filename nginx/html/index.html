@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sophos Adversary Simulation Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       VARIABLES
+    ============================================================ */
+    :root {
+      --bg-deep:       #03071e;
+      --bg-panel:      #080f2e;
+      --bg-card:       #0a1540;
+      --bg-card-hov:   #0d1a50;
+      --accent-blue:   #2006F7;
+      --accent-cyan:   #00EDFF;
+      --accent-green:  #00F2B3;
+      --accent-purple: #5A00FF;
+      --accent-violet: #B529F7;
+      --text-primary:  #e8f0ff;
+      --text-sec:      rgba(var(--text-rgb),0.62);
+      --text-dim:      rgba(var(--text-rgb),0.32);
+      --border-dim:    rgba(var(--accent-cyan-rgb),0.12);
+      --border-acc:    rgba(var(--accent-cyan-rgb),0.22);
+      --sev-crit:      #B529F7;
+      --sev-high:      #2006F7;
+      --sev-med:       #009CFB;
+      --sev-low:       #6A889B;
+      --glow-sel: 0 0 0 1px var(--accent-cyan), 0 0 20px rgba(var(--accent-cyan-rgb),0.18), inset 0 0 12px rgba(var(--accent-cyan-rgb),0.04);
+      --ft: 'Syne', sans-serif;
+      --fb: 'Syne', sans-serif;
+      /* RGB channels for opacity-variant rgba() */
+      --accent-cyan-rgb:   0,237,255;
+      --accent-green-rgb:  0,242,179;
+      --text-rgb:          232,240,255;
+      --bg-deep-rgb:       3,7,30;
+      --bg-panel-rgb:      8,15,46;
+      --sev-crit-rgb:      181,41,247;
+      --sev-high-rgb:      32,6,247;
+      --sev-med-rgb:       0,156,251;
+      --sev-low-rgb:       106,136,155;
+      --accent-purple-rgb: 90,0,255;
+      /* Semantic extras */
+      --text-label:        #a8c0d6;
+      --text-accent-blue:  #8ca8ff;
+      --text-accent-purple:#b09fff;
+    }
+
+
+    /* Smooth transitions */
+    html, body { transition: background-color 0.2s ease, color 0.2s ease; }
+    #lp, .rp   { transition: background-color 0.2s ease; }
+    .ph        { transition: border-color 0.2s ease; }
+    .scard     { transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+    .rpp       { transition: background-color 0.2s ease, border-color 0.2s ease; }
+
+    /* ============================================================
+       RESET
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--bg-deep); color: var(--text-primary);
+      font-family: var(--fb); font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { cursor: pointer; font-family: inherit; border: none; }
+    input, select { font-family: inherit; }
+
+    /* dot-grid bg */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* ============================================================
+       SHELL
+    ============================================================ */
+    #app {
+      display: flex; width: 100vw; height: 100vh;
+      position: relative; z-index: 1; min-width: 1280px;
+    }
+
+    /* scrollbar style shared */
+    .sc::-webkit-scrollbar { width: 3px; }
+    .sc::-webkit-scrollbar-track { background: transparent; }
+    .sc::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.18); border-radius: 2px; }
+
+    /* ============================================================
+       LEFT PANEL
+    ============================================================ */
+    #lp {
+      width: 40%; min-width: 480px; height: 100vh;
+      display: flex; flex-direction: column;
+      background: var(--bg-panel); border-right: 1px solid var(--border-dim);
+    }
+
+    .ph {
+      flex-shrink: 0; padding: 16px 18px 13px;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(var(--bg-panel-rgb),.97);
+    }
+
+    /* brand */
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; flex-wrap: wrap; }
+    #hdr-controls {
+      position: fixed; top: 12px; right: 16px; z-index: 100;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .arch-btn {
+      font-family: 'Courier New', 'SF Mono', monospace; font-size: 11px;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--accent-cyan); background: transparent;
+      border: 1px solid var(--accent-cyan); border-radius: 6px;
+      padding: 6px 14px; cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .arch-btn:hover {
+      background: rgba(var(--accent-cyan-rgb),.1);
+      box-shadow: 0 0 10px rgba(var(--accent-cyan-rgb),.25);
+    }
+    .tog-icon { display: none; }
+    /* wordmark */
+    .logo-word {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em; white-space: nowrap;
+    }
+    .logo-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 400;
+      color: var(--accent-cyan);
+      background: rgba(var(--accent-cyan-rgb),0.08);
+      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
+      border-radius: 5px; padding: 3px 10px 3px 22px;
+      position: relative; letter-spacing: 0.03em; white-space: nowrap;
+    }
+    .logo-tag::before {
+      content: '>'; position: absolute; left: 8px;
+      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
+    }
+    .lpip {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--accent-green);
+      background: rgba(var(--bg-panel-rgb),.92); padding: 4px 12px 4px 8px;
+      border-radius: 100px; border: 1px solid rgba(var(--accent-green-rgb),.22);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .ldot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+      animation: blink 2.2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(var(--accent-green-rgb),.55); }
+      50%    { opacity:.7; box-shadow:0 0 0 5px rgba(var(--accent-green-rgb),0); }
+    }
+
+    /* search */
+    .sw { position: relative; margin-bottom: 10px; }
+    .si {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none;
+    }
+    #qi {
+      width: 100%; background: rgba(var(--bg-deep-rgb),.75);
+      border: 1px solid var(--border-dim); border-radius: 6px;
+      padding: 8px 44px 8px 33px;
+      color: var(--text-primary); font-size: 13px; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    #qi::placeholder { color: rgba(var(--text-rgb),0.50); }
+    .ctrl::placeholder { color: rgba(var(--text-rgb),0.50); }
+    #qi:focus { border-color: rgba(var(--accent-cyan-rgb),.38); box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07); }
+    .skbd {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      font-size: 9px; color: var(--text-dim); letter-spacing: .05em;
+      background: rgba(var(--bg-deep-rgb),.5); border: 1px solid var(--border-dim);
+      padding: 1px 5px; border-radius: 3px; pointer-events: none;
+    }
+
+    /* filter chips */
+    .fgrid { display: flex; flex-direction: column; gap: 6px; }
+    .frow  { display: flex; flex-direction: column; gap: 3px; }
+    .flbl {
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--text-label);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 100px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      border: 1px solid var(--border-dim); color: rgba(var(--text-rgb),0.80);
+      background: transparent; transition: all .14s; white-space: nowrap;
+    }
+    .chip:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .chip.on {
+      border-color: var(--accent-cyan); color: var(--accent-cyan);
+      background: rgba(var(--accent-cyan-rgb),.08); box-shadow: 0 0 8px rgba(var(--accent-cyan-rgb),.12);
+    }
+
+    /* scenario list */
+    #sl {
+      flex: 1; overflow-y: auto; padding: 10px 12px;
+    }
+    #sl::-webkit-scrollbar { width: 3px; }
+    #sl::-webkit-scrollbar-track { background: transparent; }
+    #sl::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.18); border-radius: 2px; }
+
+    @keyframes su { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+    .scard {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+      cursor: pointer; transition: background .14s, border-color .14s, box-shadow .14s;
+      position: relative; overflow: hidden;
+      animation: su .18s ease-out both;
+    }
+    .scard::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: transparent; transition: background .14s;
+      border-radius: 8px 0 0 8px;
+    }
+    .scard:hover { background: var(--bg-card-hov); border-color: rgba(var(--accent-cyan-rgb),.18); }
+    .scard:hover::before { background: rgba(var(--accent-cyan-rgb),.4); }
+    .scard.sel {
+      background: rgba(var(--accent-cyan-rgb),.05); border-color: var(--accent-cyan);
+      box-shadow: var(--glow-sel);
+    }
+    .scard.sel::before { background: var(--accent-cyan); }
+
+    .cbadges { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+    .tbadge {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 3px;
+      background: rgba(var(--sev-high-rgb),.2); color: var(--text-accent-blue);
+      border: 1px solid rgba(var(--sev-high-rgb),.36);
+    }
+    .dpill {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 100px;
+    }
+    .de { background:rgba(var(--accent-green-rgb),.1);  color:var(--accent-green); border:1px solid rgba(var(--accent-green-rgb),.28); }
+    .dm { background:rgba(var(--sev-med-rgb),.11); color:var(--sev-med); border:1px solid rgba(var(--sev-med-rgb),.26); }
+    .dh { background:rgba(var(--sev-crit-rgb),.1); color:var(--sev-crit); border:1px solid rgba(var(--sev-crit-rgb),.28); }
+    .dexec { background:rgba(var(--sev-crit-rgb),.1); color:var(--sev-crit); border:1px solid rgba(var(--sev-crit-rgb),.28); }
+    .etag {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 3px; margin-left: auto;
+      background: rgba(var(--accent-cyan-rgb),.06); color: rgba(var(--accent-cyan-rgb),.6);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.12);
+    }
+    .aitag {
+      font-family: var(--ft); font-weight: 700; font-size: 9px;
+      letter-spacing: .13em; text-transform: uppercase;
+      padding: 2px 6px; border-radius: 3px;
+      background: rgba(var(--accent-purple-rgb),.17); color: var(--text-accent-purple);
+      border: 1px solid rgba(var(--accent-purple-rgb),.33);
+    }
+    .ctitle {
+      font-family: var(--ft); font-weight: 700; font-size: 13px;
+      letter-spacing: .02em; text-transform: uppercase;
+      color: var(--text-primary); line-height: 1.25;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* skeletons */
+    @keyframes shim { from{background-position:-500px 0} to{background-position:500px 0} }
+    .skc { background:var(--bg-card); border:1px solid var(--border-dim); border-radius:8px; padding:10px 12px; margin-bottom:6px; }
+    .sk  { background:linear-gradient(90deg,var(--bg-card) 0%,var(--bg-card-hov) 50%,var(--bg-card) 100%); background-size:1000px 100%; animation:shim 1.7s ease-in-out infinite; border-radius:4px; }
+
+    /* enriching card */
+    .encard { display:flex; align-items:center; gap:10px; background:rgba(var(--accent-cyan-rgb),.04); border:1px solid rgba(var(--accent-cyan-rgb),.2); border-radius:8px; padding:11px 13px; margin-bottom:6px; }
+    .ensp { width:13px; height:13px; flex-shrink:0; border:2px solid rgba(var(--accent-cyan-rgb),.15); border-top-color:var(--accent-cyan); border-radius:50%; animation:spin .75s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .enlbl { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-cyan); }
+
+    /* empty list */
+    .lempty { text-align:center; padding:28px 14px; color:rgba(var(--text-rgb),0.65); font-size:12px; }
+    .lempty strong { display:block; font-family:var(--ft); font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-sec); margin-bottom:5px; }
+    .ehi { margin-top:8px; font-size:11px; color:rgba(var(--accent-cyan-rgb),.65); }
+
+    /* panel footer */
+    .pf {
+      flex-shrink: 0; padding: 11px 14px 13px;
+      border-top: 1px solid var(--border-dim);
+      background: rgba(var(--bg-panel-rgb),.97);
+    }
+    .fpg { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:8px; }
+    .ff  { grid-column:1/-1; }
+    .ig  { display:flex; flex-direction:column; gap:3px; }
+    .ilbl { font-family:var(--ft); font-weight:600; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--text-label); }
+    .ctrl {
+      background:rgba(var(--bg-deep-rgb),.7); border:1px solid var(--border-dim); border-radius:5px;
+      padding:7px 10px; color:var(--text-primary); font-size:12px;
+      outline:none; width:100%; transition:border-color .16s;
+    }
+    .ctrl:focus { border-color:rgba(var(--accent-cyan-rgb),.36); }
+    select.ctrl {
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(var(--text-rgb),0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 9px center;
+      padding-right:26px; cursor:pointer;
+    }
+    select.ctrl option { background:var(--bg-panel); }
+
+    #lbtn {
+      width:100%; padding:11px 16px;
+      background:linear-gradient(130deg,#1900e8,#4200cc 60%,#5A00FF);
+      border-radius:6px; color:var(--text-primary);
+      font-family:var(--ft); font-weight:700; font-size:14px;
+      letter-spacing:.18em; text-transform:uppercase;
+      position:relative; overflow:hidden;
+      transition:transform .15s, box-shadow .15s, opacity .15s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    #lbtn::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent,rgba(var(--accent-cyan-rgb),.13),transparent);
+      opacity:0; transition:opacity .2s;
+    }
+    #lbtn:hover:not(:disabled)::after { opacity:1; }
+    #lbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 24px rgba(var(--accent-purple-rgb),.44),0 0 32px rgba(var(--accent-cyan-rgb),.12); }
+    #lbtn:active:not(:disabled) { transform:translateY(0); }
+    #lbtn:disabled { opacity:.44; cursor:not-allowed; }
+    #lbtn .bsp { display:none; width:16px; height:16px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .55s linear infinite; }
+    #lbtn.busy .bsp { display:block; }
+    #lbtn.busy .btx { opacity:0; }
+
+    /* ============================================================
+       RIGHT PANEL
+    ============================================================ */
+    #rp {
+      flex:1; height:100vh; display:flex; flex-direction:column;
+      background:var(--bg-deep); position:relative;
+    }
+    .rs {
+      flex:1; overflow-y:auto; padding:26px 30px 20px;
+    }
+    .rs::-webkit-scrollbar { width:3px; }
+    .rs::-webkit-scrollbar-thumb { background:rgba(var(--accent-cyan-rgb),.18); border-radius:2px; }
+
+    /* empty state */
+    #es {
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      height:100%; text-align:center; padding:40px;
+      position:relative; overflow:hidden;
+    }
+    #es::before {
+      content:''; position:absolute; inset:-100%;
+      background:conic-gradient(from 0deg at 50% 50%,
+        transparent 0deg, rgba(var(--accent-cyan-rgb),.032) 60deg,
+        transparent 120deg, rgba(var(--sev-high-rgb),.038) 200deg,
+        transparent 260deg, rgba(var(--accent-cyan-rgb),.02) 320deg, transparent 360deg);
+      animation:esrot 30s linear infinite; pointer-events:none;
+    }
+    @keyframes esrot { to { transform:rotate(360deg); } }
+    #es::after {
+      content:''; position:absolute; inset:0;
+      background-image:radial-gradient(circle,rgba(var(--accent-cyan-rgb),.055) 1px,transparent 1px);
+      background-size:36px 36px; pointer-events:none;
+      mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 15%,transparent 100%);
+      -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 15%,transparent 100%);
+    }
+    .esshield { position:relative; margin-bottom:30px; z-index:1; }
+    .esring { position:absolute; border-radius:50%; border:1px solid rgba(var(--accent-cyan-rgb),.22); pointer-events:none; }
+    .esring1 { inset:-18px; animation:esring 3.4s ease-in-out infinite 0s; }
+    .esring2 { inset:-34px; animation:esring 3.4s ease-in-out infinite .75s; }
+    .esring3 { inset:-52px; animation:esring 3.4s ease-in-out infinite 1.5s; }
+    @keyframes esring {
+      0%,100% { transform:scale(.93); opacity:.3; }
+      50%     { transform:scale(1.07); opacity:1; }
+    }
+    .eico { opacity:1; filter:drop-shadow(0 0 24px rgba(var(--accent-cyan-rgb),.55)); position:relative; z-index:1; display:block; }
+    .etit { font-family:var(--ft); font-weight:700; font-size:22px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-primary); margin-bottom:9px; position:relative; z-index:1; }
+    .ebod { font-size:13px; color:var(--text-label); line-height:1.65; position:relative; z-index:1; max-width:320px; }
+    .estag { display:inline-flex; align-items:center; gap:6px; margin-top:22px; padding:4px 13px; border-radius:100px; border:1px solid rgba(var(--accent-cyan-rgb),.14); background:rgba(var(--accent-cyan-rgb),.04); font-family:var(--ft); font-weight:600; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(var(--accent-cyan-rgb),.42); position:relative; z-index:1; }
+
+    /* detail */
+    #det { display:none; }
+    #det.show { display:block; animation:su .2s ease-out; }
+
+    .dh { margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--border-dim); }
+    .dmeta { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .dtit { font-family:var(--ft); font-weight:700; font-size:27px; letter-spacing:.04em; text-transform:uppercase; line-height:1.1; color:var(--text-primary); margin-bottom:9px; }
+    .ddesc { font-size:13px; color:var(--text-sec); line-height:1.65; max-width:640px; }
+
+    /* severity badge */
+    .sv { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.12em; text-transform:uppercase; padding:3px 8px; border-radius:3px; }
+    .sc { background:rgba(var(--sev-crit-rgb),.14); color:var(--sev-crit); border:1px solid rgba(var(--sev-crit-rgb),.32); }
+    .sh { background:rgba(var(--sev-high-rgb),.17);   color:var(--text-accent-blue);          border:1px solid rgba(var(--sev-high-rgb),.34); }
+    .sm { background:rgba(var(--sev-med-rgb),.12);  color:var(--sev-med);           border:1px solid rgba(var(--sev-med-rgb),.26); }
+    .sl { background:rgba(var(--sev-low-rgb),.13);color:var(--sev-low);    border:1px solid rgba(var(--sev-low-rgb),.26); }
+
+    /* section label */
+    .slbl { font-family:var(--ft); font-weight:600; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--text-label); margin-bottom:8px; }
+    .mts  { margin-top:22px; }
+
+    /* tools */
+    .trow { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:4px; }
+    .ttag { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.07em; text-transform:uppercase; padding:3px 9px; border-radius:3px; background:rgba(var(--sev-med-rgb),.09); color:rgba(var(--sev-med-rgb),.85); border:1px solid rgba(var(--sev-med-rgb),.19); }
+
+    /* technique grid */
+    .tgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px; margin-bottom:4px; }
+    .tcrd  { background:var(--bg-card); border:1px solid var(--border-dim); border-radius:7px; padding:12px 13px; position:relative; overflow:hidden; transition:border-color .14s; }
+    .tcrd::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .tcc::before { background:var(--sev-crit); }
+    .tch::before { background:var(--sev-high); }
+    .tcm::before { background:var(--sev-med); }
+    .tcl::before { background:var(--sev-low); }
+    .tcrd:hover { border-color:rgba(var(--accent-cyan-rgb),.22); }
+    .tid  { font-family:var(--ft); font-weight:700; font-size:12px; letter-spacing:.07em; color:var(--accent-cyan); margin-bottom:5px; }
+    .tnam { font-size:11px; color:var(--text-sec); line-height:1.45; margin-bottom:8px; }
+
+    /* detections */
+    .dlist { display:flex; flex-direction:column; gap:5px; margin-bottom:4px; }
+    .ditem { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:6px; background:var(--bg-card); border:1px solid var(--border-dim); border-left:3px solid transparent; }
+    .dc { border-left-color:var(--sev-crit); }
+    .dhi{ border-left-color:var(--sev-high); }
+    .dme{ border-left-color:var(--sev-med); }
+    .dlo{ border-left-color:var(--sev-low); }
+    .dtx { flex:1; font-size:13px; color:var(--text-sec); }
+
+    /* exec status */
+    #xs { margin-bottom:8px; }
+
+    .xi { padding:16px 18px; border-radius:8px; background:rgba(var(--accent-cyan-rgb),.025); border:1px solid rgba(var(--accent-cyan-rgb),.18); animation:xipulse 2.8s ease-in-out infinite; }
+    @keyframes xipulse {
+      0%,100% { border-color:rgba(var(--accent-cyan-rgb),.15); box-shadow:none; }
+      50%     { border-color:rgba(var(--accent-cyan-rgb),.45); box-shadow:0 0 20px rgba(var(--accent-cyan-rgb),.1),inset 0 0 28px rgba(var(--accent-cyan-rgb),.025); }
+    }
+    .xihead { display:flex; align-items:center; gap:11px; margin-bottom:13px; }
+    .xiico  { width:28px; height:28px; border-radius:50%; border:1px solid rgba(var(--accent-cyan-rgb),.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent-cyan); background:rgba(var(--accent-cyan-rgb),.07); }
+    .xilbl  { font-family:var(--ft); font-weight:700; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-sec); }
+    .xitx   { font-size:11px; color:rgba(var(--text-rgb),0.65); margin-top:2px; }
+    .xistgs { display:flex; align-items:center; flex-wrap:wrap; gap:0; }
+    .xistg-idle { display:flex; align-items:center; gap:4px; font-family:var(--ft); font-weight:600; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); white-space:nowrap; }
+    .xistg-idle+.xistg-idle { margin-left:6px; }
+    .xistg-idle+.xistg-idle::before { content:'›'; margin-right:6px; color:rgba(var(--text-rgb),.2); font-size:10px; }
+    .xidot { width:4px; height:4px; border-radius:50%; background:rgba(var(--text-rgb),.22); flex-shrink:0; }
+
+    .xr { padding:14px 16px; border-radius:7px; background:rgba(var(--sev-high-rgb),.07); border:1px solid rgba(var(--sev-high-rgb),.27); position:relative; overflow:hidden; }
+    .xr::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(var(--accent-cyan-rgb),.04),transparent); animation:sw 2.4s linear infinite; }
+    @keyframes sw { 0%{left:-100%} 100%{left:100%} }
+    .xrhd { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+    .xrlbl { font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-cyan); }
+    .xbar { height:2px; background:rgba(var(--accent-cyan-rgb),.1); border-radius:2px; overflow:hidden; margin-bottom:9px; }
+    .xbf  { height:100%; background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan)); border-radius:2px; animation:pr 1.6s ease-in-out infinite; }
+    @keyframes pr { 0%{width:0;margin-left:0} 50%{width:65%;margin-left:18%} 100%{width:0;margin-left:100%} }
+    .xstgs { display:flex; flex-direction:column; gap:4px; }
+    .xstg  { display:flex; align-items:center; gap:8px; font-size:11px; color:rgba(var(--text-rgb),0.65); }
+    .xstg.lv { color:var(--text-sec); }
+    .xpip  { width:5px; height:5px; border-radius:50%; background:var(--text-dim); flex-shrink:0; }
+    .xstg.lv .xpip { background:var(--accent-cyan); box-shadow:0 0 7px rgba(var(--accent-cyan-rgb),.7); animation:blink 1s ease-in-out infinite; }
+
+    .xok { padding:14px 16px; border-radius:7px; background:rgba(var(--accent-green-rgb),.05); border:1px solid rgba(var(--accent-green-rgb),.22); }
+    .xokhd { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .xchk { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:rgba(var(--accent-green-rgb),.13); border:1px solid rgba(var(--accent-green-rgb),.38); display:flex; align-items:center; justify-content:center; color:var(--accent-green); font-size:11px; }
+    .xoklbl { font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-green); }
+    .xokmt  { font-size:11px; color:var(--text-sec); margin-left:32px; line-height:1.6; }
+    .xcb { display:inline-flex; align-items:center; gap:6px; margin-top:11px; margin-left:32px; padding:6px 13px; background:rgba(var(--accent-cyan-rgb),.07); border:1px solid rgba(var(--accent-cyan-rgb),.28); border-radius:5px; color:var(--accent-cyan); font-size:10px; font-weight:700; letter-spacing:.12em; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .xcb:hover { background:rgba(var(--accent-cyan-rgb),.14); border-color:var(--accent-cyan); box-shadow:0 0 10px rgba(var(--accent-cyan-rgb),.18); }
+
+    .xer { padding:14px 16px; border-radius:7px; background:rgba(var(--sev-crit-rgb),.05); border:1px solid rgba(var(--sev-crit-rgb),.22); }
+    .xerhd { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .xxco  { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:rgba(var(--sev-crit-rgb),.13); border:1px solid rgba(var(--sev-crit-rgb),.38); display:flex; align-items:center; justify-content:center; color:var(--sev-crit); font-size:11px; }
+    .xerlbl{ font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--sev-crit); }
+    .xermsg{ font-size:11px; color:rgba(var(--text-rgb),0.65); margin-left:32px; }
+
+    /* right footer */
+    .rf {
+      flex-shrink:0; padding:10px 28px;
+      border-top:1px solid var(--border-dim);
+      background:rgba(var(--bg-panel-rgb),.5);
+      display:flex; justify-content:flex-end; align-items:center; gap:12px;
+    }
+    .rfhi { font-size:11px; color:rgba(var(--text-rgb),0.65); }
+    #tpb {
+      display:flex; align-items:center; gap:7px; padding:7px 15px;
+      background:transparent; border:1px solid var(--border-acc); border-radius:5px;
+      color:var(--accent-cyan); font-family:var(--ft); font-weight:600;
+      font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+      transition:background .15s, box-shadow .15s;
+    }
+    #tpb:hover:not(:disabled) { background:rgba(var(--accent-cyan-rgb),.07); box-shadow:0 0 14px rgba(var(--accent-cyan-rgb),.14); }
+    #tpb:disabled { opacity:.35; cursor:not-allowed; }
+
+    /* ============================================================
+       TALKING POINTS DRAWER
+    ============================================================ */
+    #ov {
+      position:fixed; inset:0; z-index:200;
+      background:rgba(var(--bg-deep-rgb),.62);
+      backdrop-filter:blur(5px) saturate(.8);
+      -webkit-backdrop-filter:blur(5px) saturate(.8);
+      opacity:0; visibility:hidden;
+      transition:opacity .24s, visibility .24s;
+    }
+    #ov.open { opacity:1; visibility:visible; }
+    #tpd {
+      position:fixed; top:0; right:0; bottom:0; width:380px; z-index:201;
+      background:rgba(var(--bg-panel-rgb),.97); border-left:1px solid rgba(var(--accent-cyan-rgb),.22);
+      box-shadow:-10px 0 48px rgba(0,0,0,.6);
+      display:flex; flex-direction:column;
+      transform:translateX(100%);
+      transition:transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    #tpd.open { transform:translateX(0); }
+
+    .dhdr {
+      padding:16px 18px 12px; border-bottom:1px solid rgba(var(--accent-cyan-rgb),.1);
+      flex-shrink:0; display:flex; align-items:flex-start; justify-content:space-between;
+    }
+    .dhl { display:flex; flex-direction:column; gap:5px; }
+    .seo {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:2px 7px; border-radius:3px; width:fit-content;
+      background:rgba(var(--accent-cyan-rgb),.1); border:1px solid rgba(var(--accent-cyan-rgb),.28);
+      font-family:var(--ft); font-weight:700; font-size:8px;
+      letter-spacing:.28em; text-transform:uppercase; color:var(--accent-cyan);
+    }
+    .dtitle { font-family:var(--ft); font-weight:700; font-size:16px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-primary); }
+    .dsn    { font-size:11px; color:var(--text-sec); line-height:1.4; max-width:270px; }
+    .dit    { display:inline-flex; padding:2px 8px; border-radius:3px; width:fit-content; background:rgba(var(--sev-high-rgb),.18); border:1px solid rgba(var(--sev-high-rgb),.34); font-family:var(--ft); font-weight:600; font-size:8px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-accent-blue); }
+    .dcls   { background:transparent; border:1px solid var(--border-dim); border-radius:4px; width:27px; height:27px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--text-sec); transition:all .14s; }
+    .dcls:hover { border-color:rgba(var(--accent-cyan-rgb),.28); color:var(--text-primary); }
+
+    .dbdy { flex:1; overflow-y:auto; padding:14px 18px 18px; }
+    .dbdy::-webkit-scrollbar { width:3px; }
+    .dbdy::-webkit-scrollbar-thumb { background:rgba(var(--accent-cyan-rgb),.18); }
+
+    .tpsl { font-family:var(--ft); font-weight:600; font-size:9px; letter-spacing:.26em; text-transform:uppercase; color:var(--accent-cyan); margin-bottom:9px; padding-bottom:6px; border-bottom:1px solid rgba(var(--accent-cyan-rgb),.1); }
+    .tpls { list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+    .tpli { display:flex; gap:10px; align-items:flex-start; }
+    .tpdt { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:5px; background:var(--accent-cyan); box-shadow:0 0 6px rgba(var(--accent-cyan-rgb),.55); }
+    .tptx { font-size:12px; color:var(--text-sec); line-height:1.62; }
+
+    /* runbook */
+    .rbw  { margin-top:2px; }
+    .rbt  { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:5px; background:rgba(var(--bg-deep-rgb),.55); border:1px solid var(--border-dim); cursor:pointer; transition:border-color .14s; width:100%; text-align:left; }
+    .rbt:hover { border-color:rgba(var(--accent-cyan-rgb),.2); }
+    .rbtl { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-sec); }
+    .chv  { width:12px; height:12px; color:var(--text-dim); transition:transform .18s; flex-shrink:0; }
+    .rbt.open .chv { transform:rotate(180deg); }
+    .rbb  { display:none; padding:10px 10px 6px; border:1px solid var(--border-dim); border-top:none; border-radius:0 0 5px 5px; margin-top:-1px; }
+    .rbb.open { display:block; }
+    .rbsu { font-size:11px; color:var(--text-sec); line-height:1.6; margin-bottom:10px; padding:7px 9px; background:rgba(var(--bg-deep-rgb),.5); border-left:2px solid rgba(var(--accent-cyan-rgb),.28); border-radius:0 4px 4px 0; }
+    .rbst { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .rbsi { display:flex; gap:8px; align-items:flex-start; }
+    .snum { width:18px; height:18px; border-radius:50%; flex-shrink:0; background:rgba(var(--sev-high-rgb),.18); border:1px solid rgba(var(--sev-high-rgb),.36); display:flex; align-items:center; justify-content:center; font-family:var(--ft); font-weight:700; font-size:9px; color:var(--text-accent-blue); }
+    .stx  { font-size:11px; color:var(--text-sec); line-height:1.5; padding-top:2px; }
+    .rbtm { margin-top:10px; padding:7px 9px; background:rgba(var(--accent-cyan-rgb),.04); border:1px solid rgba(var(--accent-cyan-rgb),.1); border-radius:4px; font-size:11px; color:var(--text-sec); }
+
+    /* util */
+    .fin { animation:su .18s ease-out; }
+
+    /* scenario count row */
+    .scrow { display:flex; align-items:center; justify-content:space-between; padding:6px 0 1px; min-height:18px; }
+    .sccount { font-family:var(--ft); font-size:10px; color:rgba(var(--text-rgb),0.65); letter-spacing:.04em; }
+    /* target + host check */
+    .tgtwrap { display:flex; gap:5px; align-items:stretch; }
+    .tgtwrap .ctrl { flex:1; min-width:0; }
+    .pngbtn {
+      flex-shrink:0; padding:0 9px;
+      background:rgba(var(--bg-deep-rgb),.7); border:1px solid var(--border-dim); border-radius:5px;
+      color:var(--text-sec); font-family:var(--ft); font-weight:600; font-size:9px;
+      letter-spacing:.14em; text-transform:uppercase;
+      display:flex; align-items:center; gap:5px;
+      transition:border-color .15s, color .15s; white-space:nowrap; cursor:pointer;
+    }
+    .pngbtn:hover:not(:disabled) { border-color:rgba(var(--accent-cyan-rgb),.3); color:var(--text-primary); }
+    .pngbtn:disabled { opacity:.45; cursor:not-allowed; }
+    .pngdot {
+      width:7px; height:7px; border-radius:50%; background:var(--text-dim); flex-shrink:0;
+      transition:background .25s, box-shadow .25s;
+    }
+    .pngdot.checking { background:rgba(var(--accent-cyan-rgb),.7); animation:blink 0.8s ease-in-out infinite; }
+    .pngdot.up       { background:var(--accent-green); box-shadow:0 0 6px rgba(var(--accent-green-rgb),.75); }
+    .pngdot.down     { background:var(--sev-crit); box-shadow:0 0 6px rgba(var(--sev-crit-rgb),.6); }
+
+    /* ============================================================
+       PENDING REVIEW SECTION
+    ============================================================ */
+    #pending-section {
+      flex-shrink:0; max-height:42vh; overflow-y:auto;
+      padding:8px 12px 4px;
+      border-bottom:1px solid var(--border-dim);
+    }
+    #pending-section::-webkit-scrollbar { width:3px; }
+    #pending-section::-webkit-scrollbar-thumb { background:rgba(var(--accent-green-rgb),.2); border-radius:2px; }
+    #pending-section.hidden { display:none; }
+    .pending-hdr { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+    .pending-badge {
+      font-family:var(--ft); font-weight:700; font-size:9px;
+      letter-spacing:.22em; text-transform:uppercase;
+      padding:2px 7px; border-radius:3px;
+      background:rgba(var(--accent-green-rgb),.1); color:var(--accent-green);
+      border:1px solid rgba(var(--accent-green-rgb),.28);
+    }
+    .pending-count { font-family:var(--ft); font-size:9px; color:var(--text-dim); letter-spacing:.06em; }
+    .pcard {
+      background:rgba(var(--accent-green-rgb),.04); border:1px solid rgba(var(--accent-green-rgb),.18);
+      border-radius:7px; padding:9px 11px; margin-bottom:6px;
+    }
+    .pcard-title {
+      font-family:var(--ft); font-weight:700; font-size:12px;
+      letter-spacing:.02em; text-transform:uppercase;
+      color:var(--text-primary); margin-bottom:4px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .pcard-meta { font-size:11px; color:var(--text-sec); margin-bottom:7px; line-height:1.4; }
+    .pcard-actions { display:flex; gap:5px; }
+    .pcard-approve {
+      flex:1; padding:5px 10px; border-radius:4px;
+      background:rgba(var(--accent-green-rgb),.12); border:1px solid rgba(var(--accent-green-rgb),.35);
+      color:var(--accent-green); font-family:var(--ft); font-weight:600;
+      font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+      transition:background .14s;
+    }
+    .pcard-approve:hover { background:rgba(var(--accent-green-rgb),.22); }
+    .pcard-dismiss {
+      padding:5px 10px; border-radius:4px;
+      background:transparent; border:1px solid var(--border-dim);
+      color:var(--text-dim); font-family:var(--ft); font-weight:600;
+      font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+      transition:border-color .14s, color .14s;
+    }
+    .pcard-dismiss:hover { border-color:rgba(var(--sev-crit-rgb),.4); color:var(--sev-crit); }
+
+    /* ============================================================
+       CASE WIZARD
+    ============================================================ */
+    #wizov {
+      position:fixed; inset:0; z-index:300;
+      background:rgba(var(--bg-deep-rgb),.78); backdrop-filter:blur(8px) saturate(.7);
+      -webkit-backdrop-filter:blur(8px) saturate(.7);
+      opacity:0; visibility:hidden;
+      transition:opacity .24s, visibility .24s;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    #wizov.open { opacity:1; visibility:visible; }
+    #wizd {
+      background:rgba(var(--bg-panel-rgb),.98); border:1px solid rgba(var(--accent-green-rgb),.22);
+      border-radius:12px; width:640px; max-width:100%; max-height:88vh;
+      display:flex; flex-direction:column;
+      box-shadow:0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(var(--accent-green-rgb),.07);
+      transform:translateY(16px) scale(.97);
+      transition:transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    #wizov.open #wizd { transform:none; }
+    .wiz-hdr {
+      padding:18px 22px 14px; border-bottom:1px solid rgba(var(--accent-green-rgb),.1);
+      flex-shrink:0; display:flex; align-items:flex-start; justify-content:space-between;
+    }
+    .wiz-hdr-l { display:flex; flex-direction:column; gap:4px; }
+    .wiz-eyebrow { font-family:var(--ft); font-weight:600; font-size:9px; letter-spacing:.28em; text-transform:uppercase; color:var(--accent-green); }
+    .wiz-title   { font-family:var(--ft); font-weight:700; font-size:17px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-primary); }
+    .wiz-steps   { display:flex; align-items:center; padding:14px 22px 4px; flex-shrink:0; }
+    .wstep { display:flex; align-items:center; gap:7px; }
+    .wstep-num {
+      width:22px; height:22px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--ft); font-weight:700; font-size:10px;
+      background:rgba(var(--bg-deep-rgb),.8); border:1px solid var(--border-dim);
+      color:var(--text-dim); flex-shrink:0; transition:all .2s;
+    }
+    .wstep-lbl { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); transition:color .2s; white-space:nowrap; }
+    .wstep.active .wstep-num { background:rgba(var(--accent-green-rgb),.15); border-color:rgba(var(--accent-green-rgb),.5); color:var(--accent-green); }
+    .wstep.active .wstep-lbl { color:var(--accent-green); }
+    .wstep.done .wstep-num   { background:rgba(var(--accent-green-rgb),.1);  border-color:rgba(var(--accent-green-rgb),.3);  color:var(--accent-green); }
+    .wstep.done .wstep-lbl   { color:var(--text-sec); }
+    .wstep-sep { flex:1; height:1px; background:var(--border-dim); margin:0 10px; max-width:44px; }
+    .wiz-body { flex:1; overflow-y:auto; padding:16px 22px; }
+    .wiz-body::-webkit-scrollbar { width:3px; }
+    .wiz-body::-webkit-scrollbar-thumb { background:rgba(var(--accent-green-rgb),.15); border-radius:2px; }
+    .wiz-page { display:none; }
+    .wiz-page.active { display:block; }
+    .wiz-fgrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .wiz-ff { grid-column:1/-1; }
+    .wiz-ig { display:flex; flex-direction:column; gap:5px; }
+    .wiz-lbl { font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--text-label); }
+    .wiz-textarea {
+      width:100%; min-height:76px; resize:vertical;
+      background:rgba(var(--bg-deep-rgb),.75); border:1px solid var(--border-dim);
+      border-radius:5px; padding:8px 10px;
+      color:var(--text-primary); font-family:var(--fb); font-size:13px; line-height:1.55;
+      outline:none; transition:border-color .16s;
+    }
+    .wiz-textarea:focus { border-color:rgba(var(--accent-green-rgb),.4); }
+    .wiz-textarea::placeholder { color:rgba(var(--text-rgb),0.38); }
+    .wiz-tactgrid { display:flex; flex-wrap:wrap; gap:5px; }
+    .wiz-tact {
+      padding:4px 10px; border-radius:100px; cursor:pointer;
+      font-family:var(--ft); font-weight:600; font-size:10px;
+      letter-spacing:.08em; text-transform:uppercase;
+      border:1px solid var(--border-dim); color:rgba(var(--text-rgb),0.7);
+      background:transparent; transition:all .14s;
+    }
+    .wiz-tact.on { border-color:rgba(var(--accent-green-rgb),.45); color:var(--accent-green); background:rgba(var(--accent-green-rgb),.08); }
+    .wiz-addrow { display:flex; gap:6px; align-items:center; }
+    .wiz-addrow .ctrl { flex:1; }
+    .wiz-addbtn {
+      flex-shrink:0; padding:7px 12px; border-radius:5px;
+      background:rgba(var(--bg-deep-rgb),.7); border:1px solid var(--border-dim);
+      color:var(--text-sec); font-family:var(--ft); font-weight:600;
+      font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+      transition:border-color .14s, color .14s;
+    }
+    .wiz-addbtn:hover { border-color:rgba(var(--accent-green-rgb),.3); color:var(--text-primary); }
+    /* MITRE ATT&CK Autocomplete */
+    .tech-wrap { position:relative; }
+    .tech-dd {
+      position:absolute; z-index:1200; top:calc(100% + 4px); left:0; right:0;
+      background:#0a1540; border:1px solid rgba(var(--accent-cyan-rgb),.3);
+      border-radius:6px; overflow:hidden;
+      box-shadow:0 8px 28px rgba(3,7,30,.75);
+      max-height:292px; overflow-y:auto;
+    }
+    .tech-dd::-webkit-scrollbar { width:3px; }
+    .tech-dd::-webkit-scrollbar-thumb { background:rgba(var(--accent-cyan-rgb),.2); border-radius:2px; }
+    .tech-dd-item {
+      display:flex; align-items:center; gap:8px; padding:8px 12px;
+      cursor:pointer; border-bottom:1px solid rgba(var(--accent-cyan-rgb),.07);
+      transition:background .1s;
+    }
+    .tech-dd-item:last-child { border-bottom:none; }
+    .tech-dd-item:hover, .tech-dd-item.focus { background:rgba(var(--accent-cyan-rgb),.08); }
+    .tech-dd-id {
+      flex-shrink:0; min-width:72px;
+      font-family:var(--fb); font-size:11px; font-weight:700;
+      color:var(--accent-cyan); letter-spacing:.02em;
+    }
+    .tech-dd-name {
+      flex:1; font-size:12px; color:var(--text-primary);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .tech-dd-tact {
+      flex-shrink:0; font-family:var(--ft); font-size:9px; font-weight:600;
+      letter-spacing:.08em; text-transform:uppercase; color:var(--text-label);
+      max-width:88px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .tech-dd-lab {
+      flex-shrink:0; font-family:var(--ft); font-size:9px; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase;
+      color:var(--accent-green); background:rgba(var(--accent-green-rgb),.1);
+      border:1px solid rgba(var(--accent-green-rgb),.25);
+      padding:2px 6px; border-radius:100px;
+    }
+    .wiz-chip.in-lab { background:rgba(var(--accent-green-rgb),.07); border-color:rgba(var(--accent-green-rgb),.25); color:var(--accent-green); }
+    .tech-lab-sm { font-size:9px; opacity:.8; }
+    .tech-coverage {
+      font-family:var(--ft); font-size:10px; letter-spacing:.04em;
+      padding:5px 1px 2px; min-height:18px;
+    }
+    .tech-coverage.none { color:rgba(var(--sev-crit-rgb),.9); }
+    .tech-coverage.some { color:var(--accent-cyan); }
+    .tech-coverage.all  { color:var(--accent-green); }
+    @keyframes tech-dup {
+      0%,100% { box-shadow:none; }
+      50%      { box-shadow:0 0 0 2px rgba(var(--sev-med-rgb),.7); }
+    }
+    .wiz-chip.dup-flash { animation:tech-dup .36s ease 2; }
+    .wiz-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+    .wiz-chip {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:3px 9px 3px 10px; border-radius:100px;
+      background:rgba(var(--sev-med-rgb),.09); border:1px solid rgba(var(--sev-med-rgb),.22);
+      color:var(--sev-med); font-family:var(--ft); font-weight:600; font-size:10px; letter-spacing:.05em;
+    }
+    .wiz-chip-rm { background:none; border:none; cursor:pointer; padding:0; color:rgba(var(--sev-med-rgb),.5); font-size:13px; line-height:1; transition:color .12s; }
+    .wiz-chip-rm:hover { color:var(--sev-med); }
+    .wiz-review-row { display:flex; flex-direction:column; gap:3px; padding:10px 0; border-bottom:1px solid var(--border-dim); }
+    .wiz-review-row:last-child { border-bottom:none; }
+    .wiz-review-key { font-family:var(--ft); font-weight:600; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-green); }
+    .wiz-review-val { font-size:13px; color:var(--text-primary); line-height:1.5; }
+    .wiz-review-dim { font-size:12px; color:var(--text-sec); line-height:1.5; }
+    .wiz-ftr {
+      padding:12px 22px 16px; border-top:1px solid rgba(var(--accent-green-rgb),.08);
+      flex-shrink:0; display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .wiz-back {
+      padding:8px 15px; border-radius:5px;
+      background:transparent; border:1px solid var(--border-dim);
+      color:var(--text-sec); font-family:var(--ft); font-weight:600;
+      font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+      transition:border-color .14s, color .14s;
+    }
+    .wiz-back:hover:not(:disabled) { border-color:rgba(var(--accent-cyan-rgb),.28); color:var(--text-primary); }
+    .wiz-back:disabled { opacity:.3; cursor:default; }
+    .wiz-next {
+      padding:8px 18px; border-radius:5px;
+      background:rgba(var(--accent-green-rgb),.12); border:1px solid rgba(var(--accent-green-rgb),.4);
+      color:var(--accent-green); font-family:var(--ft); font-weight:700;
+      font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+      transition:background .15s, box-shadow .15s;
+    }
+    .wiz-next:hover { background:rgba(var(--accent-green-rgb),.2); box-shadow:0 0 16px rgba(var(--accent-green-rgb),.2); }
+    .wiz-submit {
+      padding:9px 22px; border-radius:5px;
+      background:var(--accent-green); border:none;
+      color:#001a10; font-family:var(--ft); font-weight:700;
+      font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+      display:flex; align-items:center; gap:7px;
+      transition:opacity .15s, box-shadow .15s;
+    }
+    .wiz-submit:hover:not(:disabled) { opacity:.9; box-shadow:0 0 20px rgba(var(--accent-green-rgb),.35); }
+    .wiz-submit:disabled { opacity:.4; cursor:not-allowed; }
+    .wiz-submit .bsp { display:none; width:14px; height:14px; border:2px solid rgba(0,0,0,.2); border-top-color:#001a10; border-radius:50%; animation:spin .55s linear infinite; }
+    .wiz-submit.busy .bsp { display:block; }
+    .wiz-submit.busy .btx { opacity:0; }
+    .wiz-stepprog { font-size:11px; color:var(--text-dim); }
+    .wiz-section-gap { display:flex; flex-direction:column; gap:14px; }
+
+    /* ============================================================
+       ACTION BAR + INLINE ENRICH CARD
+    ============================================================ */
+    #action-section {
+      flex-shrink: 0; border-top: 1px solid var(--border-dim);
+      background: rgba(var(--bg-panel-rgb),.97);
+    }
+    .act-bar {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 7px;
+      padding: 9px 12px;
+    }
+    .act-btn {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 8px 10px; border-radius: 5px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; white-space: nowrap;
+      transition: background .15s, box-shadow .15s, border-color .15s;
+    }
+    .act-enrich {
+      background: transparent; border: 1px solid rgba(var(--accent-cyan-rgb),.36);
+      color: var(--accent-cyan);
+    }
+    .act-enrich:hover, .act-enrich.active {
+      background: rgba(var(--accent-cyan-rgb),.09);
+      box-shadow: 0 0 12px rgba(var(--accent-cyan-rgb),.15);
+      border-color: var(--accent-cyan);
+    }
+    .act-case {
+      background: transparent; border: 1px solid rgba(var(--accent-green-rgb),.42);
+      color: var(--accent-green);
+    }
+    .act-case:hover {
+      background: rgba(var(--accent-green-rgb),.09);
+      box-shadow: 0 0 12px rgba(var(--accent-green-rgb),.18);
+    }
+    #enrich-card {
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s cubic-bezier(.4,0,.2,1);
+    }
+    #enrich-card.open { max-height: 640px; }
+    .enrich-card-inner {
+      padding: 10px 12px 12px;
+      border-top: 1px solid rgba(var(--accent-cyan-rgb),.12);
+      display: flex; flex-direction: column; gap: 11px;
+    }
+    .enc-field { display: flex; flex-direction: column; gap: 4px; }
+    .enc-lbl {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--text-label);
+    }
+    .enc-req { color: var(--sev-crit); }
+    .enc-opt { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 9px; color: var(--text-dim); }
+    .enc-ta { resize: vertical; line-height: 1.5; }
+    .enc-tact-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+    .enc-tact {
+      padding: 3px 8px; border-radius: 100px; cursor: pointer;
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .07em; text-transform: uppercase;
+      border: 1px solid var(--border-dim); color: rgba(var(--text-rgb),0.7);
+      background: transparent; transition: all .13s;
+    }
+    .enc-tact:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .enc-tact.on { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(var(--accent-cyan-rgb),.08); }
+    .enc-err {
+      display: none; font-size: 11px; color: var(--sev-crit);
+      padding: 6px 8px; border-radius: 4px;
+      background: rgba(var(--sev-crit-rgb),.06); border: 1px solid rgba(var(--sev-crit-rgb),.2);
+    }
+    .enc-actions { display: flex; gap: 6px; justify-content: flex-end; padding-top: 2px; }
+    .enc-cancel-btn {
+      padding: 7px 13px; border-radius: 5px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
+      font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      transition: border-color .14s, color .14s;
+    }
+    .enc-cancel-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .enc-gen-btn {
+      padding: 7px 16px; border-radius: 5px;
+      background: rgba(var(--accent-cyan-rgb),.1); border: 1px solid rgba(var(--accent-cyan-rgb),.4);
+      color: var(--accent-cyan); font-family: var(--ft); font-weight: 700;
+      font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+      transition: background .15s, box-shadow .15s;
+    }
+    .enc-gen-btn:hover:not(:disabled) { background: rgba(var(--accent-cyan-rgb),.18); box-shadow: 0 0 14px rgba(var(--accent-cyan-rgb),.2); }
+    .enc-gen-btn:disabled { opacity: .4; cursor: not-allowed; }
+    @keyframes new-hi {
+      0%,100% { box-shadow: var(--glow-sel); }
+      50% { box-shadow: 0 0 0 2px var(--accent-cyan), 0 0 28px rgba(var(--accent-cyan-rgb),.35), inset 0 0 18px rgba(var(--accent-cyan-rgb),.07); }
+    }
+    .new-highlight { animation: new-hi 1.2s ease-in-out 2; }
+
+    /* ── NAV MENU ─────────────────────────────────────────────────────── */
+    .nav-wrap { position:relative; flex-shrink:0; }
+    .nav-dd {
+      position:absolute; top:calc(100% + 6px); right:0; min-width:218px;
+      background:rgba(var(--bg-panel-rgb),.98);
+      border:1px solid var(--border-acc); border-radius:7px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(var(--accent-cyan-rgb),.04);
+      z-index:1001; display:none; overflow:hidden;
+    }
+    @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+    .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
+    .nav-it {
+      display:flex; align-items:center; gap:9px; padding:9px 14px;
+      font-size:12px; color:rgba(var(--text-rgb),.65); letter-spacing:.02em;
+      width:100%; text-align:left; background:none; border:none;
+      cursor:pointer; transition:background .1s, color .1s; font-family:var(--fb);
+    }
+    .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.07); color:var(--text-primary); }
+    .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- =================== LEFT PANEL =================== -->
+  <aside id="lp">
+    <div class="ph">
+      <!-- Brand -->
+      <div class="brand">
+        <span class="logo-word">Sophos Adversary</span>
+        <span class="logo-tag">simulation_platform</span>
+        <div id="hdr-controls">
+          <div class="nav-wrap" id="nav-wrap">
+            <button class="arch-btn" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+            <div class="nav-dd" id="nav-dd">
+              <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+              <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
+              <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
+              <div class="nav-sep"></div>
+              <button class="nav-it" id="nav-copy-link" onclick="navCopyLink()">Copy Page Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="sw">
+        <svg class="si" width="14" height="14" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" stroke-width="1.6">
+          <circle cx="6.5" cy="6.5" r="5.2"/>
+          <path d="M10.5 10.5L14 14" stroke-linecap="round"/>
+        </svg>
+        <input id="qi" type="text" autocomplete="off"
+               placeholder="Search scenarios…">
+      </div>
+
+      <!-- Filters -->
+      <div class="fgrid">
+        <div class="frow">
+          <div class="flbl">Tactic</div>
+          <div class="chips" id="tachips"></div>
+        </div>
+      </div>
+      <div class="scrow">
+        <div id="sccount" class="sccount"></div>
+      </div>
+    </div>
+
+    <!-- Scenario list -->
+    <div id="sl"></div>
+
+    <!-- Action bar + Inline Enrich card -->
+    <div id="action-section">
+      <div class="act-bar">
+        <button class="act-btn act-enrich" id="enrich-toggle">⊕ Enrich with AI</button>
+        <button class="act-btn act-case" id="submitcasebtn">+ Submit MDR Case</button>
+      </div>
+      <div id="enrich-card">
+        <div class="enrich-card-inner">
+          <div class="enc-field">
+            <div class="enc-lbl">Scenario Name <span class="enc-req">*</span></div>
+            <input id="enc-name" type="text" class="ctrl" placeholder="e.g. Ransomware via RDP">
+          </div>
+          <div class="enc-field">
+            <div class="enc-lbl">Description</div>
+            <textarea id="enc-desc" class="ctrl enc-ta" rows="3"
+                      placeholder="Describe the attack scenario…"></textarea>
+          </div>
+          <div class="enc-field">
+            <div class="enc-lbl">MITRE Tactics</div>
+            <div class="enc-tact-grid" id="enc-tact-grid"></div>
+          </div>
+          <div class="enc-field">
+            <div class="enc-lbl">Additional Context <span class="enc-opt">optional</span></div>
+            <textarea id="enc-ctx" class="ctrl enc-ta" rows="2"
+                      placeholder="Any additional context for the AI…"></textarea>
+          </div>
+          <div class="enc-err" id="enc-err"></div>
+          <div class="enc-actions">
+            <button class="enc-cancel-btn" id="enc-cancel">Cancel</button>
+            <button class="enc-gen-btn" id="enc-generate">✨ Generate Scenario</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer controls -->
+    <div class="pf">
+      <div class="fpg">
+        <div class="ig ff">
+          <div class="ilbl">Target</div>
+          <div class="tgtwrap">
+            <input id="tgt" type="text" class="ctrl" placeholder="IP address or hostname">
+            <button class="pngbtn" id="pngb" title="Check host reachability">
+              <div class="pngdot" id="pngdot"></div>Check
+            </button>
+          </div>
+        </div>
+        <div class="ig">
+          <div class="ilbl">Platform</div>
+          <select id="plt" class="ctrl">
+            <option value="windows">Windows</option>
+            <option value="linux">Linux</option>
+          </select>
+        </div>
+        <div class="ig">
+          <div class="ilbl">Industry</div>
+          <select id="ind" class="ctrl">
+            <option value="universal">Universal</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="financial_services">Financial Services</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="retail">Retail</option>
+          </select>
+        </div>
+      </div>
+      <button id="lbtn" disabled>
+        <div class="bsp"></div>
+        <span class="btx">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
+            <polygon points="3,2 13,7 3,12"/>
+          </svg>
+          Launch Simulation
+        </span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- =================== RIGHT PANEL =================== -->
+  <main id="rp">
+    <div class="rs" id="rs">
+
+      <!-- Empty state -->
+      <div id="es">
+        <div class="esshield">
+          <div class="esring esring1"></div>
+          <div class="esring esring2"></div>
+          <div class="esring esring3"></div>
+          <svg class="eico" width="72" height="82" viewBox="0 0 72 82" fill="none"
+               stroke="rgba(var(--accent-cyan-rgb),1)" stroke-width="1.4">
+            <path d="M36 4 L66 16 L66 38 C66 56 52 70 36 78 C20 70 6 56 6 38 L6 16 Z"/>
+            <path d="M24 40 L33 50 L50 30" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="etit">Select a Scenario</div>
+        <div class="ebod">
+          Choose an attack scenario from the panel on the left<br>
+          to view MITRE ATT&amp;CK mappings, expected detections,<br>
+          and launch the simulation.
+        </div>
+        <div class="estag">
+          <div class="ldot" style="width:5px;height:5px;animation-duration:3.2s"></div>
+          Sophos MDR Simulation Platform
+        </div>
+      </div>
+
+      <!-- Detail view -->
+      <div id="det">
+        <div class="dh">
+          <div class="dmeta" id="dmeta"></div>
+          <div class="dtit"  id="dtit"></div>
+          <div class="ddesc" id="ddesc"></div>
+        </div>
+
+        <div id="toolsec">
+          <div class="slbl">Tools &amp; TTPs</div>
+          <div class="trow" id="trow"></div>
+        </div>
+
+        <div class="mts">
+          <div class="slbl">MITRE ATT&amp;CK Techniques</div>
+          <div class="tgrid" id="tgrid"></div>
+        </div>
+
+        <div class="mts">
+          <div class="slbl">Expected Detections</div>
+          <div class="dlist" id="dlist"></div>
+        </div>
+
+        <div class="mts">
+          <div class="slbl">Execution Status</div>
+          <div id="xs"></div>
+        </div>
+      </div>
+
+    </div><!-- /rs -->
+
+    <div class="rf">
+      <button id="tpb" disabled>
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
+             stroke="currentColor" stroke-width="1.5">
+          <circle cx="7" cy="7" r="5.5"/>
+          <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
+        </svg>
+        Show Talking Points
+      </button>
+    </div>
+  </main>
+
+  <!-- =================== DRAWER =================== -->
+  <div id="ov"></div>
+  <div id="tpd">
+    <div class="dhdr">
+      <div class="dhl">
+        <div class="seo">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
+            <path d="M4 0L5.1 2.9H8L5.5 4.7L6.5 7.6L4 5.8L1.5 7.6L2.5 4.7L0 2.9H2.9Z"/>
+          </svg>
+          SE Only
+        </div>
+        <div class="dtitle">Talking Points</div>
+        <div class="dsn" id="dsn"></div>
+        <div class="dit" id="dit"></div>
+      </div>
+      <button class="dcls" id="dcls">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M1 1l8 8M9 1L1 9"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dbdy" id="dbdy"></div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- =================== SUBMIT CASE WIZARD =================== -->
+<div id="wizov">
+  <div id="wizd">
+    <!-- Header -->
+    <div class="wiz-hdr">
+      <div class="wiz-hdr-l">
+        <div class="wiz-eyebrow">MDR Analyst Portal</div>
+        <div class="wiz-title">Submit Attack Case</div>
+      </div>
+      <button class="dcls" id="wizcls">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M1 1l8 8M9 1L1 9"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="wiz-steps">
+      <div class="wstep active" data-step="1">
+        <div class="wstep-num">1</div>
+        <div class="wstep-lbl">Case Basics</div>
+      </div>
+      <div class="wstep-sep"></div>
+      <div class="wstep" data-step="2">
+        <div class="wstep-num">2</div>
+        <div class="wstep-lbl">Attack Details</div>
+      </div>
+      <div class="wstep-sep"></div>
+      <div class="wstep" data-step="3">
+        <div class="wstep-num">3</div>
+        <div class="wstep-lbl">Review &amp; Submit</div>
+      </div>
+    </div>
+
+    <!-- Wizard body -->
+    <div class="wiz-body">
+
+      <!-- Step 1: Case Basics -->
+      <div class="wiz-page active" id="wizp1">
+        <div class="wiz-fgrid">
+          <div class="wiz-ig wiz-ff">
+            <div class="wiz-lbl">Case Title <span style="color:var(--sev-crit)">*</span></div>
+            <input id="wiz-title" type="text" class="ctrl"
+                   placeholder="e.g. BianLian Ransomware via RDP Brute Force">
+          </div>
+          <div class="wiz-ig wiz-ff">
+            <div class="wiz-lbl">Description <span style="color:var(--sev-crit)">*</span></div>
+            <textarea id="wiz-desc" class="wiz-textarea"
+                      placeholder="Describe what happened — attacker TTPs, impact, timeline…"></textarea>
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Threat Actor</div>
+            <input id="wiz-actor" type="text" class="ctrl" placeholder="e.g. UNC4736, LockBit, Unknown">
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Case Source</div>
+            <select id="wiz-source" class="ctrl">
+              <option value="Customer Incident">Customer Incident</option>
+              <option value="Threat Intel">Threat Intel</option>
+              <option value="Red Team Exercise">Red Team Exercise</option>
+              <option value="Public Report">Public Report</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Submitter Name</div>
+            <input id="wiz-submitter" type="text" class="ctrl" placeholder="Your name">
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Target Industry</div>
+            <select id="wiz-industry" class="ctrl">
+              <option value="universal">Universal</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="financial_services">Financial Services</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="retail">Retail</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Attack Details -->
+      <div class="wiz-page" id="wizp2">
+        <div class="wiz-section-gap">
+          <div class="wiz-ig">
+            <div class="wiz-lbl">MITRE Tactics Observed</div>
+            <div class="wiz-tactgrid" id="wiz-tactgrid"></div>
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Techniques (T-Codes)</div>
+            <div class="tech-wrap">
+              <input id="wiz-techin" type="text" class="ctrl" placeholder="Search by T-code or technique name…" autocomplete="off">
+              <div class="tech-dd" id="tech-dd" style="display:none"></div>
+            </div>
+            <div class="wiz-chips" id="wiz-techchips"></div>
+            <div class="tech-coverage" id="tech-coverage"></div>
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Tools / Malware Observed</div>
+            <div class="wiz-addrow">
+              <input id="wiz-toolin" type="text" class="ctrl" placeholder="e.g. Cobalt Strike, Mimikatz">
+              <button class="wiz-addbtn" id="wiz-toolbtn">+ Add</button>
+            </div>
+            <div class="wiz-chips" id="wiz-toolchips"></div>
+          </div>
+          <div class="wiz-ig">
+            <div class="wiz-lbl">Additional Context</div>
+            <textarea id="wiz-context" class="wiz-textarea" style="min-height:64px"
+                      placeholder="Persistence mechanisms, C2 infrastructure, exfiltration targets…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review & Submit -->
+      <div class="wiz-page" id="wizp3">
+        <div id="wiz-review-content"></div>
+      </div>
+
+    </div><!-- /wiz-body -->
+
+    <!-- Footer -->
+    <div class="wiz-ftr">
+      <button class="wiz-back" id="wiz-back" disabled>← Back</button>
+      <span class="wiz-stepprog" id="wiz-stepprog">Step 1 of 3</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="wiz-next" id="wiz-next">Next →</button>
+        <button class="wiz-submit" id="wiz-submit" style="display:none">
+          <div class="bsp"></div><span class="btx">Submit Case</span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /wizd -->
+</div><!-- /wizov -->
+
+<script>
+  /* =====================================================
+     CONSTANTS
+  ===================================================== */
+  const BASE_URL   = `http://${window.location.hostname}`;
+  const WH         = `${BASE_URL}:5678/webhook/scenario-enrich`;
+  // Unique session ID — ephemeral scenarios generated this session are tagged with it
+  const SESSION_ID = sessionStorage.getItem('mdr_session_id') || (() => {
+    const id = 'ses-' + Math.random().toString(36).slice(2,10);
+    sessionStorage.setItem('mdr_session_id', id);
+    return id;
+  })();
+  const HC         = `${BASE_URL}:5678/webhook/host-check`;
+  const SU         = '/scenarios.json';
+  const CASE_WH    = `${BASE_URL}:5678/webhook/case-ingest`;
+  const APPROVE_WH = `${BASE_URL}:5678/webhook/scenario-approve`;
+
+  /* =====================================================
+     STATE
+  ===================================================== */
+  const S = {
+    all: [], filt: [], sel: null,
+    xs: 'idle',   // idle|running|complete|error
+    xr: null, xe: null,
+    drawer: false, enriching: false, enrichCard: false,
+    fl: { ta: new Set() },
+    q: '', ind: 'universal', plt: 'windows', tgt: ''
+  };
+
+  /* =====================================================
+     WIZARD STATE
+  ===================================================== */
+  const WIZ_TACTICS = [
+    'Initial Access','Execution','Persistence','Privilege Escalation',
+    'Defense Evasion','Credential Access','Discovery','Lateral Movement',
+    'Collection','Command and Control','Exfiltration','Impact','Reconnaissance'
+  ];
+
+  const WC = {
+    step:1, title:'', desc:'', actor:'', source:'Customer Incident',
+    submitter:'', industry:'universal',
+    tactics: new Set(), techniques:[], techniquesDetail:[], tools:[], context:''
+  };
+
+  /* =====================================================
+     MITRE ATT&CK DATA (loaded async at init)
+  ===================================================== */
+  let MITRE_DATA = [];
+  const TECH_DEFAULTS = ['T1566.001','T1059.001','T1078','T1003.001','T1057','T1082','T1486','T1547.001'];
+
+  /* =====================================================
+     TACTIC → SEVERITY
+  ===================================================== */
+  const TS = {
+    'Credential Access':'critical','Initial Access':'critical',
+    'Exfiltration':'critical','Impact':'critical',
+    'Execution':'high','Persistence':'high',
+    'Privilege Escalation':'high','Lateral Movement':'high',
+    'Command and Control':'high',
+    'Defense Evasion':'medium','Collection':'medium','Discovery':'medium','Reconnaissance':'medium'
+  };
+  const SO = ['critical','high','medium','low'];
+
+  function ssev(tactics) {
+    if (!tactics || !tactics.length) return 'medium';
+    let b = 'low';
+    for (const t of tactics) {
+      const s = TS[t] || 'medium';
+      if (SO.indexOf(s) < SO.indexOf(b)) b = s;
+    }
+    return b;
+  }
+
+  /* =====================================================
+     NORMALIZE TECHNIQUES
+     objects: {id, name}  |  strings: "T1003.001"
+  ===================================================== */
+  const nt = t => typeof t === 'string' ? { id: t, name: null } : t;
+
+  /* =====================================================
+     INIT
+  ===================================================== */
+  async function init() {
+    skelList(5);
+    try {
+      const r = await fetch(SU);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      const now = new Date();
+      // Show: approved scenarios + ephemeral from this session (not expired)
+      S.all = (d.scenarios || []).filter(s => {
+        if (s.hidden) return false;
+        if (s.status === 'approved') return true;
+        if (s.status === 'ephemeral') {
+          // Only show ephemeral if it belongs to this session or hasn't expired
+          if (s.session_id && s.session_id !== SESSION_ID) return false;
+          if (s.expires_at && new Date(s.expires_at) < now) return false;
+          return true;
+        }
+        return false; // pending/expired not shown in SE console
+      });
+      S.filt = [...S.all];
+      buildChips();
+      renderList();
+    } catch (e) {
+      $('sl').innerHTML = `<div class="lempty"><strong>Load Failed</strong>
+        Could not fetch scenarios.json<br>
+        <span style="color:var(--sev-crit);font-size:10px">${x(e.message)}</span></div>`;
+    }
+  }
+
+  /* =====================================================
+     MITRE ATT&CK AUTOCOMPLETE
+  ===================================================== */
+  async function loadMitreData() {
+    try {
+      const r = await fetch('mitre-attack.json');
+      if (!r.ok) return;
+      MITRE_DATA = await r.json();
+    } catch { /* offline — autocomplete disabled */ }
+  }
+
+  function techSearch(q) {
+    if (!MITRE_DATA.length) return [];
+    q = q.trim();
+    if (!q) {
+      return TECH_DEFAULTS
+        .map(id => MITRE_DATA.find(t => t.id === id))
+        .filter(Boolean);
+    }
+    const lq = q.toLowerCase();
+    const seen = new Set();
+    const out = [];
+    const add = t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(t); } };
+    MITRE_DATA.filter(t => t.id.toLowerCase() === lq).forEach(add);
+    MITRE_DATA.filter(t => t.id.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().includes(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.description.toLowerCase().includes(lq)).forEach(add);
+    return out.slice(0, 8);
+  }
+
+  function showTechDd(items) {
+    const dd = $('tech-dd');
+    if (!items || !items.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = items.map(t =>
+      `<div class="tech-dd-item" data-id="${x(t.id)}">
+         <span class="tech-dd-id">${x(t.id)}</span>
+         <span class="tech-dd-name">${x(t.name)}</span>
+         <span class="tech-dd-tact">${x(t.tactic)}</span>
+         ${t.in_lab ? '<span class="tech-dd-lab">in lab</span>' : ''}
+       </div>`
+    ).join('');
+    dd.style.display = '';
+    dd.querySelectorAll('.tech-dd-item').forEach(el => {
+      el.addEventListener('mousedown', e => {
+        e.preventDefault();
+        const item = MITRE_DATA.find(t => t.id === el.dataset.id);
+        if (item) selectTech(item);
+      });
+    });
+  }
+
+  function hideTechDd() {
+    const dd = $('tech-dd');
+    if (dd) { dd.style.display = 'none'; }
+  }
+
+  function selectTech(item) {
+    if (WC.techniques.includes(item.id)) {
+      const chips = $('wiz-techchips');
+      const existing = chips ? chips.querySelector(`[data-techid="${item.id}"]`) : null;
+      if (existing) {
+        existing.classList.remove('dup-flash');
+        void existing.offsetWidth;
+        existing.classList.add('dup-flash');
+        existing.addEventListener('animationend', () => existing.classList.remove('dup-flash'), {once:true});
+      }
+      hideTechDd();
+      $('wiz-techin').value = '';
+      return;
+    }
+    WC.techniques.push(item.id);
+    WC.techniquesDetail.push({id:item.id, name:item.name, tactic:item.tactic, in_lab:item.in_lab});
+    hideTechDd();
+    $('wiz-techin').value = '';
+    renderTechChips();
+    updateCoverage();
+  }
+
+  function removeTech(id) {
+    const idx = WC.techniques.indexOf(id);
+    if (idx > -1) { WC.techniques.splice(idx, 1); WC.techniquesDetail.splice(idx, 1); }
+    renderTechChips();
+    updateCoverage();
+  }
+
+  function renderTechChips() {
+    const el = $('wiz-techchips');
+    if (!el) return;
+    el.innerHTML = WC.techniques.map((id, i) => {
+      const det = WC.techniquesDetail[i] || {};
+      return `<span class="wiz-chip${det.in_lab ? ' in-lab' : ''}" data-techid="${x(id)}">`
+           + `${x(id)}${det.in_lab ? '<span class="tech-lab-sm"> ✓</span>' : ''}`
+           + `<button class="wiz-chip-rm" data-techid="${x(id)}">×</button></span>`;
+    }).join('');
+    el.querySelectorAll('.wiz-chip-rm').forEach(b =>
+      b.addEventListener('click', () => removeTech(b.dataset.techid))
+    );
+  }
+
+  function updateCoverage() {
+    const el = $('tech-coverage');
+    if (!el) return;
+    if (!WC.techniques.length) { el.textContent = ''; el.className = 'tech-coverage'; return; }
+    const labCount = WC.techniquesDetail.filter(t => t.in_lab).length;
+    if (labCount === WC.techniques.length) {
+      el.textContent = `✓ All ${labCount} technique${labCount > 1 ? 's' : ''} covered in this demo lab`;
+      el.className = 'tech-coverage all';
+    } else if (labCount > 0) {
+      el.textContent = `${labCount} of ${WC.techniques.length} techniques present in lab`;
+      el.className = 'tech-coverage some';
+    } else {
+      el.textContent = 'No selected techniques are in this lab\'s scenario library';
+      el.className = 'tech-coverage none';
+    }
+  }
+
+  /* =====================================================
+     FILTER CHIPS
+  ===================================================== */
+  function buildChips() {
+    const ta = [...new Set(S.all.flatMap(s => s.mitre_tactics||[]))].sort();
+    $('tachips').innerHTML = ta.map(t =>
+      `<button class="chip" data-ta="${x(t)}">${x(t)}</button>`).join('');
+    qa('#tachips .chip').forEach(c =>
+      c.addEventListener('click', () => tog('ta', c.dataset.ta, '#tachips', 'data-ta')));
+  }
+
+  function tog(key, val, sel, attr) {
+    const s = S.fl[key];
+    if (s.has(val)) s.delete(val); else s.add(val);
+    qa(sel + ' .chip').forEach(c => c.classList.remove('on'));
+    s.forEach(v => qs(`${sel} .chip[${attr}="${v}"]`)?.classList.add('on'));
+    filt();
+  }
+
+  function filt() {
+    let f = [...S.all];
+    if (S.q) {
+      const q = S.q.toLowerCase();
+      f = f.filter(s =>
+        (s.title||'').toLowerCase().includes(q) ||
+        (s.description||'').toLowerCase().includes(q) ||
+        (s.mitre_tactics||[]).some(t => t.toLowerCase().includes(q)) ||
+        (s.tools||[]).some(t => t.toLowerCase().includes(q))
+      );
+    }
+    if (S.fl.ta.size) f = f.filter(s => (s.mitre_tactics||[]).some(t => S.fl.ta.has(t)));
+    S.filt = f;
+    renderList();
+  }
+
+  /* =====================================================
+     RENDER LIST
+  ===================================================== */
+  function skelList(n) {
+    $('sl').innerHTML = Array(n).fill(0).map(() => `
+      <div class="skc">
+        <div style="display:flex;gap:5px;margin-bottom:7px">
+          <div class="sk" style="width:82px;height:16px;border-radius:100px"></div>
+          <div class="sk" style="width:46px;height:16px;border-radius:100px"></div>
+        </div>
+        <div class="sk" style="width:78%;height:10px"></div>
+      </div>`).join('');
+  }
+
+  function renderList() {
+    const countEl = $('sccount');
+    if (countEl && S.all.length) {
+      countEl.textContent = S.filt.length === S.all.length
+        ? `${S.all.length} scenario${S.all.length !== 1 ? 's' : ''}`
+        : `Showing ${S.filt.length} of ${S.all.length} scenarios`;
+    }
+    const ec = S.enriching
+      ? `<div class="encard"><div class="ensp"></div><div class="enlbl">Enriching via Ollama AI…</div></div>`
+      : '';
+    if (!S.filt.length && !S.enriching) {
+      $('sl').innerHTML = ec + `
+        <div class="lempty">
+          <strong>No Matches</strong>
+          ${S.q ? `Nothing found for "<em>${x(S.q)}</em>"` : 'No scenarios match these filters'}
+        </div>`;
+      return;
+    }
+    $('sl').innerHTML = ec + S.filt.map((s, i) => {
+      const sel = S.sel && S.sel.id === s.id;
+      const ai  = s.source === 'ollama-enriched' || s.source === 'se-enrichment';
+      const eph = s.status === 'ephemeral';
+      const ta  = (s.mitre_tactics||[]).slice(0, 2);
+      const au  = s.audience || 'Technical';
+      const ac  = au === 'Executive' ? 'dexec' : 'dm';
+      const eng = s.execution_engine || 'atomic';
+      return `
+        <div class="scard${sel?' sel':''}" data-id="${x(s.id)}"
+             style="animation-delay:${i*26}ms" onclick="pick('${x(s.id)}')">
+          <div class="cbadges">
+            ${ta.map(t=>`<span class="tbadge">${x(t)}</span>`).join('')}
+            <span class="dpill ${ac}">${x(au)}</span>
+            ${ai?`<span class="aitag">AI</span>`:''}
+            ${eph?`<span class="aitag" style="background:rgba(var(--accent-cyan-rgb),.1);color:var(--accent-cyan);border-color:rgba(var(--accent-cyan-rgb),.3)">Session</span>`:''}
+            <span class="etag">${x(eng)}</span>
+          </div>
+          <div class="ctitle">${x(s.title||'Untitled')}</div>
+          ${eph?`<button class="pcard-approve" style="margin-top:5px;font-size:9px;padding:3px 8px" onclick="submitForReview('${x(s.id)}',event)">⊕ Submit for Review</button>`:''}
+        </div>`;
+    }).join('');
+  }
+
+  /* =====================================================
+     SELECT SCENARIO
+  ===================================================== */
+  function pick(id) {
+    const s = S.all.find(a => a.id === id);
+    if (!s) return;
+    S.sel = s; S.xs = 'idle'; S.xr = null; S.xe = null;
+    qa('.scard').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+    $('lbtn').disabled = false;
+    $('tpb').disabled = false;
+    renderDet(s);
+    if (S.drawer) closeDr();
+  }
+
+  /* =====================================================
+     RENDER DETAIL
+  ===================================================== */
+  const SEVC = { critical:'sc', high:'sh', medium:'sm', low:'sl' };
+  const STCC = { critical:'tcc', high:'tch', medium:'tcm', low:'tcl' };
+  const DETC = { critical:'dc', high:'dhi', medium:'dme', low:'dlo' };
+
+  function renderDet(s) {
+    $('es').style.display = 'none';
+    $('det').classList.add('show');
+
+    const sev = ssev(s.mitre_tactics);
+    const ai  = s.source === 'ollama-enriched';
+    const au  = s.audience || 'Technical';
+    const ac  = au === 'Executive' ? 'dexec' : 'dm';
+
+    $('dmeta').innerHTML =
+      (s.mitre_tactics||[]).map(t=>`<span class="tbadge">${x(t)}</span>`).join('') +
+      `<span class="sv ${SEVC[sev]||'sm'}">${sev}</span>` +
+      `<span class="dpill ${ac}">${x(au)}</span>` +
+      (ai ? `<span class="aitag">AI Enriched</span>` : '');
+
+    $('dtit').textContent  = s.title || 'Untitled';
+    $('ddesc').textContent = s.description || '';
+
+    const tools = s.tools || [];
+    const ts = $('toolsec');
+    if (tools.length) {
+      ts.style.display = '';
+      $('trow').innerHTML = tools.map(t=>`<span class="ttag">${x(t)}</span>`).join('');
+    } else { ts.style.display = 'none'; }
+
+    const techs = (s.mitre_techniques||[]).map(nt);
+    $('tgrid').innerHTML = techs.length
+      ? techs.map(t=>`
+          <div class="tcrd ${STCC[sev]||'tcm'} fin">
+            <div class="tid">${x(t.id)}</div>
+            ${t.name?`<div class="tnam">${x(t.name)}</div>`:''}
+            <span class="sv ${SEVC[sev]||'sm'}" style="font-size:8px">${sev}</span>
+          </div>`).join('')
+      : `<div style="color:var(--text-dim);font-size:12px;padding:4px 0">No technique data.</div>`;
+
+    const dets = s.expected_detections || [];
+    $('dlist').innerHTML = dets.length
+      ? dets.map(d => {
+          const ds = (d.severity||'medium').toLowerCase();
+          return `<div class="ditem ${DETC[ds]||'dme'} fin">
+            <span class="sv ${SEVC[ds]||'sm'}">${ds}</span>
+            <span class="dtx">${x(d.detection)}</span>
+          </div>`;
+        }).join('')
+      : `<div style="color:var(--text-dim);font-size:12px;padding:4px 0">No detection data.</div>`;
+
+    renderXS();
+    $('rs').scrollTop = 0;
+  }
+
+  /* =====================================================
+     EXECUTION STATUS
+  ===================================================== */
+  function renderXS() {
+    const el  = $('xs');
+    const eng = S.sel ? (S.sel.execution_engine||'atomic') : 'atomic';
+
+    if (S.xs === 'idle') {
+      el.innerHTML = `
+        <div class="xi">
+          <div class="xihead">
+            <div class="xiico">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor">
+                <polygon points="2,2 12,7 2,12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="xilbl">Ready to Launch</div>
+              <div class="xitx">Configure target below and hit Launch</div>
+            </div>
+          </div>
+          <div class="xistgs">
+            <span class="xistg-idle"><div class="xidot"></div>Initializing</span>
+            <span class="xistg-idle"><div class="xidot"></div>Deploying Agent</span>
+            <span class="xistg-idle"><div class="xidot"></div>Executing Techniques</span>
+            <span class="xistg-idle"><div class="xidot"></div>Complete</span>
+          </div>
+        </div>`;
+
+    } else if (S.xs === 'running') {
+      const stgs = getStgs(eng);
+      el.innerHTML = `
+        <div class="xr">
+          <div class="xrhd"><div class="ldot"></div><div class="xrlbl">Dispatching Simulation</div></div>
+          <div class="xbar"><div class="xbf"></div></div>
+          <div class="xstgs" id="stglist">
+            ${stgs.map((s,i)=>`
+              <div class="xstg${i===0?' lv':''}" data-i="${i}">
+                <div class="xpip"></div><span>${x(s)}</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      animStgs();
+
+    } else if (S.xs === 'complete') {
+      const sid = S.xr && S.xr.scenario_id ? S.xr.scenario_id : (S.sel ? S.sel.id : '—');
+      el.innerHTML = `
+        <div class="xok fin">
+          <div class="xokhd"><div class="xchk">✓</div><div class="xoklbl">Simulation Dispatched</div></div>
+          <div class="xokmt">
+            Scenario <strong>${x(sid)}</strong> · ${x(S.plt)} · ${new Date().toLocaleTimeString()}<br>
+            ${S.tgt?`Target: <strong>${x(S.tgt)}</strong> · `:''}Industry: ${x(S.ind)}
+          </div>
+          <button class="xcb" onclick="openConsole()">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="1" y="1" width="10" height="10" rx="1.5"/><path d="M4 4l4 2-4 2"/></svg>
+            Open Attack Console
+          </button>
+        </div>`;
+
+    } else if (S.xs === 'error') {
+      el.innerHTML = `
+        <div class="xer fin">
+          <div class="xerhd"><div class="xxco">✕</div><div class="xerlbl">Launch Failed</div></div>
+          <div class="xermsg">${x(S.xe||'Could not reach webhook. Is n8n running?')}</div>
+        </div>`;
+    }
+  }
+
+  const STGMAP = {
+    atomic:      ['Loading Atomic Red Team definitions','Staging payload on target endpoint','Executing test sequence','Collecting execution telemetry'],
+    caldera:     ['Connecting to CALDERA C2 server','Deploying adversary ability to agent','Monitoring execution chain','Reporting to adversary profile'],
+    'multi-stage':['Initializing multi-stage orchestration','Stage 1 — initial access','Stage 2 — lateral movement','Stage 3 — objective execution']
+  };
+  function getStgs(eng) {
+    return ['Validating scenario configuration','Authenticating with controller',
+            ...(STGMAP[eng]||STGMAP.atomic)];
+  }
+  function animStgs() {
+    const ss = qa('#stglist .xstg'); if (!ss.length) return;
+    let i = 0;
+    const iv = setInterval(() => {
+      ss.forEach(s => s.classList.remove('lv'));
+      if (i < ss.length) { ss[i].classList.add('lv'); i++; }
+      else clearInterval(iv);
+    }, 650);
+  }
+
+  /* =====================================================
+     LAUNCH  — calls CALDERA directly via nginx proxy
+  ===================================================== */
+  const CALDERA_KEY     = 'MDRLABRED';
+  const CALDERA_PLANNER = '788107d5-dc1e-4204-9269-38df0186d3e7'; // batch
+  const CALDERA_PROXY   = '/caldera';
+
+  async function launch() {
+    if (!S.sel) return;
+    const btn = $('lbtn');
+    btn.disabled = true; btn.classList.add('busy');
+    S.xs = 'running'; renderXS();
+
+    const adversary_id = S.sel.caldera_adversary_id;
+    if (!adversary_id) {
+      S.xe = 'No CALDERA adversary configured for this scenario.';
+      S.xs = 'error';
+      btn.disabled = false; btn.classList.remove('busy'); renderXS();
+      return;
+    }
+
+    const group = S.sel.caldera_group || 'red';
+
+    try {
+      // 1. Find an active agent in the target group
+      const agR = await fetch(`${CALDERA_PROXY}/api/v2/agents`, {
+        headers: { 'KEY': CALDERA_KEY }
+      });
+      if (!agR.ok) throw new Error(`CALDERA agents API returned ${agR.status}`);
+      const agents = await agR.json();
+      const agent  = agents.find(a => a.group === group && a.trusted);
+      if (!agent) throw new Error(`No active agent found in group "${group}". Deploy a sandcat agent first.`);
+
+      // 2. Create the operation
+      const opR = await fetch(`${CALDERA_PROXY}/api/v2/operations`, {
+        method:  'POST',
+        headers: { 'KEY': CALDERA_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:                `${S.sel.title || S.sel.id} — Demo`,
+          adversary:           { adversary_id },
+          planner:             { id: CALDERA_PLANNER },
+          group,
+          state:               'running',
+          autonomous:          1,
+          obfuscator:          'plain-text',
+          use_learning_parsers: true
+        })
+      });
+      if (!opR.ok) throw new Error(`CALDERA operation create returned ${opR.status}`);
+      const op = await opR.json();
+
+      S.xr = { operation_id: op.id, agent_paw: agent.paw, scenario_id: S.sel.id };
+      S.xs = 'complete';
+    } catch (e) { S.xe = e.message; S.xs = 'error'; }
+    finally { btn.disabled = false; btn.classList.remove('busy'); renderXS(); }
+  }
+
+  function openConsole() {
+    const r  = S.xr || {};
+    const ps = new URLSearchParams();
+    if (r.operation_id) ps.set('operation_id',  r.operation_id);
+    if (r.agent_paw)    ps.set('agent_paw',     r.agent_paw);
+    if (S.tgt)          ps.set('victim_ip',     S.tgt);
+    if (S.sel)          ps.set('scenario_name', S.sel.name || S.sel.id);
+    window.open(`/console.html?${ps}`, '_blank');
+  }
+
+  /* =====================================================
+     SUBMIT EPHEMERAL FOR REVIEW
+  ===================================================== */
+  async function submitForReview(id, e) {
+    if (e) e.stopPropagation();
+    const s = S.all.find(a => a.id === id);
+    if (!s) return;
+    try {
+      await fetch(CASE_WH, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ ...s, action: 'submit_for_review', submitted_from: 'se-console' })
+      });
+    } catch { /* offline */ }
+    showToast('Submitted for admin review');
+  }
+
+  /* =====================================================
+     HOST CHECK
+  ===================================================== */
+  async function checkHost() {
+    const host = S.tgt.trim();
+    if (!host) return;
+    const dot = $('pngdot');
+    const btn = $('pngb');
+    dot.className = 'pngdot checking';
+    btn.disabled = true;
+    try {
+      const r = await fetch(HC, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ target: host }),
+        signal: AbortSignal.timeout(8000)
+      });
+      const d = await r.json();
+      dot.className = 'pngdot ' + (d.reachable ? 'up' : 'down');
+    } catch {
+      dot.className = 'pngdot down';
+    } finally {
+      btn.disabled = false;
+      setTimeout(() => { const d = $('pngdot'); if (d) d.className = 'pngdot'; }, 7000);
+    }
+  }
+
+  /* =====================================================
+     DRAWER
+  ===================================================== */
+  const IND_LBL = {
+    universal:'Universal', healthcare:'Healthcare',
+    financial_services:'Financial Services',
+    manufacturing:'Manufacturing', retail:'Retail'
+  };
+
+  function openDr() {
+    if (!S.sel) return;
+    const s = S.sel;
+    const tp = (s.talking_points && s.talking_points[S.ind])
+            || (s.talking_points && s.talking_points['universal']) || [];
+
+    $('dsn').textContent = s.title || '';
+    $('dit').textContent = (IND_LBL[S.ind]||S.ind) + ' talking points';
+
+    let h = '';
+    if (tp.length) {
+      h += `<div class="tpsl">Key Talking Points</div>
+            <ul class="tpls">
+              ${tp.map(p=>`<li class="tpli"><div class="tpdt"></div><div class="tptx">${x(p)}</div></li>`).join('')}
+            </ul>`;
+    } else {
+      h += `<div class="lempty" style="padding:12px 0"><strong>No Talking Points</strong>None available for ${x(IND_LBL[S.ind]||S.ind)}.</div>`;
+    }
+
+    const rb = s.se_runbook;
+    if (rb) {
+      h += `<div class="rbw">
+        <button class="rbt" id="rbt">
+          <span class="rbtl">SE Runbook</span>
+          <svg class="chv" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l5 5 5-5"/></svg>
+        </button>
+        <div class="rbb" id="rbb">
+          ${rb.setup?`<div class="rbsu">${x(rb.setup)}</div>`:''}
+          ${rb.steps&&rb.steps.length?`<ol class="rbst">${rb.steps.map((s,i)=>`
+            <li class="rbsi"><div class="snum">${i+1}</div><div class="stx">${x(s)}</div></li>`).join('')}</ol>`:''}
+          ${rb.talking_points_timing?`<div class="rbtm">⏱ ${x(rb.talking_points_timing)}</div>`:''}
+        </div>
+      </div>`;
+    }
+
+    $('dbdy').innerHTML = h;
+    const tog = $('rbt');
+    if (tog) tog.addEventListener('click', () => {
+      tog.classList.toggle('open'); $('rbb').classList.toggle('open');
+    });
+
+    S.drawer = true;
+    $('ov').classList.add('open');
+    $('tpd').classList.add('open');
+  }
+
+  function closeDr() {
+    S.drawer = false;
+    $('ov').classList.remove('open');
+    $('tpd').classList.remove('open');
+  }
+
+  /* =====================================================
+     CASE WIZARD
+  ===================================================== */
+  function openWizard() {
+    if (S.drawer) closeDr();
+    if (S.enrichCard) closeEnrichCard();
+    // Reset wizard state
+    WC.step = 1; WC.title = ''; WC.desc = ''; WC.actor = '';
+    WC.source = 'Customer Incident'; WC.submitter = '';
+    WC.industry = 'universal';
+    WC.tactics = new Set(); WC.techniques = []; WC.techniquesDetail = []; WC.tools = []; WC.context = '';
+    // Reset input values
+    ['wiz-title','wiz-desc','wiz-actor','wiz-submitter','wiz-context','wiz-techin','wiz-toolin']
+      .forEach(id => { const el = $(id); if (el) el.value = ''; });
+    $('wiz-source').value = 'Customer Incident';
+    $('wiz-industry').value = 'universal';
+    // Render tactic toggles
+    $('wiz-tactgrid').innerHTML = WIZ_TACTICS.map(t =>
+      `<button class="wiz-tact" data-tact="${x(t)}">${x(t)}</button>`
+    ).join('');
+    qa('#wiz-tactgrid .wiz-tact').forEach(b =>
+      b.addEventListener('click', () => {
+        const t = b.dataset.tact;
+        if (WC.tactics.has(t)) WC.tactics.delete(t); else WC.tactics.add(t);
+        b.classList.toggle('on', WC.tactics.has(t));
+      })
+    );
+    renderTechChips();
+    updateCoverage();
+    renderWizChips('wiz-toolchips', WC.tools);
+    updateWizStep();
+    $('wizov').classList.add('open');
+    setTimeout(() => { const el = $('wiz-title'); if (el) el.focus(); }, 280);
+  }
+
+  function closeWizard() {
+    $('wizov').classList.remove('open');
+  }
+
+  function updateWizStep() {
+    const step = WC.step;
+    ['wizp1','wizp2','wizp3'].forEach((id, i) => {
+      const el = $(id);
+      if (el) el.classList.toggle('active', i + 1 === step);
+    });
+    qa('.wstep').forEach(el => {
+      const s = parseInt(el.dataset.step);
+      el.classList.remove('active','done');
+      if (s === step) el.classList.add('active');
+      else if (s < step) el.classList.add('done');
+    });
+    $('wiz-back').disabled = step === 1;
+    $('wiz-stepprog').textContent = `Step ${step} of 3`;
+    const nextBtn = $('wiz-next');
+    const submitBtn = $('wiz-submit');
+    if (step === 3) {
+      nextBtn.style.display = 'none';
+      submitBtn.style.display = '';
+      renderWizReview();
+    } else {
+      nextBtn.style.display = '';
+      submitBtn.style.display = 'none';
+    }
+  }
+
+  function wizNext() {
+    if (WC.step === 1) {
+      WC.title = ($('wiz-title').value || '').trim();
+      WC.desc  = ($('wiz-desc').value  || '').trim();
+      if (!WC.title || !WC.desc) {
+        const el = WC.title ? $('wiz-desc') : $('wiz-title');
+        el.focus();
+        el.style.borderColor = 'rgba(var(--sev-crit-rgb),.7)';
+        setTimeout(() => { el.style.borderColor = ''; }, 1600);
+        return;
+      }
+      WC.actor     = ($('wiz-actor').value     || '').trim();
+      WC.source    = $('wiz-source').value;
+      WC.submitter = ($('wiz-submitter').value || '').trim();
+      WC.industry  = $('wiz-industry').value;
+    }
+    if (WC.step < 3) { WC.step++; updateWizStep(); }
+  }
+
+  function wizBack() {
+    if (WC.step > 1) { WC.step--; updateWizStep(); }
+  }
+
+  function renderWizChips(containerId, arr) {
+    const el = $(containerId);
+    if (!el) return;
+    el.innerHTML = arr.map(v =>
+      `<span class="wiz-chip">${x(v)}<button class="wiz-chip-rm" data-val="${x(v)}">×</button></span>`
+    ).join('');
+    el.querySelectorAll('.wiz-chip-rm').forEach(b =>
+      b.addEventListener('click', () => {
+        const idx = arr.indexOf(b.dataset.val);
+        if (idx > -1) arr.splice(idx, 1);
+        renderWizChips(containerId, arr);
+      })
+    );
+  }
+
+  function addWizItem(inputId, chipsId, arr) {
+    const inp = $(inputId);
+    const val = inp.value.trim();
+    if (!val || arr.includes(val)) { inp.value = ''; return; }
+    arr.push(val);
+    inp.value = '';
+    renderWizChips(chipsId, arr);
+  }
+
+  function renderWizReview() {
+    WC.context = ($('wiz-context').value || '').trim();
+    const tactics = [...WC.tactics];
+    $('wiz-review-content').innerHTML = [
+      ['Case Title',       WC.title,                              'wiz-review-val'],
+      ['Description',      WC.desc,                               'wiz-review-dim'],
+      ['Threat Actor',     WC.actor || '—',                       'wiz-review-val'],
+      ['Source',           WC.source,                             'wiz-review-val'],
+      ['Submitter',        WC.submitter || '—',                   'wiz-review-val'],
+      ['Industry',         WC.industry,                           'wiz-review-val'],
+      ['Tactics',          tactics.length ? tactics.join(', ') : '—', 'wiz-review-val'],
+      ['Techniques',       WC.techniques.length ? WC.techniques.join(', ') : '—', 'wiz-review-val'],
+      ['Tools / Malware',  WC.tools.length ? WC.tools.join(', ') : '—', 'wiz-review-val'],
+      ...(WC.context ? [['Context', WC.context, 'wiz-review-dim']] : [])
+    ].map(([k, v, cls]) =>
+      `<div class="wiz-review-row">
+         <div class="wiz-review-key">${x(k)}</div>
+         <div class="${cls}">${x(v)}</div>
+       </div>`
+    ).join('');
+  }
+
+  async function submitCase() {
+    const btn = $('wiz-submit');
+    btn.disabled = true; btn.classList.add('busy');
+    const payload = {
+      id:               'CASE-' + Date.now(),
+      title:            WC.title,
+      description:      WC.desc,
+      threat_actor:     WC.actor,
+      source:           WC.source,
+      submitted_by:     WC.submitter,
+      industry:         WC.industry,
+      mitre_tactics:       [...WC.tactics],
+      mitre_techniques:    WC.techniques,
+      techniques_detail:   WC.techniquesDetail,
+      tools:               WC.tools,
+      context:          WC.context,
+      submitted_at:     new Date().toISOString()
+    };
+    try {
+      await fetch(CASE_WH, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } catch { /* offline — queue locally */ }
+    const pendingId = 'PENDING-' + String(S.pending.length + 1).padStart(3, '0');
+    S.pending.push({ ...payload, id: pendingId });
+    renderPending();
+    closeWizard();
+    showToast('Case submitted — awaiting review');
+    btn.disabled = false; btn.classList.remove('busy');
+  }
+
+  /* =====================================================
+     TOAST
+  ===================================================== */
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = [
+      'position:fixed','bottom:24px','right:24px','z-index:999',
+      'background:rgba(var(--bg-panel-rgb),.97)','border:1px solid rgba(var(--accent-green-rgb),.4)',
+      'border-radius:6px','padding:10px 16px',
+      'font-family:var(--ft)','font-weight:600','font-size:10px',
+      'letter-spacing:.14em','text-transform:uppercase','color:var(--accent-green)',
+      'box-shadow:0 8px 32px rgba(0,0,0,.5)','animation:su .2s ease-out'
+    ].join(';');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  /* =====================================================
+     INLINE ENRICH CARD
+  ===================================================== */
+  function openEnrichCard() {
+    if (S.drawer) closeDr();
+    S.enrichCard = true;
+    $('enrich-card').classList.add('open');
+    $('enrich-toggle').classList.add('active');
+    if (!$('enc-tact-grid').children.length) buildEncTactGrid();
+    clearEncErr();
+    setTimeout(() => { const el = $('enc-name'); if (el) el.focus(); }, 240);
+  }
+
+  function closeEnrichCard() {
+    S.enrichCard = false;
+    $('enrich-card').classList.remove('open');
+    $('enrich-toggle').classList.remove('active');
+    ['enc-name','enc-desc','enc-ctx'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+    if ($('enc-tact-grid')) qa('#enc-tact-grid .enc-tact').forEach(b => b.classList.remove('on'));
+    clearEncErr();
+  }
+
+  function clearEncErr() {
+    const el = $('enc-err'); if (el) { el.textContent = ''; el.style.display = 'none'; }
+  }
+
+  function showEncErr(msg) {
+    const el = $('enc-err'); if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  function buildEncTactGrid() {
+    $('enc-tact-grid').innerHTML = WIZ_TACTICS.map(t =>
+      `<button class="enc-tact" data-tact="${x(t)}">${x(t)}</button>`
+    ).join('');
+    qa('#enc-tact-grid .enc-tact').forEach(b =>
+      b.addEventListener('click', () => b.classList.toggle('on'))
+    );
+  }
+
+  async function encGenerate() {
+    const name = ($('enc-name').value || '').trim();
+    if (!name) {
+      $('enc-name').style.borderColor = 'rgba(var(--sev-crit-rgb),.7)';
+      $('enc-name').focus();
+      setTimeout(() => { const el = $('enc-name'); if (el) el.style.borderColor = ''; }, 1600);
+      return;
+    }
+    const desc    = ($('enc-desc').value || '').trim();
+    const ctx     = ($('enc-ctx').value  || '').trim();
+    const tactics = [...qa('#enc-tact-grid .enc-tact.on')].map(b => b.dataset.tact);
+    clearEncErr();
+    const btn  = $('enc-generate');
+    const orig = btn.textContent;
+    btn.textContent = 'Generating…'; btn.disabled = true;
+    S.enriching = true; renderList();
+    try {
+      const r = await fetch(WH, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, freetext: desc, mitre_tactics: tactics,
+                               context: ctx, industry: S.ind })
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      if (!d.scenario) throw new Error('No scenario returned');
+      const ns = {
+        ...d.scenario,
+        status:       'ephemeral',
+        source:       'se-enrichment',
+        session_id:   SESSION_ID,
+        submitted_by: 'SE Session',
+        submitted_at: new Date().toISOString(),
+        expires_at:   new Date(Date.now() + 86400000).toISOString(),
+        launchable:   false
+      };
+      S.all = [ns, ...S.all.filter(s => s.id !== ns.id)];
+      S.fl = { ta: new Set() };
+      qa('.chip').forEach(c => c.classList.remove('on'));
+      S.filt = [...S.all]; S.enriching = false;
+      closeEnrichCard();
+      renderList(); pick(d.scenario.id);
+      setTimeout(() => {
+        const card = document.querySelector(`.scard[data-id="${d.scenario.id}"]`);
+        if (card) {
+          card.classList.add('new-highlight');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => card.classList.remove('new-highlight'), 2400);
+        }
+      }, 80);
+    } catch(e) {
+      S.enriching = false; renderList();
+      showEncErr(e.message || 'Generation failed. Is n8n running?');
+    } finally {
+      btn.textContent = orig; btn.disabled = false;
+    }
+  }
+
+  /* =====================================================
+     EVENTS
+  ===================================================== */
+  function wire() {
+    $('qi').addEventListener('input', e => { S.q = e.target.value; filt(); });
+    $('lbtn').addEventListener('click', launch);
+    $('plt').addEventListener('change', e => S.plt = e.target.value);
+    $('ind').addEventListener('change', e => S.ind = e.target.value);
+    $('tgt').addEventListener('input', e => {
+      S.tgt = e.target.value;
+      const d = $('pngdot'); if (d) d.className = 'pngdot';
+    });
+    $('pngb').addEventListener('click', checkHost);
+    $('tpb').addEventListener('click', () => S.drawer ? closeDr() : openDr());
+    $('dcls').addEventListener('click', closeDr);
+    $('ov').addEventListener('click', e => { if (e.target === $('ov')) closeDr(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if ($('wizov').classList.contains('open')) closeWizard();
+        else if (S.enrichCard) closeEnrichCard();
+        else if (S.drawer) closeDr();
+      }
+    });
+    // Inline Enrich card
+    $('enrich-toggle').addEventListener('click', () => S.enrichCard ? closeEnrichCard() : openEnrichCard());
+    $('enc-cancel').addEventListener('click', closeEnrichCard);
+    $('enc-generate').addEventListener('click', encGenerate);
+    // Submit Case wizard
+    $('submitcasebtn').addEventListener('click', openWizard);
+    $('wizcls').addEventListener('click', closeWizard);
+    $('wizov').addEventListener('click', e => { if (e.target === $('wizov')) closeWizard(); });
+    $('wiz-back').addEventListener('click', wizBack);
+    $('wiz-next').addEventListener('click', wizNext);
+    $('wiz-submit').addEventListener('click', submitCase);
+    $('wiz-toolbtn').addEventListener('click', () => addWizItem('wiz-toolin', 'wiz-toolchips', WC.tools));
+    $('wiz-toolin').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addWizItem('wiz-toolin', 'wiz-toolchips', WC.tools); } });
+    // MITRE autocomplete
+    let techFocusIdx = -1;
+    const techIn = $('wiz-techin');
+    techIn.addEventListener('focus', () => {
+      techFocusIdx = -1;
+      showTechDd(techSearch(techIn.value));
+    });
+    techIn.addEventListener('blur', () => { setTimeout(hideTechDd, 160); });
+    techIn.addEventListener('input', () => {
+      techFocusIdx = -1;
+      showTechDd(techSearch(techIn.value));
+    });
+    techIn.addEventListener('keydown', e => {
+      const dd = $('tech-dd');
+      const items = dd.style.display !== 'none' ? [...dd.querySelectorAll('.tech-dd-item')] : [];
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        techFocusIdx = Math.min(techFocusIdx + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('focus', i === techFocusIdx));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        techFocusIdx = Math.max(techFocusIdx - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('focus', i === techFocusIdx));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (techFocusIdx >= 0 && items[techFocusIdx]) {
+          const item = MITRE_DATA.find(t => t.id === items[techFocusIdx].dataset.id);
+          if (item) selectTech(item);
+        } else if (items.length === 1) {
+          const item = MITRE_DATA.find(t => t.id === items[0].dataset.id);
+          if (item) selectTech(item);
+        }
+        techFocusIdx = -1;
+      } else if (e.key === 'Escape') {
+        hideTechDd(); techFocusIdx = -1;
+      } else if (e.key === 'Backspace' && !techIn.value && WC.techniques.length) {
+        removeTech(WC.techniques[WC.techniques.length - 1]);
+        showTechDd(techSearch(''));
+      }
+    });
+  }
+
+  /* =====================================================
+     UTILS
+  ===================================================== */
+  const $  = id  => document.getElementById(id);
+  const qs = sel => document.querySelector(sel);
+  const qa = sel => document.querySelectorAll(sel);
+  function x(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+
+
+  /* =====================================================
+     BOOT
+  ===================================================== */
+  document.addEventListener('DOMContentLoaded', () => { wire(); init(); loadMitreData(); });
+
+  /* =====================================================
+     N8N WEBHOOKS TO BUILD
+     =====================================================
+     1. POST /webhook/case-ingest
+        Triggered by: Submit Case wizard (submitCase())
+        Payload: {
+          id, title, description, threat_actor, source,
+          submitted_by, industry, mitre_tactics, mitre_techniques,
+          tools, context, submitted_at
+        }
+        Expected behavior:
+          - Parse and validate the incoming case payload
+          - Use Claude claude-sonnet-4-6 to generate a full scenario JSON
+            matching the scenarios.json schema (id, title, description,
+            mitre_tactics, mitre_techniques, tools, expected_detections,
+            talking_points, se_runbook, audience, execution_engine)
+          - Persist generated scenario (append to scenarios.json / DB)
+          - Return: { status: "queued", case_id, scenario_id }
+
+     2. POST /webhook/scenario-approve
+        Triggered by: approveCase() when analyst clicks "Approve"
+        Payload: {
+          case_id,
+          action: "approve",
+          case: { ...full case object from S.pending }
+        }
+        Expected behavior:
+          - Fetch the generated scenario linked to case_id
+          - Append approved scenario to scenarios.json (live data store)
+          - Trigger nginx/page reload so the new scenario appears in the list
+          - Optionally notify SE team via Slack / email
+          - Return: { status: "approved", scenario_id }
+  ===================================================== */
+
+// ── Nav Menu ─────────────────────────────────────────────────────────────────
+function navToggle() { document.getElementById('nav-dd').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.getElementById('nav-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
+});
+function navCopyLink() {
+  navigator.clipboard.writeText(location.href)
+    .then(function() { navFb('nav-copy-link', '🔗 Copied!'); });
+}
+function navFb(id, txt) {
+  var el = document.getElementById(id); if (!el) return;
+  var orig = el.textContent; el.textContent = txt;
+  setTimeout(function() { el.textContent = orig; }, 1800);
+}
+</script>
+</body>
+</html>

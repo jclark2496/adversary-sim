@@ -1,0 +1,33 @@
+---
+- id: scn003-a1-payload-execution
+  name: "SCN-003 | Phishing Payload Execution"
+  description: |
+    Simulates a user executing a phishing-delivered payload — the moment after
+    a malicious Office macro runs or a link is clicked. Narrates that GoPhish
+    handled the email delivery; this step represents the post-click execution.
+    The CALDERA agent is already running at this point — this ability simulates
+    the attacker's initial actions on the compromised host.
+    Maps to T1204.002.
+  tactic: execution
+  technique:
+    attack_id: T1204.002
+    name: "User Execution: Malicious File"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== PHISHING PAYLOAD EXECUTION (T1204.002) ===";
+          Write-Output "[*] Simulating post-click execution on compromised host...";
+          Write-Output "[*] Payload delivered via phishing email (GoPhish)";
+          Write-Output "[*] Victim opened: Invoice_Q4_2024.docm";
+          Write-Output "[*] Macro auto-executed — agent established";
+          Write-Output "";
+          Write-Output "[*] Checking execution context:";
+          Write-Output "  Host    : $env:COMPUTERNAME";
+          Write-Output "  User    : $env:USERNAME";
+          Write-Output "  PID     : $PID";
+          Write-Output "  Process : $((Get-Process -Id $PID).Name)";
+          Write-Output "";
+          Write-Output "[+] Foothold established — proceeding to persistence";
+          Write-Output "=== END PAYLOAD EXECUTION ==="
+        cleanup: ""

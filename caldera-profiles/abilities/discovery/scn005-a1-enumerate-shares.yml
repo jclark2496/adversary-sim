@@ -1,0 +1,32 @@
+---
+- id: scn005-a1-enumerate-shares
+  name: "SCN-005 | Enumerate Network Shares"
+  description: |
+    Discovers accessible network shares on the local host and connected network
+    using native Windows commands. Attacker uses share enumeration to identify
+    file servers, admin shares (C$, ADMIN$), and data repositories as lateral
+    movement targets. All native Windows commands. Maps to T1135.
+  tactic: discovery
+  technique:
+    attack_id: T1135
+    name: "Network Share Discovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== NETWORK SHARE DISCOVERY (T1135) ===";
+          Write-Output "[*] Local shares on this host:";
+          Get-SmbShare | Select-Object Name, Path, Description | Format-Table -AutoSize | Out-String;
+          Write-Output "[*] Network shares visible from this host:";
+          net view /all 2>&1 | Out-String;
+          Write-Output "[*] Admin shares (C$, ADMIN$, IPC$):";
+          $computer = $env:COMPUTERNAME;
+          net view \\$computer /all 2>&1 | Out-String;
+          Write-Output "=== END SHARE DISCOVERY ==="
+        cleanup: |
+          net use * /delete /yes 2>$null
+        parsers:
+          org.mitre.caldera.parsers.basic:
+            - source: host.share.name
+              edge: has_smb_share
+              target: C$

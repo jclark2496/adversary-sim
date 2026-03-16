@@ -1,0 +1,195 @@
+{
+  "name": "MDR Case Ingest",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "case-ingest",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Webhook - Case Ingest",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        0
+      ],
+      "webhookId": "mdr-case-ingest"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nreturn [{ json: {\n  case_id: body.id || ('CASE-' + Date.now()),\n  title: body.title || '',\n  description: body.description || '',\n  threat_actor: body.threat_actor || 'Unknown',\n  source: body.source || 'Unknown',\n  industry: body.industry || 'universal',\n  mitre_tactics: body.mitre_tactics || [],\n  mitre_techniques: body.mitre_techniques || [],\n  tools: body.tools || [],\n  context: body.context || '',\n  submitted_by: body.submitted_by || '',\n  submitted_at: body.submitted_at || new Date().toISOString()\n}}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Parse Case Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -580,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $input.first().json;\nconst tactics = (c.mitre_tactics || []).join(', ') || 'Unknown';\nconst techniques = (c.mitre_techniques || []).join(', ') || 'Unknown';\nconst tools = (c.tools || []).join(', ') || 'Unknown';\n\nconst schema = '{\"title\":\"short demo title\",\"description\":\"2-3 sentence customer-facing description\",\"mitre_tactics\":[\"Tactic1\",\"Tactic2\"],\"mitre_techniques\":[{\"id\":\"T1234.001\",\"name\":\"Technique Name\"}],\"tools\":[\"tool1\",\"tool2\"],\"atomic_tests\":[\"T1234.001-1\"],\"caldera_ability\":\"slug-id\",\"audience\":\"Technical\",\"platform\":\"windows\",\"execution_engine\":\"atomic\",\"expected_detections\":[{\"detection\":\"specific detection alert name\",\"severity\":\"high\"}],\"talking_points\":{\"universal\":[\"key point 1\",\"key point 2\",\"key point 3\"],\"healthcare\":[\"healthcare-specific insight\"],\"financial_services\":[\"financial-specific insight\"],\"manufacturing\":[\"manufacturing-specific insight\"],\"retail\":[\"retail-specific insight\"]},\"se_runbook\":{\"setup\":\"Pre-demo setup notes for the SE\",\"steps\":[\"Step 1: configure environment\",\"Step 2: run simulation\",\"Step 3: review detections\"],\"talking_points_timing\":\"Mention talking points after first alert fires\"}}';\n\nconst prompt = `You are a cybersecurity expert building scenarios for MDR (Managed Detection & Response) product demos. Convert this real-world attack case into a structured demo scenario.\n\nAttack Case:\nTitle: ${c.title}\nDescription: ${c.description}\nThreat Actor: ${c.threat_actor || 'Unknown'}\nSource: ${c.source}\nIndustry: ${c.industry}\nMITRE Tactics: ${tactics}\nMITRE Techniques: ${techniques}\nTools/Malware: ${tools}\nAdditional Context: ${c.context || 'None provided'}\n\nReturn ONLY valid JSON matching this exact schema with no markdown, no code fences, no explanation:\n${schema}`;\n\nreturn [{ json: { model: 'llama3.2:3b', stream: false, prompt: prompt } }];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Build Ollama Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model: $input.first().json.model, stream: $input.first().json.stream, prompt: $input.first().json.prompt}) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000004",
+      "name": "Ollama - Generate Scenario",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -140,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.response || '';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nconst c = $('Parse Case Input').item.json;\n\nlet scenario;\ntry {\n  scenario = JSON.parse(cleaned);\n} catch(e) {\n  scenario = {\n    title: c.title || 'Custom Scenario',\n    description: c.description || '',\n    mitre_tactics: c.mitre_tactics || [],\n    mitre_techniques: (c.mitre_techniques || []).map(t => typeof t === 'string' ? {id:t, name:t} : t),\n    tools: c.tools || [],\n    atomic_tests: [],\n    caldera_ability: '',\n    audience: 'Technical',\n    platform: 'windows',\n    execution_engine: 'atomic',\n    expected_detections: [],\n    talking_points: { universal: [] },\n    se_runbook: { setup: '', steps: [], talking_points_timing: '' }\n  };\n}\n\n// Normalize mitre_techniques to {id, name} objects\nif (scenario.mitre_techniques) {\n  scenario.mitre_techniques = scenario.mitre_techniques.map(t =>\n    typeof t === 'string' ? {id: t, name: t} : t\n  );\n}\n\nconst scenarioId = 'SCN-CASE-' + Date.now().toString().slice(-6);\nscenario.id = scenarioId;\nscenario.source = 'case-submission';\nscenario.case_id = c.case_id;\nscenario.submitted_by = c.submitted_by;\nif (!scenario.industry) scenario.industry = c.industry || 'universal';\n\nreturn [{ json: scenario }];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000005",
+      "name": "Build Scenario JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath, 'utf8')); }\ncatch(e) { db = { version: '1.0', last_updated: '', scenarios: [] }; }\n\nconst s = $input.first().json;\nconst idx = db.scenarios.findIndex(x => x.id === s.id);\nif (idx >= 0) { db.scenarios[idx] = s; } else { db.scenarios.push(s); }\ndb.last_updated = new Date().toISOString().split('T')[0];\nfs.writeFileSync(filePath, JSON.stringify(db, null, 2), 'utf8');\n\nreturn [{ json: { status: 'queued', scenario_id: s.id, case_id: s.case_id, message: 'Scenario generated and added to catalog' } }];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000006",
+      "name": "Write to scenarios.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000007",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Case Ingest": {
+      "main": [
+        [
+          {
+            "node": "Parse Case Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Case Input": {
+      "main": [
+        [
+          {
+            "node": "Build Ollama Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Ollama Prompt": {
+      "main": [
+        [
+          {
+            "node": "Ollama - Generate Scenario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama - Generate Scenario": {
+      "main": [
+        [
+          {
+            "node": "Build Scenario JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Scenario JSON": {
+      "main": [
+        [
+          {
+            "node": "Write to scenarios.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write to scenarios.json": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "mdrCaseIngest01"
+}

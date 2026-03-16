@@ -1,0 +1,37 @@
+---
+- id: scn001-a1-check-privs
+  name: "SCN-001 | Check Current User Privileges"
+  description: |
+    Enumerates the current user's identity, group memberships, and privilege
+    tokens before attempting credential dumping. Establishes whether the agent
+    is running with admin or SYSTEM context — a prerequisite for LSASS access.
+    All native Windows commands. Maps to T1033 + T1069.001.
+  tactic: discovery
+  technique:
+    attack_id: T1033
+    name: "System Owner/User Discovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== PRIVILEGE CHECK (T1033 / T1069.001) ===";
+          Write-Output "[*] Current Identity:";
+          whoami /all;
+          Write-Output "";
+          Write-Output "[*] .NET Identity Groups:";
+          [System.Security.Principal.WindowsIdentity]::GetCurrent().Groups |
+            ForEach-Object {
+              try { $_.Translate([System.Security.Principal.NTAccount]).Value }
+              catch { $_.Value }
+            };
+          Write-Output "";
+          Write-Output "[*] Is Admin?";
+          $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator");
+          Write-Output "  Administrator: $isAdmin";
+          Write-Output "=== END PRIVILEGE CHECK ==="
+        cleanup: ""
+        parsers:
+          org.mitre.caldera.parsers.basic:
+            - source: host.user.name
+              edge: has_privilege_context
+              target: whoami

@@ -1,0 +1,48 @@
+{
+  "name": "Adversary Sim — Config API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "config",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-config",
+      "name": "Webhook: Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 200],
+      "webhookId": "advsim-config"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return config from environment variables\n// This avoids hardcoding credentials in HTML files\nreturn [{\n  json: {\n    guacProxy:     '/guacamole',\n    guacAdmin:     process.env.GUAC_ADMIN_USER || 'guacadmin',\n    guacAdminPw:   process.env.GUAC_ADMIN_PASSWORD || 'guacadmin',\n    guacDs:        'postgresql',\n    victimUser:    process.env.VICTIM_USER || 'demo',\n    victimPass:    process.env.VICTIM_PASSWORD || '',\n  }\n}];"
+      },
+      "id": "code-config",
+      "name": "Build Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "respond-config",
+      "name": "Respond: Config",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [700, 200]
+    }
+  ],
+  "connections": {
+    "Webhook: Config": { "main": [[{ "node": "Build Config", "type": "main", "index": 0 }]] },
+    "Build Config": { "main": [[{ "node": "Respond: Config", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [{ "name": "adversary-sim" }]
+}

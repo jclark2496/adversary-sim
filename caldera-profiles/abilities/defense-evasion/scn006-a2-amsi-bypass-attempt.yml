@@ -1,0 +1,41 @@
+---
+- id: scn006-a2-amsi-bypass-attempt
+  name: "SCN-006 | AMSI Bypass via Memory Patching (Simulation)"
+  description: |
+    Checks AMSI (Antimalware Scan Interface) assembly status and narrates the
+    real-world bypass techniques attackers use to disable PowerShell script
+    scanning — including AmsiScanBuffer memory patching, reflection-based
+    context nulling, and DLL hijacking. Simulation only: no actual bypass
+    is executed, making this safe to demo while showing realistic attacker
+    narration. Sophos Intercept X detects this via memory integrity monitoring.
+    Maps to T1562.001.
+  tactic: defense-evasion
+  technique:
+    attack_id: T1562.001
+    name: "Impair Defenses: Disable or Modify Tools"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== AMSI BYPASS SIMULATION (T1562.001) ===";
+          Write-Output "[*] Checking AMSI status...";
+          $amsiLoaded = [System.AppDomain]::CurrentDomain.GetAssemblies() |
+            Where-Object { $_.GlobalAssemblyCache -and $_.Location -match "amsi" };
+          Write-Output "[*] AMSI assembly status checked";
+          Write-Output "";
+          Write-Output "[*] Real AMSI bypass techniques include:";
+          Write-Output "    - Memory patching of AmsiScanBuffer in amsi.dll";
+          Write-Output "    - Reflection-based AMSI context nulling (AmsiContext = 0)";
+          Write-Output "    - AMSI provider DLL hijacking via COM hijack";
+          Write-Output "    - PowerShell downgrade attack (v2 has no AMSI)";
+          Write-Output "";
+          Write-Output "[SIMULATED] Bypass technique selected: AmsiScanBuffer patch";
+          Write-Output "[SIMULATED] Locating amsi.dll base address in process memory...";
+          Start-Sleep -Seconds 2;
+          Write-Output "[SIMULATED] Patching AmsiScanBuffer to return AMSI_RESULT_CLEAN";
+          Write-Output "[SIMULATED] AMSI bypass applied — subsequent scripts bypass scanning";
+          Write-Output "";
+          Write-Output "[*] Sophos detects this via memory integrity monitoring (Intercept X)";
+          Write-Output "[*] Alert category: Malicious behavior - AMSI tamper attempt";
+          Write-Output "=== END AMSI BYPASS ==="
+        cleanup: ""

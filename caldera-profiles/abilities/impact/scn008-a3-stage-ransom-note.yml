@@ -1,0 +1,38 @@
+---
+- id: scn008-a3-stage-ransom-note
+  name: "SCN-008 | Stage Ransom Note and Encrypted File Markers"
+  description: |
+    Creates a realistic ransom note (README_RECOVER_FILES.txt) and five
+    simulated .encrypted file markers in a temp directory. Demonstrates
+    the artifacts a ransomware operator stages on disk after encryption.
+    No actual files are encrypted — markers are benign placeholders.
+    Designed to show prospects the Taegis alert for ransom note file
+    creation and suspicious .encrypted extension proliferation. Maps to T1486.
+  tactic: impact
+  technique:
+    attack_id: T1486
+    name: "Data Encrypted for Impact"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== RANSOMWARE PHASE 3: STAGE ARTIFACTS (T1486) ===";
+          $ransomPath = "$env:TEMP\MDR-LAB-DEMO";
+          New-Item -ItemType Directory -Path $ransomPath -Force | Out-Null;
+          $noteContent = "YOUR FILES HAVE BEEN ENCRYPTED`n================================`n[MDR DEMO LAB - SIMULATION ONLY]`n`nAll your files have been encrypted with military-grade encryption.`nTo recover your files, contact: attacker@darkweb.onion`nYour unique ID: $(New-Guid)`n`nDO NOT attempt to recover files yourself.`nDO NOT contact law enforcement.`nPayment required within 72 hours.`n`n[THIS IS A SOPHOS MDR DEMO - NO FILES WERE ACTUALLY ENCRYPTED]";
+          $noteContent | Out-File "$ransomPath\README_RECOVER_FILES.txt" -Encoding UTF8;
+          Write-Output "[*] Ransom note staged: $ransomPath\README_RECOVER_FILES.txt";
+          Write-Output "";
+          Write-Output "[*] Creating simulated encrypted file markers...";
+          1..5 | ForEach-Object {
+            $filename = "$ransomPath\document_$_" + ".encrypted";
+            "SIMULATED_ENCRYPTED_CONTENT_$(New-Guid)" | Out-File $filename
+          };
+          Write-Output "[*] Simulated encrypted files created: 5";
+          Write-Output "";
+          Write-Output "[*] In real attack, ALL files across ALL drives would be encrypted";
+          Get-ChildItem $ransomPath | Format-Table Name, Length;
+          Write-Output "=== END ARTIFACT STAGING ==="
+        cleanup: |
+          Remove-Item "$env:TEMP\MDR-LAB-DEMO" -Recurse -Force -ErrorAction SilentlyContinue;
+          Write-Output "Demo artifacts removed"

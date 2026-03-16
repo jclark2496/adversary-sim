@@ -1,0 +1,13 @@
+{
+  "adversary_id": "scn002-discovery-chain",
+  "name": "SCN-002 | Discovery & Enumeration Chain",
+  "description": "Simulates post-compromise discovery activity — the first thing an attacker does after gaining a foothold. Runs four sequential LOLBin techniques: system info collection (T1082), network configuration mapping (T1016), running process enumeration with security tool detection (T1057), and local user/group enumeration (T1087). All native Windows commands — no external tools required.",
+  "tags": ["discovery", "enumeration", "lolbins", "t1082", "t1016", "t1057", "t1087", "demo-ready", "easy"],
+  "atomic_ordering": [
+    "scn002-a1-system-discovery",
+    "scn002-a2-network-discovery",
+    "scn002-a3-process-discovery",
+    "scn002-a4-user-enumeration"
+  ],
+  "objective": "default"
+}

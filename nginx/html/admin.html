@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console — Sophos Adversary Simulation Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       VARIABLES — exact match to index.html
+    ============================================================ */
+    :root {
+      --bg-deep:       #03071e;
+      --bg-panel:      #080f2e;
+      --bg-card:       #0a1540;
+      --bg-card-hov:   #0d1a50;
+      --accent-blue:   #2006F7;
+      --accent-cyan:   #00EDFF;
+      --accent-green:  #00F2B3;
+      --accent-purple: #5A00FF;
+      --accent-violet: #B529F7;
+      --text-primary:  #e8f0ff;
+      --text-sec:      rgba(232,240,255,0.62);
+      --text-dim:      rgba(232,240,255,0.32);
+      --border-dim:    rgba(0,237,255,0.12);
+      --border-acc:    rgba(0,237,255,0.22);
+      --sev-crit:      #B529F7;
+      --sev-high:      #2006F7;
+      --sev-med:       #009CFB;
+      --sev-low:       #6A889B;
+      --ft: 'Syne', sans-serif;
+      --fb: 'Syne', sans-serif;
+      --accent-cyan-rgb:   0,237,255;
+      --accent-green-rgb:  0,242,179;
+      --text-rgb:          232,240,255;
+      --bg-deep-rgb:       3,7,30;
+      --bg-panel-rgb:      8,15,46;
+      --sev-crit-rgb:      181,41,247;
+      --sev-high-rgb:      32,6,247;
+      --sev-med-rgb:       0,156,251;
+      --sev-low-rgb:       106,136,155;
+      --accent-purple-rgb: 90,0,255;
+      --text-label:        #a8c0d6;
+      --text-accent-blue:  #8ca8ff;
+    }
+
+    /* ============================================================
+       RESET
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--bg-deep); color: var(--text-primary);
+      font-family: var(--fb); font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { cursor: pointer; font-family: inherit; border: none; }
+    input, select, textarea { font-family: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    /* dot-grid bg */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.055) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.18); border-radius: 2px; }
+
+    @keyframes su { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    @keyframes blink {
+      0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(var(--accent-green-rgb),.55); }
+      50%    { opacity:.7; box-shadow:0 0 0 5px rgba(var(--accent-green-rgb),0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       PASSWORD GATE
+    ============================================================ */
+    #gate {
+      position: fixed; inset: 0; z-index: 9000;
+      background: var(--bg-deep);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 0;
+    }
+    #gate::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.055) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .gate-box {
+      position: relative; z-index: 1;
+      background: rgba(var(--bg-panel-rgb),.97);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.22);
+      border-radius: 12px; padding: 36px 40px;
+      width: 380px; max-width: 92vw;
+      box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(var(--accent-cyan-rgb),.06);
+      animation: su .28s ease-out;
+    }
+    .gate-eyebrow {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: rgba(var(--accent-cyan-rgb),.5); margin-bottom: 6px;
+    }
+    .gate-title {
+      font-family: var(--ft); font-weight: 800; font-size: 22px;
+      letter-spacing: .04em; text-transform: uppercase;
+      color: var(--text-primary); margin-bottom: 4px;
+    }
+    .gate-sub {
+      font-size: 12px; color: var(--text-sec); margin-bottom: 28px; line-height: 1.5;
+    }
+    .gate-lbl {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .22em; text-transform: uppercase;
+      color: var(--text-label); margin-bottom: 6px; display: block;
+    }
+    .gate-input {
+      width: 100%; padding: 10px 12px; margin-bottom: 20px;
+      background: rgba(var(--bg-deep-rgb),.75);
+      border: 1px solid var(--border-dim); border-radius: 6px;
+      color: var(--text-primary); font-size: 14px; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .gate-input:focus {
+      border-color: rgba(var(--accent-cyan-rgb),.36);
+      box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07);
+    }
+    .gate-btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(130deg,#1900e8,#4200cc 60%,#5A00FF);
+      border-radius: 6px; color: var(--text-primary);
+      font-family: var(--ft); font-weight: 700; font-size: 12px;
+      letter-spacing: .2em; text-transform: uppercase;
+      transition: opacity .15s, box-shadow .15s;
+    }
+    .gate-btn:hover { opacity: .9; box-shadow: 0 6px 24px rgba(90,0,255,.4); }
+    .gate-err {
+      margin-top: 10px; font-size: 11px; color: var(--sev-crit);
+      text-align: center; font-family: var(--ft); font-weight: 600;
+      letter-spacing: .08em; min-height: 16px;
+    }
+    #gate.hidden { display: none; }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    #app {
+      position: relative; z-index: 1; min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    #hdr {
+      flex-shrink: 0;
+      background: rgba(var(--bg-panel-rgb),.97);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .logo-word {
+      font-family: var(--ft); font-size: 15px; font-weight: 800;
+      color: var(--text-primary); letter-spacing: -0.01em; white-space: nowrap;
+    }
+    .logo-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
+      color: var(--accent-cyan);
+      background: rgba(var(--accent-cyan-rgb),0.08);
+      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
+      border-radius: 5px; padding: 3px 10px 3px 22px;
+      position: relative; letter-spacing: 0.03em; white-space: nowrap;
+    }
+    .logo-tag::before {
+      content: '>'; position: absolute; left: 8px;
+      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
+    }
+    .hdr-sep { flex: 1; }
+    .hdr-badge {
+      font-family: var(--ft); font-weight: 700; font-size: 9px;
+      letter-spacing: .28em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 3px;
+      background: rgba(var(--sev-crit-rgb),.1);
+      color: var(--sev-crit); border: 1px solid rgba(var(--sev-crit-rgb),.3);
+    }
+    .hdr-link {
+      display: flex; align-items: center; gap: 5px;
+      font-family: 'Courier New', monospace; font-size: 11px;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--accent-cyan); background: transparent;
+      border: 1px solid var(--accent-cyan); border-radius: 6px;
+      padding: 5px 13px; cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .hdr-link:hover {
+      background: rgba(var(--accent-cyan-rgb),.1);
+      box-shadow: 0 0 10px rgba(var(--accent-cyan-rgb),.25);
+    }
+    .lpip {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--accent-green);
+      background: rgba(var(--bg-panel-rgb),.92); padding: 4px 12px 4px 8px;
+      border-radius: 100px; border: 1px solid rgba(var(--accent-green-rgb),.22);
+    }
+    .ldot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+      animation: blink 2.2s ease-in-out infinite;
+    }
+
+    /* ============================================================
+       WEBHOOK NOTICE
+    ============================================================ */
+    #wh-notice {
+      background: rgba(var(--sev-crit-rgb),.06);
+      border-bottom: 1px solid rgba(var(--sev-crit-rgb),.2);
+      padding: 9px 24px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: rgba(var(--sev-crit-rgb),.9);
+    }
+    #wh-notice.hidden { display: none; }
+    .wh-icon { font-size: 14px; flex-shrink: 0; }
+    .wh-dismiss {
+      margin-left: auto; background: none; border: none;
+      color: rgba(var(--sev-crit-rgb),.5); font-size: 16px;
+      line-height: 1; cursor: pointer; padding: 0 2px;
+      transition: color .12s;
+    }
+    .wh-dismiss:hover { color: rgba(var(--sev-crit-rgb),.9); }
+
+    /* ============================================================
+       STATS BAR
+    ============================================================ */
+    #stats {
+      flex-shrink: 0; padding: 16px 24px;
+      display: flex; gap: 12px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(var(--bg-panel-rgb),.4);
+    }
+    .stat {
+      flex: 1; min-width: 120px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 8px; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: border-color .15s;
+    }
+    .stat:hover { border-color: rgba(var(--accent-cyan-rgb),.22); }
+    .stat-val {
+      font-family: var(--ft); font-weight: 800; font-size: 28px;
+      letter-spacing: -.02em; color: var(--text-primary); line-height: 1;
+    }
+    .stat-lbl {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--text-label);
+    }
+    .stat.s-approved .stat-val { color: var(--accent-green); }
+    .stat.s-pending  .stat-val { color: var(--sev-med); }
+    .stat.s-launch   .stat-val { color: var(--accent-cyan); }
+    .stat.s-warn     .stat-val { color: var(--sev-crit); }
+
+    /* ============================================================
+       MAIN CONTENT
+    ============================================================ */
+    #main {
+      flex: 1; display: flex; flex-direction: column;
+      padding: 20px 24px 40px;
+    }
+
+    /* ============================================================
+       FILTER BAR
+    ============================================================ */
+    #filterbar {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .fgrp {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .fgrp-lbl {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .22em; text-transform: uppercase;
+      color: var(--text-dim); white-space: nowrap; padding-right: 2px;
+    }
+    .chip {
+      padding: 4px 10px; border-radius: 100px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      cursor: pointer; transition: all .14s; white-space: nowrap;
+    }
+    .chip:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .chip.on {
+      background: rgba(var(--accent-cyan-rgb),.1);
+      border-color: rgba(var(--accent-cyan-rgb),.45);
+      color: var(--accent-cyan);
+    }
+    .chip.on-green {
+      background: rgba(var(--accent-green-rgb),.1);
+      border-color: rgba(var(--accent-green-rgb),.45);
+      color: var(--accent-green);
+    }
+    .chip.on-orange {
+      background: rgba(var(--sev-med-rgb),.1);
+      border-color: rgba(var(--sev-med-rgb),.4);
+      color: var(--sev-med);
+    }
+    .chip.on-crit {
+      background: rgba(var(--sev-crit-rgb),.1);
+      border-color: rgba(var(--sev-crit-rgb),.4);
+      color: var(--sev-crit);
+    }
+    .filter-sep {
+      width: 1px; height: 20px; background: var(--border-dim); flex-shrink: 0;
+    }
+    #search-wrap {
+      position: relative; margin-left: auto;
+    }
+    #search-wrap svg {
+      position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none;
+    }
+    #fsearch {
+      background: rgba(var(--bg-deep-rgb),.75);
+      border: 1px solid var(--border-dim); border-radius: 6px;
+      padding: 7px 12px 7px 30px;
+      color: var(--text-primary); font-size: 12px; outline: none;
+      width: 220px; transition: border-color .18s;
+    }
+    #fsearch:focus { border-color: rgba(var(--accent-cyan-rgb),.36); }
+    #fsearch::placeholder { color: rgba(var(--text-rgb),0.38); }
+
+    /* ============================================================
+       BULK ACTIONS BAR
+    ============================================================ */
+    #bulkbar {
+      display: none; align-items: center; gap: 10px;
+      background: rgba(var(--accent-cyan-rgb),.05);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.18);
+      border-radius: 7px; padding: 10px 14px; margin-bottom: 12px;
+    }
+    #bulkbar.show { display: flex; animation: su .16s ease-out; }
+    .bulk-count {
+      font-family: var(--ft); font-weight: 700; font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent-cyan); white-space: nowrap;
+    }
+    .bulk-sep { flex: 1; }
+    .bulk-sel-lbl {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--text-dim); white-space: nowrap;
+    }
+    .bulk-sel-btn {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 9px; border-radius: 4px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); cursor: pointer; transition: all .14s;
+      white-space: nowrap;
+    }
+    .bulk-sel-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .bulk-action-btn {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .14em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 5px;
+      cursor: pointer; transition: all .14s; white-space: nowrap;
+    }
+    .bulk-approve {
+      background: rgba(var(--accent-green-rgb),.1);
+      border: 1px solid rgba(var(--accent-green-rgb),.35);
+      color: var(--accent-green);
+    }
+    .bulk-approve:hover { background: rgba(var(--accent-green-rgb),.2); }
+    .bulk-hide {
+      background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
+    }
+    .bulk-hide:hover { border-color: rgba(var(--sev-crit-rgb),.35); color: var(--sev-crit); }
+    .bulk-delete {
+      background: rgba(var(--sev-crit-rgb),.08);
+      border: 1px solid rgba(var(--sev-crit-rgb),.3);
+      color: var(--sev-crit);
+    }
+    .bulk-delete:hover { background: rgba(var(--sev-crit-rgb),.16); }
+
+    /* ============================================================
+       SCENARIO TABLE
+    ============================================================ */
+    #scenario-count {
+      font-family: var(--ft); font-size: 10px; color: var(--text-dim);
+      letter-spacing: .08em; margin-bottom: 8px;
+    }
+    .tbl-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px; overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .tbl-head {
+      display: grid; grid-template-columns: 28px 1fr 140px 110px 110px 110px 160px;
+      align-items: center; gap: 0;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(var(--bg-panel-rgb),.6);
+    }
+    .th {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--text-dim); padding: 0 8px;
+    }
+    .th:first-child { padding: 0; }
+    .tbl-row {
+      display: grid; grid-template-columns: 28px 1fr 140px 110px 110px 110px 160px;
+      align-items: center; gap: 0;
+      padding: 11px 14px; border-bottom: 1px solid var(--border-dim);
+      transition: background .12s; cursor: pointer;
+      position: relative;
+    }
+    .tbl-row:last-child { border-bottom: none; }
+    .tbl-row:hover { background: rgba(var(--bg-card-hov),0.6); }
+    .tbl-row.selected { background: rgba(var(--accent-cyan-rgb),.04); }
+    .tbl-row.hidden-row { opacity: .42; }
+
+    /* row checkbox */
+    .row-cb {
+      width: 16px; height: 16px;
+      border: 1px solid var(--border-dim); border-radius: 3px;
+      background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .12s;
+    }
+    .row-cb:hover { border-color: rgba(var(--accent-cyan-rgb),.4); }
+    .row-cb.checked {
+      background: rgba(var(--accent-cyan-rgb),.15);
+      border-color: var(--accent-cyan);
+    }
+    .row-cb.checked::after {
+      content: '✓'; font-size: 10px; color: var(--accent-cyan); line-height: 1;
+    }
+
+    .td { padding: 0 8px; }
+    .td:first-child { padding: 0; }
+
+    /* scenario name cell */
+    .row-name { display: flex; flex-direction: column; gap: 3px; }
+    .row-title {
+      font-family: var(--ft); font-weight: 600; font-size: 12px;
+      color: var(--text-primary); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .row-id {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: .04em;
+    }
+    .row-badges { display: flex; gap: 3px; flex-wrap: wrap; }
+
+    /* status pill */
+    .spill {
+      font-family: var(--ft); font-weight: 700; font-size: 9px;
+      letter-spacing: .16em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 3px; white-space: nowrap;
+    }
+    .sp-approved { background: rgba(var(--accent-green-rgb),.1); color: var(--accent-green); border: 1px solid rgba(var(--accent-green-rgb),.28); }
+    .sp-pending  { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.28); }
+    .sp-ephemeral{ background: rgba(var(--accent-cyan-rgb),.08); color: var(--accent-cyan); border: 1px solid rgba(var(--accent-cyan-rgb),.22); }
+    .sp-expired  { background: rgba(var(--sev-crit-rgb),.07); color: rgba(var(--sev-crit-rgb),.7); border: 1px solid rgba(var(--sev-crit-rgb),.2); }
+    .sp-hidden   { background: rgba(var(--text-rgb),.04); color: var(--text-dim); border: 1px solid var(--border-dim); }
+
+    /* source pill */
+    .src-pill {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+    }
+    .src-hand { background: rgba(var(--accent-blue-rgb),.1,1); color: var(--text-accent-blue); border: 1px solid rgba(32,6,247,.25); }
+    .src-ai   { background: rgba(var(--accent-violet-rgb),.1,1); color: #c080ff; border: 1px solid rgba(181,41,247,.25); }
+    .src-case { background: rgba(var(--accent-green-rgb),.08); color: rgba(var(--accent-green-rgb),1); border: 1px solid rgba(var(--accent-green-rgb),.2); }
+    .src-se   { background: rgba(var(--accent-cyan-rgb),.08); color: var(--accent-cyan); border: 1px solid rgba(var(--accent-cyan-rgb),.2); }
+
+    /* launchable indicator */
+    .launch-ind {
+      display: flex; align-items: center; gap: 5px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .launch-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .launch-yes { color: var(--accent-green); }
+    .launch-yes .launch-dot { background: var(--accent-green); box-shadow: 0 0 6px rgba(var(--accent-green-rgb),.7); }
+    .launch-no  { color: var(--text-dim); }
+    .launch-no  .launch-dot { background: rgba(var(--text-rgb),.2); }
+
+    /* audience */
+    .aud-pill {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 3px; white-space: nowrap;
+    }
+    .aud-tech { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.25); }
+    .aud-exec { background: rgba(var(--accent-purple-rgb),.1); color: var(--text-accent-blue); border: 1px solid rgba(var(--accent-purple-rgb),.25); }
+
+    /* row actions */
+    .row-actions {
+      display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+    }
+    .act-btn {
+      padding: 4px 8px; border-radius: 4px;
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .12em; text-transform: uppercase;
+      transition: all .12s; white-space: nowrap;
+    }
+    .act-approve {
+      background: rgba(var(--accent-green-rgb),.1);
+      border: 1px solid rgba(var(--accent-green-rgb),.28);
+      color: var(--accent-green);
+    }
+    .act-approve:hover { background: rgba(var(--accent-green-rgb),.2); }
+    .act-reject {
+      background: transparent; border: 1px solid rgba(var(--sev-crit-rgb),.28);
+      color: rgba(var(--sev-crit-rgb),.8);
+    }
+    .act-reject:hover { background: rgba(var(--sev-crit-rgb),.1); }
+    .act-edit {
+      background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
+    }
+    .act-edit:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .act-hide {
+      background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
+    }
+    .act-hide:hover { border-color: rgba(var(--sev-crit-rgb),.25); color: var(--sev-crit); }
+
+    /* empty state */
+    .tbl-empty {
+      padding: 48px 20px; text-align: center;
+      font-family: var(--ft); font-size: 13px; color: var(--text-dim);
+    }
+    .tbl-empty strong { display: block; font-size: 15px; margin-bottom: 5px; color: var(--text-sec); }
+
+    /* ============================================================
+       CATALOG HEALTH
+    ============================================================ */
+    #health {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px; padding: 20px 22px;
+      margin-bottom: 32px;
+    }
+    .health-hdr {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    }
+    .health-title {
+      font-family: var(--ft); font-weight: 700; font-size: 13px;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--text-primary);
+    }
+    .health-badge {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 3px;
+    }
+    .hb-ok   { background: rgba(var(--accent-green-rgb),.1); color: var(--accent-green); border: 1px solid rgba(var(--accent-green-rgb),.28); }
+    .hb-warn { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.28); }
+    .hb-crit { background: rgba(var(--sev-crit-rgb),.1); color: var(--sev-crit); border: 1px solid rgba(var(--sev-crit-rgb),.28); }
+    .health-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .hcheck {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px; border-radius: 7px;
+      background: rgba(var(--bg-panel-rgb),.5);
+      border: 1px solid var(--border-dim);
+    }
+    .hcheck-ico {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; flex-shrink: 0; margin-top: 1px;
+    }
+    .hico-ok   { background: rgba(var(--accent-green-rgb),.15); color: var(--accent-green); }
+    .hico-warn { background: rgba(var(--sev-med-rgb),.15); color: var(--sev-med); }
+    .hico-crit { background: rgba(var(--sev-crit-rgb),.15); color: var(--sev-crit); }
+    .hcheck-body {}
+    .hcheck-name {
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .04em; color: var(--text-primary); margin-bottom: 2px;
+    }
+    .hcheck-val {
+      font-size: 11px; color: var(--text-sec); line-height: 1.4;
+    }
+
+    /* ============================================================
+       EDIT PANEL (slide-in from right)
+    ============================================================ */
+    #editov {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(var(--bg-deep-rgb),.62);
+      backdrop-filter: blur(5px) saturate(.8);
+      -webkit-backdrop-filter: blur(5px) saturate(.8);
+      opacity: 0; visibility: hidden;
+      transition: opacity .24s, visibility .24s;
+    }
+    #editov.open { opacity: 1; visibility: visible; }
+    #editd {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 480px; z-index: 201;
+      background: rgba(var(--bg-panel-rgb),.98);
+      border-left: 1px solid rgba(var(--accent-cyan-rgb),.22);
+      box-shadow: -10px 0 48px rgba(0,0,0,.6);
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    #editd.open { transform: translateX(0); }
+    .edit-hdr {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.1);
+      flex-shrink: 0; display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .edit-hdr-l { display: flex; flex-direction: column; gap: 4px; }
+    .edit-eyebrow {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .28em; text-transform: uppercase; color: var(--accent-cyan);
+    }
+    .edit-title {
+      font-family: var(--ft); font-weight: 700; font-size: 15px;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--text-primary);
+    }
+    .edit-id {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: .04em;
+    }
+    .cls-btn {
+      background: transparent; border: 1px solid var(--border-dim); border-radius: 4px;
+      width: 27px; height: 27px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-sec); transition: all .14s;
+    }
+    .cls-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .edit-body {
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .ef-group { display: flex; flex-direction: column; gap: 5px; }
+    .ef-label {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--text-label);
+    }
+    .ef-ctrl {
+      background: rgba(var(--bg-deep-rgb),.75);
+      border: 1px solid var(--border-dim); border-radius: 5px;
+      padding: 8px 10px; color: var(--text-primary); font-size: 13px;
+      outline: none; width: 100%; transition: border-color .16s;
+    }
+    .ef-ctrl:focus { border-color: rgba(var(--accent-cyan-rgb),.36); }
+    .ef-ctrl::placeholder { color: rgba(var(--text-rgb),0.38); }
+    select.ef-ctrl {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 9px center;
+      padding-right: 28px; cursor: pointer;
+    }
+    select.ef-ctrl option { background: var(--bg-panel); }
+    textarea.ef-ctrl { min-height: 80px; resize: vertical; }
+    .ef-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ef-notice {
+      padding: 8px 10px; border-radius: 5px;
+      background: rgba(var(--sev-med-rgb),.06);
+      border: 1px solid rgba(var(--sev-med-rgb),.2);
+      font-size: 11px; color: var(--sev-med); line-height: 1.5;
+    }
+    .edit-ftr {
+      flex-shrink: 0; padding: 12px 20px 16px;
+      border-top: 1px solid rgba(var(--accent-cyan-rgb),.08);
+      display: flex; gap: 8px; justify-content: flex-end;
+    }
+    .ef-cancel {
+      padding: 8px 16px; border-radius: 5px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
+      font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+      transition: all .14s;
+    }
+    .ef-cancel:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .ef-save {
+      padding: 8px 20px; border-radius: 5px;
+      background: rgba(var(--accent-cyan-rgb),.12);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.4);
+      color: var(--accent-cyan); font-family: var(--ft); font-weight: 700;
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      transition: all .15s; display: flex; align-items: center; gap: 6px;
+    }
+    .ef-save:hover { background: rgba(var(--accent-cyan-rgb),.22); box-shadow: 0 0 16px rgba(var(--accent-cyan-rgb),.18); }
+    .ef-save:disabled { opacity: .4; cursor: not-allowed; }
+    .ef-save .bsp {
+      display: none; width: 13px; height: 13px;
+      border: 2px solid rgba(var(--accent-cyan-rgb),.2);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%; animation: spin .55s linear infinite;
+    }
+    .ef-save.busy .bsp { display: block; }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    #toast-area {
+      position: fixed; bottom: 24px; right: 24px; z-index: 500;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    /* ── NAV MENU ─────────────────────────────────────────────────────── */
+    .nav-wrap { position:relative; flex-shrink:0; }
+    .nav-dd {
+      position:absolute; top:calc(100% + 6px); right:0; min-width:218px;
+      background:rgba(var(--bg-panel-rgb),.98);
+      border:1px solid var(--border-acc); border-radius:7px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      z-index:1001; display:none; overflow:hidden;
+    }
+    @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+    .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
+    .nav-it {
+      display:flex; align-items:center; gap:9px; padding:9px 14px;
+      font-size:12px; color:var(--text-sec); letter-spacing:.02em;
+      width:100%; text-align:left; background:none; border:none;
+      cursor:pointer; transition:background .1s, color .1s; font-family:var(--fb);
+    }
+    .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.07); color:var(--text-primary); }
+    .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ===================== PASSWORD GATE ===================== -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-eyebrow">Sophos Adversary Simulation Platform</div>
+    <div class="gate-title">Admin Console</div>
+    <div class="gate-sub">Scenario catalog management. Restricted access.</div>
+    <label class="gate-lbl" for="gate-pw">Password</label>
+    <input id="gate-pw" type="password" class="gate-input" placeholder="Enter admin password" autocomplete="current-password">
+    <button class="gate-btn" id="gate-btn">Authenticate →</button>
+    <div class="gate-err" id="gate-err"></div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header id="hdr">
+    <span class="logo-word">Sophos Adversary</span>
+    <span class="logo-tag">admin_console</span>
+    <span class="hdr-badge">Admin</span>
+    <div class="hdr-sep"></div>
+    <a href="/" class="hdr-link">
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M7 2L3 6l4 4"/>
+      </svg>
+      SE Console
+    </a>
+    <div class="lpip"><div class="ldot"></div>Live</div>
+    <div class="nav-wrap" id="nav-wrap">
+      <button class="hdr-link" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+      <div class="nav-dd" id="nav-dd">
+        <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+        <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
+        <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
+        <div class="nav-sep"></div>
+        <button class="nav-it" id="nav-copy-link" onclick="navCopyLink()">Copy Page Link</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- WEBHOOK NOTICE -->
+  <div id="wh-notice">
+    <span class="wh-icon">⚠</span>
+    <span>Write operations (approve, edit, delete) require the <strong>admin-scenarios</strong> n8n workflow to be active at <code style="font-family:monospace;font-size:11px">/webhook/admin-scenarios</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
+    <button class="wh-dismiss" id="wh-dismiss" title="Dismiss">×</button>
+  </div>
+
+  <!-- STATS BAR -->
+  <div id="stats">
+    <div class="stat">
+      <div class="stat-val" id="st-total">—</div>
+      <div class="stat-lbl">Total Scenarios</div>
+    </div>
+    <div class="stat s-approved">
+      <div class="stat-val" id="st-approved">—</div>
+      <div class="stat-lbl">Approved</div>
+    </div>
+    <div class="stat s-pending">
+      <div class="stat-val" id="st-pending">—</div>
+      <div class="stat-lbl">Pending Review</div>
+    </div>
+    <div class="stat s-launch">
+      <div class="stat-val" id="st-launch">—</div>
+      <div class="stat-lbl">Launchable</div>
+    </div>
+    <div class="stat s-warn">
+      <div class="stat-val" id="st-warn">—</div>
+      <div class="stat-lbl">Expiring Soon</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- FILTER BAR -->
+    <div id="filterbar">
+      <!-- Status -->
+      <div class="fgrp">
+        <span class="fgrp-lbl">Status</span>
+        <button class="chip on" data-filter="status" data-val="all">All</button>
+        <button class="chip" data-filter="status" data-val="approved">Approved</button>
+        <button class="chip" data-filter="status" data-val="pending">Pending</button>
+        <button class="chip" data-filter="status" data-val="ephemeral">Ephemeral</button>
+        <button class="chip" data-filter="status" data-val="expired">Expired</button>
+      </div>
+      <div class="filter-sep"></div>
+      <!-- Source -->
+      <div class="fgrp">
+        <span class="fgrp-lbl">Source</span>
+        <button class="chip" data-filter="source" data-val="hand-authored">Authored</button>
+        <button class="chip" data-filter="source" data-val="ollama-enriched">AI</button>
+        <button class="chip" data-filter="source" data-val="case-submission">Case</button>
+        <button class="chip" data-filter="source" data-val="se-enrichment">SE</button>
+      </div>
+      <div class="filter-sep"></div>
+      <!-- Launchable -->
+      <div class="fgrp">
+        <span class="fgrp-lbl">Launch</span>
+        <button class="chip" data-filter="launchable" data-val="yes">Launchable</button>
+        <button class="chip" data-filter="launchable" data-val="no">Not Ready</button>
+      </div>
+      <!-- Search -->
+      <div id="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="6.5" cy="6.5" r="5.2"/>
+          <path d="M10.5 10.5L14 14" stroke-linecap="round"/>
+        </svg>
+        <input id="fsearch" type="text" autocomplete="off" placeholder="Search scenarios…">
+      </div>
+    </div>
+
+    <!-- BULK ACTIONS BAR -->
+    <div id="bulkbar">
+      <span class="bulk-count" id="bulk-count">0 selected</span>
+      <div class="bulk-sep"></div>
+      <span class="bulk-sel-lbl">Select:</span>
+      <button class="bulk-sel-btn" id="sel-all-ai">All AI-generated</button>
+      <button class="bulk-sel-btn" id="sel-all-pending">All Pending</button>
+      <button class="bulk-sel-btn" id="sel-not-launchable">All Non-launchable</button>
+      <button class="bulk-sel-btn" id="sel-clear">Clear</button>
+      <div class="filter-sep"></div>
+      <button class="bulk-action-btn bulk-approve" id="bulk-approve">✓ Approve</button>
+      <button class="bulk-action-btn bulk-hide" id="bulk-hide">Hide</button>
+      <button class="bulk-action-btn bulk-delete" id="bulk-delete">Delete</button>
+    </div>
+
+    <!-- TABLE -->
+    <div id="scenario-count"></div>
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <div class="th">
+          <div class="row-cb" id="cb-all" title="Select all"></div>
+        </div>
+        <div class="th">Scenario</div>
+        <div class="th">Source</div>
+        <div class="th">Status</div>
+        <div class="th">Launch</div>
+        <div class="th">Audience</div>
+        <div class="th" style="text-align:right">Actions</div>
+      </div>
+      <div id="tbl-body"></div>
+    </div>
+
+    <!-- CATALOG HEALTH -->
+    <div id="health">
+      <div class="health-hdr">
+        <div class="health-title">Catalog Health</div>
+        <div class="health-badge hb-ok" id="health-badge">Checking…</div>
+      </div>
+      <div class="health-grid" id="health-grid"></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- EDIT PANEL -->
+<div id="editov"></div>
+<div id="editd">
+  <div class="edit-hdr">
+    <div class="edit-hdr-l">
+      <div class="edit-eyebrow">Scenario Editor</div>
+      <div class="edit-title" id="edit-title-hdr">Edit Scenario</div>
+      <div class="edit-id" id="edit-id-hdr"></div>
+    </div>
+    <button class="cls-btn" id="editcls">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M1 1l8 8M9 1L1 9"/>
+      </svg>
+    </button>
+  </div>
+  <div class="edit-body" id="edit-body">
+    <!-- populated by openEdit() -->
+  </div>
+  <div class="edit-ftr">
+    <button class="ef-cancel" id="edit-cancel">Cancel</button>
+    <button class="ef-save" id="edit-save">
+      <div class="bsp"></div><span class="btx">Save Changes</span>
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-area"></div>
+
+<script>
+  /* =====================================================
+     CONSTANTS
+  ===================================================== */
+  const ADMIN_PASSWORD = ''; // Set via .env
+  const SCENARIOS_URL  = '/scenarios.json';
+  const ADMIN_WH       = `http://${window.location.hostname}:5678/webhook/admin-scenarios`;
+  const SESSION_KEY    = 'mdr_admin_auth';
+
+  /* =====================================================
+     UTILS
+  ===================================================== */
+  const $  = id  => document.getElementById(id);
+  const qs = sel => document.querySelector(sel);
+  const qa = sel => document.querySelectorAll(sel);
+  function x(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function iso2rel(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7)  return `${days}d ago`;
+    if (days < 30) return `${Math.floor(days/7)}w ago`;
+    return d.toLocaleDateString();
+  }
+  function isExpired(s) {
+    return s.status === 'ephemeral' && s.expires_at && new Date(s.expires_at) < new Date();
+  }
+  function effectiveStatus(s) {
+    if (isExpired(s)) return 'expired';
+    if (s.hidden)     return 'hidden';
+    return s.status || 'pending';
+  }
+  function srcLabel(source) {
+    const m = {
+      'hand-authored':   ['Authored', 'src-hand'],
+      'ollama-enriched': ['AI',       'src-ai'],
+      'case-submission': ['Case',     'src-case'],
+      'se-enrichment':   ['SE',       'src-se']
+    };
+    return m[source] || [source || '?', 'src-hand'];
+  }
+
+  /* =====================================================
+     STATE
+  ===================================================== */
+  const A = {
+    all: [],
+    filt: [],
+    selected: new Set(),
+    editId: null,
+    filters: { status: 'all', source: null, launchable: null },
+    q: ''
+  };
+
+  /* =====================================================
+     AUTH GATE
+  ===================================================== */
+  function checkAuth() {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      $('gate').classList.add('hidden');
+      load();
+    } else {
+      setTimeout(() => $('gate-pw').focus(), 100);
+    }
+  }
+
+  function tryLogin() {
+    const pw = $('gate-pw').value;
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      $('gate').classList.add('hidden');
+      load();
+    } else {
+      $('gate-err').textContent = 'Incorrect password.';
+      $('gate-pw').style.borderColor = 'rgba(181,41,247,.7)';
+      setTimeout(() => {
+        $('gate-err').textContent = '';
+        $('gate-pw').style.borderColor = '';
+      }, 2000);
+      $('gate-pw').select();
+    }
+  }
+
+  /* =====================================================
+     LOAD
+  ===================================================== */
+  async function load() {
+    try {
+      const r = await fetch(SCENARIOS_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      A.all = d.scenarios || [];
+      filt();
+      renderStats();
+      renderHealth();
+    } catch (e) {
+      $('tbl-body').innerHTML = `<div class="tbl-empty"><strong>Load Failed</strong>${x(e.message)}</div>`;
+    }
+  }
+
+  /* =====================================================
+     FILTER
+  ===================================================== */
+  function filt() {
+    let f = [...A.all];
+
+    // status filter
+    if (A.filters.status && A.filters.status !== 'all') {
+      f = f.filter(s => {
+        const es = effectiveStatus(s);
+        return es === A.filters.status;
+      });
+    }
+
+    // source filter
+    if (A.filters.source) {
+      f = f.filter(s => s.source === A.filters.source);
+    }
+
+    // launchable filter
+    if (A.filters.launchable === 'yes') f = f.filter(s => s.launchable);
+    if (A.filters.launchable === 'no')  f = f.filter(s => !s.launchable);
+
+    // search
+    if (A.q) {
+      const q = A.q.toLowerCase();
+      f = f.filter(s =>
+        (s.title||'').toLowerCase().includes(q) ||
+        (s.id||'').toLowerCase().includes(q) ||
+        (s.submitted_by||'').toLowerCase().includes(q) ||
+        (s.source||'').toLowerCase().includes(q)
+      );
+    }
+
+    A.filt = f;
+    renderTable();
+  }
+
+  /* =====================================================
+     RENDER STATS
+  ===================================================== */
+  function renderStats() {
+    const all = A.all;
+    const now = new Date();
+    const approved  = all.filter(s => s.status === 'approved').length;
+    const pending   = all.filter(s => s.status === 'pending').length;
+    const launchable= all.filter(s => s.launchable).length;
+    const expiring  = all.filter(s => {
+      if (!s.expires_at) return false;
+      const exp = new Date(s.expires_at);
+      const diff = exp - now;
+      return diff > 0 && diff < 86400000 * 3; // expiring within 3 days
+    }).length;
+
+    $('st-total').textContent    = all.length;
+    $('st-approved').textContent = approved;
+    $('st-pending').textContent  = pending;
+    $('st-launch').textContent   = launchable;
+    $('st-warn').textContent     = expiring;
+  }
+
+  /* =====================================================
+     RENDER TABLE
+  ===================================================== */
+  function renderTable() {
+    const countEl = $('scenario-count');
+    const f = A.filt;
+    countEl.textContent = f.length === A.all.length
+      ? `${A.all.length} scenario${A.all.length !== 1 ? 's' : ''}`
+      : `Showing ${f.length} of ${A.all.length} scenarios`;
+
+    if (!f.length) {
+      $('tbl-body').innerHTML = `<div class="tbl-empty"><strong>No Matches</strong>Try adjusting your filters.</div>`;
+      return;
+    }
+
+    $('tbl-body').innerHTML = f.map(s => {
+      const es  = effectiveStatus(s);
+      const sel = A.selected.has(s.id);
+      const [srcLbl, srcCls] = srcLabel(s.source);
+      const au  = s.audience || 'Technical';
+      const audCls = au === 'Executive' ? 'aud-exec' : 'aud-tech';
+
+      const statusPill = {
+        approved:  `<span class="spill sp-approved">Approved</span>`,
+        pending:   `<span class="spill sp-pending">Pending</span>`,
+        ephemeral: `<span class="spill sp-ephemeral">Ephemeral</span>`,
+        expired:   `<span class="spill sp-expired">Expired</span>`,
+        hidden:    `<span class="spill sp-hidden">Hidden</span>`
+      }[es] || `<span class="spill sp-pending">${x(es)}</span>`;
+
+      const launchHtml = s.launchable
+        ? `<div class="launch-ind launch-yes"><div class="launch-dot"></div>Ready</div>`
+        : `<div class="launch-ind launch-no"><div class="launch-dot"></div>Not Ready</div>`;
+
+      const approveBtn = es !== 'approved'
+        ? `<button class="act-btn act-approve" data-id="${x(s.id)}" onclick="approveOne('${x(s.id)}')">✓</button>`
+        : `<button class="act-btn act-reject" data-id="${x(s.id)}" onclick="rejectOne('${x(s.id)}')">✕</button>`;
+
+      const hideLabel = s.hidden ? 'Show' : 'Hide';
+
+      return `
+        <div class="tbl-row${sel?' selected':''}${s.hidden?' hidden-row':''}" data-id="${x(s.id)}">
+          <div class="td">
+            <div class="row-cb${sel?' checked':''}" data-id="${x(s.id)}" onclick="toggleSel('${x(s.id)}',event)"></div>
+          </div>
+          <div class="td">
+            <div class="row-name">
+              <div class="row-title" title="${x(s.title)}">${x(s.title||'Untitled')}</div>
+              <div class="row-id">${x(s.id||'—')}</div>
+            </div>
+          </div>
+          <div class="td">
+            <span class="src-pill ${srcCls}">${x(srcLbl)}</span>
+            <div style="font-size:10px;color:var(--text-dim);margin-top:3px">${x(iso2rel(s.submitted_at))} · ${x(s.submitted_by||'—')}</div>
+          </div>
+          <div class="td">${statusPill}</div>
+          <div class="td">${launchHtml}</div>
+          <div class="td"><span class="aud-pill ${audCls}">${x(au)}</span></div>
+          <div class="td row-actions">
+            ${approveBtn}
+            <button class="act-btn act-edit" onclick="openEdit('${x(s.id)}')">Edit</button>
+            <button class="act-btn act-hide" onclick="toggleHide('${x(s.id)}')">${hideLabel}</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* =====================================================
+     SELECTION
+  ===================================================== */
+  function toggleSel(id, e) {
+    if (e) e.stopPropagation();
+    if (A.selected.has(id)) A.selected.delete(id);
+    else A.selected.add(id);
+    syncBulk();
+    renderTable();
+  }
+
+  function syncBulk() {
+    const n = A.selected.size;
+    const bar = $('bulkbar');
+    bar.classList.toggle('show', n > 0);
+    if (n > 0) $('bulk-count').textContent = `${n} selected`;
+  }
+
+  function selectWhere(pred) {
+    A.selected.clear();
+    A.all.filter(pred).forEach(s => A.selected.add(s.id));
+    syncBulk();
+    renderTable();
+  }
+
+  /* =====================================================
+     SINGLE ACTIONS
+  ===================================================== */
+  function approveOne(id) {
+    const s = A.all.find(a => a.id === id);
+    if (!s) return;
+    s.status = 'approved';
+    persistAction('approve', [id]);
+    filt(); renderStats(); renderHealth();
+    toast(`Approved: ${s.title}`);
+  }
+
+  function rejectOne(id) {
+    const s = A.all.find(a => a.id === id);
+    if (!s) return;
+    s.status = 'pending';
+    persistAction('reject', [id]);
+    filt(); renderStats(); renderHealth();
+    toast(`Moved to pending: ${s.title}`);
+  }
+
+  function toggleHide(id) {
+    const s = A.all.find(a => a.id === id);
+    if (!s) return;
+    s.hidden = !s.hidden;
+    persistAction('hide', [id], { hidden: s.hidden });
+    filt(); renderStats();
+    toast(s.hidden ? `Hidden: ${s.title}` : `Visible: ${s.title}`);
+  }
+
+  function deleteOne(id) {
+    const s = A.all.find(a => a.id === id);
+    if (!s || !confirm(`Delete "${s.title}"? This cannot be undone.`)) return;
+    A.all = A.all.filter(a => a.id !== id);
+    A.selected.delete(id);
+    persistAction('delete', [id]);
+    filt(); renderStats(); renderHealth();
+    toast(`Deleted: ${s.title}`);
+  }
+
+  /* =====================================================
+     BULK ACTIONS
+  ===================================================== */
+  function bulkApprove() {
+    const ids = [...A.selected];
+    ids.forEach(id => {
+      const s = A.all.find(a => a.id === id);
+      if (s) s.status = 'approved';
+    });
+    persistAction('approve', ids);
+    A.selected.clear();
+    syncBulk();
+    filt(); renderStats(); renderHealth();
+    toast(`Approved ${ids.length} scenarios`);
+  }
+
+  function bulkHide() {
+    const ids = [...A.selected];
+    ids.forEach(id => {
+      const s = A.all.find(a => a.id === id);
+      if (s) s.hidden = true;
+    });
+    persistAction('hide', ids, { hidden: true });
+    A.selected.clear();
+    syncBulk();
+    filt(); renderStats();
+    toast(`Hidden ${ids.length} scenarios`);
+  }
+
+  function bulkDelete() {
+    const ids = [...A.selected];
+    if (!confirm(`Delete ${ids.length} scenarios? This cannot be undone.`)) return;
+    A.all = A.all.filter(s => !ids.includes(s.id));
+    A.selected.clear();
+    persistAction('delete', ids);
+    syncBulk();
+    filt(); renderStats(); renderHealth();
+    toast(`Deleted ${ids.length} scenarios`);
+  }
+
+  /* =====================================================
+     PERSIST ACTION → admin-scenarios webhook
+  ===================================================== */
+  async function persistAction(action, ids, extra = {}) {
+    try {
+      await fetch(ADMIN_WH, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ids, ...extra, scenarios: A.all })
+      });
+    } catch {
+      // Webhook may not be configured — UI update already done
+    }
+  }
+
+  /* =====================================================
+     EDIT PANEL
+  ===================================================== */
+  function openEdit(id) {
+    const s = A.all.find(a => a.id === id);
+    if (!s) return;
+    A.editId = id;
+
+    $('edit-title-hdr').textContent = s.title || 'Edit Scenario';
+    $('edit-id-hdr').textContent    = s.id || '';
+
+    $('edit-body').innerHTML = `
+      <div class="ef-notice">
+        ⚠ Edits are applied immediately in the UI. Persistence to scenarios.json requires the
+        <strong>admin-scenarios</strong> n8n webhook to be active.
+      </div>
+      <div class="ef-group">
+        <div class="ef-label">Title</div>
+        <input id="ef-title" type="text" class="ef-ctrl" value="${x(s.title||'')}">
+      </div>
+      <div class="ef-group">
+        <div class="ef-label">Description</div>
+        <textarea id="ef-desc" class="ef-ctrl">${x(s.description||'')}</textarea>
+      </div>
+      <div class="ef-grid2">
+        <div class="ef-group">
+          <div class="ef-label">Status</div>
+          <select id="ef-status" class="ef-ctrl">
+            <option value="approved"  ${s.status==='approved'?'selected':''}>Approved</option>
+            <option value="pending"   ${s.status==='pending'?'selected':''}>Pending</option>
+            <option value="ephemeral" ${s.status==='ephemeral'?'selected':''}>Ephemeral</option>
+          </select>
+        </div>
+        <div class="ef-group">
+          <div class="ef-label">Audience</div>
+          <select id="ef-audience" class="ef-ctrl">
+            <option value="Technical"  ${s.audience==='Technical'?'selected':''}>Technical</option>
+            <option value="Executive"  ${s.audience==='Executive'?'selected':''}>Executive</option>
+          </select>
+        </div>
+      </div>
+      <div class="ef-grid2">
+        <div class="ef-group">
+          <div class="ef-label">Source</div>
+          <select id="ef-source" class="ef-ctrl">
+            <option value="hand-authored"   ${s.source==='hand-authored'?'selected':''}>Hand-authored</option>
+            <option value="ollama-enriched" ${s.source==='ollama-enriched'?'selected':''}>AI Generated</option>
+            <option value="case-submission" ${s.source==='case-submission'?'selected':''}>Case Submission</option>
+            <option value="se-enrichment"   ${s.source==='se-enrichment'?'selected':''}>SE Enrichment</option>
+          </select>
+        </div>
+        <div class="ef-group">
+          <div class="ef-label">Launchable</div>
+          <select id="ef-launchable" class="ef-ctrl">
+            <option value="true"  ${s.launchable?'selected':''}>Yes — CALDERA ready</option>
+            <option value="false" ${!s.launchable?'selected':''}>No — placeholder</option>
+          </select>
+        </div>
+      </div>
+      <div class="ef-group">
+        <div class="ef-label">CALDERA Adversary ID</div>
+        <input id="ef-adversary" type="text" class="ef-ctrl"
+          value="${x(s.caldera_adversary_id||s.caldera_ability||'')}"
+          placeholder="e.g. scn001-credential-dumping">
+      </div>
+      <div class="ef-grid2">
+        <div class="ef-group">
+          <div class="ef-label">Submitted By</div>
+          <input id="ef-submitter" type="text" class="ef-ctrl" value="${x(s.submitted_by||'')}">
+        </div>
+        <div class="ef-group">
+          <div class="ef-label">Expires At</div>
+          <input id="ef-expires" type="text" class="ef-ctrl" value="${x(s.expires_at||'')}" placeholder="ISO timestamp or blank">
+        </div>
+      </div>
+    `;
+
+    $('editov').classList.add('open');
+    $('editd').classList.add('open');
+  }
+
+  function closeEdit() {
+    A.editId = null;
+    $('editov').classList.remove('open');
+    $('editd').classList.remove('open');
+  }
+
+  async function saveEdit() {
+    const id = A.editId;
+    if (!id) return;
+    const s = A.all.find(a => a.id === id);
+    if (!s) return;
+
+    const btn = $('edit-save');
+    btn.disabled = true; btn.classList.add('busy');
+
+    s.title         = $('ef-title').value.trim();
+    s.description   = $('ef-desc').value.trim();
+    s.status        = $('ef-status').value;
+    s.audience      = $('ef-audience').value;
+    s.source        = $('ef-source').value;
+    s.launchable    = $('ef-launchable').value === 'true';
+    s.submitted_by  = $('ef-submitter').value.trim();
+    s.expires_at    = $('ef-expires').value.trim() || null;
+    const advId     = $('ef-adversary').value.trim();
+    if (advId) { s.caldera_adversary_id = advId; s.caldera_ability = advId; }
+
+    await persistAction('edit', [id], { scenario: s });
+
+    btn.disabled = false; btn.classList.remove('busy');
+    closeEdit();
+    filt(); renderStats(); renderHealth();
+    toast(`Saved: ${s.title}`);
+  }
+
+  /* =====================================================
+     CATALOG HEALTH
+  ===================================================== */
+  function renderHealth() {
+    const all = A.all;
+    const approved   = all.filter(s => s.status === 'approved');
+    const launchable = all.filter(s => s.launchable);
+    const noDetect   = all.filter(s => !s.expected_detections || s.expected_detections.length === 0);
+    const noTalking  = all.filter(s => !s.talking_points || !s.talking_points.universal || !s.talking_points.universal.length);
+    const noRunbook  = approved.filter(s => !s.se_runbook);
+    const expiredNow = all.filter(s => isExpired(s));
+    const slugId     = all.filter(s => s.caldera_ability === 'slug-id' || s.caldera_adversary_id === 'slug-id');
+
+    const checks = [
+      {
+        name: 'Approved Scenarios',
+        val:  `${approved.length} of ${all.length}`,
+        ico:  approved.length >= 6 ? 'ok' : approved.length >= 3 ? 'warn' : 'crit',
+        tip:  approved.length >= 6 ? 'Good' : 'Below recommended minimum of 6'
+      },
+      {
+        name: 'Launchable via CALDERA',
+        val:  `${launchable.length} of ${all.length}`,
+        ico:  launchable.length >= 6 ? 'ok' : launchable.length >= 3 ? 'warn' : 'crit',
+        tip:  launchable.length >= 6 ? 'All production scenarios ready' : 'Some scenarios have placeholder CALDERA IDs'
+      },
+      {
+        name: 'Missing Detections',
+        val:  noDetect.length === 0 ? 'None' : `${noDetect.length} scenarios`,
+        ico:  noDetect.length === 0 ? 'ok' : noDetect.length <= 3 ? 'warn' : 'crit',
+        tip:  noDetect.length === 0 ? 'All scenarios have detection data' : `Missing: ${noDetect.map(s=>s.id).join(', ')}`
+      },
+      {
+        name: 'Missing Talking Points',
+        val:  noTalking.length === 0 ? 'None' : `${noTalking.length} scenarios`,
+        ico:  noTalking.length === 0 ? 'ok' : 'warn',
+        tip:  noTalking.length === 0 ? 'All scenarios have talking points' : 'Some scenarios lack SE talking points'
+      },
+      {
+        name: 'Approved Without Runbook',
+        val:  noRunbook.length === 0 ? 'None' : `${noRunbook.length} approved`,
+        ico:  noRunbook.length === 0 ? 'ok' : 'warn',
+        tip:  noRunbook.length === 0 ? 'All approved scenarios have SE runbooks' : 'Missing runbooks on approved scenarios'
+      },
+      {
+        name: 'Expired Scenarios',
+        val:  expiredNow.length === 0 ? 'None' : `${expiredNow.length} expired`,
+        ico:  expiredNow.length === 0 ? 'ok' : 'warn',
+        tip:  expiredNow.length === 0 ? 'No expired ephemeral scenarios' : 'Expired scenarios should be reviewed or deleted'
+      },
+      {
+        name: 'Placeholder CALDERA IDs',
+        val:  slugId.length === 0 ? 'None' : `${slugId.length} scenarios`,
+        ico:  slugId.length === 0 ? 'ok' : slugId.length <= 3 ? 'warn' : 'crit',
+        tip:  slugId.length === 0 ? 'All scenarios have real adversary IDs' : 'Scenarios with "slug-id" are not launchable'
+      },
+      {
+        name: 'Total in Catalog',
+        val:  `${all.length} scenarios`,
+        ico:  all.length > 0 ? 'ok' : 'crit',
+        tip:  'Total scenario count across all statuses'
+      }
+    ];
+
+    const overall = checks.every(c => c.ico === 'ok') ? 'ok'
+                  : checks.some(c => c.ico === 'crit') ? 'crit' : 'warn';
+    const hb = $('health-badge');
+    hb.className = `health-badge hb-${overall}`;
+    hb.textContent = overall === 'ok' ? 'Healthy' : overall === 'warn' ? 'Warnings' : 'Issues';
+
+    $('health-grid').innerHTML = checks.map(c => `
+      <div class="hcheck">
+        <div class="hcheck-ico hico-${c.ico}">${c.ico==='ok'?'✓':c.ico==='warn'?'!':'✕'}</div>
+        <div class="hcheck-body">
+          <div class="hcheck-name">${x(c.name)}</div>
+          <div class="hcheck-val">${x(c.val)} — ${x(c.tip)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* =====================================================
+     TOAST
+  ===================================================== */
+  function toast(msg, type = 'default') {
+    const t = document.createElement('div');
+    const colors = {
+      default: ['rgba(0,242,179,.4)', 'var(--accent-green)'],
+      error:   ['rgba(181,41,247,.4)', 'var(--sev-crit)'],
+      warn:    ['rgba(0,156,251,.4)',  'var(--sev-med)']
+    }[type] || colors.default;
+    t.style.cssText = [
+      'background:rgba(8,15,46,.97)',
+      `border:1px solid ${colors[0]}`,
+      'border-radius:6px', 'padding:10px 16px',
+      'font-family:var(--ft)', 'font-weight:600', 'font-size:10px',
+      'letter-spacing:.14em', 'text-transform:uppercase',
+      `color:${colors[1]}`,
+      'box-shadow:0 8px 32px rgba(0,0,0,.5)',
+      'animation:su .2s ease-out'
+    ].join(';');
+    t.textContent = msg;
+    $('toast-area').appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  /* =====================================================
+     EVENTS
+  =====================================================*/
+  function wire() {
+    // Gate
+    $('gate-btn').addEventListener('click', tryLogin);
+    $('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+    // Dismiss webhook notice
+    $('wh-dismiss').addEventListener('click', () => $('wh-notice').classList.add('hidden'));
+
+    // Filter chips — status
+    qa('[data-filter="status"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        qa('[data-filter="status"]').forEach(b => b.classList.remove('on','on-green','on-orange','on-crit'));
+        A.filters.status = btn.dataset.val;
+        const cls = { all:'on', approved:'on-green', pending:'on-orange', ephemeral:'on', expired:'on-crit' }[btn.dataset.val] || 'on';
+        btn.classList.add(cls);
+        filt();
+      });
+    });
+
+    // Filter chips — source
+    qa('[data-filter="source"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const active = btn.classList.contains('on');
+        qa('[data-filter="source"]').forEach(b => b.classList.remove('on'));
+        A.filters.source = active ? null : btn.dataset.val;
+        if (!active) btn.classList.add('on');
+        filt();
+      });
+    });
+
+    // Filter chips — launchable
+    qa('[data-filter="launchable"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const active = btn.classList.contains('on');
+        qa('[data-filter="launchable"]').forEach(b => b.classList.remove('on'));
+        A.filters.launchable = active ? null : btn.dataset.val;
+        if (!active) btn.classList.add('on');
+        filt();
+      });
+    });
+
+    // Search
+    $('fsearch').addEventListener('input', e => { A.q = e.target.value; filt(); });
+
+    // Select all header checkbox
+    $('cb-all').addEventListener('click', () => {
+      if (A.selected.size === A.filt.length && A.filt.length > 0) {
+        A.selected.clear();
+      } else {
+        A.filt.forEach(s => A.selected.add(s.id));
+      }
+      syncBulk();
+      renderTable();
+    });
+
+    // Bulk smart selectors
+    $('sel-all-ai').addEventListener('click', () => selectWhere(s => s.source === 'ollama-enriched'));
+    $('sel-all-pending').addEventListener('click', () => selectWhere(s => s.status === 'pending'));
+    $('sel-not-launchable').addEventListener('click', () => selectWhere(s => !s.launchable));
+    $('sel-clear').addEventListener('click', () => {
+      A.selected.clear();
+      syncBulk();
+      renderTable();
+    });
+
+    // Bulk actions
+    $('bulk-approve').addEventListener('click', bulkApprove);
+    $('bulk-hide').addEventListener('click', bulkHide);
+    $('bulk-delete').addEventListener('click', bulkDelete);
+
+    // Edit panel
+    $('editcls').addEventListener('click', closeEdit);
+    $('edit-cancel').addEventListener('click', closeEdit);
+    $('edit-save').addEventListener('click', saveEdit);
+    $('editov').addEventListener('click', e => { if (e.target === $('editov')) closeEdit(); });
+
+    // Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeEdit();
+    });
+  }
+
+  /* =====================================================
+     BOOT
+  ===================================================== */
+  document.addEventListener('DOMContentLoaded', () => {
+    wire();
+    checkAuth();
+  });
+
+// ── Nav Menu ─────────────────────────────────────────────────────────────────
+function navToggle() { document.getElementById('nav-dd').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.getElementById('nav-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
+});
+function navCopyLink() {
+  navigator.clipboard.writeText(location.href)
+    .then(function() { navFb('nav-copy-link', '🔗 Copied!'); });
+}
+function navFb(id, txt) {
+  var el = document.getElementById(id); if (!el) return;
+  var orig = el.textContent; el.textContent = txt;
+  setTimeout(function() { el.textContent = orig; }, 1800);
+}
+</script>
+</body>
+</html>

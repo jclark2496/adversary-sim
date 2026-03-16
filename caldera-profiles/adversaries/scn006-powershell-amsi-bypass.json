@@ -1,0 +1,12 @@
+{
+  "adversary_id": "scn006-powershell-amsi-bypass",
+  "name": "SCN-006 | PowerShell Execution & AMSI Bypass",
+  "description": "Simulates attacker abuse of PowerShell for execution and defense evasion. Step 1 demonstrates Base64-encoded command execution to bypass string-matching defenses. Step 2 narrates AMSI bypass via AmsiScanBuffer memory patching — explaining how attackers disable PowerShell's security scanning layer. Step 3 simulates an IEX download cradle with spoofed user-agent used to pull stage-2 payloads from a C2 server. Designed to showcase Sophos Intercept X AMSI integration and behavioral PowerShell detections.",
+  "tags": ["execution", "defense-evasion", "powershell", "amsi", "t1059.001", "t1562.001", "demo-ready", "medium"],
+  "atomic_ordering": [
+    "scn006-a1-powershell-enumeration",
+    "scn006-a2-amsi-bypass-attempt",
+    "scn006-a3-payload-download-exec"
+  ],
+  "objective": "default"
+}

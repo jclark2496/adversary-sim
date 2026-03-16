@@ -1,0 +1,13 @@
+{
+  "adversary_id": "scn008-ransomware-simulation",
+  "name": "SCN-008 | Ransomware Pre-Deployment Simulation",
+  "description": "Simulates the four-phase pre-deployment sequence used by ransomware operators before encrypting files: disable backup services (VSS, WBEngine), narrate shadow copy deletion, stage a realistic ransom note and encrypted file markers, then summarize all detections for the Taegis handoff. No actual files are encrypted. Designed as the highest-impact demo scenario — shows prospects exactly how Sophos MDR interrupts a ransomware attack before data loss occurs.",
+  "tags": ["impact", "defense-evasion", "ransomware", "t1490", "t1489", "t1486", "t1562.001", "demo-ready", "hard"],
+  "atomic_ordering": [
+    "scn008-a1-disable-defenses",
+    "scn008-a2-delete-shadow-copies",
+    "scn008-a3-stage-ransom-note",
+    "scn008-a4-impact-report"
+  ],
+  "objective": "default"
+}

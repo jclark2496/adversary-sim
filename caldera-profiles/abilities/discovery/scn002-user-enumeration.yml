@@ -1,0 +1,34 @@
+---
+- id: scn002-a4-user-enumeration
+  name: "SCN-002 | Local User and Group Enumeration"
+  description: |
+    Enumerates local user accounts, local groups, and Administrators group
+    members. Attacker uses this to identify privileged accounts for targeted
+    lateral movement or credential theft.
+    All native Windows commands. Maps to T1087.001.
+  tactic: discovery
+  technique:
+    attack_id: T1087.001
+    name: "Account Discovery: Local Account"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== USER ENUMERATION (T1087.001) ===";
+          Write-Output "[*] Local Users:";
+          Get-LocalUser | Select-Object Name, Enabled, LastLogon, PasswordLastSet, Description |
+            Format-Table -AutoSize | Out-String;
+          Write-Output "[*] Local Groups:";
+          Get-LocalGroup | Select-Object Name, Description |
+            Format-Table -AutoSize | Out-String;
+          Write-Output "[*] Administrators Group Members:";
+          Get-LocalGroupMember -Group "Administrators" |
+            Select-Object Name, ObjectClass, PrincipalSource |
+            Format-Table -AutoSize | Out-String;
+          Write-Output "=== END USER ENUMERATION ==="
+        cleanup: ""
+        parsers:
+          org.mitre.caldera.parsers.basic:
+            - source: host.user.name
+              edge: has_admin_account
+              target: Administrators

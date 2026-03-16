@@ -1,0 +1,59 @@
+# =============================================================================
+# Adversary Sim — Guacamole Stack (Standalone Mode Only)
+# =============================================================================
+# This file is ONLY used when LabOps is NOT installed.
+# When LabOps is running, adversary-sim uses LabOps' Guacamole instance.
+#
+# Usage (handled automatically by Makefile):
+#   docker compose -f docker-compose.yml -f docker-compose.guacamole.yml up -d
+# =============================================================================
+
+volumes:
+  guac-db:
+
+services:
+
+  guac-postgres:
+    image: postgres:15-alpine
+    platform: linux/arm64
+    container_name: advsim-guac-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=guacamole_db
+      - POSTGRES_USER=guacamole
+      - POSTGRES_PASSWORD=guacamole
+    volumes:
+      - guac-db:/var/lib/postgresql/data
+      - ./guacamole/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guacamole"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guacd:
+    image: guacamole/guacd:latest
+    platform: linux/amd64
+    container_name: advsim-guacd
+    restart: unless-stopped
+
+  guacamole:
+    image: guacamole/guacamole:latest
+    platform: linux/amd64
+    container_name: advsim-guacamole
+    restart: unless-stopped
+    depends_on:
+      guac-postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_started
+    environment:
+      - GUACD_HOSTNAME=advsim-guacd
+      - GUACD_PORT=4822
+      - POSTGRESQL_HOSTNAME=advsim-guac-postgres
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_DATABASE=guacamole_db
+      - POSTGRESQL_USERNAME=guacamole
+      - POSTGRESQL_PASSWORD=guacamole
+    ports:
+      - "${GUAC_PORT:-8085}:8080"

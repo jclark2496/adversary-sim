@@ -1,0 +1,37 @@
+---
+- id: scn002-a3-process-discovery
+  name: "SCN-002 | Running Process Discovery"
+  description: |
+    Enumerates running processes, identifies security tools (AV/EDR), and
+    looks for juicy targets (browsers with creds, password managers, VPN clients).
+    Attacker uses this to identify defenses and prioritize next steps.
+    All native Windows commands. Maps to T1057.
+  tactic: discovery
+  technique:
+    attack_id: T1057
+    name: "Process Discovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== PROCESS DISCOVERY (T1057) ===";
+          Write-Output "[*] All Running Processes:";
+          Get-Process | Select-Object Name, Id, CPU, WorkingSet | Sort-Object WorkingSet -Descending | Format-Table -AutoSize | Out-String;
+          Write-Output "";
+          Write-Output "[*] Security Tool Check (AV/EDR indicators):";
+          $securityProcs = @("MsMpEng","SophosUI","SophosCleanM","SEDService","SAVService",
+                             "cb","CbDefense","CylanceSvc","MfeAVSvc","bdagent",
+                             "AvastSvc","avguard","ccSvcHst","ekrn");
+          foreach ($proc in $securityProcs) {
+            $found = Get-Process -Name $proc -ErrorAction SilentlyContinue;
+            if ($found) { Write-Output "  [!] DETECTED: $proc (PID: $($found.Id))" }
+          };
+          Write-Output "";
+          Write-Output "[*] High-Value Targets:";
+          $targets = @("chrome","firefox","keepass","1password","outlook","lync","teams","vpnclient");
+          foreach ($t in $targets) {
+            $found = Get-Process -Name $t -ErrorAction SilentlyContinue;
+            if ($found) { Write-Output "  [+] FOUND: $t (PID: $($found.Id))" }
+          };
+          Write-Output "=== END PROCESS DISCOVERY ==="
+        cleanup: ""

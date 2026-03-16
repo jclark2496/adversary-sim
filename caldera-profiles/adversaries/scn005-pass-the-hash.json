@@ -1,0 +1,12 @@
+{
+  "adversary_id": "scn005-pass-the-hash",
+  "name": "SCN-005 | Pass the Hash Lateral Movement",
+  "description": "Simulates post-compromise lateral movement using NTLM hashes extracted in a prior credential dumping stage. Enumerates network shares to identify targets, narrates SAM hash extraction, then demonstrates Pass the Hash authentication without a plaintext password. Represents the natural continuation of SCN-001 — showing how stolen hashes are weaponized for lateral movement. All native Windows commands + Impacket narration.",
+  "tags": ["lateral-movement", "credential-access", "t1135", "t1003.002", "t1550.002", "demo-ready", "medium"],
+  "atomic_ordering": [
+    "scn005-a1-enumerate-shares",
+    "scn005-a2-extract-ntlm-hash",
+    "scn005-a3-pth-authentication"
+  ],
+  "objective": "default"
+}

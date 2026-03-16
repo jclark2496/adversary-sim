@@ -1,0 +1,31 @@
+---
+- id: scn006-a1-powershell-enumeration
+  name: "SCN-006 | PowerShell Encoded Command Execution"
+  description: |
+    Executes a Base64-encoded PowerShell command to simulate the obfuscation
+    technique attackers use to bypass basic string-matching defenses. Encodes
+    a process enumeration payload, prints the encoded string, then decodes
+    and runs it via powershell.exe -EncodedCommand. Generates AMSI and
+    PowerShell ScriptBlock telemetry. Maps to T1059.001.
+  tactic: execution
+  technique:
+    attack_id: T1059.001
+    name: "Command and Scripting Interpreter: PowerShell"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== POWERSHELL ENCODED EXECUTION (T1059.001) ===";
+          Write-Output "[*] Encoding payload as Base64 Unicode...";
+          $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(
+            'Write-Output "[*] Encoded payload decoded and executed successfully"; Get-Process | Where-Object {$_.CPU -gt 10} | Select-Object Name,CPU,Id | Format-Table -AutoSize'
+          ));
+          Write-Output "[*] Encoded command: $encoded";
+          Write-Output "";
+          Write-Output "[*] Executing via -EncodedCommand flag...";
+          powershell.exe -EncodedCommand $encoded;
+          Write-Output "";
+          Write-Output "[*] Encoded execution complete";
+          Write-Output "[*] Sophos detects: PowerShell -EncodedCommand in process telemetry";
+          Write-Output "=== END ENCODED EXECUTION ==="
+        cleanup: ""

@@ -1,0 +1,12 @@
+{
+  "adversary_id": "scn003-phishing-persistence",
+  "name": "SCN-003 | Phishing → Payload → Persistence",
+  "description": "Simulates a phishing-initiated compromise. Phase 1 (GoPhish email delivery) is narrated in the SE runbook — demo starts post-click with the CALDERA agent already running. Phase 2 establishes dual persistence: a scheduled task disguised as MicrosoftEdgeUpdateTaskMachineCore (T1053.005) and a registry Run key disguised as OneDriveSync (T1547.001). Demonstrates attacker redundancy — two persistence mechanisms so one survives detection and removal.",
+  "tags": ["phishing", "execution", "persistence", "t1204.002", "t1053.005", "t1547.001", "demo-ready", "medium"],
+  "atomic_ordering": [
+    "scn003-a1-payload-execution",
+    "scn003-a2-scheduled-task-persistence",
+    "scn003-a3-registry-persistence"
+  ],
+  "objective": "default"
+}

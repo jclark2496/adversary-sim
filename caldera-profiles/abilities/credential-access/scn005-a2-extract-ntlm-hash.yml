@@ -1,0 +1,34 @@
+---
+- id: scn005-a2-extract-ntlm-hash
+  name: "SCN-005 | Extract NTLM Hash from Registry (SAM)"
+  description: |
+    Simulates NTLM hash extraction from the Security Account Manager (SAM)
+    registry hive. Checks LM compatibility level, enumerates the target
+    identity, and verifies SeDebugPrivilege status. Narrates how hashes
+    extracted in SCN-001 are repurposed for Pass the Hash authentication
+    without ever knowing the plaintext password. Maps to T1003.002.
+  tactic: credential-access
+  technique:
+    attack_id: T1003.002
+    name: "OS Credential Dumping: Security Account Manager"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== NTLM HASH EXTRACTION (T1003.002) ===";
+          $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa";
+          $lmcompat = (Get-ItemProperty $regPath).LmCompatibilityLevel;
+          Write-Output "[*] LM Compatibility Level: $lmcompat";
+          Write-Output "[*] Checking for cached credentials...";
+          $domain   = $env:USERDOMAIN;
+          $user     = $env:USERNAME;
+          $computer = $env:COMPUTERNAME;
+          Write-Output "[*] Target: $domain\$user on $computer";
+          Write-Output "[*] NTLM hash extraction requires SeDebugPrivilege - checking...";
+          whoami /priv | Select-String "SeDebugPrivilege";
+          Write-Output "";
+          Write-Output "[*] In a real attack, hashes extracted from SCN-001 would be used here";
+          Write-Output "[*] Hash format: $user`:RID:LM_HASH:NTLM_HASH";
+          Write-Output "[*] NTLM hash allows auth without plaintext password (Pass the Hash)";
+          Write-Output "=== END HASH EXTRACTION ==="
+        cleanup: ""

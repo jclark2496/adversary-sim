@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sophos Adversary Simulation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Variables ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #03071e;
+  --bg-mid:    #080f2e;
+  --bg-card:   #0a1540;
+  --bg-card2:  #0d1a50;
+  --cyan:      #00edff;
+  --orange:    #ff6b35;
+  --purple:    #a855f7;
+  --amber:     #f59e0b;
+  --green:     #00f2b3;
+  --red:       #ff3b5c;
+  --text:      #e8f0ff;
+  --muted:     #5a7ab8;
+  --border:    rgba(0,237,255,0.12);
+  --border-m:  rgba(0,237,255,0.22);
+  --cyan-rgb:  0,237,255;
+  --orange-rgb:255,107,53;
+  --purple-rgb:168,85,247;
+  --amber-rgb: 245,158,11;
+  --green-rgb: 0,242,179;
+}
+
+/* ── Reset & Base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8em; }
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+header {
+  height: 56px;
+  min-height: 56px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  z-index: 10;
+}
+.header-logo {
+  display: none;
+  width: 32px; height: 32px;
+  background: rgba(var(--cyan-rgb),0.15);
+  border: 1px solid rgba(var(--cyan-rgb),0.4);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  flex: 1;
+}
+.header-title span { color: var(--cyan); }
+.logo-word {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.logo-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--cyan);
+  background: rgba(var(--cyan-rgb),0.08);
+  border: 1px solid rgba(var(--cyan-rgb),0.22);
+  border-radius: 5px;
+  padding: 3px 10px 3px 22px;
+  position: relative;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.logo-tag::before {
+  content: '>';
+  position: absolute;
+  left: 8px;
+  color: rgba(var(--cyan-rgb),0.45);
+  font-size: 10px;
+}
+.header-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(var(--green-rgb),0.1);
+  border: 1px solid rgba(var(--green-rgb),0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.05em;
+}
+.header-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.theme-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border-m);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--cyan); }
+.header-back {
+  font-size: 12px; color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.header-back:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* ── Tab Bar ───────────────────────────────────────────────────────────── */
+.tab-bar {
+  height: 44px;
+  min-height: 44px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 20px;
+  gap: 0;
+}
+.tab-btn {
+  height: 100%;
+  padding: 0 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn[data-tab="arch"].active  { color: var(--cyan);   border-bottom-color: var(--cyan);   }
+.tab-btn[data-tab="flow"].active  { color: var(--orange); border-bottom-color: var(--orange); }
+.tab-btn[data-tab="stack"].active { color: var(--purple); border-bottom-color: var(--purple); }
+.tab-btn[data-tab="guide"].active { color: var(--amber);  border-bottom-color: var(--amber);  }
+.tab-btn .tab-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  opacity: 0.6;
+  margin-right: 6px;
+}
+
+/* ── Content Area ──────────────────────────────────────────────────────── */
+.content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.tab-pane {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px;
+  display: none;
+  animation: fadein 0.18s ease;
+}
+.tab-pane.active { display: block; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
+.tab-pane::-webkit-scrollbar { width: 6px; }
+.tab-pane::-webkit-scrollbar-track { background: transparent; }
+.tab-pane::-webkit-scrollbar-thumb { background: rgba(var(--cyan-rgb),0.2); border-radius: 3px; }
+.tab-pane::-webkit-scrollbar-thumb:hover { background: rgba(var(--cyan-rgb),0.4); }
+
+/* ── Section Label ─────────────────────────────────────────────────────── */
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   TAB 1 — ARCHITECTURE
+════════════════════════════════════════════════════════════════════════ */
+.topo-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr 60px 210px;
+  gap: 0;
+  align-items: center;
+  min-height: 420px;
+  margin-bottom: 28px;
+}
+
+/* Zone containers */
+.topo-zone {
+  background: rgba(var(--cyan-rgb),0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slidein 0.4s ease both;
+}
+.topo-zone.proxmox  { background: rgba(var(--orange-rgb),0.04); border-color: rgba(var(--orange-rgb),0.2); }
+.topo-zone.cloud    { background: rgba(var(--purple-rgb),0.04); border-color: rgba(var(--purple-rgb),0.2); width: 100%; }
+@keyframes slidein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.topo-zone:nth-child(1) { animation-delay: 0s; }
+.topo-zone:nth-child(3) { animation-delay: 0.1s; }
+.topo-zone:nth-child(5) { animation-delay: 0.2s; }
+
+.zone-header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.zone-header.cyan   { color: var(--cyan); }
+.zone-header.orange { color: var(--orange); }
+.zone-header.purple { color: var(--purple); }
+.zone-header .zone-ip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* Service nodes inside zones */
+.svc-node {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+.svc-node:hover { border-color: var(--border-m); background: var(--bg-card2); }
+.svc-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.svc-icon.c  { background: rgba(var(--cyan-rgb),0.15);   color: var(--cyan);   }
+.svc-icon.o  { background: rgba(var(--orange-rgb),0.15); color: var(--orange); }
+.svc-icon.g  { background: rgba(var(--green-rgb),0.15);  color: var(--green);  }
+.svc-icon.p  { background: rgba(var(--purple-rgb),0.15); color: var(--purple); }
+.svc-icon.m  { background: rgba(245,158,11,0.15);        color: var(--amber);  }
+.svc-icon svg { width: 15px; height: 15px; flex-shrink: 0; }
+.svc-info { flex: 1; min-width: 0; }
+.svc-name {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.svc-port {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.svc-port a {
+  color: var(--cyan);
+  transition: opacity 0.15s;
+}
+.svc-port a:hover { opacity: 0.7; }
+
+/* Connector columns */
+.topo-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+  height: 100%;
+}
+.conn-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.conn-line {
+  width: 2px;
+  flex: 1;
+  min-height: 20px;
+  border-left: 2px dashed rgba(var(--cyan-rgb),0.25);
+}
+.conn-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.conn-arrowhead {
+  color: var(--cyan);
+  font-size: 14px;
+  line-height: 1;
+}
+.conn-arrowhead.orange { color: var(--orange); }
+.conn-arrowhead.purple { color: var(--purple); }
+
+/* Network legend below topology */
+.net-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.net-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.net-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.net-name { font-size: 12px; font-weight: 600; flex: 1; }
+.net-ip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── n8n Enrichment Pipeline ───────────────────────────────────────────── */
+.n8n-pipeline {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  gap: 0;
+  margin-top: 4px;
+}
+.n8n-pipeline::-webkit-scrollbar { height: 4px; }
+.n8n-pipeline::-webkit-scrollbar-thumb { background: rgba(var(--green-rgb),0.25); border-radius: 2px; }
+.n8n-node-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 88px;
+  max-width: 100px;
+}
+.n8n-node-box {
+  width: 56px; height: 56px;
+  border-radius: 10px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  position: relative;
+}
+.n8n-node-box svg { width: 22px; height: 22px; }
+.n8n-nlabel { font-size: 10px; font-weight: 700; line-height: 1.25; color: var(--text); }
+.n8n-nsub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.2;
+}
+.n8n-conn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  padding-bottom: 20px;
+  gap: 2px;
+}
+.n8n-conn-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, rgba(var(--green-rgb),0.2), rgba(var(--green-rgb),0.5), rgba(var(--green-rgb),0.2));
+  position: relative;
+}
+.n8n-conn-line::after {
+  content: '›';
+  position: absolute;
+  right: -4px;
+  top: -8px;
+  color: rgba(var(--green-rgb),0.7);
+  font-size: 14px;
+}
+.n8n-conn-pass {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: rgba(var(--green-rgb),0.6);
+  white-space: nowrap;
+  margin-top: 3px;
+  letter-spacing: 0.05em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   TAB 2 — ATTACK FLOW
+════════════════════════════════════════════════════════════════════════ */
+.flow-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 130px;
+  max-width: 150px;
+  animation: slidein 0.35s ease both;
+}
+.flow-step:nth-child(odd)  { animation-delay: calc(0.06s * var(--i)); }
+.flow-step:nth-child(even) { animation-delay: calc(0.06s * var(--i)); }
+
+.flow-node {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  position: relative;
+}
+.flow-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.flow-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+.flow-icon {
+  width: 32px; height: 32px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flow-icon svg { width: 32px; height: 32px; flex-shrink: 0; }
+.flow-name {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.flow-desc {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Step accent colors */
+.flow-node.c1 { border-top: 3px solid var(--cyan);   }
+.flow-node.c2 { border-top: 3px solid #38bdf8;        }
+.flow-node.c3 { border-top: 3px solid var(--orange);  }
+.flow-node.c4 { border-top: 3px solid #fb923c;        }
+.flow-node.c5 { border-top: 3px solid var(--amber);   }
+.flow-node.c6 { border-top: 3px solid var(--red);     }
+.flow-node.c7 { border-top: 3px solid var(--green);   }
+
+.flow-num.c1 { color: var(--cyan);   }
+.flow-num.c2 { color: #38bdf8;       }
+.flow-num.c3 { color: var(--orange); }
+.flow-num.c4 { color: #fb923c;       }
+.flow-num.c5 { color: var(--amber);  }
+.flow-num.c6 { color: var(--red);    }
+.flow-num.c7 { color: var(--green);  }
+
+/* Arrow between steps */
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  margin-top: 32px;
+  flex-shrink: 0;
+}
+.flow-arrow svg { color: var(--muted); }
+
+/* Proof point callout */
+.money-shot {
+  background: rgba(var(--green-rgb),0.08);
+  border: 1px solid rgba(var(--green-rgb),0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11px;
+  margin-top: 8px;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+}
+.money-shot::before { content: '★'; font-size: 10px; }
+
+/* Guacamole sub-flow */
+.subflow-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subflow-label::before { content: '⎇'; color: var(--purple); }
+.subflow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.subflow-node {
+  background: var(--bg-card);
+  border: 1px solid rgba(var(--purple-rgb),0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  min-width: 110px;
+  color: var(--text);
+}
+.subflow-node .sub-detail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 3px;
+  font-weight: 400;
+}
+.subflow-arrow {
+  padding: 0 6px;
+  color: rgba(var(--purple-rgb),0.6);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   TAB 3 — TECH STACK
+════════════════════════════════════════════════════════════════════════ */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.stack-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.15s;
+  animation: fadein 0.3s ease both;
+}
+.stack-card:hover { border-color: var(--border-m); background: var(--bg-card2); }
+.stack-emoji {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.stack-emoji svg { width: 22px; height: 22px; }
+.stack-info { flex: 1; min-width: 0; }
+.stack-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.stack-url {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan);
+  display: block;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stack-url:hover { opacity: 0.7; }
+.stack-creds {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 4px;
+}
+.stack-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.stack-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+.tag-docker { background: rgba(var(--cyan-rgb),0.12); color: var(--cyan); }
+.tag-native { background: rgba(var(--green-rgb),0.12); color: var(--green); }
+.tag-infra  { background: rgba(var(--orange-rgb),0.12); color: var(--orange); }
+.tag-detect { background: rgba(var(--purple-rgb),0.12); color: var(--purple); }
+
+/* ════════════════════════════════════════════════════════════════════════
+   TAB 4 — SCENARIO GUIDE
+════════════════════════════════════════════════════════════════════════ */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.scenario-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.18s;
+  animation: fadein 0.3s ease both;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.scenario-card:hover {
+  border-color: rgba(var(--amber-rgb),0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.scn-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.scn-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  background: rgba(var(--amber-rgb),0.1);
+  border: 1px solid rgba(var(--amber-rgb),0.25);
+  border-radius: 5px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.scn-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.scn-audience {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.aud-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.aud-exec   { background: rgba(var(--purple-rgb),0.15); color: var(--purple); }
+.aud-tech   { background: rgba(var(--cyan-rgb),0.15);   color: var(--cyan);   }
+.aud-ciso   { background: rgba(var(--orange-rgb),0.15); color: var(--orange); }
+.aud-all    { background: rgba(var(--green-rgb),0.12);  color: var(--green);  }
+
+.scn-story {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+.scn-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+}
+.scn-duration {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.scn-duration::before { content: '⏱'; font-size: 10px; }
+.scn-techs {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  flex: 1;
+}
+.scn-moneyshot {
+  background: rgba(var(--green-rgb),0.08);
+  border: 1px solid rgba(var(--green-rgb),0.25);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.scn-moneyshot-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 3px;
+}
+
+/* Demo execution steps */
+.demo-steps {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.demo-steps-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.demo-steps-title::before {
+  content: '▶';
+  color: var(--amber);
+  font-size: 10px;
+}
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(var(--amber-rgb),0.15);
+  border: 1px solid rgba(var(--amber-rgb),0.3);
+  color: var(--amber);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-text { flex: 1; }
+.step-action {
+  font-weight: 700;
+  color: var(--text);
+}
+.step-detail { color: var(--muted); }
+.step-highlight {
+  font-weight: 700;
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+/* ── NAV MENU ──────────────────────────────────────────────────────────── */
+.nav-wrap { position:relative; flex-shrink:0; }
+.nav-btn {
+  font-size:12px; color:var(--muted); background:transparent;
+  border:1px solid var(--border); border-radius:6px;
+  padding:4px 10px; cursor:pointer; transition:all 0.2s;
+  flex-shrink:0; font-family:'Syne',sans-serif; letter-spacing:.02em;
+}
+.nav-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+.nav-dd {
+  position:absolute; top:calc(100% + 6px); right:0; min-width:214px;
+  background:var(--bg-mid);
+  border:1px solid var(--border-m); border-radius:6px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  z-index:1001; display:none; overflow:hidden;
+}
+@keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+.nav-dd.open { display:block; animation:nav-in .12s ease-out; }
+.nav-it {
+  display:flex; align-items:center; gap:9px; padding:9px 14px;
+  font-size:12px; color:var(--muted); letter-spacing:.02em;
+  width:100%; text-align:left; background:none; border:none;
+  cursor:pointer; transition:background .1s, color .1s; font-family:'Syne',sans-serif;
+}
+.nav-it:hover { background:rgba(var(--cyan-rgb),.07); color:var(--text); }
+.nav-sep { height:1px; background:var(--border); margin:3px 0; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-title">
+    <span class="logo-word">Sophos Adversary</span>
+    <span class="logo-tag">simulation_platform</span>
+  </div>
+  <div class="header-badge">Platform Online</div>
+  <a href="/" class="header-back">← SE Console</a>
+  <div class="nav-wrap" id="nav-wrap">
+    <button class="nav-btn" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+    <div class="nav-dd" id="nav-dd">
+      <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+      <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
+      <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
+      <div class="nav-sep"></div>
+      <button class="nav-it" id="nav-copy-link" onclick="navCopyLink()">Copy Page Link</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Tab Bar ────────────────────────────────────────────────────────── -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="arch"  onclick="switchTab('arch')">
+    <span class="tab-num">01</span>Architecture
+  </button>
+  <button class="tab-btn" data-tab="flow"  onclick="switchTab('flow')">
+    <span class="tab-num">02</span>Attack Flow
+  </button>
+  <button class="tab-btn" data-tab="stack" onclick="switchTab('stack')">
+    <span class="tab-num">03</span>Tech Stack
+  </button>
+  <button class="tab-btn" data-tab="guide" onclick="switchTab('guide')">
+    <span class="tab-num">04</span>Scenario Guide
+  </button>
+</nav>
+
+<!-- ── Content ────────────────────────────────────────────────────────── -->
+<div class="content">
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 1 — ARCHITECTURE
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-pane active" id="pane-arch">
+
+    <div class="section-label">System Topology — <your-host-ip> (Demo Server) → <proxmox-ip> (Victim Environment) → SOC</div>
+
+    <div class="topo-grid">
+
+      <!-- Demo Server zone -->
+      <div class="topo-zone macmini">
+        <div class="zone-header cyan">
+          🖥 Demo Server
+          <span class="zone-ip"><your-host-ip></span>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M6 8l3 3-3 3M13 14h4"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Nginx (SE Console)</div>
+            <div class="svc-port"><a href="http://<your-host-ip>:8080" target="_blank">:8080</a> &nbsp;· Reverse proxy + UI</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">CALDERA C2</div>
+            <div class="svc-port"><a href="http://<your-host-ip>:8888" target="_blank">:8888</a> &nbsp;· MITRE ATT&CK engine</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17,1 21,5 17,9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7,23 3,19 7,15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">n8n + Ollama</div>
+            <div class="svc-port"><a href="http://<your-host-ip>:5678" target="_blank">:5678</a> &nbsp;· Workflow + AI enrichment</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Guacamole</div>
+            <div class="svc-port"><a href="http://<your-host-ip>:8085/guacamole" target="_blank">:8085</a> &nbsp;· RDP-in-browser</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Kali Linux</div>
+            <div class="svc-port">:2222 ssh &nbsp;· Attacker toolset</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Portainer</div>
+            <div class="svc-port"><a href="http://<your-host-ip>:9000" target="_blank">:9000</a> &nbsp;· Container management</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector 1 -->
+      <div class="topo-connector">
+        <div class="conn-arrow">
+          <div class="conn-label">sandcat C2</div>
+          <div class="conn-line"></div>
+          <div class="conn-arrowhead orange">⟶</div>
+          <div class="conn-line"></div>
+          <div class="conn-label">RDP session</div>
+        </div>
+      </div>
+
+      <!-- Proxmox zone -->
+      <div class="topo-zone proxmox">
+        <div class="zone-header orange">
+          🖧 Victim Environment
+          <span class="zone-ip"><proxmox-ip></span>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Windows 11 VM(s)</div>
+            <div class="svc-port">VM 200+ &nbsp;· <vm-user> / <vm-password></div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="3" rx="1"/><rect x="4" y="11" width="16" height="3" rx="1"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="7.5" cy="12.5" r="1" fill="currentColor" stroke="none"/><path d="M14 18l2 2 4-4"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Sandcat Agent</div>
+            <div class="svc-port">C:\Users\Public\splunkd.exe</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.75 9 9 10 5.25-1 9-5 9-10V7L12 2z"/><polyline points="8,12 11,15 16,10"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Sophos Endpoint</div>
+            <div class="svc-port">Endpoint protection + telemetry</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+          <div class="svc-info">
+            <div class="svc-name">Template VM 100</div>
+            <div class="svc-port">Golden image · Terraform clone source</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector 2 -->
+      <div class="topo-connector">
+        <div class="conn-arrow">
+          <div class="conn-label">telemetry</div>
+          <div class="conn-line"></div>
+          <div class="conn-arrowhead purple">⟶</div>
+          <div class="conn-line"></div>
+          <div class="conn-label">detections</div>
+        </div>
+      </div>
+
+      <!-- Cloud zone -->
+      <div class="topo-zone cloud">
+        <div class="zone-header purple">
+          ☁ SOC
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-info">
+            <div class="svc-name">Sophos Central</div>
+            <div class="svc-port">Policy + device management</div>
+          </div>
+        </div>
+
+        <div class="svc-node">
+          <div class="svc-info">
+            <div class="svc-name">Sophos XDR</div>
+            <div class="svc-port">Alerts · MITRE mapping · Proof point</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /topo-grid -->
+
+    <div class="section-label">Docker Network — 172.20.0.0/24</div>
+    <div class="net-legend">
+      <div class="net-item"><div class="net-dot" style="background:var(--orange)"></div><div class="net-name">CALDERA</div><div class="net-ip">172.20.0.10</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--green)"></div><div class="net-name">n8n</div><div class="net-ip">172.20.0.30</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--amber)"></div><div class="net-name">Atomic Runner</div><div class="net-ip">172.20.0.40</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--cyan)"></div><div class="net-name">Nginx</div><div class="net-ip">172.20.0.50</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--muted)"></div><div class="net-name">Portainer</div><div class="net-ip">172.20.0.60</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--red)"></div><div class="net-name">Kali</div><div class="net-ip">172.20.0.70</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--purple)"></div><div class="net-name">guacd</div><div class="net-ip">172.20.0.80</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--purple)"></div><div class="net-name">Guacamole</div><div class="net-ip">172.20.0.81</div></div>
+      <div class="net-item"><div class="net-dot" style="background:var(--purple)"></div><div class="net-name">guac-postgres</div><div class="net-ip">172.20.0.82</div></div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">n8n Enrichment Pipeline — AI Narrative Generation</div>
+    <div class="n8n-pipeline">
+
+      <!-- 1: SE Console -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--cyan);border-color:rgba(var(--cyan-rgb),0.3);background:rgba(var(--cyan-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M6 8l3 3-3 3M13 14h4"/></svg>
+        </div>
+        <div class="n8n-nlabel">SE Console</div>
+        <div class="n8n-nsub">Click "Enrich"</div>
+      </div>
+
+      <div class="n8n-conn">
+        <div class="n8n-conn-line"></div>
+        <div class="n8n-conn-pass">scenario + IP</div>
+      </div>
+
+      <!-- 2: n8n Webhook Trigger -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--green);border-color:rgba(var(--green-rgb),0.3);background:rgba(var(--green-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="n8n-nlabel">Webhook Trigger</div>
+        <div class="n8n-nsub">n8n :5678</div>
+      </div>
+
+      <div class="n8n-conn">
+        <div class="n8n-conn-line"></div>
+        <div class="n8n-conn-pass">op ID lookup</div>
+      </div>
+
+      <!-- 3: CALDERA API -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--orange);border-color:rgba(var(--orange-rgb),0.3);background:rgba(var(--orange-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <div class="n8n-nlabel">CALDERA API</div>
+        <div class="n8n-nsub">GET /operations</div>
+      </div>
+
+      <div class="n8n-conn">
+        <div class="n8n-conn-line"></div>
+        <div class="n8n-conn-pass">technique list</div>
+      </div>
+
+      <!-- 4: Build Prompt -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--amber);border-color:rgba(var(--amber-rgb),0.3);background:rgba(var(--amber-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="n8n-nlabel">Build Prompt</div>
+        <div class="n8n-nsub">Code node</div>
+      </div>
+
+      <div class="n8n-conn">
+        <div class="n8n-conn-line"></div>
+        <div class="n8n-conn-pass">LLM prompt</div>
+      </div>
+
+      <!-- 5: Ollama -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--purple);border-color:rgba(var(--purple-rgb),0.3);background:rgba(var(--purple-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 017 4.5v0A2.5 2.5 0 019.5 7h5A2.5 2.5 0 0117 4.5v0A2.5 2.5 0 0114.5 2h-5z"/><path d="M5 10a7 7 0 1014 0H5z"/><path d="M9 13v3M15 13v3M9 19h6"/></svg>
+        </div>
+        <div class="n8n-nlabel">Ollama LLM</div>
+        <div class="n8n-nsub">llama3.2:3b</div>
+      </div>
+
+      <div class="n8n-conn">
+        <div class="n8n-conn-line"></div>
+        <div class="n8n-conn-pass">narrative text</div>
+      </div>
+
+      <!-- 6: Return to SE Console -->
+      <div class="n8n-node-wrap">
+        <div class="n8n-node-box" style="color:var(--cyan);border-color:rgba(var(--cyan-rgb),0.3);background:rgba(var(--cyan-rgb),0.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+        </div>
+        <div class="n8n-nlabel">SE Console</div>
+        <div class="n8n-nsub">Display report</div>
+      </div>
+
+    </div><!-- /n8n-pipeline -->
+
+  </div><!-- /pane-arch -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 2 — ATTACK FLOW
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="pane-flow">
+
+    <div class="section-label">Primary Attack Path — SE Console to Sophos XDR alert</div>
+
+    <div class="flow-main">
+
+      <div class="flow-step" style="--i:1">
+        <div class="flow-node c1">
+          <div class="flow-num c1">01</div>
+          <span class="flow-icon" style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M6 8l3 3-3 3M13 14h4"/></svg></span>
+          <div class="flow-name">SE Console</div>
+          <div class="flow-desc">SE picks scenario, enters victim IP, clicks LAUNCH</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:2">
+        <div class="flow-node c2">
+          <div class="flow-num c2">02</div>
+          <span class="flow-icon" style="color:#38bdf8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>
+          <div class="flow-name">Nginx Proxy</div>
+          <div class="flow-desc">Routes /caldera/ to CALDERA API on :8888</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:3">
+        <div class="flow-node c3">
+          <div class="flow-num c3">03</div>
+          <span class="flow-icon" style="color:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg></span>
+          <div class="flow-name">CALDERA C2</div>
+          <div class="flow-desc">Creates operation, assigns abilities to agent group <code>red</code></div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:4">
+        <div class="flow-node c4">
+          <div class="flow-num c4">04</div>
+          <span class="flow-icon" style="color:#fb923c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 11H5M9 13H5M15 11h4M15 13h4M11 9V5M13 9V5M11 15v4M13 15v4"/></svg></span>
+          <div class="flow-name">Sandcat Agent</div>
+          <div class="flow-desc">Agent polls C2, receives tasks, executes ATT&CK techniques</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:5">
+        <div class="flow-node c5">
+          <div class="flow-num c5">05</div>
+          <span class="flow-icon" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 9h20M8 21h8M12 17v4"/><rect x="6" y="12" width="3" height="2" rx="0.5"/><path d="M12 12h6M12 14.5h4"/></svg></span>
+          <div class="flow-name">Windows VM</div>
+          <div class="flow-desc">Credential dump, discovery, lateral movement, persistence</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:6">
+        <div class="flow-node c6">
+          <div class="flow-num c6">06</div>
+          <span class="flow-icon" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.75 9 9 10 5.25-1 9-5 9-10V7L12 2z"/><polyline points="8,12 11,15 16,10"/></svg></span>
+          <div class="flow-name">Sophos Endpoint</div>
+          <div class="flow-desc">Behavioral detections fire, telemetry streams to Central</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      </div>
+
+      <div class="flow-step" style="--i:7">
+        <div class="flow-node c7">
+          <div class="flow-num c7">07</div>
+          <span class="flow-icon" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 2"/></svg></span>
+          <div class="flow-name">Sophos XDR</div>
+          <div class="flow-desc">Correlated alerts surface with MITRE ATT&CK mapping — present to the prospect</div>
+        </div>
+        <div class="money-shot">Live alerts · MITRE mapping · Process tree · Severity score</div>
+      </div>
+
+    </div><!-- /flow-main -->
+
+    <div class="section-label">Parallel Path — Guacamole RDP (victim desktop live in browser)</div>
+
+    <div class="subflow-label">connectRDP() triggered alongside attack launch</div>
+
+    <div class="subflow-row">
+      <div class="subflow-node">
+        SE Console
+        <div class="sub-detail">victim IP entered</div>
+      </div>
+      <div class="subflow-arrow">→</div>
+      <div class="subflow-node">
+        connectRDP()
+        <div class="sub-detail">JS function</div>
+      </div>
+      <div class="subflow-arrow">→</div>
+      <div class="subflow-node">
+        Guacamole REST
+        <div class="sub-detail">POST /api/tokens</div>
+      </div>
+      <div class="subflow-arrow">→</div>
+      <div class="subflow-node">
+        Dynamic Connection
+        <div class="sub-detail">POST /connections</div>
+      </div>
+      <div class="subflow-arrow">→</div>
+      <div class="subflow-node">
+        guacd
+        <div class="sub-detail">RDP protocol</div>
+      </div>
+      <div class="subflow-arrow">→</div>
+      <div class="subflow-node">
+        iframe (right panel)
+        <div class="sub-detail">Live desktop</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px;">
+      <div class="section-label" style="margin-bottom:10px;">CALDERA API Reference</div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:8px; font-size:11px;">
+        <div style="background:var(--bg-mid); border-radius:6px; padding:8px 12px;">
+          <div style="font-family:'JetBrains Mono',monospace; color:var(--cyan); margin-bottom:2px;">POST /api/v2/operations</div>
+          <div style="color:var(--muted);">Launch an operation (scenario)</div>
+        </div>
+        <div style="background:var(--bg-mid); border-radius:6px; padding:8px 12px;">
+          <div style="font-family:'JetBrains Mono',monospace; color:var(--cyan); margin-bottom:2px;">GET /api/v2/operations/{id}</div>
+          <div style="color:var(--muted);">Poll operation status + abilities</div>
+        </div>
+        <div style="background:var(--bg-mid); border-radius:6px; padding:8px 12px;">
+          <div style="font-family:'JetBrains Mono',monospace; color:var(--cyan); margin-bottom:2px;">GET /api/v2/agents</div>
+          <div style="color:var(--muted);">List connected sandcat agents</div>
+        </div>
+        <div style="background:var(--bg-mid); border-radius:6px; padding:8px 12px;">
+          <div style="font-family:'JetBrains Mono',monospace; color:var(--amber); margin-bottom:2px;">KEY: MDRLABRED</div>
+          <div style="color:var(--muted);">Header: KEY: MDRLABRED</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pane-flow -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 3 — TECH STACK
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="pane-stack">
+
+    <div class="section-label">Docker — Demo Server (<your-host-ip>)</div>
+    <div class="stack-grid" style="margin-bottom:24px">
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Nginx — SE Console</div>
+          <a class="stack-url" href="http://<your-host-ip>:8080" target="_blank">http://<your-host-ip>:8080</a>
+          <span class="stack-desc">SE front-end, attack console, reverse proxy for all services</span>
+          <span class="stack-tag tag-docker">Docker :8080</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">CALDERA C2</div>
+          <a class="stack-url" href="http://<your-host-ip>:8888" target="_blank">http://<your-host-ip>:8888</a>
+          <span class="stack-creds">red / admin &nbsp;·&nbsp; admin / admin</span>
+          <span class="stack-desc">MITRE CALDERA v5.1.0 — ATT&CK operation engine, agent management</span>
+          <span class="stack-tag tag-docker">Docker :8888 &nbsp;·&nbsp; API key: MDRLABRED</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17,1 21,5 17,9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7,23 3,19 7,15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">n8n</div>
+          <a class="stack-url" href="http://<your-host-ip>:5678" target="_blank">http://<your-host-ip>:5678</a>
+          <span class="stack-creds">admin / <your-n8n-password></span>
+          <span class="stack-desc">Workflow automation — receives scenario events, calls Ollama for AI narrative enrichment</span>
+          <span class="stack-tag tag-docker">Docker :5678</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="17" cy="8" r="2.5"/><polyline points="15.5,8 14,8 14,11"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Guacamole</div>
+          <a class="stack-url" href="http://<your-host-ip>:8085/guacamole" target="_blank">http://<your-host-ip>:8085/guacamole</a>
+          <span class="stack-creds">guacadmin / guacadmin</span>
+          <span class="stack-desc">HTML5 RDP gateway — streams victim Windows desktop into the attack console right panel</span>
+          <span class="stack-tag tag-docker">Docker :8085</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="16" rx="2"/><path d="M8 10l3 3-3 3"/><path d="M13 16h3"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Kali Linux</div>
+          <span class="stack-url">ssh root@<your-host-ip> -p 2222</span>
+          <span class="stack-creds">root / kali</span>
+          <span class="stack-desc">Attacker toolset — Metasploit, Nmap, Impacket, BloodHound available for manual attack steps</span>
+          <span class="stack-tag tag-docker">Docker :2222</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/><polygon points="12,7 18,10.5 18,17.5 12,21 6,17.5 6,10.5"/><polygon points="12,12 15,13.5 15,17 12,18.5 9,17 9,13.5"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Portainer</div>
+          <a class="stack-url" href="http://<your-host-ip>:9000" target="_blank">http://<your-host-ip>:9000</a>
+          <span class="stack-creds">Set on first login</span>
+          <span class="stack-desc">Container management dashboard — view logs, restart services, monitor resource usage</span>
+          <span class="stack-tag tag-docker">Docker :9000</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Native — Demo Server</div>
+    <div class="stack-grid" style="margin-bottom:24px">
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 3-1.5 5-4 6.5V17a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.5C6.5 14 5 12 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/><path d="M9 9h.01M15 9h.01"/><path d="M9 13c1 1 5 1 6 0"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Ollama</div>
+          <span class="stack-url">http://localhost:11434</span>
+          <span class="stack-desc">Local LLM inference — runs llama3.2:3b to generate customer-facing scenario narratives from CALDERA output</span>
+          <span class="stack-tag tag-native">Native · llama3.2:3b</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Infrastructure</div>
+    <div class="stack-grid" style="margin-bottom:24px">
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="4" rx="1"/><rect x="2" y="9" width="20" height="4" rx="1"/><rect x="2" y="15" width="20" height="4" rx="1"/><circle cx="18" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="18" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="18" cy="17" r="1" fill="currentColor" stroke="none"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Proxmox VE</div>
+          <a class="stack-url" href="https://<proxmox-ip>:8006" target="_blank">https://<proxmox-ip>:8006</a>
+          <span class="stack-desc">Hypervisor on NUC — hosts Windows 11 victim VMs, cloned from template VM 100</span>
+          <span class="stack-tag tag-infra">Proxmox</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Terraform</div>
+          <span class="stack-url">proxmox/terraform/</span>
+          <span class="stack-desc">Provisions victim VMs from template 100 — one command to spin up a fresh Windows 11 target</span>
+          <span class="stack-tag tag-infra">Infrastructure as Code</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Ansible</div>
+          <span class="stack-url">proxmox/ansible/</span>
+          <span class="stack-desc">Configures victim VMs — disables Defender/Firewall, creates demo user, deploys sandcat agent</span>
+          <span class="stack-tag tag-infra">Configuration Management</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Detection & Response</div>
+    <div class="stack-grid">
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.75 9 9 10 5.25-1 9-5 9-10V7L12 2z"/><polyline points="8,12 11,15 16,10"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Sophos Endpoint</div>
+          <span class="stack-desc">EDR on victim VMs — behavioral detection, CryptoGuard, exploit prevention. Telemetry streams to Central</span>
+          <span class="stack-tag tag-detect">Endpoint</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Sophos Central</div>
+          <span class="stack-desc">Cloud management plane — device policy, alert management, feeds Sophos XDR with endpoint telemetry</span>
+          <span class="stack-tag tag-detect">SOC</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 2"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Sophos XDR</div>
+          <span class="stack-desc">Sophos XDR — correlated detections, MITRE ATT&CK mapping, investigation timeline. The key detection proof point in every demonstration</span>
+          <span class="stack-tag tag-detect">XDR · Demo Destination</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /pane-stack -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 4 — SCENARIO GUIDE
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="pane-guide">
+
+    <div class="section-label">Scenario Briefings — select your scenario, understand the narrative, know your proof point</div>
+
+    <div class="scenario-grid">
+
+      <!-- SCN-001 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-001</span>
+          <div class="scn-title">Credential Dumping Chain</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-ciso">CISO</span>
+          <span class="aud-pill aud-tech">Technical</span>
+        </div>
+        <div class="scn-story">
+          Attacker breaches an endpoint, injects into a privileged process to dump LSASS credentials from memory, then uses harvested hashes to access additional systems without knowing the password.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~3 min</span>
+          <span class="scn-techs">T1003 · T1055 · T1078</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"LSASS Memory Read"</strong> — show the process tree, parent-child chain, and severity score. Ask: "Would your SOC catch this at 2am?"
+        </div>
+      </div>
+
+      <!-- SCN-002 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-002</span>
+          <div class="scn-title">Discovery &amp; Enumeration Chain</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-tech">Technical</span>
+          <span class="aud-pill aud-all">All</span>
+        </div>
+        <div class="scn-story">
+          Attacker quietly maps the environment — system info, running processes, local files, and network interfaces — building a target picture before escalating. Classic post-exploitation recon.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~2 min</span>
+          <span class="scn-techs">T1082 · T1083 · T1057 · T1016</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"Suspicious System Enumeration"</strong> — show the correlated timeline across four techniques. Great for demonstrating XDR correlation vs. siloed alerts.
+        </div>
+      </div>
+
+      <!-- SCN-003 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-003</span>
+          <div class="scn-title">Phishing → Persistence</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-exec">Executive</span>
+          <span class="aud-pill aud-all">All</span>
+        </div>
+        <div class="scn-story">
+          Simulates the most common initial access path: a phishing payload establishes a foothold, then immediately sets up persistence via registry run keys and a scheduled task to survive reboots.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~3 min</span>
+          <span class="scn-techs">T1566 · T1547 · T1053</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"Registry Run Key Modification"</strong> + <strong>"Scheduled Task Creation"</strong> — show both alerts firing within seconds. Perfect for the "they were already in for 30 days" conversation.
+        </div>
+      </div>
+
+      <!-- SCN-005 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-005</span>
+          <div class="scn-title">Pass-the-Hash Lateral Movement</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-ciso">CISO</span>
+          <span class="aud-pill aud-tech">Technical</span>
+        </div>
+        <div class="scn-story">
+          Attacker uses a stolen NTLM hash — never cracking the actual password — to authenticate as a privileged user and move laterally via SMB to another system on the network.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~3 min</span>
+          <span class="scn-techs">T1550 · T1021</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"Pass-the-Hash Authentication"</strong> — show the source and destination hosts in the alert. The question: "How many of your systems are reachable this way today?"
+        </div>
+      </div>
+
+      <!-- SCN-006 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-006</span>
+          <div class="scn-title">PowerShell AMSI Bypass</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-tech">Technical</span>
+        </div>
+        <div class="scn-story">
+          Attacker patches the Windows AMSI (Anti-Malware Scan Interface) in memory before executing malicious PowerShell, blinding traditional AV scanning while the payload runs in plain sight.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~2 min</span>
+          <span class="scn-techs">T1562 · T1059</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"AMSI Bypass Detected"</strong> — show that Sophos detected the bypass attempt despite the attacker's evasion. Demonstrates behavioral detection succeeding where traditional AV scanning is blind.
+        </div>
+      </div>
+
+      <!-- SCN-008 -->
+      <div class="scenario-card">
+        <div class="scn-header">
+          <span class="scn-id">SCN-008</span>
+          <div class="scn-title">Ransomware Simulation</div>
+        </div>
+        <div class="scn-audience">
+          <span class="aud-pill aud-exec">Executive</span>
+          <span class="aud-pill aud-all">Board-Level</span>
+        </div>
+        <div class="scn-story">
+          Full ransomware kill chain: disable security tools, delete Volume Shadow Copies to destroy backups, encrypt files, and stage a ransom note. The highest-impact scenario — resonates with executive and board-level audiences.
+        </div>
+        <div class="scn-meta">
+          <span class="scn-duration">~4 min</span>
+          <span class="scn-techs">T1486 · T1490</span>
+        </div>
+        <div class="scn-moneyshot">
+          <div class="scn-moneyshot-label">★ Proof Point</div>
+          Sophos XDR alert → <strong>"Shadow Copy Deletion"</strong> — every CISO recognizes this as the point of no return. Show the alert firing before encryption starts and ask: "How fast do you need to respond?"
+        </div>
+      </div>
+
+    </div><!-- /scenario-grid -->
+
+    <div class="demo-steps">
+      <div class="demo-steps-title">Universal Demo Execution — same 6 steps for every scenario</div>
+      <div class="step-list">
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <span class="step-action">Open SE Console</span>
+            <span class="step-detail"> → select your scenario from the catalog → enter the victim VM's IP address → click </span>
+            <span class="step-highlight">LAUNCH ATTACK</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <span class="step-action">Attack Console opens automatically</span>
+            <span class="step-detail"> — left panel shows the live CALDERA technique feed (abilities + status), right panel loads the victim Windows desktop via RDP</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <span class="step-action">Narrate each technique</span>
+            <span class="step-detail"> as it executes — watch the left panel feed and walk the prospect through what the attacker is doing and why. The right panel shows the actual Windows desktop responding in real time.</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            <span class="step-action">Pivot to Sophos XDR</span>
+            <span class="step-detail"> — switch to Sophos XDR and show real-time detections mapping to MITRE ATT&CK. This is the </span>
+            <span class="step-highlight">proof point</span>
+            <span class="step-detail"> — see the alert card above for what to highlight for your specific scenario.</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-text">
+            <span class="step-action">Return to SE Console</span>
+            <span class="step-detail"> → scroll to the Enrich panel → click to generate an AI narrative. Ollama produces a customer-facing incident summary tailored to the scenario — include in prospect follow-up or debrief documentation.</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-text">
+            <span class="step-action">Close with the question</span>
+            <span class="step-detail"> — "This is exactly what your SOC team would see in real time. How long would it take your team to identify, triage, and contain this today?"</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /pane-guide -->
+
+</div><!-- /content -->
+
+<script>
+/* ── Tab switching ──────────────────────────────────────────────────── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`pane-${tab}`).classList.add('active');
+}
+
+// ── Nav Menu ─────────────────────────────────────────────────────────────────
+function navToggle() { document.getElementById('nav-dd').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var w = document.getElementById('nav-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
+});
+function navCopyLink() {
+  navigator.clipboard.writeText(location.href)
+    .then(function() { navFb('nav-copy-link', '🔗 Copied!'); });
+}
+function navFb(id, txt) {
+  var el = document.getElementById(id); if (!el) return;
+  var orig = el.textContent; el.textContent = txt;
+  setTimeout(function() { el.textContent = orig; }, 1800);
+}
+
+</script>
+
+</body>
+</html>

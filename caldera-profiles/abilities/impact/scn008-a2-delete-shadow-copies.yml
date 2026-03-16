@@ -1,0 +1,36 @@
+---
+- id: scn008-a2-delete-shadow-copies
+  name: "SCN-008 | Delete Volume Shadow Copies (VSS)"
+  description: |
+    Enumerates existing Volume Shadow Copies and narrates the vssadmin/wmic
+    deletion commands used by ransomware groups to prevent file recovery.
+    Shadow copy deletion is simulated — not executed — to preserve the lab
+    environment. This is the single highest-confidence ransomware precursor
+    event in MDR telemetry: its presence alone triggers immediate analyst
+    escalation. Maps to T1490.
+  tactic: impact
+  technique:
+    attack_id: T1490
+    name: "Inhibit System Recovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== RANSOMWARE PHASE 2: DELETE SHADOW COPIES (T1490) ===";
+          Write-Output "[*] Enumerating existing shadow copies...";
+          vssadmin list shadows 2>&1;
+          Write-Output "";
+          Write-Output "[*] In a real ransomware attack, the next commands would be:";
+          Write-Output "    vssadmin delete shadows /all /quiet";
+          Write-Output "    wmic shadowcopy delete";
+          Write-Output "    bcdedit /set {default} recoveryenabled No";
+          Write-Output "    bcdedit /set {default} bootstatuspolicy ignoreallfailures";
+          Write-Output "";
+          Write-Output "[SIMULATED] Shadow copy deletion simulated — not executed to preserve lab";
+          Write-Output "";
+          Write-Output "[*] Sophos MDR detection:";
+          Write-Output "    - vssadmin delete shadows = CRITICAL ransomware precursor";
+          Write-Output "    - Triggers immediate MDR analyst escalation in Taegis";
+          Write-Output "    - Alert fires BEFORE encryption begins — stops the attack here";
+          Write-Output "=== END SHADOW COPY DELETION ==="
+        cleanup: ""

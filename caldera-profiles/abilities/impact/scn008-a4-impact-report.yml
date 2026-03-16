@@ -1,0 +1,40 @@
+---
+- id: scn008-a4-impact-report
+  name: "SCN-008 | Generate Attack Impact Summary"
+  description: |
+    Prints a structured summary of the ransomware simulation — what happened
+    on the endpoint, what Sophos MDR detects in Taegis, and the prompt to
+    switch to the Taegis console. Designed as the final "handoff" step that
+    transitions the SE demo from CALDERA execution to showing the MDR analyst
+    detection story. Maps to T1486.
+  tactic: impact
+  technique:
+    attack_id: T1486
+    name: "Data Encrypted for Impact"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "";
+          Write-Output "==================================";
+          Write-Output "  RANSOMWARE SIMULATION COMPLETE  ";
+          Write-Output "==================================";
+          Write-Output "";
+          Write-Output "What just happened on this endpoint:";
+          Write-Output "  [1] Backup services disabled (VSS, WBEngine)       <- T1562.001";
+          Write-Output "  [2] Shadow copy deletion SIMULATED (vssadmin)      <- T1490";
+          Write-Output "  [3] Ransom note staged to disk                     <- T1486";
+          Write-Output "  [4] Encrypted file markers created (.encrypted)    <- T1486";
+          Write-Output "";
+          Write-Output "What Sophos MDR detects in Taegis:";
+          Write-Output "  - Service config change on VSS + WBEngine";
+          Write-Output "  - Suspicious file write: README_RECOVER_FILES.txt";
+          Write-Output "  - .encrypted extension proliferation";
+          Write-Output "  - High-confidence ransomware precursor alert";
+          Write-Output "  - Automatic escalation to MDR analyst";
+          Write-Output "";
+          Write-Output ">>> Switch to Taegis now to show the detections. <<<";
+          Write-Output ""
+        cleanup: |
+          Remove-Item "$env:TEMP\MDR-LAB-DEMO" -Recurse -Force -ErrorAction SilentlyContinue;
+          Write-Output "Demo artifacts removed"
