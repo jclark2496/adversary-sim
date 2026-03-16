@@ -1,1 +1,325 @@
-[{"updatedAt":"2026-02-28T15:27:59.926Z","createdAt":"2026-02-28T14:59:23.135Z","id":"ivSAxys8fgDnuipd","name":"MDR Scenario Enrichment Pipeline","description":null,"active":true,"isArchived":false,"nodes":[{"parameters":{"httpMethod":"POST","path":"scenario-enrich","responseMode":"responseNode","options":{}},"id":"fd59453e-4dff-470c-9e27-9a0d204b235a","name":"Webhook - Scenario Input","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[-816,128],"webhookId":"mdr-scenario-enrich"},{"parameters":{"jsCode":"const body = $input.first().json.body || $input.first().json;\nconst scenarioId = body.scenario_id || null;\nconst freetext = body.freetext || body.description || '';\nconst industry = body.industry || 'universal';\nconst platform = body.platform || 'windows';\nconst needsEnrichment = !scenarioId && freetext.length > 0;\nreturn [{ json: { scenario_id: scenarioId, freetext: freetext, industry: industry, platform: platform, needs_enrichment: needsEnrichment, timestamp: new Date().toISOString() } }];"},"id":"96a7a76d-cd8a-4471-b724-3e276db77b5c","name":"Validate and Normalize Input","type":"n8n-nodes-base.code","typeVersion":2,"position":[-608,128]},{"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"strict"},"conditions":[{"id":"cond-needs-enrichment","leftValue":"={{ $json.needs_enrichment }}","rightValue":true,"operator":{"type":"boolean","operation":"true","singleValue":true}}],"combinator":"and"},"options":{}},"id":"4152fcbd-14a4-4aa1-b1e5-3095c125d5b2","name":"Needs Enrichment?","type":"n8n-nodes-base.if","typeVersion":2,"position":[-384,128]},{"parameters":{"jsCode":"const freetext = $('Validate and Normalize Input').item.json.freetext;\nconst prompt = `You are a cybersecurity expert. Analyze this attack and return ONLY valid JSON, no other text.\\n\\nAttack: ${freetext}\\n\\nReturn exactly this structure:\\n{\"title\":\"short title\",\"mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"technique name\"}],\"tools\":[\"tool1\"],\"difficulty\":\"easy\",\"execution_engine\":\"atomic\",\"expected_detections\":[{\"detection\":\"what fires\",\"severity\":\"high\"}],\"summary\":\"2 sentence description\"}`;\n\nreturn [{ json: { prompt: prompt } }];"},"type":"n8n-nodes-base.code","typeVersion":2,"position":[-192,0],"id":"443f8819-8d3a-4cfd-87b0-e33b60605452","name":"Build Prompt"},{"parameters":{"jsCode":"const fs = require('fs');\nconst https = require('https');\nconst http = require('http');\nconst prompt = $input.first().json.prompt;\nlet provider = 'ollama', apiKey = '', model = '';\ntry {\n  const cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n  provider = cfg.provider || 'ollama';\n  apiKey = cfg.apiKey || '';\n  model = cfg.model || '';\n} catch(e) {\n  provider = $env.AI_PROVIDER || 'ollama';\n  apiKey = $env.AI_API_KEY || '';\n  model = $env.AI_MODEL || '';\n}\nconst defaults = { anthropic: 'claude-sonnet-4-20250514', openai: 'gpt-4o', gemini: 'gemini-2.5-flash', ollama: $env.OLLAMA_MODEL || 'llama3.2:3b' };\nconst useModel = model || defaults[provider] || defaults.ollama;\nlet url, headers, body;\nswitch (provider) {\n  case 'anthropic':\n    url = 'https://api.anthropic.com/v1/messages';\n    headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' };\n    body = JSON.stringify({ model: useModel, max_tokens: 4096, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'openai':\n    url = 'https://api.openai.com/v1/chat/completions';\n    headers = { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'gemini':\n    url = 'https://generativelanguage.googleapis.com/v1beta/models/' + useModel + ':generateContent?key=' + apiKey;\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });\n    break;\n  default:\n    url = ($env.OLLAMA_HOST || 'http://host.docker.internal:11434') + '/api/generate';\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, prompt, stream: false });\n}\n\nconst parsed = new URL(url);\nconst transport = parsed.protocol === 'https:' ? https : http;\nconst data = await new Promise((resolve, reject) => {\n  const req = transport.request(url, { method: 'POST', headers, timeout: 120000 }, (res) => {\n    let chunks = '';\n    res.on('data', d => chunks += d);\n    res.on('end', () => {\n      if (res.statusCode >= 400) reject(new Error('AI provider error (' + provider + '): ' + res.statusCode + ' ' + chunks));\n      else resolve(chunks);\n    });\n  });\n  req.on('error', reject);\n  req.on('timeout', () => { req.destroy(); reject(new Error('AI request timed out')); });\n  if (body) req.write(body);\n  req.end();\n});\n\nconst response = JSON.parse(data);\nreturn [{ json: { provider, response } }];"},"id":"enrich-call-ai-provider","name":"Call AI Provider","type":"n8n-nodes-base.code","typeVersion":2,"position":[28,0]},{"parameters":{"jsCode":"const { provider, response } = $input.first().json;\nlet text;\nswitch (provider) {\n  case 'anthropic': text = response.content && response.content[0] ? response.content[0].text : ''; break;\n  case 'openai': text = response.choices && response.choices[0] ? response.choices[0].message.content : ''; break;\n  case 'gemini': text = response.candidates && response.candidates[0] ? response.candidates[0].content.parts[0].text : ''; break;\n  default: text = response.response || '';\n}\nreturn [{ json: { response: text } }];"},"id":"enrich-normalize-response","name":"Normalize Response","type":"n8n-nodes-base.code","typeVersion":2,"position":[248,0]},{"parameters":{"jsCode":"const raw = $input.first().json.response || '';\nconst cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\nlet enriched;\ntry { enriched = JSON.parse(cleaned); } catch(e) {\n  enriched = { title:'Custom Scenario', mitre_tactics:['Unknown'], mitre_techniques:[], tools:[], difficulty:'medium', execution_engine:'atomic', expected_detections:[], summary: raw.substring(0,200) };\n}\nconst orig = $('Validate and Normalize Input').item.json;\nconst id = 'SCN-' + Date.now().toString().slice(-6);\nreturn [{ json: {\n  id: id,\n  title: enriched.title,\n  description: enriched.summary,\n  mitre_tactics: enriched.mitre_tactics,\n  mitre_techniques: enriched.mitre_techniques,\n  tools: enriched.tools,\n  difficulty: enriched.difficulty,\n  platform: orig.platform,\n  execution_engine: enriched.execution_engine,\n  expected_detections: enriched.expected_detections,\n  talking_points: { universal: [\n    enriched.title + ' is commonly observed in MDR cases - analysts detect this in real time',\n    'Watch the alert fire within seconds in the MDR console'\n  ]},\n  generated_at: orig.timestamp,\n  source: 'ai-enriched',\n  ai_provider: $('Call AI Provider').first().json.provider || 'unknown'\n}}];"},"id":"4ef1ce16-5062-4b22-8881-bab746145260","name":"Build Scenario Card","type":"n8n-nodes-base.code","typeVersion":2,"position":[468,0]},{"parameters":{"jsCode":"const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath,'utf8')); } catch(e) { db = { version:'1.0', last_updated:'', scenarios:[] }; }\nconst s = $input.first().json;\nconst idx = db.scenarios.findIndex(x => x.id === s.id);\nif (idx >= 0) { db.scenarios[idx] = s; } else { db.scenarios.push(s); }\ndb.last_updated = new Date().toISOString().split('T')[0];\nfs.writeFileSync(filePath, JSON.stringify(db,null,2),'utf8');\nreturn [{ json: { success:true, scenario_id:s.id, scenario:s, total_scenarios:db.scenarios.length } }];"},"id":"fe3a132d-44bd-417f-a4d3-e394bc175f16","name":"Write to scenarios.json","type":"n8n-nodes-base.code","typeVersion":2,"position":[688,0]},{"parameters":{"jsCode":"const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nconst orig = $('Validate and Normalize Input').item.json;\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath,'utf8')); } catch(e) { return [{ json:{ error:'Could not read scenarios.json' } }]; }\nconst scenario = db.scenarios.find(s => s.id === orig.scenario_id);\nif (!scenario) { return [{ json:{ error:'Scenario ' + orig.scenario_id + ' not found' } }]; }\nconst tp = (scenario.talking_points && scenario.talking_points[orig.industry]) || (scenario.talking_points && scenario.talking_points.universal) || [];\nreturn [{ json:{ success:true, scenario:{ ...scenario, active_talking_points:tp } } }];"},"id":"46c83238-1296-4bc0-b9c1-f628d38d8d53","name":"Load Existing Scenario","type":"n8n-nodes-base.code","typeVersion":2,"position":[0,288]},{"parameters":{"respondWith":"json","responseBody":"={{ JSON.stringify($input.first().json) }}","options":{"responseHeaders":{"entries":[{"name":"Content-Type","value":"application/json"},{"name":"Access-Control-Allow-Origin","value":"*"}]}}},"id":"dbe48d5c-42b7-4249-b440-75c9598aea16","name":"Respond to Front-End","type":"n8n-nodes-base.respondToWebhook","typeVersion":1,"position":[912,144]}],"connections":{"Webhook - Scenario Input":{"main":[[{"node":"Validate and Normalize Input","type":"main","index":0}]]},"Validate and Normalize Input":{"main":[[{"node":"Needs Enrichment?","type":"main","index":0}]]},"Needs Enrichment?":{"main":[[{"node":"Build Prompt","type":"main","index":0}],[{"node":"Load Existing Scenario","type":"main","index":0}]]},"Build Prompt":{"main":[[{"node":"Call AI Provider","type":"main","index":0}]]},"Call AI Provider":{"main":[[{"node":"Normalize Response","type":"main","index":0}]]},"Normalize Response":{"main":[[{"node":"Build Scenario Card","type":"main","index":0}]]},"Build Scenario Card":{"main":[[{"node":"Write to scenarios.json","type":"main","index":0}]]},"Write to scenarios.json":{"main":[[{"node":"Respond to Front-End","type":"main","index":0}]]},"Load Existing Scenario":{"main":[[{"node":"Respond to Front-End","type":"main","index":0}]]}},"settings":{"executionOrder":"v1","binaryMode":"separate","availableInMCP":false,"callerPolicy":"workflowsFromSameOwner"},"staticData":null,"meta":null,"pinData":{},"versionId":"71d6c9c5-bf87-46dd-87f8-4662d1ad4197","activeVersionId":"71d6c9c5-bf87-46dd-87f8-4662d1ad4197","versionCounter":19,"triggerCount":1,"tags":[],"shared":[{"updatedAt":"2026-02-28T14:59:23.209Z","createdAt":"2026-02-28T14:59:23.209Z","role":"workflow:owner","workflowId":"ivSAxys8fgDnuipd","projectId":"5t6eiL47cLI32yu1","project":{"updatedAt":"2026-02-28T14:58:49.590Z","createdAt":"2026-02-28T14:58:08.339Z","id":"5t6eiL47cLI32yu1","name":"Jason Clark <jclark2496@gmail.com>","type":"personal","icon":null,"description":null,"creatorId":"8d334036-f7e3-4fff-a433-0881aa941fdb"}}],"versionMetadata":{"name":null,"description":null}}]
+{
+  "updatedAt": "2026-02-28T15:27:59.926Z",
+  "createdAt": "2026-02-28T14:59:23.135Z",
+  "id": "ivSAxys8fgDnuipd",
+  "name": "MDR Scenario Enrichment Pipeline",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scenario-enrich",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fd59453e-4dff-470c-9e27-9a0d204b235a",
+      "name": "Webhook - Scenario Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -816,
+        128
+      ],
+      "webhookId": "mdr-scenario-enrich"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst scenarioId = body.scenario_id || null;\nconst freetext = body.freetext || body.description || '';\nconst industry = body.industry || 'universal';\nconst platform = body.platform || 'windows';\nconst needsEnrichment = !scenarioId && freetext.length > 0;\nreturn [{ json: { scenario_id: scenarioId, freetext: freetext, industry: industry, platform: platform, needs_enrichment: needsEnrichment, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "96a7a76d-cd8a-4471-b724-3e276db77b5c",
+      "name": "Validate and Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-needs-enrichment",
+              "leftValue": "={{ $json.needs_enrichment }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4152fcbd-14a4-4aa1-b1e5-3095c125d5b2",
+      "name": "Needs Enrichment?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const freetext = $('Validate and Normalize Input').item.json.freetext;\nconst prompt = `You are a cybersecurity expert. Analyze this attack and return ONLY valid JSON, no other text.\\n\\nAttack: ${freetext}\\n\\nReturn exactly this structure:\\n{\"title\":\"short title\",\"mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"technique name\"}],\"tools\":[\"tool1\"],\"difficulty\":\"easy\",\"execution_engine\":\"atomic\",\"expected_detections\":[{\"detection\":\"what fires\",\"severity\":\"high\"}],\"summary\":\"2 sentence description\"}`;\n\nreturn [{ json: { prompt: prompt } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "443f8819-8d3a-4cfd-87b0-e33b60605452",
+      "name": "Build Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\nconst http = require('http');\nconst prompt = $input.first().json.prompt;\nlet provider = 'ollama', apiKey = '', model = '';\ntry {\n  const cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n  provider = cfg.provider || 'ollama';\n  apiKey = cfg.apiKey || '';\n  model = cfg.model || '';\n} catch(e) {\n  provider = $env.AI_PROVIDER || 'ollama';\n  apiKey = $env.AI_API_KEY || '';\n  model = $env.AI_MODEL || '';\n}\nconst defaults = { anthropic: 'claude-sonnet-4-20250514', openai: 'gpt-4o', gemini: 'gemini-2.5-flash', ollama: $env.OLLAMA_MODEL || 'llama3.2:3b' };\nconst useModel = model || defaults[provider] || defaults.ollama;\nlet url, headers, body;\nswitch (provider) {\n  case 'anthropic':\n    url = 'https://api.anthropic.com/v1/messages';\n    headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' };\n    body = JSON.stringify({ model: useModel, max_tokens: 4096, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'openai':\n    url = 'https://api.openai.com/v1/chat/completions';\n    headers = { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'gemini':\n    url = 'https://generativelanguage.googleapis.com/v1beta/models/' + useModel + ':generateContent?key=' + apiKey;\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });\n    break;\n  default:\n    url = ($env.OLLAMA_HOST || 'http://host.docker.internal:11434') + '/api/generate';\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, prompt, stream: false });\n}\n\nconst parsed = new URL(url);\nconst transport = parsed.protocol === 'https:' ? https : http;\nconst data = await new Promise((resolve, reject) => {\n  const req = transport.request(url, { method: 'POST', headers, timeout: 120000 }, (res) => {\n    let chunks = '';\n    res.on('data', d => chunks += d);\n    res.on('end', () => {\n      if (res.statusCode >= 400) reject(new Error('AI provider error (' + provider + '): ' + res.statusCode + ' ' + chunks));\n      else resolve(chunks);\n    });\n  });\n  req.on('error', reject);\n  req.on('timeout', () => { req.destroy(); reject(new Error('AI request timed out')); });\n  if (body) req.write(body);\n  req.end();\n});\n\nconst response = JSON.parse(data);\nreturn [{ json: { provider, response } }];"
+      },
+      "id": "enrich-call-ai-provider",
+      "name": "Call AI Provider",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        28,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { provider, response } = $input.first().json;\nlet text;\nswitch (provider) {\n  case 'anthropic': text = response.content && response.content[0] ? response.content[0].text : ''; break;\n  case 'openai': text = response.choices && response.choices[0] ? response.choices[0].message.content : ''; break;\n  case 'gemini': text = response.candidates && response.candidates[0] ? response.candidates[0].content.parts[0].text : ''; break;\n  default: text = response.response || '';\n}\nreturn [{ json: { response: text } }];"
+      },
+      "id": "enrich-normalize-response",
+      "name": "Normalize Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        248,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.response || '';\nconst cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\nlet enriched;\ntry { enriched = JSON.parse(cleaned); } catch(e) {\n  enriched = { title:'Custom Scenario', mitre_tactics:['Unknown'], mitre_techniques:[], tools:[], difficulty:'medium', execution_engine:'atomic', expected_detections:[], summary: raw.substring(0,200) };\n}\nconst orig = $('Validate and Normalize Input').item.json;\nconst id = 'SCN-' + Date.now().toString().slice(-6);\nreturn [{ json: {\n  id: id,\n  title: enriched.title,\n  description: enriched.summary,\n  mitre_tactics: enriched.mitre_tactics,\n  mitre_techniques: enriched.mitre_techniques,\n  tools: enriched.tools,\n  difficulty: enriched.difficulty,\n  platform: orig.platform,\n  execution_engine: enriched.execution_engine,\n  expected_detections: enriched.expected_detections,\n  talking_points: { universal: [\n    enriched.title + ' is commonly observed in MDR cases - analysts detect this in real time',\n    'Watch the alert fire within seconds in the MDR console'\n  ]},\n  generated_at: orig.timestamp,\n  source: 'ai-enriched',\n  ai_provider: $('Call AI Provider').first().json.provider || 'unknown'\n}}];"
+      },
+      "id": "4ef1ce16-5062-4b22-8881-bab746145260",
+      "name": "Build Scenario Card",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        468,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath,'utf8')); } catch(e) { db = { version:'1.0', last_updated:'', scenarios:[] }; }\nconst s = $input.first().json;\nconst idx = db.scenarios.findIndex(x => x.id === s.id);\nif (idx >= 0) { db.scenarios[idx] = s; } else { db.scenarios.push(s); }\ndb.last_updated = new Date().toISOString().split('T')[0];\nfs.writeFileSync(filePath, JSON.stringify(db,null,2),'utf8');\nreturn [{ json: { success:true, scenario_id:s.id, scenario:s, total_scenarios:db.scenarios.length } }];"
+      },
+      "id": "fe3a132d-44bd-417f-a4d3-e394bc175f16",
+      "name": "Write to scenarios.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nconst orig = $('Validate and Normalize Input').item.json;\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath,'utf8')); } catch(e) { return [{ json:{ error:'Could not read scenarios.json' } }]; }\nconst scenario = db.scenarios.find(s => s.id === orig.scenario_id);\nif (!scenario) { return [{ json:{ error:'Scenario ' + orig.scenario_id + ' not found' } }]; }\nconst tp = (scenario.talking_points && scenario.talking_points[orig.industry]) || (scenario.talking_points && scenario.talking_points.universal) || [];\nreturn [{ json:{ success:true, scenario:{ ...scenario, active_talking_points:tp } } }];"
+      },
+      "id": "46c83238-1296-4bc0-b9c1-f628d38d8d53",
+      "name": "Load Existing Scenario",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "dbe48d5c-42b7-4249-b440-75c9598aea16",
+      "name": "Respond to Front-End",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        912,
+        144
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Scenario Input": {
+      "main": [
+        [
+          {
+            "node": "Validate and Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Needs Enrichment?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Enrichment?": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load Existing Scenario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Call AI Provider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AI Provider": {
+      "main": [
+        [
+          {
+            "node": "Normalize Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Response": {
+      "main": [
+        [
+          {
+            "node": "Build Scenario Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Scenario Card": {
+      "main": [
+        [
+          {
+            "node": "Write to scenarios.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write to scenarios.json": {
+      "main": [
+        [
+          {
+            "node": "Respond to Front-End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Existing Scenario": {
+      "main": [
+        [
+          {
+            "node": "Respond to Front-End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "71d6c9c5-bf87-46dd-87f8-4662d1ad4197",
+  "activeVersionId": "71d6c9c5-bf87-46dd-87f8-4662d1ad4197",
+  "versionCounter": 19,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-28T14:59:23.209Z",
+      "createdAt": "2026-02-28T14:59:23.209Z",
+      "role": "workflow:owner",
+      "workflowId": "ivSAxys8fgDnuipd",
+      "projectId": "5t6eiL47cLI32yu1",
+      "project": {
+        "updatedAt": "2026-02-28T14:58:49.590Z",
+        "createdAt": "2026-02-28T14:58:08.339Z",
+        "id": "5t6eiL47cLI32yu1",
+        "name": "Jason Clark <jclark2496@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "8d334036-f7e3-4fff-a433-0881aa941fdb"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}
