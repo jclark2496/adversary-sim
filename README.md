@@ -39,21 +39,25 @@
                          Sophos Adversary Simulation Platform
   ┌──────────────────────────────────────────────────────────────────────────┐
   │                                                                        │
-  │   ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────┐  │
-  │   │   nginx      │    │   CALDERA    │    │   n8n                    │  │
-  │   │  SE Console  │    │  Adversary   │    │  Workflow Automation     │  │
-  │   │  :8081       │───▶│  Emulation   │◀───│  :5679                   │  │
-  │   │              │    │  :8888       │    │                          │  │
-  │   └──────────────┘    └──────┬───────┘    └────────────┬─────────────┘  │
-  │                              │                         │                │
-  │                              │                    ┌────▼─────────┐      │
-  │   ┌──────────────┐    ┌──────▼───────┐    │    Ollama       │      │
-  │   │   Kali       │    │  Atomic      │    │    (Host)       │      │
-  │   │  Attacker    │    │  Runner      │    │    :11434       │      │
-  │   │  :2222 (SSH) │    │              │    └────────────────┘      │
-  │   └──────────────┘    └──────────────┘                             │
+  │   ┌──────────────┐    ┌──────────────┐                                │
+  │   │   nginx      │    │   CALDERA    │       ┌────────────────┐       │
+  │   │  SE Console  │    │  Adversary   │       │    Ollama      │       │
+  │   │  :8081       │───▶│  Emulation   │       │    (Host)      │       │
+  │   │              │    │  :8888       │       │    :11434      │       │
+  │   └──────────────┘    └──────┬───────┘       └────────────────┘       │
+  │                              │                                        │
+  │   ┌──────────────┐    ┌──────▼───────┐                                │
+  │   │   Kali       │    │  Atomic      │                                │
+  │   │  Attacker    │    │  Runner      │                                │
+  │   │  :2222 (SSH) │    │              │                                │
+  │   └──────────────┘    └──────────────┘                                │
   │                                                                        │
   │   ┌─ Standalone Mode Only ──────────────────────────────────────────┐   │
+  │   │  ┌──────────────────────────┐                                   │   │
+  │   │  │   n8n                    │                                   │   │
+  │   │  │  Workflow Automation     │                                   │   │
+  │   │  │  :5679                   │                                   │   │
+  │   │  └──────────────────────────┘                                   │   │
   │   │  ┌──────────┐  ┌──────────┐  ┌──────────────┐                  │   │
   │   │  │ Guacamole │  │  guacd   │  │  PostgreSQL  │                  │   │
   │   │  │  :8085    │──│  proxy   │  │  (guac-db)   │                  │   │
@@ -151,9 +155,10 @@ You can change your AI provider anytime via the Settings gear icon in the SE Con
 
 If you already have [LabOps](https://github.com/jclark2496/labops) running, `make install` will detect it automatically and:
 
-- **Skip Guacamole** — uses LabOps' existing Guacamole instance instead
+- **Skip Guacamole** — uses LabOps' existing Guacamole instance
+- **Skip n8n** — imports adversary-sim workflows into LabOps' n8n instance
 - **Join `labops-net`** — containers connect to the shared Docker network instead of creating their own
-- **Share services** — nginx proxies work with LabOps' existing infrastructure
+- **Share services** — nginx proxies are auto-configured to point at LabOps' infrastructure
 
 No extra flags needed. Just run `make install` from the `adversary-sim` directory and the detection script handles the rest. A `.labops-mode` file is written to record the detected mode.
 
@@ -354,7 +359,8 @@ make install     # Reinstall from scratch
 ```
 adversary-sim/
 ├── Makefile                          # All make targets (install, up, down, etc.)
-├── docker-compose.yml                # Core services (CALDERA, n8n, nginx, Kali, Atomic Runner)
+├── docker-compose.yml                # Core services (CALDERA, nginx, Kali, Atomic Runner)
+├── docker-compose.n8n.yml            # n8n stack (standalone mode only)
 ├── docker-compose.guacamole.yml      # Guacamole stack (standalone mode only)
 ├── docker-compose.override.yml       # Auto-generated network config (do not edit)
 ├── .env                              # Environment variables (N8N_PASSWORD, ports, etc.)

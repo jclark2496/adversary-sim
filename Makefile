@@ -69,18 +69,22 @@ install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-cal
 up:
 	@echo "▶ Starting Adversary Simulation stack..."
 	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		echo "  (LabOps mode detected)"; \
+		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
 		$(COMPOSE) up -d; \
 	else \
-		echo "  (Standalone mode — including Guacamole)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.guacamole.yml up -d; \
+		echo "  (Standalone mode — including n8n + Guacamole)"; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml up -d; \
 	fi
 	@echo "✅ Stack started — run 'make status' to check health"
 
 .PHONY: down
 down:
 	@echo "■ Stopping Adversary Simulation stack..."
-	$(COMPOSE) down
+	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		$(COMPOSE) down; \
+	else \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml down; \
+	fi
 	@echo "✅ Stack stopped"
 
 .PHONY: restart
@@ -303,10 +307,16 @@ _detect-labops:
 	@MODE=$$(cat .labops-mode); \
 	if [ "$$MODE" = "labops" ]; then \
 		echo "✅ LabOps detected — joining labops-net network"; \
+		echo "  → Skipping n8n (will import workflows into labops-n8n)"; \
+		echo "  → Skipping Guacamole (using LabOps instance)"; \
 		printf 'networks:\n  default:\n    name: labops-net\n    external: true\n' > docker-compose.override.yml; \
+		sed 's/N8N_PROXY_IP/172.20.0.30/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
+		echo "  → nginx /api/ proxying to labops-n8n (172.20.0.30)"; \
 	else \
 		echo "✅ Standalone mode — creating advsim-net network"; \
 		printf 'networks:\n  default:\n    name: advsim-net\n    driver: bridge\n    ipam:\n      config:\n        - subnet: 172.20.0.0/24\n' > docker-compose.override.yml; \
+		sed 's/N8N_PROXY_IP/172.20.0.31/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
+		echo "  → nginx /api/ proxying to advsim-n8n (172.20.0.31)"; \
 	fi
 
 .PHONY: _generate-caldera-keys
@@ -364,11 +374,11 @@ _pull-caldera:
 _up:
 	@echo "▶ Starting containers..."
 	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		echo "  (LabOps mode — using base compose only)"; \
+		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
 		$(COMPOSE) up -d; \
 	else \
-		echo "  (Standalone mode — including Guacamole)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.guacamole.yml up -d; \
+		echo "  (Standalone mode — including n8n + Guacamole)"; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml up -d; \
 	fi
 
 .PHONY: _wait-healthy
@@ -390,39 +400,64 @@ _wait-healthy:
 .PHONY: _import-workflows
 _import-workflows:
 	@echo "▶ Importing n8n workflows..."
-	@N8N_PORT=$$(grep '^N8N_PORT=' .env 2>/dev/null | cut -d'=' -f2-); \
-	N8N_PORT=$${N8N_PORT:-5679}; \
-	N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
-	echo "  Waiting for n8n API on port $$N8N_PORT..."; \
-	for i in $$(seq 1 24); do \
-		if curl -sf http://localhost:$$N8N_PORT/api/v1/workflows -H "Content-Type: application/json" \
-			-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; then \
-			break; \
-		fi; \
-		if [ $$i -eq 24 ]; then \
-			echo "⚠️  n8n API not reachable — skipping workflow import"; \
-			exit 0; \
-		fi; \
-		sleep 5; \
-	done; \
-	for f in n8n/workflows/*.json; do \
-		WF_NAME=$$(basename "$$f" .json); \
-		echo "  Importing $$WF_NAME..."; \
-		RESP=$$(curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows" \
-			-H "Content-Type: application/json" \
-			-u "admin@localhost:$$N8N_PW" \
-			-d @"$$f" 2>&1) && \
-		WF_ID=$$(echo "$$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null) && \
-		if [ -n "$$WF_ID" ]; then \
-			curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows/$$WF_ID/activate" \
+	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		echo "  (LabOps mode — importing into labops-n8n)"; \
+		N8N_CTR=labops-n8n; \
+		echo "  Waiting for labops-n8n to be ready..."; \
+		for i in $$(seq 1 24); do \
+			if docker exec $$N8N_CTR n8n --version > /dev/null 2>&1; then \
+				break; \
+			fi; \
+			if [ $$i -eq 24 ]; then \
+				echo "⚠️  labops-n8n not reachable — skipping workflow import"; \
+				exit 0; \
+			fi; \
+			sleep 5; \
+		done; \
+		for f in n8n/workflows/*.json; do \
+			WF_NAME=$$(basename "$$f" .json); \
+			echo "  Importing $$WF_NAME into $$N8N_CTR..."; \
+			docker exec -i $$N8N_CTR n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null && \
+				echo "    ✅ $$WF_NAME imported" || \
+				echo "    ⚠️  $$WF_NAME import failed"; \
+		done; \
+		echo "✅ Workflow import complete (labops-n8n)"; \
+	else \
+		echo "  (Standalone mode — importing into advsim-n8n)"; \
+		N8N_PORT=$$(grep '^N8N_PORT=' .env 2>/dev/null | cut -d'=' -f2-); \
+		N8N_PORT=$${N8N_PORT:-5679}; \
+		N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
+		echo "  Waiting for n8n API on port $$N8N_PORT..."; \
+		for i in $$(seq 1 24); do \
+			if curl -sf http://localhost:$$N8N_PORT/api/v1/workflows -H "Content-Type: application/json" \
+				-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; then \
+				break; \
+			fi; \
+			if [ $$i -eq 24 ]; then \
+				echo "⚠️  n8n API not reachable — skipping workflow import"; \
+				exit 0; \
+			fi; \
+			sleep 5; \
+		done; \
+		for f in n8n/workflows/*.json; do \
+			WF_NAME=$$(basename "$$f" .json); \
+			echo "  Importing $$WF_NAME..."; \
+			RESP=$$(curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows" \
 				-H "Content-Type: application/json" \
-				-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; \
-			echo "    ✅ $$WF_NAME imported and activated (ID: $$WF_ID)"; \
-		else \
-			echo "    ⚠️  $$WF_NAME import returned unexpected response"; \
-		fi || echo "    ⚠️  $$WF_NAME import failed (may already exist)"; \
-	done; \
-	echo "✅ Workflow import complete"
+				-u "admin@localhost:$$N8N_PW" \
+				-d @"$$f" 2>&1) && \
+			WF_ID=$$(echo "$$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null) && \
+			if [ -n "$$WF_ID" ]; then \
+				curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows/$$WF_ID/activate" \
+					-H "Content-Type: application/json" \
+					-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; \
+				echo "    ✅ $$WF_NAME imported and activated (ID: $$WF_ID)"; \
+			else \
+				echo "    ⚠️  $$WF_NAME import returned unexpected response"; \
+			fi || echo "    ⚠️  $$WF_NAME import failed (may already exist)"; \
+		done; \
+		echo "✅ Workflow import complete"; \
+	fi
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
@@ -430,5 +465,9 @@ _import-workflows:
 clean:
 	@echo "⚠️  This will stop all containers and delete all volumes."
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 0
-	$(COMPOSE) down -v
+	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		$(COMPOSE) down -v; \
+	else \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml down -v; \
+	fi
 	@echo "✅ All containers and volumes removed"

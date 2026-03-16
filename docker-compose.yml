@@ -3,8 +3,8 @@
 # Core Services (always started)
 # =============================================================================
 # Usage:
-#   Standalone:  docker compose -f docker-compose.yml -f docker-compose.guacamole.yml up -d
-#   With LabOps: docker compose up -d
+#   Standalone:  docker compose -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml up -d
+#   With LabOps: docker compose up -d  (n8n + Guacamole provided by LabOps)
 #
 # The Makefile handles this automatically — just run: make install
 # =============================================================================
@@ -15,7 +15,6 @@
 
 volumes:
   caldera-data:
-  n8n-data:
 
 services:
 
@@ -60,45 +59,6 @@ services:
       - ./atomic-runner/tests:/opt/art/tests
       - ./atomic-runner/results:/opt/art/results
     command: tail -f /dev/null
-
-  # ---------------------------------------------------------------------------
-  # n8n — Workflow Automation
-  # Scenario enrichment via Ollama + config API for dashboard
-  # UI: http://localhost:5679
-  # ---------------------------------------------------------------------------
-  n8n:
-    image: n8nio/n8n:latest
-    platform: linux/arm64
-    container_name: advsim-n8n
-    restart: unless-stopped
-    ports:
-      - "${N8N_PORT:-5679}:5678"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    environment:
-      - N8N_HOST=localhost
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://localhost:5678
-      - N8N_SECURE_COOKIE=false
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:?Set N8N_PASSWORD in .env}
-      - GENERIC_TIMEZONE=${TIMEZONE:-America/Chicago}
-      - OLLAMA_HOST=http://host.docker.internal:11434
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
-      - AI_PROVIDER=${AI_PROVIDER:-}
-      - AI_API_KEY=${AI_API_KEY:-}
-      - AI_MODEL=${AI_MODEL:-}
-      - NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process
-      - GUAC_ADMIN_USER=${GUAC_ADMIN_USER:-guacadmin}
-      - GUAC_ADMIN_PASSWORD=${GUAC_ADMIN_PASSWORD:-guacadmin}
-      - VICTIM_USER=${VICTIM_USER:-demo}
-      - VICTIM_PASSWORD=${VICTIM_PASSWORD:-}
-    volumes:
-      - n8n-data:/home/node/.n8n
-      - ./n8n/workflows:/home/node/.n8n/workflows
-      - ./nginx/html:/data/scenarios
 
   # ---------------------------------------------------------------------------
   # Nginx — SE Console + Reverse Proxy
