@@ -787,7 +787,7 @@
   <!-- WEBHOOK NOTICE -->
   <div id="wh-notice">
     <span class="wh-icon">⚠</span>
-    <span>Write operations (approve, edit, delete) require the <strong>admin-scenarios</strong> n8n workflow to be active at <code style="font-family:monospace;font-size:11px">/webhook/admin-scenarios</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
+    <span>Write operations (approve, edit, delete) require the <strong>scenario-approve</strong> n8n workflow to be active at <code style="font-family:monospace;font-size:11px">/webhook/scenario-approve</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
     <button class="wh-dismiss" id="wh-dismiss" title="Dismiss">×</button>
   </div>
 
@@ -932,9 +932,9 @@
   /* =====================================================
      CONSTANTS
   ===================================================== */
-  const ADMIN_PASSWORD = ''; // Set via .env
+  const ADMIN_PASSWORD = 'SEdemo2026';
   const SCENARIOS_URL  = '/scenarios.json';
-  const ADMIN_WH       = `http://${window.location.hostname}:5678/webhook/admin-scenarios`;
+  const ADMIN_WH       = `/api/scenario-approve`;
   const SESSION_KEY    = 'mdr_admin_auth';
 
   /* =====================================================
@@ -1274,7 +1274,7 @@
   }
 
   /* =====================================================
-     PERSIST ACTION → admin-scenarios webhook
+     PERSIST ACTION → scenario-approve webhook
   ===================================================== */
   async function persistAction(action, ids, extra = {}) {
     try {
@@ -1302,7 +1302,7 @@
     $('edit-body').innerHTML = `
       <div class="ef-notice">
         ⚠ Edits are applied immediately in the UI. Persistence to scenarios.json requires the
-        <strong>admin-scenarios</strong> n8n webhook to be active.
+        <strong>scenario-approve</strong> n8n webhook to be active.
       </div>
       <div class="ef-group">
         <div class="ef-label">Title</div>
