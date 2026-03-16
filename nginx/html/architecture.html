@@ -971,7 +971,7 @@ header {
         <div class="svc-node">
           <div class="svc-icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17,1 21,5 17,9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7,23 3,19 7,15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
           <div class="svc-info">
-            <div class="svc-name">n8n + Ollama</div>
+            <div class="svc-name">n8n + AI Provider</div>
             <div class="svc-port"><a href="http://<your-host-ip>:5678" target="_blank">:5678</a> &nbsp;· Workflow + AI enrichment</div>
           </div>
         </div>
@@ -1158,13 +1158,13 @@ header {
         <div class="n8n-conn-pass">LLM prompt</div>
       </div>
 
-      <!-- 5: Ollama -->
+      <!-- 5: AI Provider -->
       <div class="n8n-node-wrap">
         <div class="n8n-node-box" style="color:var(--purple);border-color:rgba(var(--purple-rgb),0.3);background:rgba(var(--purple-rgb),0.08)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 017 4.5v0A2.5 2.5 0 019.5 7h5A2.5 2.5 0 0117 4.5v0A2.5 2.5 0 0114.5 2h-5z"/><path d="M5 10a7 7 0 1014 0H5z"/><path d="M9 13v3M15 13v3M9 19h6"/></svg>
         </div>
-        <div class="n8n-nlabel">Ollama LLM</div>
-        <div class="n8n-nsub">llama3.2:3b</div>
+        <div class="n8n-nlabel">AI Provider</div>
+        <div class="n8n-nsub">Configurable</div>
       </div>
 
       <div class="n8n-conn">
@@ -1182,6 +1182,60 @@ header {
       </div>
 
     </div><!-- /n8n-pipeline -->
+
+    <div style="margin-top:10px;padding:10px 14px;background:rgba(var(--purple-rgb),0.06);border:1px solid rgba(var(--purple-rgb),0.18);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.55;">
+      AI enrichment is powered by Anthropic Claude, OpenAI, Google Gemini, or local Ollama &mdash; configured via Settings.
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">n8n Workflows</div>
+    <div class="stack-grid" style="margin-bottom:16px">
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">MDR Case Ingest</div>
+          <span class="stack-url">POST /api/case-ingest</span>
+          <span class="stack-desc">Receives new MDR case data, enriches via AI, writes to scenarios.json</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Scenario Enrichment Pipeline</div>
+          <span class="stack-url">POST /api/scenario-enrich</span>
+          <span class="stack-desc">AI-enriched scenario generation from free-text descriptions with ATT&amp;CK mapping</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">Scenario Approve</div>
+          <span class="stack-url">POST /api/scenario-approve</span>
+          <span class="stack-desc">Approves and publishes queued case submissions to the scenario catalog</span>
+        </div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-emoji" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+        <div class="stack-info">
+          <div class="stack-name">AI Provider Settings API</div>
+          <span class="stack-url">GET/POST /api/settings</span>
+          <span class="stack-desc">Reads/writes AI provider configuration and Lab Manager URL</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Settings &amp; Configuration</div>
+    <div style="padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:16px;">
+      The <strong style="color:var(--text);">gear icon</strong> in the SE Console header opens the <strong style="color:var(--text);">Settings</strong> modal, where you can configure:<br>
+      &bull; <strong style="color:var(--text);">AI Provider</strong> &mdash; Anthropic Claude, OpenAI, Google Gemini, or local Ollama<br>
+      &bull; <strong style="color:var(--text);">API Key &amp; Model</strong> &mdash; provider-specific credentials and model selection<br>
+      &bull; <strong style="color:var(--text);">Lab Manager URL</strong> &mdash; connect to a LabOps dashboard for infrastructure management<br><br>
+      Settings are stored in <code>ai-config.json</code> (runtime config, not tracked in git). They can also be configured during <code>make install</code>.
+    </div>
 
   </div><!-- /pane-arch -->
 
@@ -1381,7 +1435,7 @@ header {
           <div class="stack-name">n8n</div>
           <a class="stack-url" href="http://<your-host-ip>:5678" target="_blank">http://<your-host-ip>:5678</a>
           <span class="stack-creds">admin / <your-n8n-password></span>
-          <span class="stack-desc">Workflow automation — receives scenario events, calls Ollama for AI narrative enrichment</span>
+          <span class="stack-desc">Workflow automation — receives scenario events, calls configurable AI provider for narrative enrichment</span>
           <span class="stack-tag tag-docker">Docker :5678</span>
         </div>
       </div>
@@ -1427,10 +1481,10 @@ header {
       <div class="stack-card">
         <div class="stack-emoji" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 3-1.5 5-4 6.5V17a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.5C6.5 14 5 12 5 9a7 7 0 0 1 7-7z"/><path d="M10 21h4"/><path d="M9 9h.01M15 9h.01"/><path d="M9 13c1 1 5 1 6 0"/></svg></div>
         <div class="stack-info">
-          <div class="stack-name">Ollama</div>
-          <span class="stack-url">http://localhost:11434</span>
-          <span class="stack-desc">Local LLM inference — runs llama3.2:3b to generate customer-facing scenario narratives from CALDERA output</span>
-          <span class="stack-tag tag-native">Native · llama3.2:3b</span>
+          <div class="stack-name">AI Provider</div>
+          <span class="stack-url">Configurable via Settings</span>
+          <span class="stack-desc">Anthropic Claude, OpenAI, Google Gemini, or local Ollama — generates customer-facing scenario narratives from CALDERA output</span>
+          <span class="stack-tag tag-native">Configurable</span>
         </div>
       </div>
 
@@ -1697,7 +1751,7 @@ header {
           <div class="step-num">5</div>
           <div class="step-text">
             <span class="step-action">Return to SE Console</span>
-            <span class="step-detail"> → scroll to the Enrich panel → click to generate an AI narrative. Ollama produces a customer-facing incident summary tailored to the scenario — include in prospect follow-up or debrief documentation.</span>
+            <span class="step-detail"> → scroll to the Enrich panel → click to generate an AI narrative. The configured AI provider produces a customer-facing incident summary tailored to the scenario — include in prospect follow-up or debrief documentation.</span>
           </div>
         </div>
 
