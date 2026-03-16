@@ -17,7 +17,7 @@ This is a **production SE enablement platform** for running live attack simulati
 - Orchestrates the attack via MITRE CALDERA on a real Windows victim VM
 - Streams the CALDERA operation feed live (left panel) alongside a live RDP session to the victim desktop (right panel) via Apache Guacamole
 - Shows Sophos Endpoint + Sophos XDR detecting real attack techniques in real time
-- AI-generates customer-facing narratives via Ollama (llama3.2:3b) when SEs submit new cases via n8n
+- AI-generates customer-facing narratives via a configurable AI provider (Anthropic Claude, OpenAI, Google Gemini, or local Ollama) when SEs submit new cases via n8n
 
 **What it is NOT:** A lab provisioning tool. VM creation, networking, and infrastructure live in LabOps. SEs never run setup commands -- they open a browser at `http://localhost:8081` and click Launch.
 
@@ -39,7 +39,7 @@ This is a **production SE enablement platform** for running live attack simulati
 |    C2 for sandcat agents on victim VMs                      |
 |                                                             |
 |  advsim-n8n        172.20.0.31  :5679->5678                 |
-|    Scenario case ingest + Ollama enrichment + config API    |
+|    Scenario case ingest + AI enrichment + config/settings   |
 |                                                             |
 |  advsim-kali       172.20.0.70  :2222->22                   |
 |  advsim-atomic     172.20.0.40  (arm64, idle)               |
@@ -49,8 +49,9 @@ This is a **production SE enablement platform** for running live attack simulati
 |  advsim-guacd      172.20.0.80               (amd64/Rosetta)|
 |  advsim-guac-postgres 172.20.0.82            (arm64 native) |
 |                                                             |
-|  Ollama (native, not Docker)  :11434                        |
-|    Reached from Docker as host.docker.internal:11434        |
+|  AI Provider (configurable via Settings / ai-config.json)   |
+|    Ollama (native):  host.docker.internal:11434             |
+|    Cloud: Anthropic / OpenAI / Gemini via API key           |
 +-------------------------------------------------------------+
                        |
               Victim VMs (provisioned by LabOps or manually)
@@ -144,7 +145,8 @@ adversary-sim/
 |       +-- admin.html              <- Admin panel
 |       +-- architecture.html       <- Platform reference for SEs (not customers)
 |       +-- scenarios.json          <- Scenario catalog: source of truth for all scenarios
-|       +-- caldera-library.json    <- CALDERA ability/adversary index for n8n Ollama prompts
+|       +-- ai-config.json          <- AI provider config (gitignored, written by make install / Settings UI)
+|       +-- caldera-library.json    <- CALDERA ability/adversary index for n8n AI prompts
 |       +-- mitre-attack.json       <- ATT&CK Enterprise techniques for autocomplete
 |       +-- s.ps1                   <- One-liner sandcat bootstrap for Windows victims
 |
@@ -177,10 +179,11 @@ adversary-sim/
 |
 +-- n8n/
 |   +-- workflows/
-|       +-- case_ingest.json        <- POST /webhook/case-ingest -> Ollama -> scenarios.json
-|       +-- export_enrichment.json  <- POST /webhook/scenario-enrich -> Ollama -> scenarios.json
+|       +-- case_ingest.json        <- POST /webhook/case-ingest -> AI provider -> scenarios.json
+|       +-- export_enrichment.json  <- POST /webhook/scenario-enrich -> AI provider -> scenarios.json
 |       +-- scenario_approve.json   <- POST /webhook/scenario-approve -> scenarios.json
 |       +-- config_api.json         <- GET /webhook/config -> returns Guac + victim credentials
+|       +-- settings_api.json       <- GET/POST /webhook/settings -> reads/writes ai-config.json
 |
 +-- atomic-runner/
     +-- Dockerfile                  <- ARM64 Ubuntu with Atomic Red Team definitions
@@ -406,7 +409,7 @@ Response shape:
 **Webhook:** POST `http://localhost:5679/webhook/case-ingest`
 **Via nginx:** POST `http://localhost:8081/api/case-ingest`
 
-Flow: Webhook -> Parse case JSON -> Build Ollama prompt -> POST to `http://host.docker.internal:11434/api/generate` (llama3.2:3b) -> Parse response -> Normalize fields -> Write to `/data/scenarios/scenarios.json` -> Respond 200
+Flow: Webhook -> Parse case JSON -> Build AI prompt -> Route to configured provider (Anthropic/OpenAI/Gemini/Ollama via `ai-config.json`) -> Parse response -> Normalize fields -> Write to `/data/scenarios/scenarios.json` -> Respond 200
 
 ### Workflow: Scenario Enrichment
 
@@ -415,7 +418,7 @@ Flow: Webhook -> Parse case JSON -> Build Ollama prompt -> POST to `http://host.
 **Via nginx:** POST `http://localhost:8081/api/scenario-enrich`
 
 Flow: Webhook -> Validate input -> Branch:
-- If `needs_enrichment=true`: Build Ollama prompt -> Enrich with ATT&CK -> Write to scenarios.json
+- If `needs_enrichment=true`: Build AI prompt -> Enrich with ATT&CK via configured provider -> Write to scenarios.json
 - If `scenario_id` provided: Return existing scenario with industry-specific talking points
 
 ### Workflow: Scenario Approve
@@ -526,7 +529,8 @@ Scenarios with IDs like `SCN-CASE-XXXXXX` (case-ingest) or `SCN-ENRICH-XXXXXX` (
 - `make install` has been run (or `make up` if already installed)
 - `make sandcat` has been run (AMD64 binary compiled)
 - `make profiles` has been run (adversaries loaded in CALDERA)
-- Ollama running: `ollama serve` + `ollama pull llama3.2:3b`
+- AI provider configured (via `make install` prompt or Settings gear icon in SE Console)
+- If using Ollama: `ollama serve` + `ollama pull llama3.2:3b`
 - At least one victim VM running with sandcat agent deployed
 - Guacamole credentials and victim password set in `.env`
 
@@ -568,7 +572,10 @@ Copy `.env.example` to `.env`. The `.env` file is gitignored.
 | Variable | Purpose | Required? |
 |---|---|---|
 | `N8N_PASSWORD` | n8n admin UI password | **Yes** |
-| `OLLAMA_MODEL` | Model for scenario enrichment | No (default: `llama3.2:3b`) |
+| `OLLAMA_MODEL` | Model for Ollama enrichment | No (default: `llama3.2:3b`) |
+| `AI_PROVIDER` | AI provider: `anthropic`, `openai`, `gemini`, or `ollama` | No (set during install) |
+| `AI_API_KEY` | API key for cloud AI providers | No (not needed for Ollama) |
+| `AI_MODEL` | Model override (leave blank for provider defaults) | No |
 | `GUAC_ADMIN_USER` | Guacamole admin username | No (default: `guacadmin`) |
 | `GUAC_ADMIN_PASSWORD` | Guacamole admin password | No (default: `guacadmin`) |
 | `VICTIM_USER` | RDP username for victim VMs | No (default: `demo`) |
@@ -586,6 +593,7 @@ Copy `.env.example` to `.env`. The `.env` file is gitignored.
 .env                            <- All lab secrets
 .labops-mode                    <- Auto-detected deployment mode
 docker-compose.override.yml     <- Auto-generated network config
+nginx/html/ai-config.json      <- AI provider config (contains API keys at runtime)
 *.tfvars                        <- Terraform secrets (if LabOps co-located)
 *.tfstate / *.tfstate.backup    <- Terraform state
 .terraform/                     <- Terraform providers
@@ -599,7 +607,7 @@ atomic-runner/tests/            <- Test definitions
 
 | Target | What It Does |
 |---|---|
-| `make install` | Full first-time setup: checks Docker + Ollama, creates .env, detects LabOps, generates CALDERA crypto keys, pulls CALDERA image, starts stack, compiles sandcat, loads profiles, rebuilds MITRE index |
+| `make install` | Full first-time setup: checks Docker, prompts AI provider selection, creates .env, detects LabOps, generates CALDERA crypto keys, pulls CALDERA image, starts stack, compiles sandcat, loads profiles, rebuilds MITRE index |
 | `make up` | Starts stack (auto-detects standalone vs LabOps mode from `.labops-mode`) |
 | `make down` | `docker compose down` |
 | `make restart` | `docker compose restart` |
@@ -632,4 +640,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-16*
+*Last updated: 2026-03-16 — Added multi-provider AI support (Anthropic, OpenAI, Gemini, Ollama)*

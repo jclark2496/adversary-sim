@@ -22,7 +22,7 @@
 
 - **MITRE CALDERA 5.1.0** — Full adversary emulation server with pre-loaded attack profiles
 - **6 Pre-Built Scenarios** — Ready-to-run attack chains mapped to MITRE ATT&CK (SCN-001 through SCN-008)
-- **AI-Enriched Scenario Generation** — Ollama-powered workflow that generates scenario intelligence, analyst notes, and enrichment data
+- **AI-Enriched Scenario Generation** — Multi-provider AI (Anthropic, OpenAI, Gemini, or Ollama) for scenario intelligence, analyst notes, and enrichment data
 - **SE Console** — Browser-based front-end for launching and monitoring demos (served via nginx)
 - **Browser-Based RDP** — Apache Guacamole for in-browser access to victim VMs (standalone mode)
 - **Kali Attacker Node** — Pre-configured Kali Linux container with Impacket, CrackMapExec, Nmap, and more
@@ -84,7 +84,7 @@ This project is part of a modular architecture for Sophos SE demo environments:
 | Requirement | Notes |
 |-------------|-------|
 | **Docker Desktop** | Ensure Docker Compose V2 is available (`docker compose version`) |
-| **Ollama** | Install from [ollama.com](https://ollama.com), then `ollama pull llama3.2:3b` |
+| **AI Provider** (one of) | **Anthropic** / **OpenAI** / **Google Gemini** API key, **or** [Ollama](https://ollama.com) (free, local). Selected during `make install`. |
 | **GHCR Access** | The CALDERA image is hosted on a private GitHub Container Registry. Authenticate before install (see below). |
 | **Python 3** | Required for profile loading and library build scripts |
 
@@ -118,7 +118,7 @@ make install
 
 That's it. The installer will:
 
-1. Verify Docker and Ollama are running
+1. Verify Docker is running and prompt you to choose an AI provider
 2. Generate `.env` from template if needed
 3. Auto-detect whether LabOps is running
 4. Generate unique CALDERA crypto keys (`crypt_salt` and `encryption_key`)
@@ -128,6 +128,22 @@ That's it. The installer will:
 8. Cross-compile the sandcat agent for Windows
 9. Load all adversary profiles and scenarios
 10. Build the MITRE ATT&CK technique index
+
+---
+
+## AI Provider Configuration
+
+During `make install`, you'll be asked to choose your AI provider:
+
+| Option | Provider | Requires | Quality |
+|---|---|---|---|
+| 1 | **Anthropic Claude** (recommended) | API key | Excellent |
+| 2 | **OpenAI** | API key | Excellent |
+| 3 | **Google Gemini** | API key | Good |
+| 4 | **Ollama** (local) | Nothing — auto-installed | Good (free, private) |
+| 5 | **Skip** | — | Configure later in Settings |
+
+You can change your AI provider anytime via the Settings gear icon in the SE Console header.
 
 ---
 
@@ -154,7 +170,7 @@ To force standalone mode even when LabOps is running, remove the `.labops-mode` 
 | **n8n** | `http://localhost:5679` | Set in `.env` (`N8N_USER` / `N8N_PASSWORD`) |
 | **Guacamole** | `http://localhost:8085/guacamole` | `guacadmin` / `guacadmin` (standalone only) |
 | **Kali SSH** | `ssh root@localhost -p 2222` | `root` / `kali` |
-| **Ollama** | `http://localhost:11434` | None (runs on host) |
+| **Ollama** (if selected) | `http://localhost:11434` | None (runs on host) |
 
 > **Note:** Replace `localhost` with `<your-host-ip>` when accessing from victim VMs or remote machines.
 
@@ -254,10 +270,11 @@ Four automation workflows are included in `n8n/workflows/`:
 
 | Workflow | File | Purpose |
 |----------|------|---------|
-| **Scenario Enrichment** | `export_enrichment.json` | Uses Ollama to generate AI-enriched intelligence reports for each scenario |
+| **Scenario Enrichment** | `export_enrichment.json` | Uses the configured AI provider to generate enriched intelligence reports for each scenario |
 | **Config API** | `config_api.json` | Exposes scenario configuration as a REST API for the SE Console |
 | **Case Ingest** | `case_ingest.json` | Ingests detection events and creates structured case data |
 | **Scenario Approve** | `scenario_approve.json` | Approval workflow for new or modified scenarios |
+| **Settings API** | `settings_api.json` | GET/POST AI provider settings (reads/writes `ai-config.json`) |
 
 ### Importing Workflows
 
@@ -288,11 +305,12 @@ Common causes:
 - Check Windows Firewall is not blocking outbound connections
 - Verify the agent binary was compiled: `make sandcat`
 
-### n8n shows "Ollama connection failed"
+### AI enrichment not working
 
-- Confirm Ollama is running: `curl http://localhost:11434/api/tags`
-- Confirm the model is pulled: `ollama list` (should show `llama3.2:3b`)
-- n8n connects via `host.docker.internal:11434` — ensure Docker Desktop's host networking is enabled
+- Check your AI provider setting in the Settings modal (gear icon in SE Console header)
+- **Ollama**: Confirm Ollama is running (`curl http://localhost:11434/api/tags`) and model is pulled (`ollama list`)
+- **Cloud providers**: Verify your API key is correct in Settings or `.env` (`AI_API_KEY`)
+- n8n connects to Ollama via `host.docker.internal:11434` — ensure Docker Desktop's host networking is enabled
 
 ### Guacamole not accessible
 
@@ -359,7 +377,8 @@ adversary-sim/
 │       ├── case_ingest.json
 │       ├── config_api.json
 │       ├── export_enrichment.json
-│       └── scenario_approve.json
+│       ├── scenario_approve.json
+│       └── settings_api.json
 │
 ├── nginx/
 │   ├── html/                         # SE Console front-end
@@ -367,6 +386,7 @@ adversary-sim/
 │   │   ├── console.html
 │   │   ├── admin.html
 │   │   ├── s.ps1                     # Sandcat deployment script
+│   │   ├── ai-config.json            # AI provider config (gitignored, runtime)
 │   │   ├── caldera-library.json      # Scenario index (built by make library)
 │   │   ├── mitre-attack.json         # ATT&CK technique index
 │   │   └── scenarios.json
