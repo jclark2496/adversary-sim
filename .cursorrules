@@ -1,0 +1,73 @@
+# Adversary Simulation Platform -- AI Coding Context
+
+## Project Purpose
+Standalone attack simulation platform for Sophos SE demos. Orchestrates live MITRE ATT&CK
+scenarios via CALDERA on Windows victim VMs, with split-panel browser UI showing the attack
+feed alongside a live RDP session. AI-generates customer-facing narratives via configurable
+providers (Anthropic, OpenAI, Gemini, or Ollama).
+
+## Key Constraints
+- Container prefix: `advsim-*` (NOT `mdr-*` -- that is the monolith)
+- No Proxmox, Terraform, Ansible, or Portainer -- infrastructure lives in LabOps
+- All secrets via `.env` (gitignored)
+- `make install` handles full first-time setup including AI provider selection
+- CALDERA image is private GHCR -- requires `gh auth` for initial pull
+
+## Architecture
+```
+Docker Host (advsim-net standalone / labops-net with LabOps)
+  advsim-nginx      172.20.0.51  :8081->80     SE Console + reverse proxy
+  advsim-caldera    172.20.0.10  :8888         CALDERA C2 (ARM64, v5.1.0)
+  advsim-n8n        172.20.0.31  :5679->5678   Scenario ingest + AI enrichment
+  advsim-kali       172.20.0.70  :2222->22     Kali Linux
+  advsim-atomic     172.20.0.40                Atomic Red Team (idle)
+  --- Standalone only (no LabOps) ---
+  advsim-guacamole  172.20.0.81  :8085->8080   Browser RDP (amd64/Rosetta)
+  advsim-guacd      172.20.0.80                Protocol daemon (amd64/Rosetta)
+  advsim-guac-postgres 172.20.0.82             Guacamole DB
+```
+Nginx routes: `/` SE Console, `/caldera/` CALDERA API, `/guacamole/` RDP,
+`/api/` n8n webhooks, `/scenarios.json` catalog, `/s.ps1` sandcat bootstrap.
+
+## Critical Gotchas
+1. **CALDERA link status pattern** -- completed links are NOT always `status=2`. Use:
+   `linkRan(lk) { return s===2 || s===-1 || (s===0 && lk.finish); }`
+   This is in console.html. Do NOT simplify it.
+2. **Sandcat must be compiled AMD64** -- CALDERA runs ARM64 but victims are x86-64 Windows.
+   Run `make sandcat` after every fresh `docker compose up`. The binary does NOT survive
+   `make clean`.
+3. **Guacamole/guacd are amd64-only** -- run via Rosetta 2 on Apple Silicon. Only deployed
+   in standalone mode; when LabOps is present, adversary-sim uses LabOps' Guacamole.
+4. **Container prefix is advsim-*, not mdr-*** -- references to `mdr-caldera`, `mdr-nginx`
+   etc. are from the monolith and will not resolve here.
+5. **n8n requires NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process** for Code nodes that
+   write scenarios.json. Already set in docker-compose.yml.
+
+## Network Detection
+`scripts/detect-labops.sh` auto-detects whether `labops-net` exists:
+- **Standalone**: creates `advsim-net`, deploys its own Guacamole stack
+- **LabOps mode**: joins `labops-net`, skips Guacamole (uses LabOps instance)
+Result cached in `.labops-mode` (gitignored).
+
+## Relationship to Other Repos
+- **labops**: Infrastructure layer. Provides Proxmox VM provisioning, Guacamole, and the
+  `labops-net` Docker network that adversary-sim auto-detects and joins.
+- **mdr-demo-lab**: The original monolith. This repo was extracted from it. The monolith
+  uses `mdr-*` prefix and bundles everything (infra + attack sim + AI) in one stack.
+
+## Key Files
+```
+docker-compose.yml              Core services (always started)
+docker-compose.guacamole.yml    Guacamole stack (standalone mode only)
+Makefile                        install, up, down, sandcat, profiles, library
+nginx/html/index.html           SE Console: scenario picker + launch
+nginx/html/console.html         Attack Console: CALDERA feed + RDP split panel
+nginx/html/admin.html           Admin panel
+nginx/html/scenarios.json       Scenario catalog (source of truth)
+nginx/html/ai-config.json       AI provider config (gitignored)
+nginx/conf/default.conf         Nginx proxy routes
+caldera/conf/local.yml          CALDERA config (crypto keys auto-generated on install)
+caldera-profiles/               Ability YAML + adversary JSON files
+n8n/workflows/                  Case ingest, enrichment, approve, config, settings
+scripts/detect-labops.sh        LabOps network detection
+```
