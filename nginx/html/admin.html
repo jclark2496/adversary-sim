@@ -734,6 +734,10 @@
     }
     .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.07); color:var(--text-primary); }
     .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
+    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-dim);cursor:pointer;background:none;border:none;font-family:var(--fb);transition:color .15s;padding:0;margin-right:8px}
+    .labmgr-link:hover{color:var(--accent-cyan)}
+    .labmgr-link .lm-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(232,240,255,.2)}
+    .labmgr-link .lm-dot.green{background:#00FF41;box-shadow:0 0 4px rgba(0,255,65,.4)}
   </style>
 </head>
 <body>
@@ -767,6 +771,7 @@
       SE Console
     </a>
     <div class="lpip"><div class="ldot"></div>Live</div>
+    <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
     <div class="nav-wrap" id="nav-wrap">
       <button class="hdr-link" id="nav-btn" onclick="navToggle()">☰ Menu</button>
       <div class="nav-dd" id="nav-dd">
@@ -1612,6 +1617,24 @@ function navFb(id, txt) {
   var orig = el.textContent; el.textContent = txt;
   setTimeout(function() { el.textContent = orig; }, 1800);
 }
+
+// ── Lab Manager Link ──────────────────────────────────────────────────
+function labmgrUpdateDot(url) {
+  var dot = document.getElementById('labmgr-dot');
+  if (url) { dot.classList.add('green'); } else { dot.classList.remove('green'); }
+}
+async function labmgrClick() {
+  var url = localStorage.getItem('labopsUrl') || '';
+  if (!url) { try { var r = await fetch('/api/settings'); if (r.ok) { var cfg = await r.json(); url = cfg.labopsUrl || ''; } } catch(e) {} }
+  if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
+}
+(function() {
+  var cached = localStorage.getItem('labopsUrl');
+  if (cached) { labmgrUpdateDot(cached); return; }
+  fetch('/api/settings').then(function(r) { return r.ok ? r.json() : {}; }).then(function(cfg) {
+    if (cfg.labopsUrl) { localStorage.setItem('labopsUrl', cfg.labopsUrl); labmgrUpdateDot(cfg.labopsUrl); }
+  }).catch(function() {});
+})();
 </script>
 </body>
 </html>

@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const fs = require('fs');\nlet cfg = { provider: '', apiKey: '', model: '' };\ntry {\n  cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n} catch(e) {}\nconst masked = cfg.apiKey ? '••••' + cfg.apiKey.slice(-4) : '';\nreturn [{ json: { provider: cfg.provider, apiKeyMasked: masked, model: cfg.model } }];"
+        "jsCode": "const fs = require('fs');\nlet cfg = { provider: '', apiKey: '', model: '', labopsUrl: '' };\ntry {\n  cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n} catch(e) {}\nconst masked = cfg.apiKey ? '••••' + cfg.apiKey.slice(-4) : '';\nreturn [{ json: { provider: cfg.provider, apiKeyMasked: masked, model: cfg.model, labopsUrl: cfg.labopsUrl || '' } }];"
       },
       "id": "settings-read-config",
       "name": "Read Config",
@@ -61,7 +61,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const fs = require('fs');\nconst body = $input.first().json.body || $input.first().json;\nconst cfg = { provider: body.provider || '', apiKey: body.apiKey || '', model: body.model || '' };\nfs.writeFileSync('/data/scenarios/ai-config.json', JSON.stringify(cfg, null, 2));\nreturn [{ json: { success: true, provider: cfg.provider } }];"
+        "jsCode": "const fs = require('fs');\nconst body = $input.first().json.body || $input.first().json;\nconst cfg = { provider: body.provider || '', apiKey: body.apiKey || '', model: body.model || '', labopsUrl: body.labopsUrl || '' };\nfs.writeFileSync('/data/scenarios/ai-config.json', JSON.stringify(cfg, null, 2));\nreturn [{ json: { success: true, provider: cfg.provider } }];"
       },
       "id": "settings-write-config",
       "name": "Write Config",

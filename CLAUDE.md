@@ -145,7 +145,7 @@ adversary-sim/
 |       +-- admin.html              <- Admin panel
 |       +-- architecture.html       <- Platform reference for SEs (not customers)
 |       +-- scenarios.json          <- Scenario catalog: source of truth for all scenarios
-|       +-- ai-config.json          <- AI provider config (gitignored, written by make install / Settings UI)
+|       +-- ai-config.json          <- AI provider + labopsUrl config (gitignored, written by make install / Settings UI)
 |       +-- caldera-library.json    <- CALDERA ability/adversary index for n8n AI prompts
 |       +-- mitre-attack.json       <- ATT&CK Enterprise techniques for autocomplete
 |       +-- s.ps1                   <- One-liner sandcat bootstrap for Windows victims
@@ -428,6 +428,28 @@ Flow: Webhook -> Validate input -> Branch:
 **Via nginx:** POST `http://localhost:8081/api/scenario-approve`
 
 Flow: Webhook -> Check if case exists (by `case_id`) -> If not, build minimal scenario and publish to scenarios.json
+
+### Workflow: Settings API
+
+**File:** `n8n/workflows/settings_api.json`
+**Webhook GET:** `http://localhost:5679/webhook/settings`
+**Webhook POST:** `http://localhost:5679/webhook/settings-save`
+**Via nginx:** GET `http://localhost:8081/api/settings` / POST `http://localhost:8081/api/settings-save`
+
+Reads/writes `ai-config.json` on disk. The config object contains:
+
+```json
+{
+  "provider": "anthropic|openai|gemini|ollama",
+  "apiKey": "...",
+  "model": "",
+  "labopsUrl": "http://192.168.1.50:8080"
+}
+```
+
+- GET returns the config with `apiKey` masked (last 4 chars only) and the `labopsUrl` field.
+- POST writes the full config (including `labopsUrl`) to `/data/scenarios/ai-config.json`.
+- POST `/api/settings/test` tests AI provider connectivity (does not test labopsUrl -- that is tested client-side).
 
 ### n8n File Write Requirement
 

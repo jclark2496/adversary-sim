@@ -157,6 +157,12 @@ If you already have [LabOps](https://github.com/jclark2496/labops) running, `mak
 
 No extra flags needed. Just run `make install` from the `adversary-sim` directory and the detection script handles the rest. A `.labops-mode` file is written to record the detected mode.
 
+After installing both projects, configure the Lab Manager URL in the SE Console:
+1. Click the gear icon in the header
+2. Enter your LabOps dashboard URL (e.g., `http://localhost:8080`)
+3. Click Test to verify connectivity
+4. Click Save
+
 To force standalone mode even when LabOps is running, remove the `.labops-mode` file and set the network manually in `docker-compose.override.yml`.
 
 ### Network Configuration
