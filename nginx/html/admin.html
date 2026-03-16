@@ -1519,6 +1519,9 @@
 
     // Dismiss webhook notice
     $('wh-dismiss').addEventListener('click', () => $('wh-notice').classList.add('hidden'));
+    fetch(ADMIN_WH, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .then(r => { if (r.ok || r.status === 400) $('wh-notice').classList.add('hidden'); })
+      .catch(() => {});
 
     // Filter chips — status
     qa('[data-filter="status"]').forEach(btn => {
