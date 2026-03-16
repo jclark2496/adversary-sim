@@ -87,6 +87,9 @@ services:
       - GENERIC_TIMEZONE=${TIMEZONE:-America/Chicago}
       - OLLAMA_HOST=http://host.docker.internal:11434
       - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - AI_PROVIDER=${AI_PROVIDER:-}
+      - AI_API_KEY=${AI_API_KEY:-}
+      - AI_MODEL=${AI_MODEL:-}
       - NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process
       - GUAC_ADMIN_USER=${GUAC_ADMIN_USER:-guacadmin}
       - GUAC_ADMIN_PASSWORD=${GUAC_ADMIN_PASSWORD:-guacadmin}
