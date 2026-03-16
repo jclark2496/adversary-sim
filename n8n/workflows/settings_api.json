@@ -1,0 +1,232 @@
+{
+  "name": "AI Provider Settings API",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "settings",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "settings-get-webhook",
+      "name": "Webhook - GET Settings",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-800, 0],
+      "webhookId": "settings-get"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nlet cfg = { provider: '', apiKey: '', model: '' };\ntry {\n  cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n} catch(e) {}\nconst masked = cfg.apiKey ? '••••' + cfg.apiKey.slice(-4) : '';\nreturn [{ json: { provider: cfg.provider, apiKeyMasked: masked, model: cfg.model } }];"
+      },
+      "id": "settings-read-config",
+      "name": "Read Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-580, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "settings-get-respond",
+      "name": "Respond GET Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-360, 0]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "settings-save",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "settings-post-webhook",
+      "name": "Webhook - POST Settings",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-800, 250],
+      "webhookId": "settings-save"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst body = $input.first().json.body || $input.first().json;\nconst cfg = { provider: body.provider || '', apiKey: body.apiKey || '', model: body.model || '' };\nfs.writeFileSync('/data/scenarios/ai-config.json', JSON.stringify(cfg, null, 2));\nreturn [{ json: { success: true, provider: cfg.provider } }];"
+      },
+      "id": "settings-write-config",
+      "name": "Write Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-580, 250]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "settings-post-respond",
+      "name": "Respond POST Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-360, 250]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "settings/test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "settings-test-webhook",
+      "name": "Webhook - POST Test",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-800, 500],
+      "webhookId": "settings-test"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst provider = body.provider || '';\nconst key = body.apiKey || '';\nlet url, headers, reqBody, method = 'POST';\nswitch (provider) {\n  case 'anthropic':\n    url = 'https://api.anthropic.com/v1/messages';\n    headers = { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' };\n    reqBody = JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 10, messages: [{ role: 'user', content: 'Hi' }] });\n    break;\n  case 'openai':\n    url = 'https://api.openai.com/v1/chat/completions';\n    headers = { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' };\n    reqBody = JSON.stringify({ model: 'gpt-4o', max_tokens: 10, messages: [{ role: 'user', content: 'Hi' }] });\n    break;\n  case 'gemini':\n    url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key;\n    headers = { 'Content-Type': 'application/json' };\n    reqBody = JSON.stringify({ contents: [{ parts: [{ text: 'Hi' }] }] });\n    break;\n  case 'ollama':\n    url = 'http://host.docker.internal:11434/api/tags';\n    headers = {}; reqBody = ''; method = 'GET';\n    break;\n  default:\n    throw new Error('Unknown provider: ' + provider);\n}\nreturn [{ json: { url, headers, body: reqBody, method } }];"
+      },
+      "id": "settings-build-test",
+      "name": "Build Test Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-580, 500]
+    },
+    {
+      "parameters": {
+        "method": "={{ $json.method }}",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": []
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.body }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "timeout": 15000
+        }
+      },
+      "id": "settings-test-http",
+      "name": "Test AI Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-360, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { success: true, provider: $('Build Test Request').first().json.url } }];"
+      },
+      "id": "settings-format-result",
+      "name": "Format Test Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-140, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "settings-test-respond",
+      "name": "Respond Test Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [80, 500]
+    }
+  ],
+  "connections": {
+    "Webhook - GET Settings": {
+      "main": [
+        [
+          { "node": "Read Config", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Read Config": {
+      "main": [
+        [
+          { "node": "Respond GET Settings", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Webhook - POST Settings": {
+      "main": [
+        [
+          { "node": "Write Config", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Write Config": {
+      "main": [
+        [
+          { "node": "Respond POST Settings", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Webhook - POST Test": {
+      "main": [
+        [
+          { "node": "Build Test Request", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build Test Request": {
+      "main": [
+        [
+          { "node": "Test AI Call", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Test AI Call": {
+      "main": [
+        [
+          { "node": "Format Test Result", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Format Test Result": {
+      "main": [
+        [
+          { "node": "Respond Test Result", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "adversary-sim" }
+  ],
+  "id": "settingsApi01"
+}
