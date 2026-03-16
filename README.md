@@ -159,6 +159,11 @@ No extra flags needed. Just run `make install` from the `adversary-sim` director
 
 To force standalone mode even when LabOps is running, remove the `.labops-mode` file and set the network manually in `docker-compose.override.yml`.
 
+### Network Configuration
+
+**Note:** `make install` generates `docker-compose.override.yml` (gitignored) to configure networking.
+If you switch between standalone and LabOps modes, delete `.labops-mode` and run `make install` again.
+
 ---
 
 ## Service URLs

