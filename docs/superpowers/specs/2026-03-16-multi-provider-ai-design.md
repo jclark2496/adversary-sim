@@ -21,7 +21,7 @@ Replace the Ollama-only AI path with a provider-agnostic layer that supports fou
 - `docker-compose.yml` — pass new env vars to n8n
 - `n8n/workflows/case_ingest.json` — replace Ollama HTTP node with provider router
 - `n8n/workflows/export_enrichment.json` — same
-- `n8n/workflows/config_api.json` — add settings read/write endpoints
+- `n8n/workflows/settings_api.json` — NEW: settings read/write/test endpoints (separate workflow, not added to config_api.json — n8n expects one trigger per workflow)
 - `nginx/html/index.html` — add settings gear icon + modal, update "Enriching" spinner text
 - `nginx/html/admin.html` — update AI source labels (no longer always "ollama-enriched")
 - `README.md` — update AI provider docs
@@ -76,15 +76,41 @@ n8n workflow
 [Existing] Parse JSON, build scenario, write to scenarios.json
 ```
 
-### Key Design Decision: Single Code Node, Not Branching
+### Key Design Decisions
 
-Instead of 4 separate HTTP Request nodes with an IF/ELSE branch, we use a single n8n Code node that constructs the correct HTTP request and makes it via `fetch()`. This keeps the workflow simple (2 new nodes, not 9) and makes adding providers trivial.
+**File-based config, not env vars:** AI settings are stored in `nginx/html/ai-config.json` (mounted into n8n at `/data/scenarios/ai-config.json`). Code nodes read this file at execution time via `require('fs')`. This avoids the need to restart the n8n container when settings change — the Settings modal writes the file and it takes effect immediately on the next enrichment call.
+
+The `make install` prompt also writes to this file (in addition to `.env` for backward compat). The file is gitignored.
+
+**Code node builds request, HTTP Request node executes it:** Instead of using `fetch()` in a Code node (which may not be available in all n8n versions), the "Route to Provider" Code node outputs the URL, headers, and body as JSON fields. A standard n8n HTTP Request node then executes the request using expression-based parameters (`={{ $json.url }}`). This is more resilient to n8n version changes.
+
+**Gemini API key in URL:** Google's Gemini API uses `?key=` in the URL, which means the key appears in n8n execution logs. This is Google's documented approach and is acceptable for an SE demo tool. Noted as a known limitation.
 
 ---
 
 ## Environment Variables
 
-Added to `.env.example` and `docker-compose.yml`:
+### ai-config.json (primary — read at execution time)
+
+Stored at `nginx/html/ai-config.json` (gitignored). Read by n8n Code nodes via `fs.readFileSync('/data/scenarios/ai-config.json')`.
+
+```json
+{
+  "provider": "anthropic",
+  "apiKey": "sk-ant-...",
+  "model": "",
+  "defaults": {
+    "anthropic": "claude-sonnet-4-20250514",
+    "openai": "gpt-4o",
+    "gemini": "gemini-2.5-flash",
+    "ollama": "llama3.2:3b"
+  }
+}
+```
+
+### .env (backward compat + Ollama host config)
+
+Added to `.env.example`:
 
 ```env
 # AI Provider — choose one: anthropic, openai, gemini, ollama
@@ -93,12 +119,16 @@ AI_PROVIDER=
 # API Key — required for anthropic, openai, gemini (not for ollama)
 AI_API_KEY=
 
-# Model override — leave blank for defaults:
-#   anthropic: claude-sonnet-4-20250514
-#   openai: gpt-4o
-#   gemini: gemini-2.5-flash
-#   ollama: llama3.2:3b
+# Model override — leave blank for defaults
 AI_MODEL=
+```
+
+Added to `docker-compose.yml` n8n service environment:
+
+```yaml
+- AI_PROVIDER=${AI_PROVIDER:-}
+- AI_API_KEY=${AI_API_KEY:-}
+- AI_MODEL=${AI_MODEL:-}
 ```
 
 The existing `OLLAMA_MODEL` and `OLLAMA_HOST` vars are kept for backward compatibility but only used when `AI_PROVIDER=ollama`.
@@ -107,7 +137,18 @@ The existing `OLLAMA_MODEL` and `OLLAMA_HOST` vars are kept for backward compati
 
 ## Install Flow
 
-Added to `Makefile` after `_install-deps` and `_check-docker`:
+The `install` target prerequisite list changes from:
+```makefile
+install: _install-deps _check-docker _setup-ollama _env _detect-labops ...
+```
+to:
+```makefile
+install: _install-deps _check-docker _env _setup-ai _detect-labops ...
+```
+
+`_setup-ollama` is removed from the top-level chain and only called inside `_setup-ai` when the SE picks option 4.
+
+Added to `Makefile`:
 
 ```
 .PHONY: _setup-ai
@@ -130,12 +171,23 @@ _setup-ai:
       *) provider=none; label="Skipped"; needs_key=false ;; \
     esac; \
     # Write provider to .env \
-    sed -i '' "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
+    # Platform-aware sed (macOS vs Linux) \
+    if [ "$$(uname)" = "Darwin" ]; then \
+      sed -i '' "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
+    else \
+      sed -i "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
+    fi; \
     # Prompt for API key if needed \
     if [ "$$needs_key" = "true" ]; then \
       read -p "  Enter your API key: " api_key; \
-      sed -i '' "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
+      if [ "$$(uname)" = "Darwin" ]; then \
+        sed -i '' "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
+      else \
+        sed -i "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
+      fi; \
     fi; \
+    # Write ai-config.json for runtime use \
+    printf '{"provider":"%s","apiKey":"%s","model":""}' "$$provider" "$${api_key:-}" > nginx/html/ai-config.json; \
     echo "✅ AI provider: $$label"; \
     # If ollama, install and pull model \
     if [ "$$provider" = "ollama" ]; then \
@@ -171,16 +223,11 @@ Gear icon added to the SE Console header (index.html), right side next to the na
 ### Settings Persistence
 The `POST /api/settings` n8n webhook:
 1. Receives `{ provider, apiKey, model }` from the modal
-2. Reads current `.env` file via `require('fs')`
-3. Updates/adds the AI_PROVIDER, AI_API_KEY, AI_MODEL lines
-4. Writes the file back
-5. n8n picks up env changes on next workflow execution (env vars are re-read per execution when using `$env` expressions, but Code nodes using `process.env` need a container restart — so we use `$env` in workflows)
+2. Builds an `ai-config.json` object
+3. Writes to `/data/scenarios/ai-config.json` via `require('fs').writeFileSync()`
+4. Takes effect immediately — no container restart needed
 
-**Important:** n8n `$env` expressions read env vars at execution time from the container environment. Since `.env` is loaded by Docker Compose at container start, changes to `.env` require a container restart to take effect. The Settings save endpoint will restart the n8n container via the Docker socket:
-```javascript
-const { execSync } = require('child_process');
-execSync('docker restart advsim-n8n');
-```
+No Docker socket access, no container restart. The "Route to Provider" Code node reads `ai-config.json` at the start of every execution, so new settings apply on the next enrichment call.
 
 ### "No Provider" State
 When `AI_PROVIDER` is empty or `none`:
@@ -202,16 +249,30 @@ Build Prompt → [HTTP Request: Ollama] → Parse Response
 
 **After:**
 ```
-Build Prompt → [Code: Route to Provider] → [Code: Normalize Response] → Parse Response
+Build Prompt → [Code: Route to Provider] → [HTTP Request: AI Call] → [Code: Normalize Response] → Parse Response
 ```
 
 ### "Route to Provider" Code Node
 
+Reads config from file, outputs request params for the downstream HTTP Request node.
+
 ```javascript
+const fs = require('fs');
 const prompt = $input.first().json.prompt;
-const provider = $env.AI_PROVIDER || 'ollama';
-const apiKey = $env.AI_API_KEY || '';
-const model = $env.AI_MODEL || '';
+
+// Read config — file-based (no restart needed) with env var fallback
+let provider = 'ollama', apiKey = '', model = '';
+try {
+  const cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));
+  provider = cfg.provider || 'ollama';
+  apiKey = cfg.apiKey || '';
+  model = cfg.model || '';
+} catch(e) {
+  // Fallback to env vars (backward compat)
+  provider = $env.AI_PROVIDER || 'ollama';
+  apiKey = $env.AI_API_KEY || '';
+  model = $env.AI_MODEL || '';
+}
 
 const defaults = {
   anthropic: 'claude-sonnet-4-20250514',
@@ -226,58 +287,35 @@ let url, headers, body;
 switch (provider) {
   case 'anthropic':
     url = 'https://api.anthropic.com/v1/messages';
-    headers = {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json'
-    };
-    body = {
-      model: useModel,
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }]
-    };
+    headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' };
+    body = { model: useModel, max_tokens: 4096, messages: [{ role: 'user', content: prompt }] };
     break;
-
   case 'openai':
     url = 'https://api.openai.com/v1/chat/completions';
-    headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    };
-    body = {
-      model: useModel,
-      messages: [{ role: 'user', content: prompt }]
-    };
+    headers = { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+    body = { model: useModel, messages: [{ role: 'user', content: prompt }] };
     break;
-
   case 'gemini':
     url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${apiKey}`;
     headers = { 'Content-Type': 'application/json' };
-    body = {
-      contents: [{ parts: [{ text: prompt }] }]
-    };
+    body = { contents: [{ parts: [{ text: prompt }] }] };
     break;
-
   default: // ollama
     url = `${$env.OLLAMA_HOST || 'http://host.docker.internal:11434'}/api/generate`;
     headers = { 'Content-Type': 'application/json' };
     body = { model: useModel, prompt, stream: false };
 }
 
-const resp = await fetch(url, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify(body),
-  signal: AbortSignal.timeout(120000)
-});
-
-if (!resp.ok) {
-  const err = await resp.text();
-  throw new Error(`AI provider error (${provider}): ${resp.status} ${err}`);
-}
-
-return [{ json: { provider, response: await resp.json() } }];
+// Output request params for HTTP Request node (not executing fetch here)
+return [{ json: { provider, url, headers, body: JSON.stringify(body) } }];
 ```
+
+This is followed by a standard **n8n HTTP Request node** configured with expressions:
+- URL: `={{ $json.url }}`
+- Method: POST
+- Headers: `={{ $json.headers }}`
+- Body: `={{ $json.body }}`
+- Timeout: 120000ms
 
 ### "Normalize Response" Code Node
 
@@ -316,16 +354,35 @@ The output `{ response: text }` matches what the existing downstream nodes expec
 5. **AI badge** on scenario cards: keep purple "AI" tag but change source label from "ollama-enriched" to "ai-enriched"
 
 ### admin.html
-1. Update filter chip label from "AI" (ollama-enriched) to also match source "ai-enriched"
-2. Update source dropdown option text
+Update all `ollama-enriched` references to also match `ai-enriched`:
+- Filter chip `data-val="ollama-enriched"` → match both values
+- Source label map entry for `ollama-enriched` → add `ai-enriched`
+- Dropdown option `value="ollama-enriched"` → add `ai-enriched` option
+- "Select all AI" button filter logic → match both source values
+
+### Full list of `ollama-enriched` string locations (codebase search required):
+- `admin.html` ~line 832: filter chip
+- `admin.html` ~line 968: source label map
+- `admin.html` ~line 1327: dropdown option
+- `admin.html` ~line 1560: select-all-AI button
+- `index.html` ~line 1598: AI tag filter logic
+- `index.html` ~line 1646: AI tag display
+- `export_enrichment.json`: "Build Scenario Card" node hardcodes `source: 'ollama-enriched'`
+
+All must accept both `ollama-enriched` (backward compat) and `ai-enriched` (new).
+
+### Files to add to .gitignore
+- `nginx/html/ai-config.json` — contains API keys at runtime
 
 ---
 
 ## Backward Compatibility
 
-- Existing `.env` files with `OLLAMA_MODEL` still work — if `AI_PROVIDER` is not set but `OLLAMA_MODEL` is, default to `ollama` provider
-- Existing `scenarios.json` entries with `source: "ollama-enriched"` are still displayed correctly
-- New enrichments use `source: "ai-enriched"` with an additional `ai_provider` field
+- **No `ai-config.json` file:** Code node falls back to env vars (`$env.AI_PROVIDER`), then defaults to `ollama`
+- **No `AI_PROVIDER` env var:** Unconditionally defaults to `ollama` (regardless of whether `OLLAMA_MODEL` is set)
+- **Existing `scenarios.json` entries** with `source: "ollama-enriched"` continue to display correctly with the AI badge
+- **New enrichments** use `source: "ai-enriched"` with an additional `ai_provider` field (e.g., `"ai_provider": "anthropic"`)
+- **UI filters** accept both `ollama-enriched` and `ai-enriched` as AI sources
 
 ---
 
