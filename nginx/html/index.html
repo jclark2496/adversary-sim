@@ -935,6 +935,39 @@
     }
     .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.07); color:var(--text-primary); }
     .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
+
+    /* ── SETTINGS BUTTON ─────────────────────────────────────────────── */
+    .settings-btn { font-size:18px; background:none; border:1px solid rgba(0,237,255,.1); border-radius:4px; padding:4px 8px; cursor:pointer; color:rgba(235,246,255,.32); transition:all .15s; }
+    .settings-btn:hover { border-color:rgba(0,237,255,.38); color:#00EDFF; }
+
+    /* ── SETTINGS MODAL ──────────────────────────────────────────────── */
+    .stg-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:5000;align-items:center;justify-content:center}
+    .stg-overlay.open{display:flex}
+    .stg-modal{background:#111827;border:1px solid rgba(0,237,255,.3);border-radius:8px;width:440px;max-width:90vw}
+    .stg-hdr{padding:16px 20px;border-bottom:1px solid rgba(0,237,255,.07);display:flex;justify-content:space-between;align-items:center}
+    .stg-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em}
+    .stg-close{background:none;border:none;color:rgba(235,246,255,.32);font-size:16px;cursor:pointer}
+    .stg-body{padding:20px}
+    .stg-lbl{font-size:10px;color:rgba(235,246,255,.32);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;margin-top:14px}
+    .stg-lbl:first-child{margin-top:0}
+    .stg-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .stg-card{background:#0d1225;border:1px solid rgba(0,237,255,.07);border-radius:4px;padding:10px;text-align:center;cursor:pointer;transition:all .15s}
+    .stg-card:hover{border-color:rgba(0,237,255,.38)}
+    .stg-card.active{background:rgba(0,237,255,.08);border-color:rgba(0,237,255,.4)}
+    .stg-cname{font-weight:700;font-size:11px}
+    .stg-card.active .stg-cname{color:#00EDFF}
+    .stg-csub{font-size:9px;color:rgba(235,246,255,.32);margin-top:2px}
+    .stg-key-row{display:flex;gap:6px}
+    .stg-input{flex:1;background:#0d1117;border:1px solid rgba(0,237,255,.07);border-radius:4px;padding:8px 10px;color:#EBF6FF;font-family:'JetBrains Mono',monospace;font-size:11px;width:100%;box-sizing:border-box}
+    .stg-input:focus{outline:none;border-color:#00EDFF}
+    .stg-test{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:8px 14px;background:rgba(0,237,255,.08);border:1px solid rgba(0,237,255,.3);border-radius:4px;color:#00EDFF;cursor:pointer}
+    .stg-status{margin-top:14px;padding:10px;border-radius:4px;font-size:11px;display:none}
+    .stg-status.ok{display:flex;align-items:center;gap:8px;background:rgba(0,255,65,.05);border:1px solid rgba(0,255,65,.2);color:#00FF41}
+    .stg-status.err{display:flex;align-items:center;gap:8px;background:rgba(255,68,68,.05);border:1px solid rgba(255,68,68,.28);color:#FF4444}
+    .stg-footer{padding:12px 20px;border-top:1px solid rgba(0,237,255,.07);display:flex;justify-content:flex-end;gap:8px}
+    .stg-cancel,.stg-save{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:8px 16px;border-radius:4px;cursor:pointer}
+    .stg-cancel{background:transparent;border:1px solid rgba(235,246,255,.15);color:rgba(235,246,255,.5)}
+    .stg-save{background:rgba(0,237,255,.12);border:1px solid rgba(0,237,255,.38);color:#00EDFF}
   </style>
 </head>
 <body>
@@ -948,6 +981,7 @@
         <span class="logo-word">Sophos Adversary</span>
         <span class="logo-tag">simulation_platform</span>
         <div id="hdr-controls">
+          <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
           <div class="nav-wrap" id="nav-wrap">
             <button class="arch-btn" id="nav-btn" onclick="navToggle()">☰ Menu</button>
             <div class="nav-dd" id="nav-dd">
@@ -1583,7 +1617,7 @@
         : `Showing ${S.filt.length} of ${S.all.length} scenarios`;
     }
     const ec = S.enriching
-      ? `<div class="encard"><div class="ensp"></div><div class="enlbl">Enriching via Ollama AI…</div></div>`
+      ? `<div class="encard"><div class="ensp"></div><div class="enlbl">Enriching via AI…</div></div>`
       : '';
     if (!S.filt.length && !S.enriching) {
       $('sl').innerHTML = ec + `
@@ -1595,7 +1629,7 @@
     }
     $('sl').innerHTML = ec + S.filt.map((s, i) => {
       const sel = S.sel && S.sel.id === s.id;
-      const ai  = s.source === 'ollama-enriched' || s.source === 'se-enrichment';
+      const ai  = s.source === 'ollama-enriched' || s.source === 'ai-enriched' || s.source === 'se-enrichment';
       const eph = s.status === 'ephemeral';
       const ta  = (s.mitre_tactics||[]).slice(0, 2);
       const au  = s.audience || 'Technical';
@@ -2172,6 +2206,14 @@
   }
 
   async function encGenerate() {
+    // Check if AI provider is configured
+    try {
+      const cfgR = await fetch('/api/settings');
+      if (cfgR.ok) {
+        const cfg = await cfgR.json();
+        if (!cfg.provider) { openSettings(); return; }
+      }
+    } catch(e) {}
     const name = ($('enc-name').value || '').trim();
     if (!name) {
       $('enc-name').style.borderColor = 'rgba(var(--sev-crit-rgb),.7)';
@@ -2375,6 +2417,86 @@ function navFb(id, txt) {
   var orig = el.textContent; el.textContent = txt;
   setTimeout(function() { el.textContent = orig; }, 1800);
 }
+
+// ── Settings Modal ─────────────────────────────────────────────────────
+let stgProv = '';
+
+async function openSettings() {
+  try {
+    const r = await fetch('/api/settings');
+    if (r.ok) {
+      const cfg = await r.json();
+      stgProv = cfg.provider || '';
+      document.getElementById('stg-key').value = cfg.apiKeyMasked || '';
+      document.getElementById('stg-model').value = cfg.model || '';
+    }
+  } catch(e) {}
+  stgUpdateCards();
+  document.getElementById('stg-status').className = 'stg-status';
+  document.getElementById('stg-overlay').classList.add('open');
+}
+
+function closeSettings() { document.getElementById('stg-overlay').classList.remove('open'); }
+
+function stgSelect(p) {
+  stgProv = p;
+  stgUpdateCards();
+  document.getElementById('stg-key-section').style.display = p === 'ollama' ? 'none' : 'block';
+}
+
+function stgUpdateCards() {
+  document.querySelectorAll('.stg-card').forEach(c => c.classList.toggle('active', c.dataset.provider === stgProv));
+}
+
+async function stgTest() {
+  const btn = document.getElementById('stg-test');
+  const status = document.getElementById('stg-status');
+  btn.textContent = 'TESTING...'; btn.disabled = true;
+  try {
+    const r = await fetch('/api/settings/test', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ provider: stgProv, apiKey: document.getElementById('stg-key').value })
+    });
+    if (r.ok) { status.className = 'stg-status ok'; status.innerHTML = '● Connected — ' + stgProv; }
+    else { const e = await r.text(); status.className = 'stg-status err'; status.innerHTML = '● Failed: ' + e; }
+  } catch(e) { status.className = 'stg-status err'; status.innerHTML = '● Error: ' + e.message; }
+  btn.textContent = 'TEST'; btn.disabled = false;
+}
+
+async function stgSave() {
+  try {
+    const r = await fetch('/api/settings-save', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ provider: stgProv, apiKey: document.getElementById('stg-key').value, model: document.getElementById('stg-model').value })
+    });
+    if (r.ok) closeSettings();
+  } catch(e) { alert('Failed to save: ' + e.message); }
+}
 </script>
+
+<!-- Settings Modal -->
+<div class="stg-overlay" id="stg-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="stg-modal">
+    <div class="stg-hdr"><span class="stg-title">⚙ SETTINGS</span><button class="stg-close" onclick="closeSettings()">✕</button></div>
+    <div class="stg-body">
+      <div class="stg-lbl">AI Provider</div>
+      <div class="stg-grid" id="stg-grid">
+        <div class="stg-card" data-provider="anthropic" onclick="stgSelect('anthropic')"><div class="stg-cname">Anthropic</div><div class="stg-csub">Claude Sonnet</div></div>
+        <div class="stg-card" data-provider="openai" onclick="stgSelect('openai')"><div class="stg-cname">OpenAI</div><div class="stg-csub">GPT-4o</div></div>
+        <div class="stg-card" data-provider="gemini" onclick="stgSelect('gemini')"><div class="stg-cname">Google</div><div class="stg-csub">Gemini Pro</div></div>
+        <div class="stg-card" data-provider="ollama" onclick="stgSelect('ollama')"><div class="stg-cname">Ollama</div><div class="stg-csub">Local · Free</div></div>
+      </div>
+      <div id="stg-key-section">
+        <div class="stg-lbl">API Key</div>
+        <div class="stg-key-row"><input type="password" id="stg-key" class="stg-input" placeholder="Enter API key..."><button class="stg-test" id="stg-test" onclick="stgTest()">TEST</button></div>
+      </div>
+      <div class="stg-lbl">Model (optional override)</div>
+      <input type="text" id="stg-model" class="stg-input" placeholder="Leave blank for default">
+      <div class="stg-status" id="stg-status"></div>
+    </div>
+    <div class="stg-footer"><button class="stg-cancel" onclick="closeSettings()">CANCEL</button><button class="stg-save" onclick="stgSave()">SAVE</button></div>
+  </div>
+</div>
+
 </body>
 </html>
