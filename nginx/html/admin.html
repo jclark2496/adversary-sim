@@ -966,6 +966,7 @@
     const m = {
       'hand-authored':   ['Authored', 'src-hand'],
       'ollama-enriched': ['AI',       'src-ai'],
+      'ai-enriched':     ['AI',       'src-ai'],
       'case-submission': ['Case',     'src-case'],
       'se-enrichment':   ['SE',       'src-se']
     };
@@ -1046,7 +1047,11 @@
 
     // source filter
     if (A.filters.source) {
-      f = f.filter(s => s.source === A.filters.source);
+      if (A.filters.source === 'ollama-enriched') {
+        f = f.filter(s => s.source === 'ollama-enriched' || s.source === 'ai-enriched');
+      } else {
+        f = f.filter(s => s.source === A.filters.source);
+      }
     }
 
     // launchable filter
@@ -1324,7 +1329,8 @@
           <div class="ef-label">Source</div>
           <select id="ef-source" class="ef-ctrl">
             <option value="hand-authored"   ${s.source==='hand-authored'?'selected':''}>Hand-authored</option>
-            <option value="ollama-enriched" ${s.source==='ollama-enriched'?'selected':''}>AI Generated</option>
+            <option value="ollama-enriched" ${s.source==='ollama-enriched'?'selected':''}>AI Generated (Ollama)</option>
+            <option value="ai-enriched" ${s.source==='ai-enriched'?'selected':''}>AI Generated</option>
             <option value="case-submission" ${s.source==='case-submission'?'selected':''}>Case Submission</option>
             <option value="se-enrichment"   ${s.source==='se-enrichment'?'selected':''}>SE Enrichment</option>
           </select>
@@ -1557,7 +1563,7 @@
     });
 
     // Bulk smart selectors
-    $('sel-all-ai').addEventListener('click', () => selectWhere(s => s.source === 'ollama-enriched'));
+    $('sel-all-ai').addEventListener('click', () => selectWhere(s => s.source === 'ollama-enriched' || s.source === 'ai-enriched'));
     $('sel-all-pending').addEventListener('click', () => selectWhere(s => s.status === 'pending'));
     $('sel-not-launchable').addEventListener('click', () => selectWhere(s => !s.launchable));
     $('sel-clear').addEventListener('click', () => {
