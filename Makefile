@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _setup-ollama _env _detect-labops _generate-caldera-keys _pull-caldera _up _wait-healthy sandcat profiles mitre-update
+install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-caldera-keys _pull-caldera _up _wait-healthy sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -172,6 +172,43 @@ _install-deps:
 		echo "⚠️  Could not install Python packages. Run manually: pip3 install requests pyyaml"
 	@echo "✅ Python packages ready"
 	@echo ""
+
+.PHONY: _setup-ai
+_setup-ai:
+	@echo ""
+	@echo "▶ AI Provider Setup"
+	@echo "  Select your AI provider for scenario enrichment:"
+	@echo ""
+	@echo "  1) Anthropic Claude (recommended)"
+	@echo "  2) OpenAI"
+	@echo "  3) Google Gemini"
+	@echo "  4) Local model via Ollama (free, no API key)"
+	@echo "  5) Skip — configure later in Settings"
+	@echo ""
+	@read -p "  Choice [1-5]: " choice; \
+	case $$choice in \
+		1) provider=anthropic; label="Anthropic Claude"; needs_key=true ;; \
+		2) provider=openai; label="OpenAI"; needs_key=true ;; \
+		3) provider=gemini; label="Google Gemini"; needs_key=true ;; \
+		4) provider=ollama; label="Local Ollama"; needs_key=false ;; \
+		*) provider=; label="Skipped"; needs_key=false ;; \
+	esac; \
+	api_key=""; \
+	if [ "$$needs_key" = "true" ]; then \
+		read -p "  Enter your API key: " api_key; \
+	fi; \
+	if [ "$$(uname)" = "Darwin" ]; then \
+		sed -i '' "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
+		sed -i '' "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
+	else \
+		sed -i "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
+		sed -i "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
+	fi; \
+	printf '{"provider":"%s","apiKey":"%s","model":""}' "$$provider" "$$api_key" > nginx/html/ai-config.json; \
+	echo "✅ AI provider: $$label"; \
+	if [ "$$provider" = "ollama" ]; then \
+		$(MAKE) _setup-ollama; \
+	fi
 
 .PHONY: _check-docker
 _check-docker:
