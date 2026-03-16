@@ -28,7 +28,7 @@ help:
 	@echo ""
 	@echo "  Sophos Adversary Simulation Platform — Make targets"
 	@echo ""
-	@echo "  make install      Full first-time setup"
+	@echo "  make install      Full first-time setup (installs all dependencies)"
 	@echo "  make up           Start all containers (auto-detects LabOps mode)"
 	@echo "  make down         Stop all containers"
 	@echo "  make restart      Restart all containers"
@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _check-docker _check-ollama _env _detect-labops _generate-caldera-keys _pull-caldera _up _wait-healthy sandcat profiles mitre-update
+install: _install-deps _check-docker _setup-ollama _env _detect-labops _generate-caldera-keys _pull-caldera _up _wait-healthy sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -134,22 +134,95 @@ mitre-update:
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
+# ── Dependency Installation ─────────────────────────────────────────────────
+
+.PHONY: _install-deps
+_install-deps:
+	@echo ""
+	@echo "╔══════════════════════════════════════════════════════════════╗"
+	@echo "║  Adversary Sim — Installing Dependencies                    ║"
+	@echo "╚══════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@# ── Homebrew ──
+	@if command -v brew >/dev/null 2>&1; then \
+		echo "✅ Homebrew is installed"; \
+	else \
+		echo "▶ Installing Homebrew..."; \
+		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+		echo "✅ Homebrew installed"; \
+	fi
+	@# ── Docker Desktop ──
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "✅ Docker is installed"; \
+	else \
+		echo "▶ Installing Docker Desktop (this may take a few minutes)..."; \
+		brew install --cask docker; \
+		echo "✅ Docker Desktop installed"; \
+		echo ""; \
+		echo "⚠️  Docker Desktop needs to be started manually the first time."; \
+		echo "   Please open Docker Desktop from your Applications folder,"; \
+		echo "   wait for it to finish starting, then run 'make install' again."; \
+		echo ""; \
+		exit 1; \
+	fi
+	@# ── Python packages ──
+	@echo "▶ Checking Python packages..."
+	@pip3 install -q requests pyyaml 2>/dev/null || \
+		pip3 install --user -q requests pyyaml 2>/dev/null || \
+		echo "⚠️  Could not install Python packages. Run manually: pip3 install requests pyyaml"
+	@echo "✅ Python packages ready"
+	@echo ""
+
 .PHONY: _check-docker
 _check-docker:
-	@echo "▶ Checking prerequisites..."
+	@echo "▶ Verifying Docker..."
 	@docker info > /dev/null 2>&1 || (echo "❌ Docker is not running. Start Docker Desktop first." && exit 1)
 	@echo "✅ Docker is running"
 	@docker compose version > /dev/null 2>&1 || (echo "❌ Docker Compose not found. Update Docker Desktop." && exit 1)
 	@echo "✅ Docker Compose available"
 
-.PHONY: _check-ollama
-_check-ollama:
+.PHONY: _setup-ollama
+_setup-ollama:
+	@# ── Install Ollama if missing ──
+	@if command -v ollama >/dev/null 2>&1; then \
+		echo "✅ Ollama is installed"; \
+	else \
+		echo "▶ Installing Ollama..."; \
+		brew install ollama 2>/dev/null || \
+			(curl -fsSL https://ollama.com/install.sh | sh); \
+		echo "✅ Ollama installed"; \
+	fi
+	@# ── Start Ollama if not running ──
 	@if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then \
 		echo "✅ Ollama is running"; \
 	else \
-		echo "⚠️  Ollama not detected on localhost:11434"; \
-		echo "   Install: https://ollama.com"; \
-		echo "   Then run: ollama serve && ollama pull llama3.2:3b"; \
+		echo "▶ Starting Ollama..."; \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			open -a Ollama 2>/dev/null || ollama serve &>/dev/null & \
+		else \
+			ollama serve &>/dev/null & \
+		fi; \
+		echo "   Waiting for Ollama to start..."; \
+		for i in $$(seq 1 12); do \
+			if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then \
+				echo "✅ Ollama is running"; \
+				break; \
+			fi; \
+			if [ $$i -eq 12 ]; then \
+				echo "⚠️  Ollama did not start. Run manually: ollama serve"; \
+			fi; \
+			sleep 2; \
+		done; \
+	fi
+	@# ── Pull model if not already downloaded ──
+	@MODEL=$${OLLAMA_MODEL:-llama3.2:3b}; \
+	if ollama list 2>/dev/null | grep -q "$$MODEL"; then \
+		echo "✅ Ollama model $$MODEL is ready"; \
+	else \
+		echo "▶ Pulling Ollama model $$MODEL (this may take a few minutes)..."; \
+		ollama pull $$MODEL 2>/dev/null && \
+			echo "✅ Model $$MODEL pulled" || \
+			echo "⚠️  Could not pull model. Run manually: ollama pull $$MODEL"; \
 	fi
 
 .PHONY: _env
@@ -165,11 +238,18 @@ _env:
 	else \
 		echo "✅ .env exists"; \
 	fi
-	@if grep -q '^N8N_PASSWORD=' .env 2>/dev/null; then \
-		echo "✅ N8N_PASSWORD is set"; \
+	@N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
+	if [ -z "$$N8N_PW" ]; then \
+		echo "   Generating N8N_PASSWORD..."; \
+		NEW_PW=$$(python3 -c "import secrets; print(secrets.token_urlsafe(16))"); \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			sed -i '' "s/^N8N_PASSWORD=$$/N8N_PASSWORD=$$NEW_PW/" .env; \
+		else \
+			sed -i "s/^N8N_PASSWORD=$$/N8N_PASSWORD=$$NEW_PW/" .env; \
+		fi; \
+		echo "✅ N8N_PASSWORD auto-generated: $$NEW_PW"; \
 	else \
-		echo "❌ N8N_PASSWORD is not set in .env — add it before continuing"; \
-		exit 1; \
+		echo "✅ N8N_PASSWORD is set"; \
 	fi
 
 .PHONY: _detect-labops
