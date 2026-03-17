@@ -424,13 +424,9 @@ _import-workflows:
 		echo "✅ Workflow import complete (labops-n8n)"; \
 	else \
 		echo "  (Standalone mode — importing into advsim-n8n)"; \
-		N8N_PORT=$$(grep '^N8N_PORT=' .env 2>/dev/null | cut -d'=' -f2-); \
-		N8N_PORT=$${N8N_PORT:-5679}; \
-		N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
-		echo "  Waiting for n8n API on port $$N8N_PORT..."; \
+		echo "  Waiting for advsim-n8n to be ready..."; \
 		for i in $$(seq 1 24); do \
-			if curl -sf http://localhost:$$N8N_PORT/api/v1/workflows -H "Content-Type: application/json" \
-				-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; then \
+			if docker exec advsim-n8n ls /home/node/.n8n/database.sqlite > /dev/null 2>&1; then \
 				break; \
 			fi; \
 			if [ $$i -eq 24 ]; then \
@@ -442,20 +438,15 @@ _import-workflows:
 		for f in n8n/workflows/*.json; do \
 			WF_NAME=$$(basename "$$f" .json); \
 			echo "  Importing $$WF_NAME..."; \
-			RESP=$$(curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows" \
-				-H "Content-Type: application/json" \
-				-u "admin@localhost:$$N8N_PW" \
-				-d @"$$f" 2>&1) && \
-			WF_ID=$$(echo "$$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null) && \
-			if [ -n "$$WF_ID" ]; then \
-				curl -sf -X POST "http://localhost:$$N8N_PORT/api/v1/workflows/$$WF_ID/activate" \
-					-H "Content-Type: application/json" \
-					-u "admin@localhost:$$N8N_PW" > /dev/null 2>&1; \
-				echo "    ✅ $$WF_NAME imported and activated (ID: $$WF_ID)"; \
-			else \
-				echo "    ⚠️  $$WF_NAME import returned unexpected response"; \
-			fi || echo "    ⚠️  $$WF_NAME import failed (may already exist)"; \
+			docker exec -i advsim-n8n n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null && \
+				echo "    ✅ $$WF_NAME imported" || \
+				echo "    ⚠️  $$WF_NAME import failed"; \
 		done; \
+		echo "▶ Activating workflows..."; \
+		docker exec advsim-n8n n8n list:workflow 2>/dev/null | while IFS='|' read wid wname; do \
+			docker exec advsim-n8n n8n publish:workflow --id="$$wid" > /dev/null 2>&1; \
+		done; \
+		docker compose -f docker-compose.yml -f docker-compose.n8n.yml restart n8n > /dev/null 2>&1; \
 		echo "✅ Workflow import complete"; \
 	fi
 
