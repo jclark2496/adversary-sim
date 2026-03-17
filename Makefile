@@ -84,7 +84,33 @@ up:
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
 	fi
-	@echo "✅ Stack started — run 'make status' to check health"
+	@echo "✅ Stack started"
+	@# Auto-import n8n workflows if missing (handles restarts / fresh volumes)
+	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		N8N_CTR=labops-n8n; \
+	else \
+		N8N_CTR=advsim-n8n; \
+	fi; \
+	echo "▶ Checking n8n workflows ($$N8N_CTR)..."; \
+	for i in $$(seq 1 12); do \
+		if docker exec $$N8N_CTR ls /home/node/.n8n/database.sqlite > /dev/null 2>&1; then \
+			break; \
+		fi; \
+		sleep 5; \
+	done; \
+	WF_COUNT=$$(docker exec $$N8N_CTR n8n list:workflow 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$WF_COUNT" -lt 2 ] 2>/dev/null; then \
+		echo "▶ Importing n8n workflows..."; \
+		for f in n8n/workflows/*.json; do \
+			docker exec -i $$N8N_CTR n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null; \
+		done; \
+		docker exec $$N8N_CTR n8n list:workflow 2>/dev/null | while IFS='|' read wid wname; do \
+			docker exec $$N8N_CTR n8n publish:workflow --id="$$wid" > /dev/null 2>&1; \
+		done; \
+		echo "✅ Workflows imported and activated"; \
+	else \
+		echo "✅ Workflows loaded ($$WF_COUNT found)"; \
+	fi
 
 .PHONY: down
 down:
