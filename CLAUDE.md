@@ -144,7 +144,7 @@ adversary-sim/
 |   +-- conf/default.conf           <- Generated from default.conf.tpl by make install
 |   +-- conf/default.conf.tpl       <- Nginx config template (N8N_PROXY_IP placeholder)
 |   +-- html/                       <- Served at http://localhost:8081/
-|       +-- index.html              <- SE Console: scenario picker, launch button, talking points
+|       +-- index.html              <- SE Console: scenario picker with product/tactic filters, saved targets, launch button
 |       +-- console.html            <- Attack Console: CALDERA feed + Guacamole RDP split panel
 |       +-- admin.html              <- Admin panel
 |       +-- architecture.html       <- Platform reference for SEs (not customers)
@@ -161,13 +161,16 @@ adversary-sim/
 +-- caldera-profiles/
 |   +-- load_profiles.py            <- Pushes all abilities + adversaries to CALDERA via REST API
 |   +-- abilities/                  <- Per-scenario ability YAML files (PowerShell commands)
-|   |   +-- credential-access/     <- SCN-001 (LSASS), SCN-005 (NTLM hash)
-|   |   +-- defense-evasion/       <- SCN-006 (AMSI bypass), SCN-008 (disable defenses)
-|   |   +-- discovery/             <- SCN-002 (enumeration), SCN-005 (shares)
-|   |   +-- execution/             <- SCN-003 (payload), SCN-006 (PS enum, download)
+|   |   +-- command-and-control/   <- SCN-013 (bad user-agent), SCN-023 (C2 detection)
+|   |   +-- credential-access/     <- SCN-001 (LSASS), SCN-005 (NTLM hash), SCN-010 (brute force)
+|   |   +-- defense-evasion/       <- SCN-006 (AMSI bypass), SCN-008 (disable defenses), SCN-016 (event log clearing)
+|   |   +-- discovery/             <- SCN-002 (enumeration), SCN-005 (shares), SCN-015 (port scan)
+|   |   +-- execution/             <- SCN-003 (payload), SCN-006 (PS enum, download), SCN-017-019, SCN-027
+|   |   +-- exfiltration/          <- SCN-011 (UDP exfiltration), SCN-026 (DNS tunneling)
 |   |   +-- impact/                <- SCN-008 (shadow copies, ransom note, report)
+|   |   +-- initial-access/        <- SCN-012 (web app attacks), SCN-014 (exploit URL), SCN-021-025
 |   |   +-- lateral-movement/      <- SCN-005 (PtH authentication)
-|   |   +-- persistence/           <- SCN-003 (scheduled task, registry runkey)
+|   |   +-- persistence/           <- SCN-003 (scheduled task, registry runkey), SCN-020 (service creation)
 |   +-- adversaries/                <- Adversary JSON profiles (ability ordering per scenario)
 |       +-- scn001-credential-dumping.json
 |       +-- scn002-discovery-chain.json
@@ -175,6 +178,24 @@ adversary-sim/
 |       +-- scn005-pass-the-hash.json
 |       +-- scn006-powershell-amsi-bypass.json
 |       +-- scn008-ransomware-simulation.json
+|       +-- scn010-brute-force.json
+|       +-- scn011-udp-exfiltration.json
+|       +-- scn012-web-app-attacks.json
+|       +-- scn013-bad-user-agent.json
+|       +-- scn014-exploit-url.json
+|       +-- scn015-port-scan.json
+|       +-- scn016-event-log-clearing.json
+|       +-- scn017-encoded-powershell.json
+|       +-- scn018-lolbin-download.json
+|       +-- scn019-wmi-execution.json
+|       +-- scn020-service-creation.json
+|       +-- scn021-eicar-download.json
+|       +-- scn022-ips-detection.json
+|       +-- scn023-c2-detection.json
+|       +-- scn024-phishing-block.json
+|       +-- scn025-malware-site-block.json
+|       +-- scn026-dns-tunneling.json
+|       +-- scn027-policy-violation.json
 |
 +-- guacamole/
 |   +-- init/
@@ -340,6 +361,24 @@ Note: `s.ps1` currently has a hardcoded IP for the CALDERA server. Update it to 
 | SCN-005 | scn005-pass-the-hash | 3 |
 | SCN-006 | scn006-powershell-amsi-bypass | 3 |
 | SCN-008 | scn008-ransomware-simulation | 4 |
+| SCN-010 | scn010-brute-force | 1 |
+| SCN-011 | scn011-udp-exfiltration | 1 |
+| SCN-012 | scn012-web-app-attacks | 1 |
+| SCN-013 | scn013-bad-user-agent | 1 |
+| SCN-014 | scn014-exploit-url | 1 |
+| SCN-015 | scn015-port-scan | 1 |
+| SCN-016 | scn016-event-log-clearing | 1 |
+| SCN-017 | scn017-encoded-powershell | 1 |
+| SCN-018 | scn018-lolbin-download | 1 |
+| SCN-019 | scn019-wmi-execution | 1 |
+| SCN-020 | scn020-service-creation | 1 |
+| SCN-021 | scn021-eicar-download | 1 |
+| SCN-022 | scn022-ips-detection | 1 |
+| SCN-023 | scn023-c2-detection | 1 |
+| SCN-024 | scn024-phishing-block | 1 |
+| SCN-025 | scn025-malware-site-block | 1 |
+| SCN-026 | scn026-dns-tunneling | 1 |
+| SCN-027 | scn027-policy-violation | 1 |
 
 ### Ability IDs
 
@@ -350,6 +389,13 @@ scn003-a1-payload-execution, scn003-a2-scheduled-task-persistence, scn003-a3-reg
 scn005-a1-enumerate-shares, scn005-a2-extract-ntlm-hash, scn005-a3-pth-authentication
 scn006-a1-powershell-enumeration, scn006-a2-amsi-bypass-attempt, scn006-a3-payload-download-exec
 scn008-a1-disable-defenses, scn008-a2-delete-shadow-copies, scn008-a3-stage-ransom-note, scn008-a4-impact-report
+scn010-a1-brute-force, scn011-a1-udp-exfiltration, scn012-a1-web-app-attacks
+scn013-a1-bad-user-agent, scn014-a1-exploit-url, scn015-a1-port-scan
+scn016-a1-event-log-clearing, scn017-a1-encoded-powershell, scn018-a1-lolbin-download
+scn019-a1-wmi-execution, scn020-a1-service-creation
+scn021-a1-eicar-download, scn022-a1-ips-detection, scn023-a1-c2-detection
+scn024-a1-phishing-block, scn025-a1-malware-site-block, scn026-a1-dns-tunneling
+scn027-a1-policy-violation
 ```
 
 ### Launching an Operation via API
@@ -483,6 +529,7 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
   "id": "SCN-001",
   "title": "Credential Dumping via LSASS",
   "description": "Customer-facing 1-2 sentence description",
+  "product": "endpoint",          // "endpoint", "ndr", or "firewall"
   "mitre_tactics": ["Credential Access"],
   "mitre_techniques": [
     {"id": "T1003.001", "name": "OS Credential Dumping: LSASS Memory"}
@@ -510,6 +557,18 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
 }
 ```
 
+### SE Console UI Features (index.html)
+
+- **Product filter chips**: Endpoint (blue), NDR (green), Firewall (orange) -- filter the scenario catalog by Sophos product
+- **Tactic filter**: dropdown to filter by MITRE ATT&CK tactic (existing)
+- **Product badge**: each scenario card shows a color-coded badge indicating which product it targets
+- **"Detects On" badge**: auto-displays which Sophos product detects the selected scenario (replaces the former Industry dropdown)
+- **Industry dropdown removed**: talking points now default to "universal" for all scenarios
+- **Saved Targets**: SEs can save favorite victim IPs with labels (stored in localStorage)
+  - Click + to save the current target IP with an optional label
+  - Click a saved target chip to auto-fill the IP field
+  - Persists across browser sessions
+
 ### The caldera_ability Field Convention
 
 Despite the field name, `caldera_ability` holds the **adversary ID** (not an ability ID). When the SE Console launches a CALDERA operation, it sends:
@@ -520,16 +579,48 @@ Despite the field name, `caldera_ability` holds the **adversary ID** (not an abi
 
 This naming is a historical inconsistency. Do not rename the field -- it would break index.html.
 
-### Production Scenarios (Hand-Authored)
+### Production Scenarios (24 Total)
 
-| ID | Title | Audience | CALDERA Adversary |
+#### Endpoint Scenarios
+
+| ID | Title | Tactic | CALDERA Adversary |
 |---|---|---|---|
-| SCN-001 | Credential Dumping via LSASS | Technical | scn001-credential-dumping |
-| SCN-002 | Discovery & Enumeration Chain | Technical | scn002-discovery-chain |
-| SCN-003 | Phishing -> Payload -> Persistence | Executive | scn003-phishing-persistence |
-| SCN-005 | Pass the Hash Lateral Movement | Technical | scn005-pass-the-hash |
-| SCN-006 | PowerShell Execution & AMSI Bypass | Technical | scn006-powershell-amsi-bypass |
-| SCN-008 | Ransomware Pre-Deployment Simulation | Executive | scn008-ransomware-simulation |
+| SCN-001 | Credential Dumping via LSASS | credential-access | scn001-credential-dumping |
+| SCN-002 | Discovery & Enumeration Chain | discovery | scn002-discovery-chain |
+| SCN-003 | Phishing -> Payload -> Persistence | execution | scn003-phishing-persistence |
+| SCN-005 | Pass the Hash Lateral Movement | lateral-movement | scn005-pass-the-hash |
+| SCN-006 | PowerShell Execution & AMSI Bypass | execution | scn006-powershell-amsi-bypass |
+| SCN-008 | Ransomware Pre-Deployment Simulation | impact | scn008-ransomware-simulation |
+| SCN-016 | Clear Windows Event Logs | defense-evasion | scn016-event-log-clearing |
+| SCN-017 | Encoded PowerShell Execution | execution | scn017-encoded-powershell |
+| SCN-018 | LOLBin File Download / certutil | execution | scn018-lolbin-download |
+| SCN-019 | WMI Process Creation | execution | scn019-wmi-execution |
+| SCN-020 | Malicious Service Creation | persistence | scn020-service-creation |
+
+#### NDR Scenarios
+
+| ID | Title | Tactic | CALDERA Adversary |
+|---|---|---|---|
+| SCN-010 | NDR: Brute Force Simulation | credential-access | scn010-brute-force |
+| SCN-011 | NDR: UDP Data Exfiltration | exfiltration | scn011-udp-exfiltration |
+| SCN-012 | NDR: Web Application Attacks | initial-access | scn012-web-app-attacks |
+| SCN-013 | NDR: Bad User-Agent / Log4Shell | command-and-control | scn013-bad-user-agent |
+| SCN-014 | NDR: Suspicious Exploit URL | initial-access | scn014-exploit-url |
+| SCN-015 | NDR: Network Port Scan | discovery | scn015-port-scan |
+
+#### Firewall Scenarios
+
+Firewall scenarios SCN-021 through SCN-025 use Sophos's official test site at sophostest.com for test files and URLs.
+
+| ID | Title | Tactic | CALDERA Adversary |
+|---|---|---|---|
+| SCN-021 | Firewall: EICAR Test File Download | initial-access | scn021-eicar-download |
+| SCN-022 | Firewall: IPS Signature Detection | initial-access | scn022-ips-detection |
+| SCN-023 | Firewall: C2 Traffic Detection | command-and-control | scn023-c2-detection |
+| SCN-024 | Firewall: Phishing Site Block | initial-access | scn024-phishing-block |
+| SCN-025 | Firewall: Malware Site Block | initial-access | scn025-malware-site-block |
+| SCN-026 | Firewall: DNS Tunneling | exfiltration | scn026-dns-tunneling |
+| SCN-027 | Firewall: Policy Violation / SSH/RDP outbound | execution | scn027-policy-violation |
 
 ### AI-Generated Scenarios
 
@@ -571,9 +662,8 @@ powershell -c "iex(iwr 'http://<host>:8081/s.ps1' -UseBasicParsing)"
 
 1. Open `http://localhost:8081` in browser
 2. Select a scenario from the catalog (e.g., SCN-002 for first demo -- safest)
-3. Enter victim VM IP
-4. Select industry vertical (for talking points)
-5. Click **Launch Simulation**
+3. Enter victim VM IP (or click a Saved Target chip to auto-fill)
+4. Click **Launch Simulation**
 6. Attack Console opens at `console.html?operation_id=...&victim_ip=...`
 7. Left panel: live CALDERA operation feed (abilities execute, status updates every 3s)
 8. Right panel: auto-connects RDP to victim via Guacamole
@@ -668,4 +758,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-16 — Added multi-provider AI support (Anthropic, OpenAI, Gemini, Ollama)*
+*Last updated: 2026-03-17 — Expanded to 24 scenarios across 3 product categories (Endpoint, NDR, Firewall); added product filter chips, saved targets, and "Detects On" badges to SE Console*

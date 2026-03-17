@@ -3,8 +3,9 @@
 ## Project Purpose
 Standalone attack simulation platform for Sophos SE demos. Orchestrates live MITRE ATT&CK
 scenarios via CALDERA on Windows victim VMs, with split-panel browser UI showing the attack
-feed alongside a live RDP session. AI-generates customer-facing narratives via configurable
-providers (Anthropic, OpenAI, Gemini, or Ollama).
+feed alongside a live RDP session. 24 scenarios across 3 product categories (Endpoint, NDR,
+Firewall). AI-generates customer-facing narratives via configurable providers (Anthropic,
+OpenAI, Gemini, or Ollama).
 
 ## Key Constraints
 - Container prefix: `advsim-*` (NOT `mdr-*` -- that is the monolith)
@@ -61,14 +62,18 @@ docker-compose.yml              Core services (always started)
 docker-compose.n8n.yml          Standalone-only n8n service definition
 docker-compose.guacamole.yml    Guacamole stack (standalone mode only)
 Makefile                        install, up, down, sandcat, profiles, library
-nginx/html/index.html           SE Console: scenario picker + launch
+nginx/html/index.html           SE Console: product/tactic filters, saved targets, launch
 nginx/html/console.html         Attack Console: CALDERA feed + RDP split panel
 nginx/html/admin.html           Admin panel
-nginx/html/scenarios.json       Scenario catalog (source of truth)
+nginx/html/scenarios.json       Scenario catalog (source of truth, 24 scenarios)
 nginx/html/ai-config.json       AI provider config (gitignored)
 nginx/conf/default.conf         Nginx proxy routes
 caldera/conf/local.yml          CALDERA config (crypto keys auto-generated on install)
 caldera-profiles/               Ability YAML + adversary JSON files
+  abilities/                    Tactic dirs: command-and-control/, credential-access/,
+                                defense-evasion/, discovery/, execution/, exfiltration/,
+                                impact/, initial-access/, lateral-movement/, persistence/
+  adversaries/                  24 adversary JSON profiles (scn001 through scn027)
 n8n/workflows/                  Case ingest, enrichment, approve, config, settings
 scripts/detect-labops.sh        LabOps network detection
 ```
