@@ -150,27 +150,37 @@ _install-deps:
 	@echo "║  Adversary Sim — Installing Dependencies                    ║"
 	@echo "╚══════════════════════════════════════════════════════════════╝"
 	@echo ""
-	@# ── Homebrew ──
-	@if command -v brew >/dev/null 2>&1; then \
-		echo "✅ Homebrew is installed"; \
-	else \
-		echo "▶ Installing Homebrew..."; \
-		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
-		echo "✅ Homebrew installed"; \
+	@# ── Package manager (macOS only) ──
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		if command -v brew >/dev/null 2>&1; then \
+			echo "✅ Homebrew is installed"; \
+		else \
+			echo "▶ Installing Homebrew..."; \
+			/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+			echo "✅ Homebrew installed"; \
+		fi; \
 	fi
-	@# ── Docker Desktop ──
+	@# ── Docker ──
 	@if command -v docker >/dev/null 2>&1; then \
 		echo "✅ Docker is installed"; \
 	else \
-		echo "▶ Installing Docker Desktop (this may take a few minutes)..."; \
-		brew install --cask docker; \
-		echo "✅ Docker Desktop installed"; \
-		echo ""; \
-		echo "⚠️  Docker Desktop needs to be started manually the first time."; \
-		echo "   Please open Docker Desktop from your Applications folder,"; \
-		echo "   wait for it to finish starting, then run 'make install' again."; \
-		echo ""; \
-		exit 1; \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			echo "▶ Installing Docker Desktop..."; \
+			brew install --cask docker; \
+			echo "✅ Docker Desktop installed"; \
+			echo ""; \
+			echo "⚠️  Docker Desktop needs to be started manually the first time."; \
+			echo "   Please open Docker Desktop from your Applications folder,"; \
+			echo "   wait for it to finish starting, then run 'make install' again."; \
+			echo ""; \
+			exit 1; \
+		else \
+			echo "▶ Installing Docker Engine..."; \
+			curl -fsSL https://get.docker.com | sh; \
+			sudo systemctl start docker 2>/dev/null || sudo service docker start 2>/dev/null || true; \
+			sudo usermod -aG docker $$USER 2>/dev/null || true; \
+			echo "✅ Docker Engine installed"; \
+		fi; \
 	fi
 	@# ── Python packages ──
 	@echo "▶ Checking Python packages..."
@@ -324,14 +334,22 @@ _generate-caldera-keys:
 	@echo "▶ Checking CALDERA crypto keys..."
 	@if grep -q 'PLACEHOLDER_SALT_REPLACE_ON_INSTALL' caldera/conf/local.yml 2>/dev/null; then \
 		NEW_SALT=$$(python3 -c "import secrets; print(secrets.token_hex(32))"); \
-		sed -i '' "s/PLACEHOLDER_SALT_REPLACE_ON_INSTALL/$$NEW_SALT/g" caldera/conf/local.yml; \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			sed -i '' "s/PLACEHOLDER_SALT_REPLACE_ON_INSTALL/$$NEW_SALT/g" caldera/conf/local.yml; \
+		else \
+			sed -i "s/PLACEHOLDER_SALT_REPLACE_ON_INSTALL/$$NEW_SALT/g" caldera/conf/local.yml; \
+		fi; \
 		echo "✅ Generated new crypt_salt"; \
 	else \
 		echo "✅ crypt_salt already set"; \
 	fi
 	@if grep -q 'PLACEHOLDER_KEY_REPLACE_ON_INSTALL' caldera/conf/local.yml 2>/dev/null; then \
 		NEW_KEY=$$(python3 -c "import secrets; print(secrets.token_hex(32))"); \
-		sed -i '' "s/PLACEHOLDER_KEY_REPLACE_ON_INSTALL/$$NEW_KEY/g" caldera/conf/local.yml; \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			sed -i '' "s/PLACEHOLDER_KEY_REPLACE_ON_INSTALL/$$NEW_KEY/g" caldera/conf/local.yml; \
+		else \
+			sed -i "s/PLACEHOLDER_KEY_REPLACE_ON_INSTALL/$$NEW_KEY/g" caldera/conf/local.yml; \
+		fi; \
 		echo "✅ Generated new encryption_key"; \
 	else \
 		echo "✅ encryption_key already set"; \
@@ -344,7 +362,17 @@ _ghcr-auth:
 		echo "✅ GitHub CLI is installed"; \
 	else \
 		echo "▶ Installing GitHub CLI..."; \
-		brew install gh; \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			brew install gh; \
+		elif command -v apt-get >/dev/null 2>&1; then \
+			curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null; \
+			echo "deb [arch=$$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null; \
+			sudo apt-get update -qq && sudo apt-get install -y gh; \
+		elif command -v dnf >/dev/null 2>&1; then \
+			sudo dnf install -y gh; \
+		else \
+			echo "⚠️  Could not install GitHub CLI. Install manually: https://cli.github.com"; \
+		fi; \
 		echo "✅ GitHub CLI installed"; \
 	fi
 	@# ── GHCR Authentication ──

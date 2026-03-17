@@ -87,7 +87,7 @@ This project is part of a modular architecture for Sophos SE demo environments:
 
 | Requirement | Notes |
 |-------------|-------|
-| **Docker Desktop** | Ensure Docker Compose V2 is available (`docker compose version`) |
+| **Docker** | Docker Desktop (macOS/Windows) or Docker Engine (Linux). Ensure Compose V2 is available (`docker compose version`). |
 | **AI Provider** (one of) | **Anthropic** / **OpenAI** / **Google Gemini** API key, **or** [Ollama](https://ollama.com) (free, local). Selected during `make install`. |
 | **GHCR Access** | The CALDERA image is hosted on a private GitHub Container Registry. Authenticate before install (see below). |
 | **Python 3** | Required for profile loading and library build scripts |
