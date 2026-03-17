@@ -1,0 +1,57 @@
+---
+- id: scn018-a1-lolbin-download
+  name: "SCN-018 | LOLBin File Download (certutil)"
+  description: |
+    Uses certutil.exe — a legitimate Windows certificate utility — to download
+    a file from the internet. This is one of the most common "Living Off The Land"
+    (LOLBin) techniques where attackers abuse built-in tools to avoid deploying
+    their own download utilities.
+
+    MITRE ATT&CK: T1105 - Ingress Tool Transfer
+
+    certutil.exe is a signed Microsoft binary present on every Windows system.
+    EDR products flag its use with -urlcache because this is almost exclusively
+    an attacker technique — legitimate certificate management doesn't use this flag.
+
+    What to watch for:
+    - Sophos alert for suspicious certutil usage
+    - LOLBin / Living Off The Land detection
+    - File download via non-standard tool
+  tactic: execution
+  technique:
+    attack_id: T1105
+    name: "Ingress Tool Transfer"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== LOLBIN FILE DOWNLOAD - CERTUTIL (T1105) ===";
+          Write-Output "[*] Using certutil.exe to download a file (Living Off The Land)";
+          Write-Output "";
+          $downloadUrl = "http://www.owasp.org/robots.txt";
+          $outFile = "C:\Temp\certutil_download.txt";
+          $outDir = Split-Path -Parent $outFile;
+          if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null };
+          Write-Output "[*] Source URL: $downloadUrl";
+          Write-Output "[*] Destination: $outFile";
+          Write-Output "[*] Executing: certutil -urlcache -split -f `"$downloadUrl`" `"$outFile`"";
+          Write-Output "";
+          certutil -urlcache -split -f "$downloadUrl" "$outFile" 2>&1;
+          Write-Output "";
+          if (Test-Path $outFile) {
+            $size = (Get-Item $outFile).Length;
+            Write-Output "[+] File downloaded successfully ($size bytes)";
+            Write-Output "[*] First 3 lines of downloaded file:";
+            Get-Content $outFile -TotalCount 3 | ForEach-Object { Write-Output "    $_" }
+          } else {
+            Write-Output "[-] Download may have been blocked by Sophos (expected behavior)"
+          };
+          Write-Output "";
+          Write-Output "[*] certutil.exe is a signed Microsoft binary, but using it to";
+          Write-Output "    download files is a well-known attacker technique. Sophos";
+          Write-Output "    detects this abuse of legitimate tools.";
+          Write-Output "";
+          Write-Output "[*] Sophos should flag: LOLBin abuse / suspicious certutil usage";
+          Write-Output "=== END LOLBIN DOWNLOAD ==="
+        cleanup: |
+          Remove-Item "C:\Temp\certutil_download.txt" -Force -ErrorAction SilentlyContinue

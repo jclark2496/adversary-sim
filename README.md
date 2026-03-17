@@ -250,8 +250,13 @@ Six pre-built attack scenarios, each mapped to real-world MITRE ATT&CK technique
 | **SCN-013** | NDR: Bad User-Agent (Log4Shell) | Command and Control | Log4Shell-like JNDI User-Agent string in HTTP request |
 | **SCN-014** | NDR: Suspicious Exploit URL | Initial Access | Exploit kit URL pattern detection |
 | **SCN-015** | NDR: Network Port Scan | Discovery | TCP port scan across subnet (45 ports × 10 hosts) |
+| **SCN-016** | Clear Windows Event Logs | Defense Evasion | Clears Security/System/Application logs to cover attacker tracks |
+| **SCN-017** | Encoded PowerShell Execution | Execution | Base64-encoded PowerShell commands to bypass string-based detection |
+| **SCN-018** | LOLBin File Download (certutil) | Execution | Uses certutil.exe to download files — top Living Off The Land technique |
+| **SCN-019** | WMI Process Creation | Execution | Uses WMI to execute processes without deploying external tools |
+| **SCN-020** | Malicious Service Creation | Persistence | Creates a Windows service for persistent backdoor access |
 
-> Endpoint scenarios (SCN-001–008) trigger Sophos Endpoint detections. NDR scenarios (SCN-010–015) trigger Sophos NDR network-level detections.
+> Endpoint scenarios (SCN-001–008, SCN-016–020) trigger Sophos Endpoint detections. NDR scenarios (SCN-010–015) trigger Sophos NDR network-level detections.
 
 > Scenarios are defined as CALDERA adversary profiles in `caldera-profiles/adversaries/` with matching abilities in `caldera-profiles/abilities/`.
 

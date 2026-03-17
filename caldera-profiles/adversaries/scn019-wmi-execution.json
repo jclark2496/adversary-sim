@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn019-wmi-execution",
+  "name": "SCN-019 | WMI Process Creation",
+  "description": "Uses Windows Management Instrumentation (WMI) to create and execute processes, simulating a common attacker execution technique. Triggers endpoint detection for suspicious WMI activity.",
+  "tags": ["execution", "wmi", "living-off-the-land", "t1047", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn019-a1-wmi-execution"
+  ],
+  "objective": "default"
+}

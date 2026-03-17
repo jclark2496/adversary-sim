@@ -1,0 +1,64 @@
+---
+- id: scn019-a1-wmi-execution
+  name: "SCN-019 | WMI Process Creation"
+  description: |
+    Uses Windows Management Instrumentation (WMI) to create and execute
+    processes. WMI is a powerful built-in Windows management framework that
+    attackers abuse for execution, lateral movement, and persistence.
+
+    MITRE ATT&CK: T1047 - Windows Management Instrumentation
+
+    WMI process creation is a classic "living off the land" technique.
+    Attackers use it because WMI is present on every Windows system and
+    can execute commands locally or remotely without deploying tools.
+
+    What to watch for:
+    - Sophos alert for suspicious WMI activity
+    - Process creation via WMI (wmiprvse.exe spawning child processes)
+    - Execution classification
+  tactic: execution
+  technique:
+    attack_id: T1047
+    name: "Windows Management Instrumentation"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== WMI PROCESS CREATION (T1047) ===";
+          Write-Output "[*] Using WMI to create processes (attacker execution technique)";
+          Write-Output "";
+          Write-Output "[*] Step 1: WMI local system query";
+          $os = Get-WmiObject Win32_OperatingSystem;
+          Write-Output "    OS: $($os.Caption) Build $($os.BuildNumber)";
+          Write-Output "";
+          Write-Output "[*] Step 2: WMI process creation - whoami";
+          $result = Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd.exe /c whoami > C:\Temp\wmi_output.txt" 2>&1;
+          Start-Sleep -Seconds 2;
+          if (Test-Path "C:\Temp\wmi_output.txt") {
+            $out = Get-Content "C:\Temp\wmi_output.txt" -ErrorAction SilentlyContinue;
+            Write-Output "    WMI process output: $out"
+          } else {
+            Write-Output "    WMI process created (output may have been blocked)"
+          };
+          Write-Output "";
+          Write-Output "[*] Step 3: WMI process creation - ipconfig";
+          Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd.exe /c ipconfig > C:\Temp\wmi_output2.txt" 2>&1;
+          Start-Sleep -Seconds 2;
+          if (Test-Path "C:\Temp\wmi_output2.txt") {
+            Write-Output "    Network config retrieved via WMI:";
+            Get-Content "C:\Temp\wmi_output2.txt" -TotalCount 5 | ForEach-Object { Write-Output "    $_" }
+          };
+          Write-Output "";
+          Write-Output "[*] Step 4: WMI process enumeration";
+          $procs = Get-WmiObject Win32_Process | Select-Object -First 5 Name, ProcessId;
+          $procs | ForEach-Object { Write-Output "    PID $($_.ProcessId): $($_.Name)" };
+          Write-Output "";
+          Write-Output "[*] WMI is built into every Windows system. Attackers use it";
+          Write-Output "    to execute commands without deploying custom tools.";
+          Write-Output "    Sophos monitors WMI for suspicious process creation chains.";
+          Write-Output "";
+          Write-Output "[*] Sophos should flag: Suspicious WMI activity / process creation";
+          Write-Output "=== END WMI EXECUTION ==="
+        cleanup: |
+          Remove-Item "C:\Temp\wmi_output.txt" -Force -ErrorAction SilentlyContinue;
+          Remove-Item "C:\Temp\wmi_output2.txt" -Force -ErrorAction SilentlyContinue

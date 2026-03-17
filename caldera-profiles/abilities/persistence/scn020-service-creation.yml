@@ -1,0 +1,63 @@
+---
+- id: scn020-a1-service-creation
+  name: "SCN-020 | Malicious Service Creation"
+  description: |
+    Creates a Windows service using sc.exe to establish persistence.
+    Attackers create services to ensure their malware or backdoor starts
+    automatically when the system boots. This is one of the most common
+    persistence mechanisms on Windows.
+
+    MITRE ATT&CK: T1543.003 - Create or Modify System Process: Windows Service
+
+    EDR products flag unauthorized service creation because new services
+    appearing outside of normal software installation are a strong indicator
+    of attacker persistence.
+
+    What to watch for:
+    - Sophos alert for unauthorized service creation
+    - New service with suspicious binary path
+    - Persistence classification
+  tactic: persistence
+  technique:
+    attack_id: T1543.003
+    name: "Create or Modify System Process: Windows Service"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== MALICIOUS SERVICE CREATION (T1543.003) ===";
+          Write-Output "[*] Creating a Windows service for persistence (simulated backdoor)";
+          Write-Output "";
+          $svcName = "SimBackdoorSvc";
+          $svcDisplayName = "System Performance Monitor Service";
+          $svcBinPath = "cmd.exe /c echo SimulatedBackdoor > C:\Temp\backdoor.log";
+          Write-Output "[*] Service name   : $svcName";
+          Write-Output "[*] Display name   : $svcDisplayName";
+          Write-Output "[*] Binary path    : $svcBinPath";
+          Write-Output "";
+          Write-Output "[*] Creating service...";
+          sc.exe create $svcName binPath= "$svcBinPath" DisplayName= "$svcDisplayName" start= auto 2>&1;
+          Write-Output "";
+          $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue;
+          if ($svc) {
+            Write-Output "[+] Service created successfully";
+            Write-Output "    Name   : $($svc.Name)";
+            Write-Output "    Display: $($svc.DisplayName)";
+            Write-Output "    Status : $($svc.Status)";
+            Write-Output "    Start  : Auto (runs on boot)"
+          } else {
+            Write-Output "[-] Service creation may have been blocked by Sophos (expected)"
+          };
+          Write-Output "";
+          Write-Output "[*] Attackers disguise malicious services with legitimate-sounding";
+          Write-Output "    names like 'System Performance Monitor' to blend in.";
+          Write-Output "    Sophos detects unauthorized service creation regardless of name.";
+          Write-Output "";
+          Write-Output "[*] Cleaning up: removing service...";
+          sc.exe delete $svcName 2>&1;
+          Write-Output "[+] Service removed";
+          Write-Output "";
+          Write-Output "[*] Sophos should flag: Unauthorized service creation / persistence";
+          Write-Output "=== END SERVICE CREATION ==="
+        cleanup: |
+          sc.exe delete "SimBackdoorSvc" 2>&1

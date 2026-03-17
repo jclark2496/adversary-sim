@@ -2800,6 +2800,201 @@
       "session_id": null,
       "caldera_adversary_id": "scn015-port-scan",
       "caldera_group": "red"
+    },
+    {
+      "id": "SCN-016",
+      "title": "Clear Windows Event Logs",
+      "description": "Clears the Windows Security, System, and Application event logs using the built-in wevtutil command. Simulates an attacker covering their tracks by destroying forensic evidence.",
+      "mitre_tactics": ["Defense Evasion"],
+      "mitre_techniques": [{"id": "T1070.001", "name": "Indicator Removal: Clear Windows Event Logs"}],
+      "tools": ["wevtutil"],
+      "atomic_tests": [],
+      "caldera_ability": "scn016-event-log-clearing",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {"detection": "Event log tampering — Security/System/Application logs cleared", "severity": "critical"}
+      ],
+      "talking_points": {
+        "universal": [
+          "Event log clearing is one of the strongest indicators that an attacker was on the system. There is almost never a legitimate reason to clear the Security log on an endpoint.",
+          "Sophos detects log clearing in real time — the attacker can't erase evidence without generating an alert first."
+        ],
+        "financial_services": ["Regulatory requirements (PCI DSS, SOX) mandate log retention. An attacker clearing logs triggers both a security alert and a compliance violation."],
+        "healthcare": ["HIPAA requires audit log integrity. Sophos detects log tampering before the attacker can cover their tracks."],
+        "manufacturing": ["OT environments require forensic traceability. Endpoint detection catches log clearing even on systems without centralized logging."]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must be running with Sophos agent. This test clears real event logs — they will be regenerated naturally over time.",
+        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-016 from the SE Console", "Watch CALDERA clear the three event logs (~5 seconds)", "Show the Sophos alert for event log tampering"],
+        "talking_points_timing": "Deliver talking points immediately after the alert appears"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn016-event-log-clearing",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-017",
+      "title": "Encoded PowerShell Execution",
+      "description": "Executes Base64-encoded PowerShell commands using the -EncodedCommand flag. Simulates attacker obfuscation — encoding commands to bypass simple string-based detection rules.",
+      "mitre_tactics": ["Execution"],
+      "mitre_techniques": [{"id": "T1059.001", "name": "Command and Scripting Interpreter: PowerShell"}, {"id": "T1027", "name": "Obfuscated Files or Information"}],
+      "tools": ["PowerShell"],
+      "atomic_tests": [],
+      "caldera_ability": "scn017-encoded-powershell",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {"detection": "Encoded/obfuscated PowerShell execution via -EncodedCommand", "severity": "high"}
+      ],
+      "talking_points": {
+        "universal": [
+          "Base64-encoded PowerShell is one of the top behavioral indicators of malicious activity. Legitimate scripts almost never use -EncodedCommand.",
+          "Sophos decodes and inspects PowerShell commands regardless of encoding — attackers can't hide behind Base64 obfuscation."
+        ],
+        "financial_services": ["Encoded PowerShell is the primary delivery mechanism for banking trojans and credential stealers targeting financial institutions."],
+        "healthcare": ["Healthcare ransomware groups frequently use encoded PowerShell for initial payload delivery and lateral movement."],
+        "manufacturing": ["Encoded PowerShell is used to bypass basic security controls on manufacturing systems that may only have signature-based protection."]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must be running with Sophos agent.",
+        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-017 from the SE Console", "Watch CALDERA execute 3 encoded PowerShell commands (~10 seconds)", "Show the Sophos alert for obfuscated script execution"],
+        "talking_points_timing": "Point out the Base64 strings in the CALDERA feed, then show how Sophos decoded and flagged them"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn017-encoded-powershell",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-018",
+      "title": "LOLBin File Download (certutil)",
+      "description": "Uses certutil.exe — a legitimate Windows certificate utility — to download a file from the internet. This is the most common Living Off The Land (LOLBin) technique where attackers abuse built-in tools instead of deploying their own.",
+      "mitre_tactics": ["Execution"],
+      "mitre_techniques": [{"id": "T1105", "name": "Ingress Tool Transfer"}],
+      "tools": ["certutil.exe"],
+      "atomic_tests": [],
+      "caldera_ability": "scn018-lolbin-download",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {"detection": "Suspicious certutil usage — LOLBin file download", "severity": "high"}
+      ],
+      "talking_points": {
+        "universal": [
+          "Living Off The Land attacks use built-in Windows tools instead of deploying malware. certutil is the #1 abused LOLBin for file downloads.",
+          "Sophos monitors over 30 LOLBins for suspicious usage patterns — even though the tools are legitimate, their abuse is detectable by behavioral analysis."
+        ],
+        "financial_services": ["LOLBin attacks bypass allowlisting because certutil is a signed Microsoft binary. Behavioral detection is the only way to catch this."],
+        "healthcare": ["Healthcare environments often rely on allowlisting for security. LOLBin attacks bypass this control entirely — endpoint detection is essential."],
+        "manufacturing": ["Manufacturing systems often have limited security tooling. LOLBin detection catches attacks that use only built-in Windows capabilities."]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must be running with Sophos agent and have internet access for the download.",
+        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-018 from the SE Console", "Watch CALDERA execute certutil download (~5 seconds)", "Show the Sophos alert for LOLBin/certutil abuse"],
+        "talking_points_timing": "Explain what LOLBins are while the download executes"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn018-lolbin-download",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-019",
+      "title": "WMI Process Creation",
+      "description": "Uses Windows Management Instrumentation (WMI) to create and execute processes. WMI is a built-in Windows management framework that attackers abuse for execution and reconnaissance without deploying external tools.",
+      "mitre_tactics": ["Execution"],
+      "mitre_techniques": [{"id": "T1047", "name": "Windows Management Instrumentation"}],
+      "tools": ["WMI", "wmic.exe"],
+      "atomic_tests": [],
+      "caldera_ability": "scn019-wmi-execution",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {"detection": "Suspicious WMI process creation activity", "severity": "high"}
+      ],
+      "talking_points": {
+        "universal": [
+          "WMI is present on every Windows system and can execute commands both locally and remotely. Attackers use it because it leaves minimal forensic artifacts compared to running commands directly.",
+          "Sophos monitors WMI for suspicious process creation chains — legitimate WMI usage has predictable patterns that differ from attacker behavior."
+        ],
+        "financial_services": ["WMI-based lateral movement is a key technique in APT attacks targeting financial institutions. Detecting WMI abuse blocks a critical attack path."],
+        "healthcare": ["WMI is used legitimately for device management in healthcare. Sophos distinguishes between normal WMI operations and attacker abuse."],
+        "manufacturing": ["WMI can reach systems across network segments. Detecting WMI abuse prevents attackers from pivoting from IT into OT environments."]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must be running with Sophos agent.",
+        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-019 from the SE Console", "Watch CALDERA execute WMI commands (~10 seconds)", "Show the Sophos alert for suspicious WMI activity"],
+        "talking_points_timing": "Explain WMI's dual-use nature while commands execute"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn019-wmi-execution",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-020",
+      "title": "Malicious Service Creation",
+      "description": "Creates a Windows service using sc.exe to simulate an attacker establishing persistence. The service is created with auto-start and a disguised display name, then cleaned up. Tests endpoint detection of unauthorized service installation.",
+      "mitre_tactics": ["Persistence"],
+      "mitre_techniques": [{"id": "T1543.003", "name": "Create or Modify System Process: Windows Service"}],
+      "tools": ["sc.exe"],
+      "atomic_tests": [],
+      "caldera_ability": "scn020-service-creation",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {"detection": "Unauthorized Windows service creation for persistence", "severity": "high"}
+      ],
+      "talking_points": {
+        "universal": [
+          "Service creation is one of the most reliable persistence mechanisms on Windows. Attackers create services with legitimate-sounding names to blend in with normal system services.",
+          "Sophos detects service creation by correlating the parent process, binary path, and timing — not just the service name."
+        ],
+        "financial_services": ["Backdoor services on financial systems enable persistent access for data theft. Detecting unauthorized service creation stops persistence before it takes hold."],
+        "healthcare": ["Persistent backdoors on healthcare systems can exfiltrate patient data over extended periods. Service creation detection is critical for HIPAA compliance."],
+        "manufacturing": ["Attackers targeting manufacturing often install persistent services on engineering workstations to maintain access to design files and OT network bridges."]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must be running with Sophos agent.",
+        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-020 from the SE Console", "Watch CALDERA create and then remove the service (~5 seconds)", "Show the Sophos alert for unauthorized service creation"],
+        "talking_points_timing": "Explain how the service has an innocent-sounding name while the alert shows Sophos saw through the disguise"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn020-service-creation",
+      "caldera_group": "red"
     }
   ]
 }

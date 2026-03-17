@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn016-event-log-clearing",
+  "name": "SCN-016 | Clear Windows Event Logs",
+  "description": "Clears the Windows Security, System, and Application event logs to simulate an attacker covering their tracks. Triggers endpoint detection for event log tampering.",
+  "tags": ["defense-evasion", "anti-forensics", "event-logs", "t1070.001", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn016-a1-event-log-clearing"
+  ],
+  "objective": "default"
+}

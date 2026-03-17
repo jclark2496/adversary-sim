@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn018-lolbin-download",
+  "name": "SCN-018 | LOLBin File Download (certutil)",
+  "description": "Uses certutil.exe to download a file from the internet, simulating the most common Living Off The Land (LOLBin) technique. Triggers endpoint detection for suspicious certutil usage.",
+  "tags": ["execution", "lolbin", "certutil", "download", "t1105", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn018-a1-lolbin-download"
+  ],
+  "objective": "default"
+}

@@ -1,0 +1,54 @@
+---
+- id: scn017-a1-encoded-powershell
+  name: "SCN-017 | Encoded PowerShell Execution"
+  description: |
+    Executes PowerShell commands using Base64 encoding via the -EncodedCommand
+    flag. Attackers use encoded PowerShell to bypass simple string-based
+    detection rules and obfuscate malicious commands.
+
+    MITRE ATT&CK: T1059.001 - Command and Scripting Interpreter: PowerShell
+    MITRE ATT&CK: T1027 - Obfuscated Files or Information
+
+    Every modern EDR flags Base64-encoded PowerShell execution because
+    legitimate scripts almost never use -EncodedCommand. This is one of
+    the strongest behavioral indicators of malicious activity.
+
+    What to watch for:
+    - Sophos alert for encoded/obfuscated PowerShell execution
+    - powershell.exe launched with -enc or -EncodedCommand flag
+    - Execution classification with obfuscation indicator
+  tactic: execution
+  technique:
+    attack_id: T1059.001
+    name: "Command and Scripting Interpreter: PowerShell"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== ENCODED POWERSHELL EXECUTION (T1059.001 + T1027) ===";
+          Write-Output "[*] Simulating attacker using Base64-encoded PowerShell";
+          Write-Output "";
+          $cmd1 = 'Write-Output "[ENCODED] Whoami: $env:USERNAME on $env:COMPUTERNAME"';
+          $cmd2 = 'Write-Output "[ENCODED] Domain: $env:USERDOMAIN"';
+          $cmd3 = 'Get-Process | Select-Object -First 5 Name,Id | Format-Table';
+          Write-Output "[*] Encoding command 1: basic identity check";
+          $enc1 = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd1));
+          Write-Output "    Encoded: $enc1";
+          powershell.exe -NoProfile -EncodedCommand $enc1;
+          Write-Output "";
+          Write-Output "[*] Encoding command 2: domain enumeration";
+          $enc2 = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd2));
+          Write-Output "    Encoded: $enc2";
+          powershell.exe -NoProfile -EncodedCommand $enc2;
+          Write-Output "";
+          Write-Output "[*] Encoding command 3: process listing";
+          $enc3 = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd3));
+          Write-Output "    Encoded: $enc3";
+          powershell.exe -NoProfile -EncodedCommand $enc3;
+          Write-Output "";
+          Write-Output "[*] Attackers encode PowerShell to evade simple string matching.";
+          Write-Output "    Sophos decodes and inspects the command regardless of encoding.";
+          Write-Output "";
+          Write-Output "[*] Sophos should flag: Encoded/obfuscated PowerShell execution";
+          Write-Output "=== END ENCODED POWERSHELL ==="
+        cleanup: ""

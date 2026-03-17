@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn017-encoded-powershell",
+  "name": "SCN-017 | Encoded PowerShell Execution",
+  "description": "Executes Base64-encoded PowerShell commands using the -EncodedCommand flag to simulate attacker obfuscation techniques. Triggers endpoint detection for encoded/obfuscated script execution.",
+  "tags": ["execution", "obfuscation", "powershell", "base64", "t1059.001", "t1027", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn017-a1-encoded-powershell"
+  ],
+  "objective": "default"
+}

