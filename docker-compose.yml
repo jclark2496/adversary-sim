@@ -37,6 +37,9 @@ services:
     volumes:
       - caldera-data:/usr/src/app/data
       - ./caldera/conf/local.yml:/usr/src/app/conf/local.yml:ro
+    networks:
+      default:
+        ipv4_address: 172.20.0.10
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888"]
       interval: 30s
@@ -58,6 +61,9 @@ services:
     volumes:
       - ./atomic-runner/tests:/opt/art/tests
       - ./atomic-runner/results:/opt/art/results
+    networks:
+      default:
+        ipv4_address: 172.20.0.40
     command: tail -f /dev/null
 
   # ---------------------------------------------------------------------------
@@ -77,6 +83,9 @@ services:
     volumes:
       - ./nginx/html:/usr/share/nginx/html
       - ./nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      default:
+        ipv4_address: 172.20.0.51
 
   # ---------------------------------------------------------------------------
   # Kali Linux — Attacker Node
@@ -105,3 +114,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 120s
+    networks:
+      default:
+        ipv4_address: 172.20.0.70
