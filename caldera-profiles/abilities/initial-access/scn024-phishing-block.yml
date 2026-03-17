@@ -1,0 +1,48 @@
+---
+- id: scn024-a1-phishing-block
+  name: "SCN-024 | Firewall: Phishing Site Block"
+  description: |
+    Attempts to access URLs categorized as phishing and fraud by Sophos
+    web filtering. The firewall should block access and serve a block page.
+
+    MITRE ATT&CK: T1566 - Phishing
+    Firewall Detection: Web filtering blocks categorized phishing URLs
+
+    What to watch for:
+    - Sophos Firewall blocks access to the phishing test URL
+    - Block page served to the client
+    - Web filtering log entry with phishing category
+  tactic: initial-access
+  technique:
+    attack_id: T1566
+    name: "Phishing"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== PHISHING SITE BLOCK (T1566) ===";
+          Write-Output "[*] Attempting to access URLs categorized as phishing/fraud";
+          Write-Output "";
+          Write-Output "[*] Test 1: Phishing & Fraud category";
+          Write-Output "    URL: https://sophostest.com/web/phishing-and-fraud/index.html";
+          try {
+            $r = Invoke-WebRequest -Uri "https://sophostest.com/web/phishing-and-fraud/index.html" -UseBasicParsing -ErrorAction Stop;
+            Write-Output "[*] Response: $($r.StatusCode) - $($r.Content.Substring(0, [Math]::Min(100, $r.Content.Length)))..."
+          } catch {
+            Write-Output "[+] BLOCKED by firewall web filter: $($_.Exception.Message)"
+          };
+          Start-Sleep -Seconds 2;
+          Write-Output "";
+          Write-Output "[*] Test 2: Criminal Activity category";
+          Write-Output "    URL: https://sophostest.com/web/criminal-activity/index.html";
+          try {
+            $r = Invoke-WebRequest -Uri "https://sophostest.com/web/criminal-activity/index.html" -UseBasicParsing -ErrorAction Stop;
+            Write-Output "[*] Response: $($r.StatusCode)"
+          } catch {
+            Write-Output "[+] BLOCKED by firewall web filter: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Sophos Firewall categorizes URLs using SophosLabs threat intelligence";
+          Write-Output "[*] Phishing sites are blocked before the user can interact with them";
+          Write-Output "=== END PHISHING BLOCK ==="
+        cleanup: ""

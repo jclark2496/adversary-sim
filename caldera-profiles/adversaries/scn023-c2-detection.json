@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn023-c2-detection",
+  "name": "SCN-023 | Firewall: C2 Traffic Detection",
+  "description": "Accesses a C2 test landing page and simulates periodic beaconing callbacks to test firewall detection of Command & Control traffic patterns.",
+  "tags": ["firewall", "command-and-control", "c2", "beaconing", "t1071.001", "demo-ready"],
+  "atomic_ordering": ["scn023-a1-c2-detection"],
+  "objective": "default"
+}

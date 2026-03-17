@@ -1,0 +1,67 @@
+---
+- id: scn021-a1-eicar-download
+  name: "SCN-021 | Firewall: EICAR Test File Download"
+  description: |
+    Downloads the industry-standard EICAR anti-virus test file and its ZIP variant
+    from Sophos's official test site. The Sophos Firewall IPS/AV engine should
+    intercept and block the download before it reaches the endpoint.
+
+    MITRE ATT&CK: T1105 - Ingress Tool Transfer
+    Firewall Detection: IPS/AV blocks known malware test signature
+
+    If the firewall doesn't block it, the endpoint AV will catch it as a second
+    layer of defense — demonstrating defense-in-depth.
+
+    What to watch for:
+    - Sophos Firewall blocks the download with an IPS/AV alert
+    - Block page served to the client
+    - If download succeeds, Sophos Endpoint quarantines the file
+  tactic: initial-access
+  technique:
+    attack_id: T1105
+    name: "Ingress Tool Transfer"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== EICAR TEST FILE DOWNLOAD (T1105) ===";
+          Write-Output "[*] Downloading EICAR test file from Sophos test site";
+          Write-Output "[*] The EICAR file is an industry-standard anti-virus test";
+          Write-Output "    It is completely harmless but triggers AV/IPS detection";
+          Write-Output "";
+          $dir = "C:\Temp";
+          if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null };
+          Write-Output "[*] Test 1: EICAR .com file";
+          Write-Output "    URL: https://sophostest.com/files/sophostest_av_eicar.com";
+          try {
+            Invoke-WebRequest -Uri "https://sophostest.com/files/sophostest_av_eicar.com" -OutFile "$dir\eicar.com" -ErrorAction Stop;
+            Write-Output "[!] Download succeeded - firewall did not block (endpoint AV should catch it)"
+          } catch {
+            Write-Output "[+] Download BLOCKED: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Test 2: EICAR .zip file (tests archive scanning)";
+          Write-Output "    URL: https://sophostest.com/files/sophostest_eicar_com.zip";
+          try {
+            Invoke-WebRequest -Uri "https://sophostest.com/files/sophostest_eicar_com.zip" -OutFile "$dir\eicar.zip" -ErrorAction Stop;
+            Write-Output "[!] Download succeeded - firewall did not block ZIP variant"
+          } catch {
+            Write-Output "[+] Download BLOCKED: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Test 3: PUA test file";
+          Write-Output "    URL: https://sophostest.com/files/sophostest_pua.com";
+          try {
+            Invoke-WebRequest -Uri "https://sophostest.com/files/sophostest_pua.com" -OutFile "$dir\pua.com" -ErrorAction Stop;
+            Write-Output "[!] Download succeeded - PUA not blocked at firewall"
+          } catch {
+            Write-Output "[+] Download BLOCKED: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Sophos Firewall should block these downloads via IPS/AV scanning";
+          Write-Output "[*] If any file reached disk, Sophos Endpoint provides second-layer detection";
+          Write-Output "=== END EICAR DOWNLOAD ==="
+        cleanup: |
+          Remove-Item "C:\Temp\eicar.com" -Force -ErrorAction SilentlyContinue;
+          Remove-Item "C:\Temp\eicar.zip" -Force -ErrorAction SilentlyContinue;
+          Remove-Item "C:\Temp\pua.com" -Force -ErrorAction SilentlyContinue

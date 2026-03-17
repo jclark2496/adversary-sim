@@ -255,8 +255,15 @@ Six pre-built attack scenarios, each mapped to real-world MITRE ATT&CK technique
 | **SCN-018** | LOLBin File Download (certutil) | Execution | Uses certutil.exe to download files — top Living Off The Land technique |
 | **SCN-019** | WMI Process Creation | Execution | Uses WMI to execute processes without deploying external tools |
 | **SCN-020** | Malicious Service Creation | Persistence | Creates a Windows service for persistent backdoor access |
+| **SCN-021** | Firewall: EICAR Test File Download | Initial Access | Downloads EICAR test file — firewall IPS/AV should block it |
+| **SCN-022** | Firewall: IPS Signature Detection | Initial Access | Triggers firewall IPS signatures via Sophos test pages |
+| **SCN-023** | Firewall: C2 Traffic Detection | Command and Control | C2 landing page + beaconing pattern detection |
+| **SCN-024** | Firewall: Phishing Site Block | Initial Access | Tests firewall web filtering on phishing/fraud URLs |
+| **SCN-025** | Firewall: Malware Site Block | Initial Access | Tests web filtering across 5 malicious URL categories |
+| **SCN-026** | Firewall: DNS Tunneling | Exfiltration | Encodes data in DNS subdomain queries for exfiltration |
+| **SCN-027** | Firewall: Policy Violation (SSH/RDP) | Execution | Tests firewall egress policy blocking outbound SSH/RDP |
 
-> Endpoint scenarios (SCN-001–008, SCN-016–020) trigger Sophos Endpoint detections. NDR scenarios (SCN-010–015) trigger Sophos NDR network-level detections.
+> Endpoint scenarios (SCN-001–008, SCN-016–020) trigger Sophos Endpoint detections. NDR scenarios (SCN-010–015) trigger Sophos NDR detections. Firewall scenarios (SCN-021–027) trigger Sophos Firewall detections.
 
 > Scenarios are defined as CALDERA adversary profiles in `caldera-profiles/adversaries/` with matching abilities in `caldera-profiles/abilities/`.
 

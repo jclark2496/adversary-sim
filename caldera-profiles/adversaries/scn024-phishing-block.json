@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn024-phishing-block",
+  "name": "SCN-024 | Firewall: Phishing Site Block",
+  "description": "Attempts to access URLs categorized as phishing and fraud to test firewall web filtering and URL categorization.",
+  "tags": ["firewall", "initial-access", "phishing", "web-filter", "t1566", "demo-ready", "quick"],
+  "atomic_ordering": ["scn024-a1-phishing-block"],
+  "objective": "default"
+}

@@ -1,9 +1,10 @@
 {
   "version": "1.1",
-  "last_updated": "2026-03-13",
+  "last_updated": "2026-03-17",
   "scenarios": [
     {
       "id": "SCN-001",
+      "product": "endpoint",
       "title": "Credential Dumping via LSASS",
       "description": "Simulate an attacker dumping credentials from LSASS memory using Mimikatz and ProcDump. One of the most common techniques seen in MDR cases.",
       "mitre_tactics": [
@@ -93,6 +94,7 @@
     },
     {
       "id": "SCN-002",
+      "product": "endpoint",
       "title": "Discovery & Enumeration Chain",
       "description": "Simulate a threat actor performing post-compromise discovery using built-in Windows tools (LOLBins). Maps to what attackers do in the first 5 minutes after gaining access.",
       "mitre_tactics": [
@@ -199,6 +201,7 @@
     },
     {
       "id": "SCN-003",
+      "product": "endpoint",
       "title": "Phishing → Payload → Persistence",
       "description": "Full kill chain simulation: phishing document triggers payload execution, which establishes persistence via scheduled task. Multi-step CALDERA operation.",
       "mitre_tactics": [
@@ -303,6 +306,7 @@
     },
     {
       "id": "SCN-005",
+      "product": "endpoint",
       "title": "Pass the Hash Lateral Movement",
       "description": "Simulate an attacker harvesting NTLM hashes from a compromised host and using them to authenticate to remote systems without the plaintext password. Demonstrates the direct continuation of SCN-001 — stolen hashes become the keys to lateral movement.",
       "mitre_tactics": [
@@ -399,6 +403,7 @@
     },
     {
       "id": "SCN-006",
+      "product": "endpoint",
       "title": "PowerShell Execution & AMSI Bypass",
       "description": "Simulate an attacker abusing PowerShell for obfuscated command execution and disabling the Antimalware Scan Interface (AMSI) to prevent script scanning. Demonstrates the most common technique attackers use to evade endpoint AV before pulling down stage-2 payloads.",
       "mitre_tactics": [
@@ -490,6 +495,7 @@
     },
     {
       "id": "SCN-008",
+      "product": "endpoint",
       "title": "Ransomware Pre-Deployment Simulation",
       "description": "Simulate the four-phase ransomware pre-deployment sequence: disable backup services, narrate shadow copy deletion, stage a ransom note and encrypted file markers, then generate the Sophos XDR detection handoff. Designed to show how MDR interrupts a ransomware attack before any files are actually encrypted.",
       "mitre_tactics": [
@@ -599,6 +605,7 @@
     },
     {
       "id": "SCN-598062",
+      "product": "endpoint",
       "title": "Credential Access",
       "description": "Attack maps to T1056.001, uses map tool, and has high severity expected detection.",
       "mitre_tactics": [
@@ -639,6 +646,7 @@
     },
     {
       "id": "SCN-CASE-610969",
+      "product": "endpoint",
       "title": "Supply Chain Compromise Demo",
       "description": "A simulated attack showcases a malicious npm package infiltrating an organization's supply chain, resulting in credential theft.",
       "mitre_tactics": [
@@ -696,6 +704,7 @@
     },
     {
       "id": "SCN-CASE-145712",
+      "product": "endpoint",
       "title": "Lockbit Ransomware Attack",
       "description": "A business was targeted by Lockbit ransomware attackers, resulting in potential data loss and disruption of operations.",
       "mitre_tactics": [
@@ -757,6 +766,7 @@
     },
     {
       "id": "SCN-190966",
+      "product": "endpoint",
       "title": "Add Log4j",
       "description": "Attackers exploit Apache Log4j to execute malicious commands.",
       "mitre_tactics": [
@@ -802,6 +812,7 @@
     },
     {
       "id": "SCN-232156",
+      "product": "endpoint",
       "title": "short title",
       "description": "2 sentence description",
       "mitre_tactics": [
@@ -842,6 +853,7 @@
     },
     {
       "id": "SCN-968490",
+      "product": "endpoint",
       "title": "LAND Attack",
       "description": "The attacker uses the compromised credentials to execute a LAND attack, which involves using privileged access to create elevated tokens and gather additional sensitive information.",
       "mitre_tactics": [
@@ -883,6 +895,7 @@
     },
     {
       "id": "SCN-040586",
+      "product": "endpoint",
       "title": "Stuxnet Attack",
       "description": "The attackers exploited a vulnerability in Windows to gain initial access, then used Duqu and Windows Exploiter to spread the malware and disrupt industrial control systems.",
       "mitre_tactics": [
@@ -924,6 +937,7 @@
     },
     {
       "id": "SCN-035381",
+      "product": "endpoint",
       "title": "BEC Attack",
       "description": "Attacker used phishing to gain initial access, then deployed mimikats to escalate privileges.",
       "mitre_tactics": [
@@ -964,6 +978,7 @@
     },
     {
       "id": "SCN-421961",
+      "product": "endpoint",
       "title": "Custom Scenario",
       "description": "{\"title\":\"BEC Attack\",mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"Initial Access via Email\"}],\"tools\":[\"Email Tools\",\"Spear Phishing Tools\"],\"difficulty\":\"medium",
       "mitre_tactics": [
@@ -992,6 +1007,7 @@
     },
     {
       "id": "SCN-687447",
+      "product": "endpoint",
       "title": "Credential Access via Phishing",
       "description": "The attacker sent a phishing email, and the victim logged in, allowing the attacker to steal their credentials and modify a Teams link in an existing calendar invitation.",
       "mitre_tactics": [
@@ -1033,6 +1049,7 @@
     },
     {
       "id": "SCN-292834",
+      "product": "endpoint",
       "title": "Pacific Rim Attack",
       "description": "A Pacific Rim-inspired attack simulates a distributed denial-of-service (DDoS) attack by scanning for open ports and identifying vulnerable software, then uses stolen credentials to gain access to systems.",
       "mitre_tactics": [
@@ -1066,6 +1083,7 @@
     },
     {
       "id": "SCN-276283",
+      "product": "endpoint",
       "title": "Pacific Rim Attack",
       "description": "The Pacific Rim attack uses Pacifica and other malicious tools to exploit vulnerabilities in Sophos software, bypassing security controls and gaining unauthorized access.",
       "mitre_tactics": [
@@ -1139,6 +1157,7 @@
         "talking_points_timing": "Discuss talking points after first detection alert is triggered"
       },
       "id": "SCN-CASE-302303",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-276283",
       "submitted_by": "SE Session",
@@ -1189,6 +1208,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-307107",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-276283",
       "submitted_by": "SE Session",
@@ -1239,6 +1259,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-311859",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-276283",
       "submitted_by": "SE Session",
@@ -1271,6 +1292,7 @@
       },
       "detection_notes": "Sophos XDR alert 12345: 'Mimikatz detected dumping LSASS memory'",
       "id": "SCN-CASE-081576",
+      "product": "endpoint",
       "source": "ai-generated",
       "status": "pending",
       "case_id": "CASE-1772602055747",
@@ -1311,6 +1333,7 @@
       "se_runbook": "Launch scn003-phishing-persistence with standard settings. Show how the attacker sends a phishing email and executes a malicious payload. Demonstrate how Sophos XDR detects the attack and prevents it from succeeding.",
       "detection_notes": "This demo triggers multiple Sophos XDR alerts, including 'Phishing Email Detected' and 'Malicious Payload Executed'.",
       "id": "SCN-CASE-067631",
+      "product": "endpoint",
       "source": "ai-generated",
       "status": "pending",
       "case_id": "CASE-1772603036525",
@@ -1323,6 +1346,7 @@
     },
     {
       "id": "SCN-ENRICH-109251",
+      "product": "endpoint",
       "title": "I need a pacific rim attack that was used against Sophos",
       "description": "I need a pacific rim attack that was used against Sophos",
       "mitre_tactics": [],
@@ -1352,6 +1376,7 @@
     },
     {
       "id": "SCN-ENRICH-713488",
+      "product": "endpoint",
       "title": "need phishing with mimikats",
       "description": "need phishing with mimikats",
       "mitre_tactics": [],
@@ -1436,6 +1461,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-297637",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1772636287646",
       "submitted_by": "",
@@ -1473,6 +1499,7 @@
         "talking_points_timing": ""
       },
       "id": "SCN-CASE-699420",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1772642690027",
       "submitted_by": "",
@@ -1528,6 +1555,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-903116",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -1594,6 +1622,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-909479",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -1651,6 +1680,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-916183",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -1713,6 +1743,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-924575",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-109251",
       "submitted_by": "",
@@ -1776,6 +1807,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-930345",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-109251",
       "submitted_by": "",
@@ -1848,6 +1880,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-937821",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-109251",
       "submitted_by": "",
@@ -1909,6 +1942,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-944582",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -1964,6 +1998,7 @@
         ]
       },
       "id": "SCN-CASE-951184",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -2020,6 +2055,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-957049",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-ENRICH-713488",
       "submitted_by": "",
@@ -2051,6 +2087,7 @@
         "talking_points_timing": ""
       },
       "id": "SCN-CASE-944046",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1772987931250",
       "submitted_by": "Bob",
@@ -2107,6 +2144,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-429161",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1773102419643",
       "submitted_by": "",
@@ -2114,6 +2152,7 @@
     },
     {
       "id": "SCN-872530",
+      "product": "endpoint",
       "title": "Phishing with Mimikatz Attack",
       "description": "Attackers use phishing to trick victims into installing Mimikatz, then leverage the tool to steal sensitive credentials.",
       "mitre_tactics": [
@@ -2203,6 +2242,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-917532",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-872530",
       "submitted_by": "SE Session",
@@ -2259,6 +2299,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-923419",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "SCN-872530",
       "submitted_by": "SE Session",
@@ -2290,6 +2331,7 @@
         "talking_points_timing": ""
       },
       "id": "SCN-CASE-050071",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1773251038604",
       "submitted_by": "Jason",
@@ -2297,6 +2339,7 @@
     },
     {
       "id": "SCN-080540",
+      "product": "endpoint",
       "title": "Mimikatz",
       "description": "A post-exploitation tool used to steal credentials, Mimikatz is a powerful tool that can be used by attackers to gain access to sensitive information.",
       "mitre_tactics": [
@@ -2374,6 +2417,7 @@
         "talking_points_timing": "Mention talking points after first alert fires"
       },
       "id": "SCN-CASE-926447",
+      "product": "endpoint",
       "source": "case-submission",
       "case_id": "CASE-1773412916801",
       "submitted_by": "",
@@ -2381,6 +2425,7 @@
     },
     {
       "id": "SCN-971941",
+      "product": "endpoint",
       "title": "Custom Scenario",
       "description": "{\"title\":\"Phishing Attack with Mimikatz\",mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"Use of Privilege Escalation Tools (e.g., Mimikatz)\"}],\"tools\":[\"Mimikatz\"],\"",
       "mitre_tactics": [
@@ -2403,6 +2448,7 @@
     },
     {
       "id": "SCN-010",
+      "product": "ndr",
       "title": "NDR: Brute Force Simulation",
       "description": "Simulates a brute force attack by rapidly attempting connections to 10 common authentication services (SSH, RDP, SMB, FTP, LDAP, MySQL, PostgreSQL, VNC, MSSQL, Telnet). Generates the connection pattern that NDR sensors flag as credential brute forcing.",
       "mitre_tactics": [
@@ -2470,6 +2516,7 @@
     },
     {
       "id": "SCN-011",
+      "product": "ndr",
       "title": "NDR: UDP Data Exfiltration",
       "description": "Simulates data exfiltration by sending 10MB of UDP packets to a suspicious external IP address (203.0.113.100). Tests NDR detection of anomalous outbound data volume over UDP on a non-standard port.",
       "mitre_tactics": [
@@ -2537,6 +2584,7 @@
     },
     {
       "id": "SCN-012",
+      "product": "ndr",
       "title": "NDR: Web Application Attacks",
       "description": "Sends 13 web application attack payloads via HTTP including Cross-Site Scripting (XSS), SQL Injection (SQLi), Remote Code Execution (RCE) injection, and cleartext credential leaks. Tests NDR detection of malicious HTTP payloads in transit.",
       "mitre_tactics": [
@@ -2612,6 +2660,7 @@
     },
     {
       "id": "SCN-013",
+      "product": "ndr",
       "title": "NDR: Bad User-Agent (Log4Shell)",
       "description": "Sends an HTTP request with a Log4Shell-like JNDI User-Agent string. Tests NDR detection of suspicious User-Agent patterns commonly associated with Log4Shell (CVE-2021-44228) exploitation attempts.",
       "mitre_tactics": [
@@ -2674,6 +2723,7 @@
     },
     {
       "id": "SCN-014",
+      "product": "ndr",
       "title": "NDR: Suspicious Exploit URL",
       "description": "Accesses a URL with an exploit-like dot-prefixed path pattern commonly seen in exploit kits and vulnerability scanners. Tests NDR detection of suspicious web traffic patterns.",
       "mitre_tactics": [
@@ -2736,6 +2786,7 @@
     },
     {
       "id": "SCN-015",
+      "product": "ndr",
       "title": "NDR: Network Port Scan",
       "description": "Performs a TCP port scan across 10 hosts on the local subnet, probing 45 common service ports per host (450 total probes). Generates the network reconnaissance pattern that NDR sensors flag as port scanning activity.",
       "mitre_tactics": [
@@ -2803,31 +2854,55 @@
     },
     {
       "id": "SCN-016",
+      "product": "endpoint",
       "title": "Clear Windows Event Logs",
       "description": "Clears the Windows Security, System, and Application event logs using the built-in wevtutil command. Simulates an attacker covering their tracks by destroying forensic evidence.",
-      "mitre_tactics": ["Defense Evasion"],
-      "mitre_techniques": [{"id": "T1070.001", "name": "Indicator Removal: Clear Windows Event Logs"}],
-      "tools": ["wevtutil"],
+      "mitre_tactics": [
+        "Defense Evasion"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1070.001",
+          "name": "Indicator Removal: Clear Windows Event Logs"
+        }
+      ],
+      "tools": [
+        "wevtutil"
+      ],
       "atomic_tests": [],
       "caldera_ability": "scn016-event-log-clearing",
       "audience": "Technical",
       "platform": "windows",
       "execution_engine": "caldera",
       "expected_detections": [
-        {"detection": "Event log tampering — Security/System/Application logs cleared", "severity": "critical"}
+        {
+          "detection": "Event log tampering — Security/System/Application logs cleared",
+          "severity": "critical"
+        }
       ],
       "talking_points": {
         "universal": [
           "Event log clearing is one of the strongest indicators that an attacker was on the system. There is almost never a legitimate reason to clear the Security log on an endpoint.",
           "Sophos detects log clearing in real time — the attacker can't erase evidence without generating an alert first."
         ],
-        "financial_services": ["Regulatory requirements (PCI DSS, SOX) mandate log retention. An attacker clearing logs triggers both a security alert and a compliance violation."],
-        "healthcare": ["HIPAA requires audit log integrity. Sophos detects log tampering before the attacker can cover their tracks."],
-        "manufacturing": ["OT environments require forensic traceability. Endpoint detection catches log clearing even on systems without centralized logging."]
+        "financial_services": [
+          "Regulatory requirements (PCI DSS, SOX) mandate log retention. An attacker clearing logs triggers both a security alert and a compliance violation."
+        ],
+        "healthcare": [
+          "HIPAA requires audit log integrity. Sophos detects log tampering before the attacker can cover their tracks."
+        ],
+        "manufacturing": [
+          "OT environments require forensic traceability. Endpoint detection catches log clearing even on systems without centralized logging."
+        ]
       },
       "se_runbook": {
         "setup": "Victim VM must be running with Sophos agent. This test clears real event logs — they will be regenerated naturally over time.",
-        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-016 from the SE Console", "Watch CALDERA clear the three event logs (~5 seconds)", "Show the Sophos alert for event log tampering"],
+        "steps": [
+          "Show Sophos Central with no active alerts",
+          "Launch SCN-016 from the SE Console",
+          "Watch CALDERA clear the three event logs (~5 seconds)",
+          "Show the Sophos alert for event log tampering"
+        ],
         "talking_points_timing": "Deliver talking points immediately after the alert appears"
       },
       "status": "approved",
@@ -2842,31 +2917,59 @@
     },
     {
       "id": "SCN-017",
+      "product": "endpoint",
       "title": "Encoded PowerShell Execution",
       "description": "Executes Base64-encoded PowerShell commands using the -EncodedCommand flag. Simulates attacker obfuscation — encoding commands to bypass simple string-based detection rules.",
-      "mitre_tactics": ["Execution"],
-      "mitre_techniques": [{"id": "T1059.001", "name": "Command and Scripting Interpreter: PowerShell"}, {"id": "T1027", "name": "Obfuscated Files or Information"}],
-      "tools": ["PowerShell"],
+      "mitre_tactics": [
+        "Execution"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1059.001",
+          "name": "Command and Scripting Interpreter: PowerShell"
+        },
+        {
+          "id": "T1027",
+          "name": "Obfuscated Files or Information"
+        }
+      ],
+      "tools": [
+        "PowerShell"
+      ],
       "atomic_tests": [],
       "caldera_ability": "scn017-encoded-powershell",
       "audience": "Technical",
       "platform": "windows",
       "execution_engine": "caldera",
       "expected_detections": [
-        {"detection": "Encoded/obfuscated PowerShell execution via -EncodedCommand", "severity": "high"}
+        {
+          "detection": "Encoded/obfuscated PowerShell execution via -EncodedCommand",
+          "severity": "high"
+        }
       ],
       "talking_points": {
         "universal": [
           "Base64-encoded PowerShell is one of the top behavioral indicators of malicious activity. Legitimate scripts almost never use -EncodedCommand.",
           "Sophos decodes and inspects PowerShell commands regardless of encoding — attackers can't hide behind Base64 obfuscation."
         ],
-        "financial_services": ["Encoded PowerShell is the primary delivery mechanism for banking trojans and credential stealers targeting financial institutions."],
-        "healthcare": ["Healthcare ransomware groups frequently use encoded PowerShell for initial payload delivery and lateral movement."],
-        "manufacturing": ["Encoded PowerShell is used to bypass basic security controls on manufacturing systems that may only have signature-based protection."]
+        "financial_services": [
+          "Encoded PowerShell is the primary delivery mechanism for banking trojans and credential stealers targeting financial institutions."
+        ],
+        "healthcare": [
+          "Healthcare ransomware groups frequently use encoded PowerShell for initial payload delivery and lateral movement."
+        ],
+        "manufacturing": [
+          "Encoded PowerShell is used to bypass basic security controls on manufacturing systems that may only have signature-based protection."
+        ]
       },
       "se_runbook": {
         "setup": "Victim VM must be running with Sophos agent.",
-        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-017 from the SE Console", "Watch CALDERA execute 3 encoded PowerShell commands (~10 seconds)", "Show the Sophos alert for obfuscated script execution"],
+        "steps": [
+          "Show Sophos Central with no active alerts",
+          "Launch SCN-017 from the SE Console",
+          "Watch CALDERA execute 3 encoded PowerShell commands (~10 seconds)",
+          "Show the Sophos alert for obfuscated script execution"
+        ],
         "talking_points_timing": "Point out the Base64 strings in the CALDERA feed, then show how Sophos decoded and flagged them"
       },
       "status": "approved",
@@ -2881,31 +2984,55 @@
     },
     {
       "id": "SCN-018",
+      "product": "endpoint",
       "title": "LOLBin File Download (certutil)",
       "description": "Uses certutil.exe — a legitimate Windows certificate utility — to download a file from the internet. This is the most common Living Off The Land (LOLBin) technique where attackers abuse built-in tools instead of deploying their own.",
-      "mitre_tactics": ["Execution"],
-      "mitre_techniques": [{"id": "T1105", "name": "Ingress Tool Transfer"}],
-      "tools": ["certutil.exe"],
+      "mitre_tactics": [
+        "Execution"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1105",
+          "name": "Ingress Tool Transfer"
+        }
+      ],
+      "tools": [
+        "certutil.exe"
+      ],
       "atomic_tests": [],
       "caldera_ability": "scn018-lolbin-download",
       "audience": "Technical",
       "platform": "windows",
       "execution_engine": "caldera",
       "expected_detections": [
-        {"detection": "Suspicious certutil usage — LOLBin file download", "severity": "high"}
+        {
+          "detection": "Suspicious certutil usage — LOLBin file download",
+          "severity": "high"
+        }
       ],
       "talking_points": {
         "universal": [
           "Living Off The Land attacks use built-in Windows tools instead of deploying malware. certutil is the #1 abused LOLBin for file downloads.",
           "Sophos monitors over 30 LOLBins for suspicious usage patterns — even though the tools are legitimate, their abuse is detectable by behavioral analysis."
         ],
-        "financial_services": ["LOLBin attacks bypass allowlisting because certutil is a signed Microsoft binary. Behavioral detection is the only way to catch this."],
-        "healthcare": ["Healthcare environments often rely on allowlisting for security. LOLBin attacks bypass this control entirely — endpoint detection is essential."],
-        "manufacturing": ["Manufacturing systems often have limited security tooling. LOLBin detection catches attacks that use only built-in Windows capabilities."]
+        "financial_services": [
+          "LOLBin attacks bypass allowlisting because certutil is a signed Microsoft binary. Behavioral detection is the only way to catch this."
+        ],
+        "healthcare": [
+          "Healthcare environments often rely on allowlisting for security. LOLBin attacks bypass this control entirely — endpoint detection is essential."
+        ],
+        "manufacturing": [
+          "Manufacturing systems often have limited security tooling. LOLBin detection catches attacks that use only built-in Windows capabilities."
+        ]
       },
       "se_runbook": {
         "setup": "Victim VM must be running with Sophos agent and have internet access for the download.",
-        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-018 from the SE Console", "Watch CALDERA execute certutil download (~5 seconds)", "Show the Sophos alert for LOLBin/certutil abuse"],
+        "steps": [
+          "Show Sophos Central with no active alerts",
+          "Launch SCN-018 from the SE Console",
+          "Watch CALDERA execute certutil download (~5 seconds)",
+          "Show the Sophos alert for LOLBin/certutil abuse"
+        ],
         "talking_points_timing": "Explain what LOLBins are while the download executes"
       },
       "status": "approved",
@@ -2920,31 +3047,56 @@
     },
     {
       "id": "SCN-019",
+      "product": "endpoint",
       "title": "WMI Process Creation",
       "description": "Uses Windows Management Instrumentation (WMI) to create and execute processes. WMI is a built-in Windows management framework that attackers abuse for execution and reconnaissance without deploying external tools.",
-      "mitre_tactics": ["Execution"],
-      "mitre_techniques": [{"id": "T1047", "name": "Windows Management Instrumentation"}],
-      "tools": ["WMI", "wmic.exe"],
+      "mitre_tactics": [
+        "Execution"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1047",
+          "name": "Windows Management Instrumentation"
+        }
+      ],
+      "tools": [
+        "WMI",
+        "wmic.exe"
+      ],
       "atomic_tests": [],
       "caldera_ability": "scn019-wmi-execution",
       "audience": "Technical",
       "platform": "windows",
       "execution_engine": "caldera",
       "expected_detections": [
-        {"detection": "Suspicious WMI process creation activity", "severity": "high"}
+        {
+          "detection": "Suspicious WMI process creation activity",
+          "severity": "high"
+        }
       ],
       "talking_points": {
         "universal": [
           "WMI is present on every Windows system and can execute commands both locally and remotely. Attackers use it because it leaves minimal forensic artifacts compared to running commands directly.",
           "Sophos monitors WMI for suspicious process creation chains — legitimate WMI usage has predictable patterns that differ from attacker behavior."
         ],
-        "financial_services": ["WMI-based lateral movement is a key technique in APT attacks targeting financial institutions. Detecting WMI abuse blocks a critical attack path."],
-        "healthcare": ["WMI is used legitimately for device management in healthcare. Sophos distinguishes between normal WMI operations and attacker abuse."],
-        "manufacturing": ["WMI can reach systems across network segments. Detecting WMI abuse prevents attackers from pivoting from IT into OT environments."]
+        "financial_services": [
+          "WMI-based lateral movement is a key technique in APT attacks targeting financial institutions. Detecting WMI abuse blocks a critical attack path."
+        ],
+        "healthcare": [
+          "WMI is used legitimately for device management in healthcare. Sophos distinguishes between normal WMI operations and attacker abuse."
+        ],
+        "manufacturing": [
+          "WMI can reach systems across network segments. Detecting WMI abuse prevents attackers from pivoting from IT into OT environments."
+        ]
       },
       "se_runbook": {
         "setup": "Victim VM must be running with Sophos agent.",
-        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-019 from the SE Console", "Watch CALDERA execute WMI commands (~10 seconds)", "Show the Sophos alert for suspicious WMI activity"],
+        "steps": [
+          "Show Sophos Central with no active alerts",
+          "Launch SCN-019 from the SE Console",
+          "Watch CALDERA execute WMI commands (~10 seconds)",
+          "Show the Sophos alert for suspicious WMI activity"
+        ],
         "talking_points_timing": "Explain WMI's dual-use nature while commands execute"
       },
       "status": "approved",
@@ -2959,31 +3111,55 @@
     },
     {
       "id": "SCN-020",
+      "product": "endpoint",
       "title": "Malicious Service Creation",
       "description": "Creates a Windows service using sc.exe to simulate an attacker establishing persistence. The service is created with auto-start and a disguised display name, then cleaned up. Tests endpoint detection of unauthorized service installation.",
-      "mitre_tactics": ["Persistence"],
-      "mitre_techniques": [{"id": "T1543.003", "name": "Create or Modify System Process: Windows Service"}],
-      "tools": ["sc.exe"],
+      "mitre_tactics": [
+        "Persistence"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1543.003",
+          "name": "Create or Modify System Process: Windows Service"
+        }
+      ],
+      "tools": [
+        "sc.exe"
+      ],
       "atomic_tests": [],
       "caldera_ability": "scn020-service-creation",
       "audience": "Technical",
       "platform": "windows",
       "execution_engine": "caldera",
       "expected_detections": [
-        {"detection": "Unauthorized Windows service creation for persistence", "severity": "high"}
+        {
+          "detection": "Unauthorized Windows service creation for persistence",
+          "severity": "high"
+        }
       ],
       "talking_points": {
         "universal": [
           "Service creation is one of the most reliable persistence mechanisms on Windows. Attackers create services with legitimate-sounding names to blend in with normal system services.",
           "Sophos detects service creation by correlating the parent process, binary path, and timing — not just the service name."
         ],
-        "financial_services": ["Backdoor services on financial systems enable persistent access for data theft. Detecting unauthorized service creation stops persistence before it takes hold."],
-        "healthcare": ["Persistent backdoors on healthcare systems can exfiltrate patient data over extended periods. Service creation detection is critical for HIPAA compliance."],
-        "manufacturing": ["Attackers targeting manufacturing often install persistent services on engineering workstations to maintain access to design files and OT network bridges."]
+        "financial_services": [
+          "Backdoor services on financial systems enable persistent access for data theft. Detecting unauthorized service creation stops persistence before it takes hold."
+        ],
+        "healthcare": [
+          "Persistent backdoors on healthcare systems can exfiltrate patient data over extended periods. Service creation detection is critical for HIPAA compliance."
+        ],
+        "manufacturing": [
+          "Attackers targeting manufacturing often install persistent services on engineering workstations to maintain access to design files and OT network bridges."
+        ]
       },
       "se_runbook": {
         "setup": "Victim VM must be running with Sophos agent.",
-        "steps": ["Show Sophos Central with no active alerts", "Launch SCN-020 from the SE Console", "Watch CALDERA create and then remove the service (~5 seconds)", "Show the Sophos alert for unauthorized service creation"],
+        "steps": [
+          "Show Sophos Central with no active alerts",
+          "Launch SCN-020 from the SE Console",
+          "Watch CALDERA create and then remove the service (~5 seconds)",
+          "Show the Sophos alert for unauthorized service creation"
+        ],
         "talking_points_timing": "Explain how the service has an innocent-sounding name while the alert shows Sophos saw through the disguise"
       },
       "status": "approved",
@@ -2994,6 +3170,490 @@
       "expires_at": null,
       "session_id": null,
       "caldera_adversary_id": "scn020-service-creation",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-021",
+      "product": "firewall",
+      "title": "Firewall: EICAR Test File Download",
+      "description": "Downloads the industry-standard EICAR anti-virus test file and PUA test file from Sophos's official test site (sophostest.com). The firewall IPS/AV engine should block the downloads before they reach the endpoint.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1105",
+          "name": "Ingress Tool Transfer"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Invoke-WebRequest"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn021-eicar-download",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall IPS/AV blocks EICAR test file download",
+          "severity": "high"
+        },
+        {
+          "detection": "Firewall IPS/AV blocks PUA test file download",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "The EICAR test file is the industry-standard test for anti-virus scanning. Every security product should detect it. The Sophos Firewall blocks it at the network level before it ever reaches the endpoint.",
+          "This demonstrates defense-in-depth: the firewall is the first line, and the endpoint agent provides a second layer if anything gets through."
+        ],
+        "financial_services": [
+          "Financial regulators require layered security controls. Firewall-level malware blocking is a critical first layer for protecting banking infrastructure."
+        ],
+        "healthcare": [
+          "HIPAA requires technical safeguards for ePHI. Firewall AV scanning prevents malware from reaching medical devices and clinical workstations."
+        ],
+        "manufacturing": [
+          "Manufacturing environments often have unmanaged devices. Firewall-level AV scanning protects systems that can't run endpoint agents."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must have internet access through the Sophos Firewall. Firewall IPS/AV scanning must be enabled on the relevant firewall rule.",
+        "steps": [
+          "Show the Sophos Firewall log viewer with no recent alerts",
+          "Launch SCN-021 from the SE Console",
+          "Watch CALDERA attempt 3 downloads (~10 seconds)",
+          "Show the firewall IPS/AV block entries in the log viewer"
+        ],
+        "talking_points_timing": "Explain EICAR and defense-in-depth while the downloads are attempted"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn021-eicar-download",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-022",
+      "product": "firewall",
+      "title": "Firewall: IPS Signature Detection",
+      "description": "Accesses Sophos's official IPS test pages and downloads an IPS test PDF to trigger firewall Intrusion Prevention System signature detection.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Invoke-WebRequest"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn022-ips-detection",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall IPS detects test signature in HTTP traffic",
+          "severity": "high"
+        },
+        {
+          "detection": "Firewall IPS detects test signature in PDF download",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "The IPS engine performs deep packet inspection, analyzing traffic content for known exploit patterns and attack signatures in real time.",
+          "Unlike a basic firewall that only checks ports and IPs, the Sophos Firewall IPS inspects the actual payload content for threats."
+        ],
+        "financial_services": [
+          "IPS is a PCI DSS requirement for protecting cardholder data environments. Signature-based detection catches known exploits targeting financial applications."
+        ],
+        "healthcare": [
+          "Medical device networks require IPS monitoring. The firewall inspects traffic to and from devices that can't run endpoint protection."
+        ],
+        "manufacturing": [
+          "IPS protects OT networks from known exploits targeting industrial protocols and web interfaces on SCADA systems."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must have internet access through the Sophos Firewall. IPS must be enabled on the relevant firewall rule.",
+        "steps": [
+          "Show the Sophos Firewall IPS log with no recent alerts",
+          "Launch SCN-022 from the SE Console",
+          "Watch CALDERA access IPS test pages (~10 seconds)",
+          "Show the firewall IPS signature match alerts"
+        ],
+        "talking_points_timing": "Explain deep packet inspection while the test runs"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn022-ips-detection",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-023",
+      "product": "firewall",
+      "title": "Firewall: C2 Traffic Detection",
+      "description": "Accesses Sophos's C2 test landing page and simulates periodic beaconing callbacks. Tests firewall detection of Command & Control traffic patterns used by real malware.",
+      "mitre_tactics": [
+        "Command and Control"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1071.001",
+          "name": "Application Layer Protocol: Web Protocols"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "curl"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn023-c2-detection",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall IPS detects C2 traffic signature",
+          "severity": "critical"
+        },
+        {
+          "detection": "Firewall web filter blocks C2 category URL",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Command & Control is how attackers maintain access and send instructions to compromised systems. The firewall detects C2 traffic patterns even when the malware uses legitimate protocols like HTTP.",
+          "Beaconing detection identifies the regular interval callbacks that characterize C2 communication — a pattern that stands out from normal web browsing."
+        ],
+        "financial_services": [
+          "APT groups targeting financial institutions rely on C2 channels for long-term persistent access. Firewall C2 detection disrupts these campaigns."
+        ],
+        "healthcare": [
+          "Ransomware groups use C2 channels to stage attacks on healthcare systems. Blocking C2 at the firewall prevents the attack from progressing."
+        ],
+        "manufacturing": [
+          "C2 detection at the firewall prevents attackers from communicating with compromised systems in the OT network."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must have internet access through the Sophos Firewall. IPS and web filtering must be enabled.",
+        "steps": [
+          "Show the Sophos Firewall log viewer",
+          "Launch SCN-023 from the SE Console",
+          "Watch CALDERA access C2 page then beacon 5 times (~30 seconds)",
+          "Show the firewall C2 detection and web filter alerts"
+        ],
+        "talking_points_timing": "Point out the regular beaconing interval in the CALDERA feed while explaining C2 patterns"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn023-c2-detection",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-024",
+      "product": "firewall",
+      "title": "Firewall: Phishing Site Block",
+      "description": "Attempts to access URLs categorized as phishing, fraud, and criminal activity by Sophos web filtering. The firewall should block access and serve a block page.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1566",
+          "name": "Phishing"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Invoke-WebRequest"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn024-phishing-block",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall web filter blocks phishing/fraud category URL",
+          "severity": "high"
+        },
+        {
+          "detection": "Firewall web filter blocks criminal activity category URL",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Phishing is the #1 initial access vector in breaches. The Sophos Firewall blocks known phishing sites using SophosLabs threat intelligence before the user can interact with the page.",
+          "URL categorization is updated continuously from SophosLabs — new phishing sites are categorized within minutes of discovery."
+        ],
+        "financial_services": [
+          "Banking phishing is the most common form of financial fraud. Firewall web filtering blocks phishing sites targeting banking credentials."
+        ],
+        "healthcare": [
+          "Healthcare credential phishing leads to unauthorized access to patient records. Web filtering prevents staff from reaching phishing pages."
+        ],
+        "manufacturing": [
+          "Spear phishing targeting engineering and procurement staff is common in manufacturing. Web filtering blocks these attacks at the network level."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must have internet access through the Sophos Firewall. Web filtering must be enabled with phishing category set to block.",
+        "steps": [
+          "Show the Sophos Firewall web filter log",
+          "Launch SCN-024 from the SE Console",
+          "Watch CALDERA attempt to access phishing URLs (~10 seconds)",
+          "Show the firewall block entries and explain URL categorization"
+        ],
+        "talking_points_timing": "Explain SophosLabs URL categorization while the blocks are displayed"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn024-phishing-block",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-025",
+      "product": "firewall",
+      "title": "Firewall: Malware Site Block",
+      "description": "Attempts to access URLs across 5 malicious categories: spyware/malware, C2, hacking resources, spam, and anonymizers. Tests firewall web filtering across multiple threat categories.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1204.001",
+          "name": "User Execution: Malicious Link"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Invoke-WebRequest"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn025-malware-site-block",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall web filter blocks spyware/malware category",
+          "severity": "critical"
+        },
+        {
+          "detection": "Firewall web filter blocks C2 category",
+          "severity": "critical"
+        },
+        {
+          "detection": "Firewall web filter blocks hacking resources category",
+          "severity": "high"
+        },
+        {
+          "detection": "Firewall web filter blocks spam/anonymizer categories",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Web filtering is more than just blocking inappropriate content — it's a critical security layer that prevents access to known malicious infrastructure.",
+          "The Sophos Firewall categorizes millions of URLs across threat categories. This test shows blocking across 5 different threat types in seconds."
+        ],
+        "financial_services": [
+          "Comprehensive web filtering is a regulatory requirement for financial institutions under PCI DSS and SOX compliance."
+        ],
+        "healthcare": [
+          "Web filtering prevents healthcare staff from accidentally accessing malware distribution sites that could compromise clinical systems."
+        ],
+        "manufacturing": [
+          "Blocking access to hacking resources and anonymizers prevents insider threats and unauthorized tools on manufacturing networks."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must have internet access through the Sophos Firewall. Web filtering must be enabled with security categories set to block.",
+        "steps": [
+          "Show the Sophos Firewall web filter log",
+          "Launch SCN-025 from the SE Console",
+          "Watch CALDERA attempt to access 5 malicious category URLs (~15 seconds)",
+          "Show the firewall block entries across all 5 categories"
+        ],
+        "talking_points_timing": "Walk through each category as it appears in the firewall log"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn025-malware-site-block",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-026",
+      "product": "firewall",
+      "title": "Firewall: DNS Tunneling",
+      "description": "Simulates data exfiltration via DNS by encoding sensitive data (credentials, keys, configs) into DNS subdomain queries. Sends 20 DNS lookups with Base64-encoded data to test firewall DNS inspection.",
+      "mitre_tactics": [
+        "Exfiltration"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1071.004",
+          "name": "Application Layer Protocol: DNS"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Resolve-DnsName"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn026-dns-tunneling",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall DNS inspection flags anomalous subdomain query pattern",
+          "severity": "high"
+        },
+        {
+          "detection": "Firewall detects DNS tunneling or DNS exfiltration",
+          "severity": "critical"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "DNS tunneling is one of the stealthiest exfiltration techniques because DNS traffic is rarely blocked and often not inspected. Attackers encode stolen data into DNS queries that pass through most firewalls.",
+          "Sophos Firewall DNS inspection detects anomalous query patterns — unusually long subdomains, high query frequency, and Base64-like encoding in domain names."
+        ],
+        "financial_services": [
+          "DNS tunneling has been used to exfiltrate credit card data from POS systems. Firewall DNS inspection catches this exfiltration channel."
+        ],
+        "healthcare": [
+          "Patient data exfiltrated via DNS tunneling bypasses traditional DLP controls. Firewall DNS inspection provides coverage for this blind spot."
+        ],
+        "manufacturing": [
+          "Trade secrets and proprietary designs can be exfiltrated via DNS. DNS inspection at the firewall detects this covert channel."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Victim VM must use the Sophos Firewall as its DNS resolver. DNS inspection must be enabled.",
+        "steps": [
+          "Show the Sophos Firewall DNS log",
+          "Launch SCN-026 from the SE Console",
+          "Watch CALDERA send 20 encoded DNS queries (~15 seconds)",
+          "Show the firewall DNS inspection alerts for anomalous queries"
+        ],
+        "talking_points_timing": "Explain how DNS tunneling works while queries are being sent — point out the encoded subdomain labels in the CALDERA feed"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn026-dns-tunneling",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-027",
+      "product": "firewall",
+      "title": "Firewall: Policy Violation (Outbound SSH/RDP)",
+      "description": "Attempts outbound SSH and RDP connections to 5 external IP addresses. Tests firewall egress policy enforcement — management protocols should be blocked from leaving the network.",
+      "mitre_tactics": [
+        "Execution"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1021",
+          "name": "Remote Services"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "TCP sockets"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn027-policy-violation",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Firewall blocks outbound SSH connections (port 22)",
+          "severity": "medium"
+        },
+        {
+          "detection": "Firewall blocks outbound RDP connections (port 3389)",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Egress filtering is a security best practice that most organizations neglect. Blocking outbound SSH and RDP prevents attackers from establishing reverse tunnels after compromising an endpoint.",
+          "The Sophos Firewall enforces protocol-level egress policies — not just port blocking, but application-aware filtering that catches tunneled protocols."
+        ],
+        "financial_services": [
+          "PCI DSS requires egress filtering for cardholder data environments. Blocking outbound management protocols prevents data exfiltration via reverse shells."
+        ],
+        "healthcare": [
+          "Outbound RDP from clinical workstations is a strong indicator of compromise. Firewall policy enforcement catches this immediately."
+        ],
+        "manufacturing": [
+          "Blocking outbound SSH/RDP from the manufacturing network prevents attackers from establishing persistent remote access to OT systems."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Sophos Firewall must have egress policies blocking outbound SSH (22) and RDP (3389). Target IPs use RFC 5737 documentation ranges (safe).",
+        "steps": [
+          "Show the Sophos Firewall policy rules",
+          "Launch SCN-027 from the SE Console",
+          "Watch CALDERA attempt 10 outbound connections (~15 seconds)",
+          "Show the firewall policy violation log entries"
+        ],
+        "talking_points_timing": "Explain egress filtering while the connection attempts are blocked"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn027-policy-violation",
       "caldera_group": "red"
     }
   ]

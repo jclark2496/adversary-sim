@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn021-eicar-download",
+  "name": "SCN-021 | Firewall: EICAR Test File Download",
+  "description": "Downloads EICAR and PUA test files from sophostest.com to test firewall IPS/AV scanning. The firewall should block the downloads before they reach the endpoint.",
+  "tags": ["firewall", "initial-access", "eicar", "ips", "av", "t1105", "demo-ready", "quick"],
+  "atomic_ordering": ["scn021-a1-eicar-download"],
+  "objective": "default"
+}

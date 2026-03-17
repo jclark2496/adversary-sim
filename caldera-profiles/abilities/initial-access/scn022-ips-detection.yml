@@ -1,0 +1,48 @@
+---
+- id: scn022-a1-ips-detection
+  name: "SCN-022 | Firewall: IPS Signature Detection"
+  description: |
+    Accesses Sophos's official IPS test pages and downloads an IPS test PDF
+    to trigger firewall Intrusion Prevention System signature detection.
+
+    MITRE ATT&CK: T1190 - Exploit Public-Facing Application
+    Firewall Detection: IPS engine detects test signatures in traffic
+
+    What to watch for:
+    - Sophos Firewall IPS alert for test signature match
+    - Connection blocked or flagged by the IPS engine
+  tactic: initial-access
+  technique:
+    attack_id: T1190
+    name: "Exploit Public-Facing Application"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== IPS SIGNATURE DETECTION (T1190) ===";
+          Write-Output "[*] Accessing Sophos IPS test pages to trigger signature detection";
+          Write-Output "";
+          Write-Output "[*] Test 1: IPS test page";
+          Write-Output "    URL: https://sophostest.com/web/ips/sophos-test.html";
+          try {
+            $r = Invoke-WebRequest -Uri "https://sophostest.com/web/ips/sophos-test.html" -UseBasicParsing -ErrorAction Stop;
+            Write-Output "[*] Response: $($r.StatusCode) ($($r.Content.Length) bytes)"
+          } catch {
+            Write-Output "[+] BLOCKED by firewall IPS: $($_.Exception.Message)"
+          };
+          Start-Sleep -Seconds 2;
+          Write-Output "";
+          Write-Output "[*] Test 2: IPS test PDF download";
+          Write-Output "    URL: https://sophostest.com/files/sophos_ips_test.pdf";
+          try {
+            Invoke-WebRequest -Uri "https://sophostest.com/files/sophos_ips_test.pdf" -OutFile "C:\Temp\ips_test.pdf" -ErrorAction Stop;
+            Write-Output "[*] PDF downloaded ($((Get-Item 'C:\Temp\ips_test.pdf').Length) bytes)"
+          } catch {
+            Write-Output "[+] BLOCKED by firewall IPS: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Sophos Firewall IPS inspects traffic for known exploit signatures";
+          Write-Output "[*] These test patterns are designed to trigger detection without harm";
+          Write-Output "=== END IPS DETECTION ==="
+        cleanup: |
+          Remove-Item "C:\Temp\ips_test.pdf" -Force -ErrorAction SilentlyContinue

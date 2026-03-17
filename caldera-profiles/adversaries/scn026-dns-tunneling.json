@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn026-dns-tunneling",
+  "name": "SCN-026 | Firewall: DNS Tunneling",
+  "description": "Simulates data exfiltration via DNS by encoding data into DNS subdomain queries. Tests firewall DNS inspection for anomalous query patterns.",
+  "tags": ["firewall", "exfiltration", "dns", "tunneling", "t1071.004", "demo-ready"],
+  "atomic_ordering": ["scn026-a1-dns-tunneling"],
+  "objective": "default"
+}

@@ -1019,6 +1019,10 @@
       <!-- Filters -->
       <div class="fgrid">
         <div class="frow">
+          <div class="flbl">Product</div>
+          <div class="chips" id="prodchips"></div>
+        </div>
+        <div class="frow">
           <div class="flbl">Tactic</div>
           <div class="chips" id="tachips"></div>
         </div>
@@ -1367,7 +1371,7 @@
     xs: 'idle',   // idle|running|complete|error
     xr: null, xe: null,
     drawer: false, enriching: false, enrichCard: false,
-    fl: { ta: new Set() },
+    fl: { ta: new Set(), prod: new Set() },
     q: '', ind: 'universal', plt: 'windows', tgt: ''
   };
 
@@ -1574,9 +1578,19 @@
      FILTER CHIPS
   ===================================================== */
   function buildChips() {
+    // Product chips
+    const prods = [...new Set(S.all.map(s => s.product).filter(Boolean))].sort();
+    $('prodchips').innerHTML = prods.map(p => {
+      const label = p.charAt(0).toUpperCase() + p.slice(1);
+      return `<button class="chip${S.fl.prod.has(p)?' on':''}" data-prod="${x(p)}">${x(label)}</button>`;
+    }).join('');
+    qa('#prodchips .chip').forEach(c =>
+      c.addEventListener('click', () => tog('prod', c.dataset.prod, '#prodchips', 'data-prod')));
+
+    // Tactic chips
     const ta = [...new Set(S.all.flatMap(s => s.mitre_tactics||[]))].sort();
     $('tachips').innerHTML = ta.map(t =>
-      `<button class="chip" data-ta="${x(t)}">${x(t)}</button>`).join('');
+      `<button class="chip${S.fl.ta.has(t)?' on':''}" data-ta="${x(t)}">${x(t)}</button>`).join('');
     qa('#tachips .chip').forEach(c =>
       c.addEventListener('click', () => tog('ta', c.dataset.ta, '#tachips', 'data-ta')));
   }
@@ -1600,6 +1614,7 @@
         (s.tools||[]).some(t => t.toLowerCase().includes(q))
       );
     }
+    if (S.fl.prod.size) f = f.filter(s => S.fl.prod.has(s.product));
     if (S.fl.ta.size) f = f.filter(s => (s.mitre_tactics||[]).some(t => S.fl.ta.has(t)));
     S.filt = f;
     renderList();
@@ -1645,12 +1660,15 @@
       const au  = s.audience || 'Technical';
       const ac  = au === 'Executive' ? 'dexec' : 'dm';
       const eng = s.execution_engine || 'atomic';
+      const prodColor = {'endpoint':'#2196F3','ndr':'#4CAF50','firewall':'#FF9800'}[s.product] || '#999';
+      const prodLabel = s.product ? s.product.charAt(0).toUpperCase() + s.product.slice(1) : '';
       return `
         <div class="scard${sel?' sel':''}" data-id="${x(s.id)}"
              style="animation-delay:${i*26}ms" onclick="pick('${x(s.id)}')">
           <div class="cbadges">
             ${ta.map(t=>`<span class="tbadge">${x(t)}</span>`).join('')}
             <span class="dpill ${ac}">${x(au)}</span>
+            ${prodLabel?`<span style="font-family:var(--ft);font-weight:600;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:${prodColor}22;color:${prodColor};border:1px solid ${prodColor}55">${x(prodLabel)}</span>`:''}
             ${ai?`<span class="aitag">AI</span>`:''}
             ${eph?`<span class="aitag" style="background:rgba(var(--accent-cyan-rgb),.1);color:var(--accent-cyan);border-color:rgba(var(--accent-cyan-rgb),.3)">Session</span>`:''}
             <span class="etag">${x(eng)}</span>
@@ -2259,7 +2277,7 @@
         launchable:   false
       };
       S.all = [ns, ...S.all.filter(s => s.id !== ns.id)];
-      S.fl = { ta: new Set() };
+      S.fl = { ta: new Set(), prod: new Set() };
       qa('.chip').forEach(c => c.classList.remove('on'));
       S.filt = [...S.all]; S.enriching = false;
       closeEnrichCard();

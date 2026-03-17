@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn022-ips-detection",
+  "name": "SCN-022 | Firewall: IPS Signature Detection",
+  "description": "Accesses Sophos IPS test pages and downloads a test PDF to trigger firewall Intrusion Prevention System signature detection.",
+  "tags": ["firewall", "initial-access", "ips", "signature", "t1190", "demo-ready", "quick"],
+  "atomic_ordering": ["scn022-a1-ips-detection"],
+  "objective": "default"
+}

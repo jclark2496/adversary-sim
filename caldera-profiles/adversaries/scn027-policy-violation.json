@@ -1,0 +1,8 @@
+{
+  "adversary_id": "scn027-policy-violation",
+  "name": "SCN-027 | Firewall: Policy Violation (Outbound SSH/RDP)",
+  "description": "Attempts outbound SSH and RDP connections to external IPs to test firewall egress policy enforcement.",
+  "tags": ["firewall", "execution", "policy", "egress", "ssh", "rdp", "t1021", "demo-ready"],
+  "atomic_ordering": ["scn027-a1-policy-violation"],
+  "objective": "default"
+}

@@ -1,0 +1,62 @@
+---
+- id: scn027-a1-policy-violation
+  name: "SCN-027 | Firewall: Policy Violation (Outbound SSH/RDP)"
+  description: |
+    Attempts outbound SSH and RDP connections to external IP addresses.
+    Firewall egress policies should block management protocols from
+    leaving the network — a common security best practice.
+
+    MITRE ATT&CK: T1021 - Remote Services
+    Firewall Detection: Egress policy blocks outbound SSH/RDP
+
+    What to watch for:
+    - Sophos Firewall blocks outbound connections on ports 22 and 3389
+    - Firewall policy violation log entries
+    - Egress filtering enforcement
+  tactic: execution
+  technique:
+    attack_id: T1021
+    name: "Remote Services"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== POLICY VIOLATION - OUTBOUND SSH/RDP (T1021) ===";
+          Write-Output "[*] Attempting outbound connections on management ports";
+          Write-Output "[*] Firewall egress policies should block these";
+          Write-Output "";
+          $targets = @(
+            @{IP="198.51.100.1"; Desc="External host 1"},
+            @{IP="198.51.100.2"; Desc="External host 2"},
+            @{IP="198.51.100.3"; Desc="External host 3"},
+            @{IP="203.0.113.50"; Desc="External host 4"},
+            @{IP="203.0.113.51"; Desc="External host 5"}
+          );
+          $ports = @(
+            @{Port=22; Name="SSH"},
+            @{Port=3389; Name="RDP"}
+          );
+          foreach ($p in $ports) {
+            Write-Output "[*] Testing outbound $($p.Name) (port $($p.Port)):";
+            foreach ($t in $targets) {
+              try {
+                $c = New-Object System.Net.Sockets.TcpClient;
+                $r = $c.BeginConnect($t.IP, $p.Port, $null, $null);
+                if ($r.AsyncWaitHandle.WaitOne(2000, $false)) {
+                  $c.EndConnect($r);
+                  Write-Output "    $($t.IP):$($p.Port) - CONNECTED (policy not enforced)"
+                } else {
+                  Write-Output "    $($t.IP):$($p.Port) - TIMEOUT (blocked or unreachable)"
+                };
+                $c.Close()
+              } catch {
+                Write-Output "    $($t.IP):$($p.Port) - BLOCKED: $($_.Exception.Message)"
+              }
+            };
+            Write-Output ""
+          };
+          Write-Output "[*] Best practice: Block outbound SSH/RDP at the firewall";
+          Write-Output "[*] Attackers use outbound RDP/SSH for reverse tunnels and data exfil";
+          Write-Output "[*] Sophos Firewall egress policies enforce protocol-level control";
+          Write-Output "=== END POLICY VIOLATION ==="
+        cleanup: ""

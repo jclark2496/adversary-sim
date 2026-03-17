@@ -1,0 +1,53 @@
+---
+- id: scn023-a1-c2-detection
+  name: "SCN-023 | Firewall: C2 Traffic Detection"
+  description: |
+    Accesses Sophos's C2 test landing page and simulates periodic beaconing
+    callbacks to test firewall detection of Command & Control traffic patterns.
+
+    MITRE ATT&CK: T1071.001 - Application Layer Protocol: Web Protocols
+    Firewall Detection: C2 traffic pattern / IPS C2 signature
+
+    What to watch for:
+    - Sophos Firewall detects C2 landing page access
+    - Periodic beaconing pattern flagged as suspicious
+    - IPS alert for C2 traffic signature
+  tactic: command-and-control
+  technique:
+    attack_id: T1071.001
+    name: "Application Layer Protocol: Web Protocols"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== C2 TRAFFIC DETECTION (T1071.001) ===";
+          Write-Output "[*] Simulating Command & Control traffic patterns";
+          Write-Output "";
+          Write-Output "[*] Step 1: Accessing C2 test landing page";
+          Write-Output "    URL: https://sophostest.com/web/ips/sophos-c2-landingpage.html";
+          try {
+            $r = Invoke-WebRequest -Uri "https://sophostest.com/web/ips/sophos-c2-landingpage.html" -UseBasicParsing -ErrorAction Stop;
+            Write-Output "[*] Response: $($r.StatusCode)"
+          } catch {
+            Write-Output "[+] BLOCKED by firewall: $($_.Exception.Message)"
+          };
+          Start-Sleep -Seconds 2;
+          Write-Output "";
+          Write-Output "[*] Step 2: Simulating C2 beaconing (5 callbacks at regular intervals)";
+          Write-Output "    Real malware beacons every 30-60 seconds to check for commands";
+          for ($i = 1; $i -le 5; $i++) {
+            $ts = Get-Date -Format "HH:mm:ss";
+            Write-Output "    [$ts] Beacon $i/5...";
+            try {
+              curl.exe -s "https://sophostest.com/web/command-and-control/index.html" -o NUL 2>&1;
+              Write-Output "    [$ts] Callback sent"
+            } catch {
+              Write-Output "    [$ts] BLOCKED"
+            };
+            if ($i -lt 5) { Start-Sleep -Seconds 5 }
+          };
+          Write-Output "";
+          Write-Output "[*] Sophos Firewall detects both the C2 page access and the";
+          Write-Output "    regular beaconing pattern that characterizes C2 communication";
+          Write-Output "=== END C2 DETECTION ==="
+        cleanup: ""
