@@ -92,6 +92,28 @@ This project is part of a modular architecture for Sophos SE demo environments:
 | **GHCR Access** | The CALDERA image is hosted on a private GitHub Container Registry. Authenticate before install (see below). |
 | **Python 3** | Required for profile loading and library build scripts |
 
+### Windows (WSL 2)
+
+On Windows, run everything inside WSL 2 (Windows Subsystem for Linux):
+
+**One-time setup (PowerShell as Administrator):**
+```powershell
+wsl --install        # Installs WSL 2 + Ubuntu (reboot when prompted)
+```
+
+Then install [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) and enable **WSL 2 backend** + **Ubuntu integration** in Settings → Resources → WSL Integration.
+
+**Install (Ubuntu terminal):**
+```bash
+git clone https://github.com/jclark2496/adversary-sim.git
+cd adversary-sim
+./setup-wsl.sh       # Installs make/pip3, verifies Docker, runs make install
+```
+
+All `localhost` URLs (e.g., `http://localhost:8081`) work from your Windows browser.
+
+> **Ollama users:** Install Ollama on Windows (not inside WSL 2). Docker containers reach it via `host.docker.internal:11434`.
+
 ### Authenticate to GHCR
 
 The CALDERA image (`ghcr.io/jclark2496/caldera:5.1.0`) is pulled from a private registry. Authenticate first:
