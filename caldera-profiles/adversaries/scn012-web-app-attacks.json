@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn012-web-app-attacks",
+  "name": "SCN-012 | NDR: Web Application Attacks",
+  "description": "Sends 13 web application attack payloads including XSS, SQL injection, RCE injection, and cleartext credential leaks via HTTP. Triggers NDR Flow Risk 1, 2, 3, and 26 alerts.",
+  "tags": ["ndr", "initial-access", "xss", "sqli", "rce", "credential-leak", "t1190", "demo-ready"],
+  "atomic_ordering": [
+    "scn012-a1-web-app-attacks"
+  ],
+  "objective": "default"
+}

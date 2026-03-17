@@ -244,6 +244,14 @@ Six pre-built attack scenarios, each mapped to real-world MITRE ATT&CK technique
 | **SCN-005** | Pass the Hash Lateral Movement | Lateral Movement | NTLM hash-based lateral movement across the environment |
 | **SCN-006** | PowerShell Execution & AMSI Bypass | Execution, Defense Evasion | PowerShell abuse with AMSI bypass techniques |
 | **SCN-008** | Ransomware Pre-Deployment Simulation | Impact | Four-phase pre-deployment sequence used by ransomware operators |
+| **SCN-010** | NDR: Brute Force Simulation | Credential Access | Rapid connection attempts to authentication services (SSH, RDP, SMB, etc.) |
+| **SCN-011** | NDR: UDP Data Exfiltration | Exfiltration | High-volume UDP data transfer to suspicious external IP |
+| **SCN-012** | NDR: Web Application Attacks | Initial Access | XSS, SQL injection, RCE injection, and credential leak payloads via HTTP |
+| **SCN-013** | NDR: Bad User-Agent (Log4Shell) | Command and Control | Log4Shell-like JNDI User-Agent string in HTTP request |
+| **SCN-014** | NDR: Suspicious Exploit URL | Initial Access | Exploit kit URL pattern detection |
+| **SCN-015** | NDR: Network Port Scan | Discovery | TCP port scan across subnet (45 ports × 10 hosts) |
+
+> Endpoint scenarios (SCN-001–008) trigger Sophos Endpoint detections. NDR scenarios (SCN-010–015) trigger Sophos NDR network-level detections.
 
 > Scenarios are defined as CALDERA adversary profiles in `caldera-profiles/adversaries/` with matching abilities in `caldera-profiles/abilities/`.
 

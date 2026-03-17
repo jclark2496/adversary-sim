@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn011-udp-exfiltration",
+  "name": "SCN-011 | NDR: UDP Data Exfiltration",
+  "description": "Simulates data exfiltration by sending 10MB of UDP packets to a suspicious external IP address. Triggers NDR alerts for anomalous outbound data volume over UDP.",
+  "tags": ["ndr", "exfiltration", "udp", "data-theft", "t1048.003", "demo-ready"],
+  "atomic_ordering": [
+    "scn011-a1-udp-exfiltration"
+  ],
+  "objective": "default"
+}

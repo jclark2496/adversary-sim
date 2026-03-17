@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn010-brute-force",
+  "name": "SCN-010 | NDR: Brute Force Simulation",
+  "description": "Simulates a brute force attack by rapidly attempting connections to common authentication services (SSH, RDP, SMB, FTP, LDAP, databases). Triggers NDR brute force detection alerts.",
+  "tags": ["ndr", "credential-access", "brute-force", "t1110", "demo-ready"],
+  "atomic_ordering": [
+    "scn010-a1-brute-force"
+  ],
+  "objective": "default"
+}

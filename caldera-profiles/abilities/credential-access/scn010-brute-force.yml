@@ -1,0 +1,71 @@
+---
+- id: scn010-a1-brute-force
+  name: "SCN-010 | NDR: Brute Force Simulation"
+  description: |
+    Simulates a brute force attack by rapidly attempting TCP and UDP connections
+    to common authentication services across multiple ports. Generates the
+    connection pattern that NDR sensors flag as credential brute forcing.
+
+    MITRE ATT&CK: T1110 - Brute Force
+    NDR Detection: Multiple failed authentication attempts across services
+
+    Services targeted: SSH, RDP, FTP, Telnet, SMB, LDAP, MySQL, PostgreSQL, VNC, MSSQL
+    Each service receives 25 rapid connection attempts to simulate credential guessing.
+
+    What to watch for:
+    - NDR alert for brute force / credential stuffing
+    - High volume of connections to authentication ports in a short time window
+    - Connections from a single source to multiple service ports
+  tactic: credential-access
+  technique:
+    attack_id: T1110
+    name: "Brute Force"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== BRUTE FORCE SIMULATION (T1110) ===";
+          $targetIP = "192.168.1.100";
+          $attemptsPerService = 25;
+          Write-Output "[*] Target: $targetIP";
+          Write-Output "[*] Attempts per service: $attemptsPerService";
+          Write-Output "";
+          $services = @(
+            @{Name="SSH"; Port=22; Protocol="TCP"},
+            @{Name="RDP"; Port=3389; Protocol="TCP"},
+            @{Name="FTP"; Port=21; Protocol="TCP"},
+            @{Name="Telnet"; Port=23; Protocol="TCP"},
+            @{Name="SMB"; Port=445; Protocol="TCP"},
+            @{Name="LDAP"; Port=389; Protocol="TCP"},
+            @{Name="LDAP"; Port=389; Protocol="UDP"},
+            @{Name="MySQL"; Port=3306; Protocol="TCP"},
+            @{Name="PostgreSQL"; Port=5432; Protocol="TCP"},
+            @{Name="VNC"; Port=5900; Protocol="TCP"},
+            @{Name="MSSQL"; Port=1433; Protocol="TCP"}
+          );
+          $udpData = [System.Text.Encoding]::ASCII.GetBytes("brute_force_sim");
+          foreach ($svc in $services) {
+            $ok = 0; $fail = 0;
+            Write-Output "[*] Brute forcing $($svc.Name) ($($svc.Protocol):$($svc.Port))...";
+            for ($i = 1; $i -le $attemptsPerService; $i++) {
+              try {
+                if ($svc.Protocol -eq "TCP") {
+                  $c = New-Object System.Net.Sockets.TcpClient;
+                  $r = $c.BeginConnect($targetIP, $svc.Port, $null, $null);
+                  if ($r.AsyncWaitHandle.WaitOne(300, $false)) { $c.EndConnect($r); $ok++ } else { $fail++ };
+                  $c.Close()
+                } else {
+                  $u = New-Object System.Net.Sockets.UdpClient;
+                  $u.Connect($targetIP, $svc.Port);
+                  [void]$u.Send($udpData, $udpData.Length);
+                  $ok++; $u.Close()
+                }
+              } catch { $fail++ }
+            };
+            Write-Output "    Result: $ok connected, $fail failed"
+          };
+          Write-Output "";
+          Write-Output "[*] NDR should flag: Brute force / credential stuffing activity";
+          Write-Output "[*] $($services.Count) services targeted with $attemptsPerService attempts each";
+          Write-Output "=== END BRUTE FORCE ==="
+        cleanup: ""

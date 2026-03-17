@@ -1,0 +1,66 @@
+---
+- id: scn015-a1-port-scan
+  name: "SCN-015 | NDR: Network Port Scan"
+  description: |
+    Performs a TCP port scan across 10 hosts on the local subnet, probing
+    45 common service ports per host. Generates the network reconnaissance
+    pattern that NDR sensors flag as port scanning activity.
+
+    MITRE ATT&CK: T1046 - Network Service Scanning
+    NDR Detection: Port scan / network reconnaissance alert
+
+    Scans IPs x.x.x.1 through x.x.x.10 on the configured subnet.
+    Ports include: SSH, RDP, FTP, SMB, LDAP, HTTP, HTTPS, databases,
+    VNC, Citrix, VMware, SAP, and other common enterprise services.
+
+    What to watch for:
+    - NDR alert for horizontal port scanning
+    - Single source probing multiple hosts on multiple ports
+    - Reconnaissance activity classification
+  tactic: discovery
+  technique:
+    attack_id: T1046
+    name: "Network Service Scanning"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== NETWORK PORT SCAN SIMULATION (T1046) ===";
+          $subnet = "192.168.1";
+          $timeoutMs = 500;
+          $maxIP = 10;
+          Write-Output "[*] Subnet: $subnet.0/24 (IPs 1-$maxIP)";
+          Write-Output "[*] Timeout: ${timeoutMs}ms per port";
+          $ports = @(22,3389,23,21,5900,5901,445,389,636,1812,49,1494,1194,88,143,993,110,995,25,1701,1723,500,4500,3306,5432,161,5060,7990,1433,8000,8080,8443,3200,8089,50000,1521,902,2598,8530,80,443,53,135,139,1111);
+          Write-Output "[*] Ports: $($ports.Count) common service ports";
+          Write-Output "";
+          $openPorts = @();
+          for ($i = 1; $i -le $maxIP; $i++) {
+            $ip = "$subnet.$i";
+            Write-Output "[*] Scanning $ip...";
+            foreach ($port in $ports) {
+              try {
+                $c = New-Object System.Net.Sockets.TcpClient;
+                $r = $c.BeginConnect($ip, $port, $null, $null);
+                if ($r.AsyncWaitHandle.WaitOne($timeoutMs, $false)) {
+                  $c.EndConnect($r);
+                  if ($c.Connected) {
+                    Write-Output "    [OPEN] ${ip}:${port}";
+                    $openPorts += "${ip}:${port}"
+                  }
+                };
+                $c.Close()
+              } catch { }
+            }
+          };
+          Write-Output "";
+          Write-Output "[+] Scan complete: $($openPorts.Count) open ports found across $maxIP hosts";
+          Write-Output "[*] Total probes: $($maxIP * $ports.Count)";
+          if ($openPorts.Count -gt 0) {
+            Write-Output "[*] Open ports:";
+            foreach ($p in $openPorts) { Write-Output "    $p" }
+          };
+          Write-Output "";
+          Write-Output "[*] NDR should flag: Network port scan / reconnaissance activity";
+          Write-Output "=== END PORT SCAN ==="
+        cleanup: ""

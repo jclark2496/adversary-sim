@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn013-bad-user-agent",
+  "name": "SCN-013 | NDR: Bad User-Agent (Log4Shell)",
+  "description": "Sends an HTTP request with a Log4Shell-like JNDI User-Agent string to test NDR detection of suspicious User-Agent patterns (Flow Risk 11).",
+  "tags": ["ndr", "command-and-control", "user-agent", "log4shell", "t1071.001", "demo-ready", "quick"],
+  "atomic_ordering": [
+    "scn013-a1-bad-user-agent"
+  ],
+  "objective": "default"
+}

@@ -1,0 +1,10 @@
+{
+  "adversary_id": "scn015-port-scan",
+  "name": "SCN-015 | NDR: Network Port Scan",
+  "description": "Performs a TCP port scan across 10 hosts on the local subnet, probing 45 common service ports per host. Triggers NDR network reconnaissance and port scan alerts.",
+  "tags": ["ndr", "discovery", "port-scan", "reconnaissance", "t1046", "demo-ready"],
+  "atomic_ordering": [
+    "scn015-a1-port-scan"
+  ],
+  "objective": "default"
+}

