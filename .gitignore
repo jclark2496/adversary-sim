@@ -1,6 +1,7 @@
 # Environment secrets
 .env
 .labops-mode
+.tools-mode
 docker-compose.override.yml
 nginx/html/ai-config.json
 

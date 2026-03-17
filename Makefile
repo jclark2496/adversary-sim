@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _import-workflows sandcat profiles mitre-update
+install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _import-workflows sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -55,6 +55,11 @@ install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-cal
 	@echo "  Guacamole:      http://localhost:8085/guacamole"
 	@echo "  SE Front-End:   http://localhost:8081"
 	@echo "  Kali SSH:       ssh root@localhost -p 2222"
+	@if [ -f .tools-mode ] && grep -q "tools" .tools-mode 2>/dev/null; then \
+		echo "  Manual Tools:   Use SE Console buttons for browser terminals"; \
+	else \
+		echo "  Manual Tools:   Run 'make tools' to install Kali + Atomic Red Team"; \
+	fi
 	@echo ""
 	@echo "  Next: deploy sandcat agent to victim VM:"
 	@echo "    1. On the victim VM (PowerShell as Admin), set the CALDERA server IP:"
@@ -68,22 +73,30 @@ install: _install-deps _check-docker _env _setup-ai _detect-labops _generate-cal
 .PHONY: up
 up:
 	@echo "▶ Starting Adversary Simulation stack..."
-	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+	@TOOLS_FLAG=""; \
+	if [ -f .tools-mode ] && grep -q "tools" .tools-mode 2>/dev/null; then \
+		TOOLS_FLAG="--profile tools"; \
+	fi; \
+	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
 		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
-		$(COMPOSE) up -d; \
+		$(COMPOSE) $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml up -d; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
 	fi
 	@echo "✅ Stack started — run 'make status' to check health"
 
 .PHONY: down
 down:
 	@echo "■ Stopping Adversary Simulation stack..."
-	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		$(COMPOSE) down; \
+	@TOOLS_FLAG=""; \
+	if [ -f .tools-mode ] && grep -q "tools" .tools-mode 2>/dev/null; then \
+		TOOLS_FLAG="--profile tools"; \
+	fi; \
+	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		$(COMPOSE) $$TOOLS_FLAG down; \
 	else \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml down; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG down; \
 	fi
 	@echo "✅ Stack stopped"
 
@@ -237,6 +250,18 @@ _setup-ai:
 	echo "✅ AI provider: $$label"; \
 	if [ "$$provider" = "ollama" ]; then \
 		$(MAKE) _setup-ollama; \
+	fi
+
+.PHONY: _setup-tools
+_setup-tools:
+	@echo ""
+	@read -p "  Install Manual Attack Tools — Kali + Atomic Red Team? [y/N]: " tools_choice; \
+	if [ "$$tools_choice" = "y" ] || [ "$$tools_choice" = "Y" ]; then \
+		echo "tools" > .tools-mode; \
+		echo "✅ Manual tools will be installed"; \
+	else \
+		echo "" > .tools-mode; \
+		echo "  Skipped — run 'make tools' anytime to install later"; \
 	fi
 
 .PHONY: _check-docker
@@ -413,12 +438,16 @@ _pull-caldera:
 .PHONY: _up
 _up:
 	@echo "▶ Starting containers..."
-	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+	@TOOLS_FLAG=""; \
+	if [ -f .tools-mode ] && grep -q "tools" .tools-mode 2>/dev/null; then \
+		TOOLS_FLAG="--profile tools"; \
+	fi; \
+	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
 		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
-		$(COMPOSE) up -d; \
+		$(COMPOSE) $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml up -d; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
 	fi
 
 .PHONY: _wait-healthy
@@ -502,3 +531,22 @@ clean:
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml down -v; \
 	fi
 	@echo "✅ All containers and volumes removed"
+
+# ── Manual Attack Tools ────────────────────────────────────────────────────────
+
+.PHONY: tools
+tools:
+	@echo "▶ Installing Manual Attack Tools (Kali + Atomic Red Team)..."
+	@echo "tools" > .tools-mode
+	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
+		$(COMPOSE) --profile tools up -d kali atomic; \
+	else \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml --profile tools up -d kali atomic; \
+	fi
+	@echo ""
+	@echo "✅ Manual Attack Tools installed"
+	@echo ""
+	@echo "  Kali Terminal:      ssh root@localhost -p 2222  (password: kali)"
+	@echo "  Atomic Red Team:    ssh root@localhost          (password: atomic)"
+	@echo ""
+	@echo "  Or use the Manual Tools buttons in the SE Console for browser-based terminals."

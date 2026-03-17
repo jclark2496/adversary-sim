@@ -61,6 +61,7 @@ services:
     platform: linux/arm64
     container_name: advsim-atomic
     restart: unless-stopped
+    profiles: ["tools"]
     volumes:
       - ./atomic-runner/tests:/opt/art/tests
       - ./atomic-runner/results:/opt/art/results
@@ -99,6 +100,7 @@ services:
     platform: linux/arm64
     container_name: advsim-kali
     restart: unless-stopped
+    profiles: ["tools"]
     ports:
       - "${KALI_PORT:-2222}:22"
     command: >

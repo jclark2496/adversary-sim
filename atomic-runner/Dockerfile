@@ -21,6 +21,14 @@ RUN apt-get update && apt-get install -y \
     nmap \
     && rm -rf /var/lib/apt/lists/*
 
+# SSH server for browser-based terminal access via Guacamole
+RUN apt-get update && apt-get install -y openssh-server \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /run/sshd \
+    && echo 'root:atomic' | chpasswd \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
 # Clone Atomic Red Team test definitions
 RUN git clone --depth=1 https://github.com/redcanaryco/atomic-red-team.git /opt/atomic-red-team
 
