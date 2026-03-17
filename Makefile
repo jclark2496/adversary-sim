@@ -309,12 +309,12 @@ _detect-labops:
 		echo "✅ LabOps detected — joining labops-net network"; \
 		echo "  → Skipping n8n (will import workflows into labops-n8n)"; \
 		echo "  → Skipping Guacamole (using LabOps instance)"; \
-		printf 'networks:\n  default:\n    name: labops-net\n    external: true\n' > docker-compose.override.yml; \
+		printf 'networks:\n  advsim-net:\n    external: true\n    name: labops-net\n' > docker-compose.override.yml; \
 		sed 's/N8N_PROXY_IP/172.20.0.30/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
 		echo "  → nginx /api/ proxying to labops-n8n (172.20.0.30)"; \
 	else \
-		echo "✅ Standalone mode — creating advsim-net network"; \
-		printf 'networks:\n  default:\n    name: advsim-net\n    driver: bridge\n    ipam:\n      config:\n        - subnet: 172.20.0.0/24\n' > docker-compose.override.yml; \
+		echo "✅ Standalone mode — using advsim-net network"; \
+		rm -f docker-compose.override.yml; \
 		sed 's/N8N_PROXY_IP/172.20.0.31/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
 		echo "  → nginx /api/ proxying to advsim-n8n (172.20.0.31)"; \
 	fi

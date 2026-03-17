@@ -47,5 +47,8 @@ services:
       - ./n8n/workflows:/home/node/.n8n/workflows
       - ./nginx/html:/data/scenarios
     networks:
-      default:
+      advsim-net:
         ipv4_address: 172.20.0.31
+
+networks:
+  advsim-net:
