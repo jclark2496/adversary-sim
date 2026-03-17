@@ -60,6 +60,7 @@ Result cached in `.labops-mode` (gitignored).
 ## Key Files
 ```
 docker-compose.yml              Core services (always started)
+docker-compose.n8n.yml          Standalone-only n8n service definition
 docker-compose.guacamole.yml    Guacamole stack (standalone mode only)
 Makefile                        install, up, down, sandcat, profiles, library
 nginx/html/index.html           SE Console: scenario picker + launch
