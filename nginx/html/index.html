@@ -22,8 +22,8 @@
       --accent-purple: #5A00FF;
       --accent-violet: #B529F7;
       --text-primary:  #e8f0ff;
-      --text-sec:      rgba(var(--text-rgb),0.62);
-      --text-dim:      rgba(var(--text-rgb),0.32);
+      --text-sec:      rgba(var(--text-rgb),0.75);
+      --text-dim:      rgba(var(--text-rgb),0.45);
       --border-dim:    rgba(var(--accent-cyan-rgb),0.12);
       --border-acc:    rgba(var(--accent-cyan-rgb),0.22);
       --sev-crit:      #B529F7;
@@ -45,7 +45,7 @@
       --sev-low-rgb:       106,136,155;
       --accent-purple-rgb: 90,0,255;
       /* Semantic extras */
-      --text-label:        #a8c0d6;
+      --text-label:        #c4d8ec;
       --text-accent-blue:  #8ca8ff;
       --text-accent-purple:#b09fff;
     }
@@ -109,8 +109,12 @@
     /* brand */
     .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; flex-wrap: wrap; }
     #hdr-controls {
-      position: fixed; top: 12px; right: 16px; z-index: 100;
-      display: flex; align-items: center; gap: 8px;
+      position: fixed; top: 8px; right: 16px; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(var(--bg-deep-rgb),.85);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px; border-radius: 6px;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.08);
     }
     .arch-btn {
       font-family: 'Courier New', 'SF Mono', monospace; font-size: 11px;
@@ -128,10 +132,10 @@
     .tog-icon { display: none; }
     /* wordmark */
     .logo-word {
-      font-family: 'Syne', sans-serif;
-      font-size: 16px; font-weight: 800;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Courier New', monospace;
+      font-size: 15px; font-weight: 700;
       color: var(--text-primary);
-      letter-spacing: -0.01em; white-space: nowrap;
+      letter-spacing: 0.02em; white-space: nowrap;
     }
     .logo-tag {
       font-family: 'JetBrains Mono', monospace;
@@ -331,10 +335,10 @@
     .stgt-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 8px; min-height:26px; align-items:center; }
     .stgt-chip {
       display:inline-flex; align-items:center; gap:5px;
-      padding:4px 10px; border-radius:6px;
+      padding:5px 12px; border-radius:6px;
       background:rgba(var(--accent-cyan-rgb),0.08);
       border:1px solid rgba(var(--accent-cyan-rgb),0.15);
-      color:var(--text-primary); font:500 11px/1.3 var(--fb);
+      color:var(--text-primary); font:500 12.5px/1.3 var(--fb);
       cursor:pointer; transition:all 0.15s;
     }
     .stgt-chip:hover { background:rgba(var(--accent-cyan-rgb),0.16); border-color:rgba(var(--accent-cyan-rgb),0.3); }
@@ -1004,7 +1008,7 @@
     .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
 
     /* ── SETTINGS BUTTON ─────────────────────────────────────────────── */
-    .settings-btn { font-size:18px; background:none; border:1px solid rgba(0,237,255,.1); border-radius:4px; padding:4px 8px; cursor:pointer; color:rgba(235,246,255,.32); transition:all .15s; }
+    .settings-btn { font-size:20px; background:none; border:1px solid rgba(0,237,255,.18); border-radius:4px; padding:4px 8px; cursor:pointer; color:rgba(235,246,255,.6); transition:all .15s; }
     .settings-btn:hover { border-color:rgba(0,237,255,.38); color:#00EDFF; }
 
     /* ── SETTINGS MODAL ──────────────────────────────────────────────── */
@@ -1038,7 +1042,7 @@
     .stg-labops-status .dot.green{background:#00FF41;box-shadow:0 0 6px rgba(0,255,65,.4)}
     .stg-labops-status .dot.dim{background:rgba(235,246,255,.2)}
     .stg-labops-status .dot.red{background:#FF4444;box-shadow:0 0 6px rgba(255,68,68,.4)}
-    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:rgba(var(--text-rgb),.5);cursor:pointer;background:none;border:none;font-family:var(--fb);transition:color .15s;padding:0;margin-right:6px}
+    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:rgba(var(--text-rgb),.7);cursor:pointer;background:none;border:none;font-family:var(--fb);transition:color .15s;padding:0;margin-right:6px}
     .labmgr-link:hover{color:#00EDFF}
     .labmgr-link .lm-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(235,246,255,.2)}
     .labmgr-link .lm-dot.green{background:#00FF41;box-shadow:0 0 4px rgba(0,255,65,.4)}
@@ -1051,8 +1055,8 @@
     .main-nav { display:flex; align-items:center; gap:2px; margin-left:16px; }
     .nav-tab {
       padding:6px 14px; border-radius:5px; border:none;
-      background:transparent; color:var(--text-sec);
-      font:500 12px/1.3 var(--fb); cursor:pointer;
+      background:transparent; color:var(--text-label);
+      font:500 13px/1.3 var(--fb); cursor:pointer;
       letter-spacing:.04em; transition:all .15s;
     }
     .nav-tab:hover { color:var(--text-primary); background:rgba(var(--accent-cyan-rgb),.06); }
@@ -1081,7 +1085,7 @@
     .sgroup-hdr:hover { background:rgba(var(--accent-cyan-rgb),.05); }
     .sgroup-arrow { font-size:10px; color:var(--text-sec); transition:transform .2s; width:12px; }
     .sgroup-arrow.expanded { transform:rotate(90deg); }
-    .sgroup-label { font:600 11px/1.3 var(--ft); letter-spacing:.18em; text-transform:uppercase; }
+    .sgroup-label { font:600 12px/1.3 var(--ft); letter-spacing:.18em; text-transform:uppercase; }
     .sgroup-count {
       font:400 10px/1.3 var(--fb); color:var(--text-sec);
       background:rgba(var(--text-rgb),.06); padding:1px 7px; border-radius:10px;
@@ -1108,8 +1112,8 @@
     }
     .srow-fav.on { color:#ffd700; }
     .srow-fav:hover { color:#ffd700; }
-    .srow-id { font:500 10px/1.3 var(--fb); color:var(--text-sec); min-width:52px; flex-shrink:0; }
-    .srow-title { font:400 12px/1.4 var(--fb); color:var(--text-primary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .srow-id { font:500 11px/1.3 var(--fb); color:var(--text-sec); min-width:56px; flex-shrink:0; }
+    .srow-title { font:400 13.5px/1.4 var(--fb); color:var(--text-primary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .srow.prod-endpoint { border-left-color:rgba(33,150,243,.3); }
     .srow.prod-ndr { border-left-color:rgba(76,175,80,.3); }
     .srow.prod-firewall { border-left-color:rgba(255,152,0,.3); }
@@ -1148,6 +1152,7 @@
       <!-- Brand + Nav -->
       <div class="brand">
         <span class="logo-word">Sophos Adversary</span>
+        <span class="logo-tag">simulation_platform</span>
         <nav class="main-nav">
           <button class="nav-tab active" data-view="scenarios" onclick="switchView('scenarios')">Scenarios</button>
           <button class="nav-tab" data-view="submit" onclick="switchView('submit')">Submit Case</button>
