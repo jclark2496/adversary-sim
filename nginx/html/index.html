@@ -297,10 +297,9 @@
       border-top: 1px solid var(--border-dim);
       background: rgba(var(--bg-panel-rgb),.97);
     }
-    .fpg { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:8px; }
-    .ff  { grid-column:1/-1; }
+    .fpg { display:flex; flex-direction:column; gap:7px; margin-bottom:8px; }
     /* Saved targets */
-    .stgt-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:0 0 10px; min-height:0; }
+    .stgt-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 8px; min-height:26px; align-items:center; }
     .stgt-chip {
       display:inline-flex; align-items:center; gap:5px;
       padding:4px 10px; border-radius:6px;
@@ -2022,10 +2021,9 @@
     const list = getSavedTargets();
     const el = $('saved-targets');
     if (!el) return;
-    if (list.length === 0 && !S.tgt.trim()) { el.innerHTML = ''; return; }
     let h = '';
     list.forEach(t => {
-      const lbl = t.label ? `<span class="stgt-lbl">${t.label}</span>` : '';
+      const lbl = t.label ? ` <span class="stgt-lbl">${t.label}</span>` : '';
       h += `<div class="stgt-chip" onclick="selectSavedTarget(${JSON.stringify(t).replace(/"/g,'&quot;')})">
         ${t.ip}${lbl}<span class="stgt-x" onclick="event.stopPropagation();removeSavedTarget('${t.ip}')" title="Remove">&#x2715;</span>
       </div>`;
