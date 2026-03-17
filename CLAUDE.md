@@ -38,10 +38,9 @@ This is a **production SE enablement platform** for running live attack simulati
 |    ARM64, v5.1.0 from private GHCR                          |
 |    C2 for sandcat agents on victim VMs                      |
 |                                                             |
-|  advsim-n8n        172.20.0.31  :5679->5678  (standalone)    |
+|  advsim-n8n        172.20.0.31  :5679->5678                  |
 |    Scenario case ingest + AI enrichment + config/settings   |
-|    In labops mode: skipped; workflows imported into         |
-|    labops-n8n at 172.20.0.30 instead                        |
+|    Always runs (both standalone and LabOps modes)           |
 |                                                             |
 |  advsim-kali       172.20.0.70  :2222->22                   |
 |  advsim-atomic     172.20.0.40  (arm64, idle)               |
@@ -67,7 +66,7 @@ This is a **production SE enablement platform** for running live attack simulati
 | Container | Image | IP | External Port | Notes |
 |---|---|---|---|---|
 | advsim-caldera | caldera:local (GHCR ARM64 v5.1.0) | 172.20.0.10 | 8888 | red/admin, admin/admin |
-| advsim-n8n | n8nio/n8n:latest (arm64) | 172.20.0.31 | 5679->5678 | Standalone only. In labops mode, uses labops-n8n at 172.20.0.30 |
+| advsim-n8n | n8nio/n8n:latest (arm64) | 172.20.0.31 | 5679->5678 | Always runs. Handles AI scenario workflows. |
 | advsim-nginx | nginx:alpine (arm64) | 172.20.0.51 | 8081->80 | -- |
 | advsim-atomic | custom build (arm64) | 172.20.0.40 | none | Idle (tail -f /dev/null) |
 | advsim-kali | kalilinux/kali-rolling (arm64) | 172.20.0.70 | 2222 | root/kali |
@@ -749,10 +748,9 @@ When the `labops-net` Docker network does not exist, the Makefile creates `advsi
 
 When the `labops-net` Docker network already exists (created by the LabOps platform), the Makefile:
 1. Writes `docker-compose.override.yml` to join `labops-net` as an external network
-2. Does NOT include `docker-compose.n8n.yml` -- n8n is provided by LabOps at `172.20.0.30`; adversary-sim workflows are imported into `labops-n8n` via `docker exec labops-n8n n8n import:workflow`
+2. Includes `docker-compose.n8n.yml` -- adversary-sim always runs its own n8n (`advsim-n8n`) for AI scenario workflows. LabOps no longer provides n8n (it uses a lightweight API server instead).
 3. Does NOT include `docker-compose.guacamole.yml` -- Guacamole is provided by LabOps
-4. Generates `nginx/conf/default.conf` from the template (`default.conf.tpl`), setting the `/api/` proxy target to `172.20.0.30` (labops-n8n) instead of `172.20.0.31` (advsim-n8n)
-5. All services share the same `172.20.0.0/24` subnet, so nginx proxy routes to Guacamole at `172.20.0.81` work regardless of which stack deployed it
+4. All services share the same `172.20.0.0/24` subnet, so nginx proxy routes to Guacamole at `172.20.0.81` work regardless of which stack deployed it
 
 The detection result is cached in `.labops-mode` (gitignored). To force re-detection, delete this file and run `make install` or manually run `scripts/detect-labops.sh > .labops-mode`.
 

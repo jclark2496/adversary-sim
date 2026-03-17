@@ -78,19 +78,15 @@ up:
 		TOOLS_FLAG="--profile tools"; \
 	fi; \
 	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
-		$(COMPOSE) $$TOOLS_FLAG up -d; \
+		echo "  (LabOps mode — using LabOps Guacamole, own n8n)"; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
 	fi
 	@echo "✅ Stack started"
 	@# Auto-import n8n workflows if missing (handles restarts / fresh volumes)
-	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		N8N_CTR=labops-n8n; \
-	else \
-		N8N_CTR=advsim-n8n; \
-	fi; \
+	@N8N_CTR=advsim-n8n; \
 	echo "▶ Checking n8n workflows ($$N8N_CTR)..."; \
 	for i in $$(seq 1 12); do \
 		if docker exec $$N8N_CTR ls /home/node/.n8n/database.sqlite > /dev/null 2>&1; then \
@@ -120,7 +116,7 @@ down:
 		TOOLS_FLAG="--profile tools"; \
 	fi; \
 	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		$(COMPOSE) $$TOOLS_FLAG down; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml $$TOOLS_FLAG down; \
 	else \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG down; \
 	fi
@@ -380,11 +376,11 @@ _detect-labops:
 	@MODE=$$(cat .labops-mode); \
 	if [ "$$MODE" = "labops" ]; then \
 		echo "✅ LabOps detected — joining labops-net network"; \
-		echo "  → Skipping n8n (will import workflows into labops-n8n)"; \
+		echo "  → Using own n8n (advsim-n8n) for scenario workflows"; \
 		echo "  → Skipping Guacamole (using LabOps instance)"; \
 		printf 'networks:\n  advsim-net:\n    external: true\n    name: labops-net\n' > docker-compose.override.yml; \
-		sed 's/N8N_PROXY_IP/172.20.0.30/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
-		echo "  → nginx /api/ proxying to labops-n8n (172.20.0.30)"; \
+		sed 's/N8N_PROXY_IP/172.20.0.31/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
+		echo "  → nginx /api/ proxying to advsim-n8n (172.20.0.31)"; \
 	else \
 		echo "✅ Standalone mode — using advsim-net network"; \
 		rm -f docker-compose.override.yml; \
@@ -469,8 +465,8 @@ _up:
 		TOOLS_FLAG="--profile tools"; \
 	fi; \
 	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		echo "  (LabOps mode — n8n + Guacamole provided by LabOps)"; \
-		$(COMPOSE) $$TOOLS_FLAG up -d; \
+		echo "  (LabOps mode — using LabOps Guacamole, own n8n)"; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
@@ -494,56 +490,31 @@ _wait-healthy:
 
 .PHONY: _import-workflows
 _import-workflows:
-	@echo "▶ Importing n8n workflows..."
-	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		echo "  (LabOps mode — importing into labops-n8n)"; \
-		N8N_CTR=labops-n8n; \
-		echo "  Waiting for labops-n8n to be ready..."; \
-		for i in $$(seq 1 24); do \
-			if docker exec $$N8N_CTR n8n --version > /dev/null 2>&1; then \
-				break; \
-			fi; \
-			if [ $$i -eq 24 ]; then \
-				echo "⚠️  labops-n8n not reachable — skipping workflow import"; \
-				exit 0; \
-			fi; \
-			sleep 5; \
-		done; \
-		for f in n8n/workflows/*.json; do \
-			WF_NAME=$$(basename "$$f" .json); \
-			echo "  Importing $$WF_NAME into $$N8N_CTR..."; \
-			docker exec -i $$N8N_CTR n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null && \
-				echo "    ✅ $$WF_NAME imported" || \
-				echo "    ⚠️  $$WF_NAME import failed"; \
-		done; \
-		echo "✅ Workflow import complete (labops-n8n)"; \
-	else \
-		echo "  (Standalone mode — importing into advsim-n8n)"; \
-		echo "  Waiting for advsim-n8n to be ready..."; \
-		for i in $$(seq 1 24); do \
-			if docker exec advsim-n8n ls /home/node/.n8n/database.sqlite > /dev/null 2>&1; then \
-				break; \
-			fi; \
-			if [ $$i -eq 24 ]; then \
-				echo "⚠️  n8n API not reachable — skipping workflow import"; \
-				exit 0; \
-			fi; \
-			sleep 5; \
-		done; \
-		for f in n8n/workflows/*.json; do \
-			WF_NAME=$$(basename "$$f" .json); \
-			echo "  Importing $$WF_NAME..."; \
-			docker exec -i advsim-n8n n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null && \
-				echo "    ✅ $$WF_NAME imported" || \
-				echo "    ⚠️  $$WF_NAME import failed"; \
-		done; \
-		echo "▶ Activating workflows..."; \
-		docker exec advsim-n8n n8n list:workflow 2>/dev/null | while IFS='|' read wid wname; do \
-			docker exec advsim-n8n n8n publish:workflow --id="$$wid" > /dev/null 2>&1; \
-		done; \
-		docker compose -f docker-compose.yml -f docker-compose.n8n.yml restart n8n > /dev/null 2>&1; \
-		echo "✅ Workflow import complete"; \
-	fi
+	@echo "▶ Importing n8n workflows into advsim-n8n..."
+	@echo "  Waiting for advsim-n8n to be ready..."
+	@for i in $$(seq 1 24); do \
+		if docker exec advsim-n8n ls /home/node/.n8n/database.sqlite > /dev/null 2>&1; then \
+			break; \
+		fi; \
+		if [ $$i -eq 24 ]; then \
+			echo "⚠️  n8n not reachable — skipping workflow import"; \
+			exit 0; \
+		fi; \
+		sleep 5; \
+	done
+	@for f in n8n/workflows/*.json; do \
+		WF_NAME=$$(basename "$$f" .json); \
+		echo "  Importing $$WF_NAME..."; \
+		docker exec -i advsim-n8n n8n import:workflow --input=/dev/stdin < "$$f" 2>/dev/null && \
+			echo "    ✅ $$WF_NAME imported" || \
+			echo "    ⚠️  $$WF_NAME import failed"; \
+	done
+	@echo "▶ Activating workflows..."
+	@docker exec advsim-n8n n8n list:workflow 2>/dev/null | while IFS='|' read wid wname; do \
+		docker exec advsim-n8n n8n publish:workflow --id="$$wid" > /dev/null 2>&1; \
+	done
+	@docker compose -f docker-compose.yml -f docker-compose.n8n.yml restart n8n > /dev/null 2>&1
+	@echo "✅ Workflow import complete"
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
@@ -552,7 +523,7 @@ clean:
 	@echo "⚠️  This will stop all containers and delete all volumes."
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 0
 	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		$(COMPOSE) down -v; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml down -v; \
 	else \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml down -v; \
 	fi
