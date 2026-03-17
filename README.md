@@ -298,23 +298,15 @@ This is a one-time setup. After creating the account, n8n will go straight to th
 
 ## n8n Workflows
 
-Four automation workflows are included in `n8n/workflows/`:
+Five automation workflows power the platform. They are auto-imported during `make install`:
 
-| Workflow | File | Purpose |
-|----------|------|---------|
-| **Scenario Enrichment** | `export_enrichment.json` | Uses the configured AI provider to generate enriched intelligence reports for each scenario |
-| **Config API** | `config_api.json` | Exposes scenario configuration as a REST API for the SE Console |
-| **Case Ingest** | `case_ingest.json` | Ingests detection events and creates structured case data |
-| **Scenario Approve** | `scenario_approve.json` | Approval workflow for new or modified scenarios |
-| **Settings API** | `settings_api.json` | GET/POST AI provider settings (reads/writes `ai-config.json`) |
-
-### Importing Workflows
-
-Workflows are auto-mounted into n8n via Docker volume. To import manually:
-
-1. Open n8n at `http://localhost:5679`
-2. Go to **Workflows** > **Import from File**
-3. Select the JSON files from `n8n/workflows/`
+| Workflow | What it does |
+|----------|-------------|
+| **Case Ingest** (`case_ingest.json`) | SE submits a plain-language MDR case via "Submit MDR Case" in the SE Console. n8n sends it to the configured AI provider (Anthropic/OpenAI/Gemini/Ollama), which generates a structured attack scenario with MITRE ATT&CK techniques, expected detections, industry talking points, and an SE runbook. The new scenario appears in the catalog. |
+| **Scenario Enrichment** (`export_enrichment.json`) | SE clicks "Enrich with AI" on an existing scenario. The AI provider adds industry-specific talking points, enhanced descriptions, and detection context. |
+| **Scenario Approve** (`scenario_approve.json`) | Admin reviews AI-generated scenarios in the Admin Console (`admin.html`) and approves or rejects them. Approved scenarios are published to the catalog. |
+| **Config API** (`config_api.json`) | Returns Guacamole credentials and victim VM credentials to the front-end so secrets aren't hardcoded in HTML. |
+| **Settings API** (`settings_api.json`) | Powers the Settings modal (gear icon in header). Reads/writes `ai-config.json` with AI provider, API key, model, and Lab Manager URL. |
 
 ---
 
