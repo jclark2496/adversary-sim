@@ -280,6 +280,22 @@ Switch to the Sophos Central console to demonstrate:
 
 ---
 
+## n8n First Login
+
+On first launch after `make install`, n8n requires a one-time owner account setup:
+
+1. Open n8n at `http://localhost:5679`
+2. Create an owner account:
+   - **Email:** any email (e.g., `admin@lab.local`)
+   - **Password:** `SEdemo2026` (recommended — matches other service defaults)
+   - **First/Last name:** anything
+3. Workflows are auto-imported and activated during `make install` — you should see them in the workflow list
+
+> **With LabOps:** If LabOps is running, adversary-sim shares LabOps' n8n instance (port 5678).
+> Your attack sim workflows are automatically imported into it — no separate n8n account needed.
+
+This is a one-time setup. After creating the account, n8n will go straight to the dashboard on future visits.
+
 ## n8n Workflows
 
 Four automation workflows are included in `n8n/workflows/`:
