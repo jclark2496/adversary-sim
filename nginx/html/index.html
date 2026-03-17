@@ -551,7 +551,7 @@
       flex-shrink:0; padding:10px 28px;
       border-top:1px solid var(--border-dim);
       background:rgba(var(--bg-panel-rgb),.5);
-      display:flex; justify-content:flex-end; align-items:center; gap:12px;
+      display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:12px;
     }
     .rfhi { font-size:11px; color:rgba(var(--text-rgb),0.65); }
     #tpb {
@@ -1046,6 +1046,97 @@
     .stg-cancel,.stg-save{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:8px 16px;border-radius:4px;cursor:pointer}
     .stg-cancel{background:transparent;border:1px solid rgba(235,246,255,.15);color:rgba(235,246,255,.5)}
     .stg-save{background:rgba(0,237,255,.12);border:1px solid rgba(0,237,255,.38);color:#00EDFF}
+
+    /* ── Redesigned Layout ─────────────────────────────── */
+    .main-nav { display:flex; align-items:center; gap:2px; margin-left:16px; }
+    .nav-tab {
+      padding:6px 14px; border-radius:5px; border:none;
+      background:transparent; color:var(--text-sec);
+      font:500 12px/1.3 var(--fb); cursor:pointer;
+      letter-spacing:.04em; transition:all .15s;
+    }
+    .nav-tab:hover { color:var(--text-primary); background:rgba(var(--accent-cyan-rgb),.06); }
+    .nav-tab.active { color:var(--accent-cyan); background:rgba(var(--accent-cyan-rgb),.1); }
+    .nav-dropdown { position:relative; }
+    .nav-dropdown .dropdown-items {
+      display:none; position:absolute; top:100%; left:0; margin-top:4px;
+      background:var(--bg-card); border:1px solid var(--border-acc);
+      border-radius:6px; padding:4px; min-width:180px; z-index:200;
+      box-shadow:0 8px 24px rgba(0,0,0,.4);
+    }
+    .nav-dropdown.open .dropdown-items { display:block; }
+    .dropdown-item {
+      display:block; width:100%; padding:8px 12px; border:none; border-radius:4px;
+      background:transparent; color:var(--text-primary); font:400 12px/1.4 var(--fb);
+      cursor:pointer; text-align:left; transition:background .12s;
+    }
+    .dropdown-item:hover { background:rgba(var(--accent-cyan-rgb),.1); }
+
+    /* Grouped scenario list */
+    .sgroup-hdr {
+      display:flex; align-items:center; gap:8px; padding:8px 12px;
+      cursor:pointer; user-select:none; border-radius:5px;
+      transition:background .12s; margin-top:4px;
+    }
+    .sgroup-hdr:hover { background:rgba(var(--accent-cyan-rgb),.05); }
+    .sgroup-arrow { font-size:10px; color:var(--text-sec); transition:transform .2s; width:12px; }
+    .sgroup-arrow.expanded { transform:rotate(90deg); }
+    .sgroup-label { font:600 11px/1.3 var(--ft); letter-spacing:.18em; text-transform:uppercase; }
+    .sgroup-count {
+      font:400 10px/1.3 var(--fb); color:var(--text-sec);
+      background:rgba(var(--text-rgb),.06); padding:1px 7px; border-radius:10px;
+    }
+    .sgroup-body { overflow:hidden; transition:max-height .25s ease; }
+    .sgroup-body.collapsed { max-height:0 !important; }
+
+    .sgroup-label.prod-endpoint { color:#64b5f6; }
+    .sgroup-label.prod-ndr { color:#81c784; }
+    .sgroup-label.prod-firewall { color:#ffb74d; }
+
+    /* Compact scenario rows */
+    .srow {
+      display:flex; align-items:center; gap:8px; padding:7px 12px 7px 14px;
+      cursor:pointer; border-radius:5px; transition:all .12s;
+      border-left:3px solid transparent; margin:1px 0;
+    }
+    .srow:hover { background:rgba(var(--accent-cyan-rgb),.05); }
+    .srow.sel { background:rgba(var(--accent-cyan-rgb),.08); border-left-color:var(--accent-cyan); }
+    .srow-fav {
+      width:16px; height:16px; border:none; background:transparent;
+      color:var(--text-dim); font-size:12px; cursor:pointer; padding:0;
+      flex-shrink:0; transition:color .12s;
+    }
+    .srow-fav.on { color:#ffd700; }
+    .srow-fav:hover { color:#ffd700; }
+    .srow-id { font:500 10px/1.3 var(--fb); color:var(--text-sec); min-width:52px; flex-shrink:0; }
+    .srow-title { font:400 12px/1.4 var(--fb); color:var(--text-primary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .srow.prod-endpoint { border-left-color:rgba(33,150,243,.3); }
+    .srow.prod-ndr { border-left-color:rgba(76,175,80,.3); }
+    .srow.prod-firewall { border-left-color:rgba(255,152,0,.3); }
+    .srow.sel.prod-endpoint { border-left-color:#2196F3; }
+    .srow.sel.prod-ndr { border-left-color:#4CAF50; }
+    .srow.sel.prod-firewall { border-left-color:#FF9800; }
+
+    /* Favorites section */
+    .fav-section { margin-bottom:4px; }
+    .fav-hdr {
+      display:flex; align-items:center; gap:6px; padding:6px 12px;
+      font:600 11px/1.3 var(--ft); letter-spacing:.14em; text-transform:uppercase;
+      color:#ffd700;
+    }
+    .fav-divider { height:1px; background:var(--border-dim); margin:4px 12px 8px; }
+
+    /* Launch bar in right panel */
+    .launch-bar {
+      display:flex; align-items:center; gap:10px; padding:10px 0;
+      flex-wrap:wrap;
+    }
+    .launch-bar .tgt-input {
+      flex:1; min-width:160px; display:flex; gap:6px; align-items:center;
+    }
+    .launch-bar .tgt-input input { flex:1; }
+    .launch-bar #lbtn { flex-shrink:0; width:auto; padding:9px 24px; }
+    .launch-bar .stgt-wrap { width:100%; padding:4px 0 0; }
   </style>
 </head>
 <body>
@@ -1054,15 +1145,26 @@
   <!-- =================== LEFT PANEL =================== -->
   <aside id="lp">
     <div class="ph">
-      <!-- Brand -->
+      <!-- Brand + Nav -->
       <div class="brand">
         <span class="logo-word">Sophos Adversary</span>
-        <span class="logo-tag">simulation_platform</span>
+        <nav class="main-nav">
+          <button class="nav-tab active" data-view="scenarios" onclick="switchView('scenarios')">Scenarios</button>
+          <button class="nav-tab" data-view="submit" onclick="switchView('submit')">Submit Case</button>
+          <div class="nav-dropdown" id="tools-dropdown">
+            <button class="nav-tab" onclick="toggleToolsDropdown()">Tools ▾</button>
+            <div class="dropdown-items">
+              <button class="dropdown-item" onclick="openSSH('kali')">Kali Terminal</button>
+              <button class="dropdown-item" onclick="openSSH('atomic')">Atomic Red Team</button>
+              <button class="dropdown-item" onclick="openEnrichCard()">Enrich with AI</button>
+            </div>
+          </div>
+        </nav>
         <div id="hdr-controls">
           <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
-          <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
+          <button class="settings-btn" onclick="openSettings()" title="Settings">&#x2699;</button>
           <div class="nav-wrap" id="nav-wrap">
-            <button class="arch-btn" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+            <button class="arch-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
             <div class="nav-dd" id="nav-dd">
               <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
               <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
@@ -1080,34 +1182,15 @@
           <path d="M10.5 10.5L14 14" stroke-linecap="round"/>
         </svg>
         <input id="qi" type="text" autocomplete="off"
-               placeholder="Search scenarios…">
-      </div>
-
-      <!-- Filters -->
-      <div class="fgrid">
-        <div class="frow">
-          <div class="flbl">Product</div>
-          <div class="chips" id="prodchips"></div>
-        </div>
-        <div class="frow">
-          <div class="flbl">Tactic</div>
-          <div class="chips" id="tachips"></div>
-        </div>
-      </div>
-      <div class="scrow">
-        <div id="sccount" class="sccount"></div>
+               placeholder="Search scenarios...">
       </div>
     </div>
 
     <!-- Scenario list -->
     <div id="sl"></div>
 
-    <!-- Action bar + Inline Enrich card -->
-    <div id="action-section">
-      <div class="act-bar">
-        <button class="act-btn act-enrich" id="enrich-toggle">⊕ Enrich with AI</button>
-        <button class="act-btn act-case" id="submitcasebtn">+ Submit MDR Case</button>
-      </div>
+    <!-- Enrich card (hidden, toggled from Tools dropdown) -->
+    <div id="action-section" style="display:none">
       <div id="enrich-card">
         <div class="enrich-card-inner">
           <div class="enc-field">
@@ -1117,7 +1200,7 @@
           <div class="enc-field">
             <div class="enc-lbl">Description</div>
             <textarea id="enc-desc" class="ctrl enc-ta" rows="3"
-                      placeholder="Describe the attack scenario…"></textarea>
+                      placeholder="Describe the attack scenario..."></textarea>
           </div>
           <div class="enc-field">
             <div class="enc-lbl">MITRE Tactics</div>
@@ -1126,63 +1209,15 @@
           <div class="enc-field">
             <div class="enc-lbl">Additional Context <span class="enc-opt">optional</span></div>
             <textarea id="enc-ctx" class="ctrl enc-ta" rows="2"
-                      placeholder="Any additional context for the AI…"></textarea>
+                      placeholder="Any additional context for the AI..."></textarea>
           </div>
           <div class="enc-err" id="enc-err"></div>
           <div class="enc-actions">
             <button class="enc-cancel-btn" id="enc-cancel">Cancel</button>
-            <button class="enc-gen-btn" id="enc-generate">✨ Generate Scenario</button>
+            <button class="enc-gen-btn" id="enc-generate">Generate Scenario</button>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Manual Tools -->
-    <div class="tools-section">
-      <div class="tools-hd">Manual Tools</div>
-      <div class="tools-btns">
-        <button class="tool-btn" onclick="openSSH('kali')">🖥 Kali Terminal</button>
-        <button class="tool-btn" onclick="openSSH('atomic')">⚛ Atomic Red Team</button>
-      </div>
-      <div class="tools-note">Not installed? Run <code>make tools</code></div>
-    </div>
-
-    <!-- Footer controls -->
-    <div class="pf">
-      <div class="fpg">
-        <div class="ig ff">
-          <div class="ilbl">Target</div>
-          <div class="tgtwrap">
-            <input id="tgt" type="text" class="ctrl" placeholder="IP address or hostname">
-            <button class="pngbtn" id="pngb" title="Check host reachability">
-              <div class="pngdot" id="pngdot"></div>Check
-            </button>
-          </div>
-        </div>
-        <div id="saved-targets" class="stgt-wrap"></div>
-        <div class="ig fpg-row">
-          <div class="ig" style="flex:1">
-            <div class="ilbl">Platform</div>
-            <select id="plt" class="ctrl">
-              <option value="windows">Windows</option>
-              <option value="linux">Linux</option>
-            </select>
-          </div>
-          <div class="ig" style="flex:1">
-            <div class="ilbl">Detects On</div>
-            <div id="detects-on" class="det-badge">—</div>
-          </div>
-        </div>
-      </div>
-      <button id="lbtn" disabled>
-        <div class="bsp"></div>
-        <span class="btx">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
-            <polygon points="3,2 13,7 3,12"/>
-          </svg>
-          Launch Simulation
-        </span>
-      </button>
     </div>
   </aside>
 
@@ -1245,7 +1280,25 @@
 
     </div><!-- /rs -->
 
-    <div class="rf">
+    <div class="rf" id="rf">
+      <div class="launch-bar" id="launch-bar" style="display:none">
+        <div class="tgt-input">
+          <input id="tgt" type="text" class="ctrl" placeholder="Target IP or hostname">
+          <button class="pngbtn" id="pngb" title="Check host">
+            <div class="pngdot" id="pngdot"></div>Check
+          </button>
+        </div>
+        <button id="lbtn" disabled>
+          <div class="bsp"></div>
+          <span class="btx">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
+              <polygon points="3,2 13,7 3,12"/>
+            </svg>
+            Launch
+          </span>
+        </button>
+        <div id="saved-targets" class="stgt-wrap"></div>
+      </div>
       <button id="tpb" disabled>
         <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
              stroke="currentColor" stroke-width="1.5">
@@ -1445,7 +1498,7 @@
     xs: 'idle',   // idle|running|complete|error
     xr: null, xe: null,
     drawer: false, enriching: false, enrichCard: false,
-    fl: { ta: new Set(), prod: new Set() },
+    groups: { endpoint: true, ndr: false, firewall: false, other: false },
     q: '', ind: 'universal', plt: 'windows', tgt: ''
   };
 
@@ -1522,8 +1575,7 @@
         return false; // pending/expired not shown in SE console
       });
       S.filt = [...S.all];
-      buildChips();
-      renderList();
+      filt();
       renderSavedTargets();
     } catch (e) {
       $('sl').innerHTML = `<div class="lempty"><strong>Load Failed</strong>
@@ -1650,48 +1702,40 @@
   }
 
   /* =====================================================
-     FILTER CHIPS
+     FAVORITES
   ===================================================== */
-  function buildChips() {
-    // Product chips
-    const prods = [...new Set(S.all.map(s => s.product).filter(Boolean))].sort();
-    $('prodchips').innerHTML = prods.map(p => {
-      const label = p.charAt(0).toUpperCase() + p.slice(1);
-      return `<button class="chip${S.fl.prod.has(p)?' on':''}" data-prod="${x(p)}">${x(label)}</button>`;
-    }).join('');
-    qa('#prodchips .chip').forEach(c =>
-      c.addEventListener('click', () => tog('prod', c.dataset.prod, '#prodchips', 'data-prod')));
-
-    // Tactic chips
-    const ta = [...new Set(S.all.flatMap(s => s.mitre_tactics||[]))].sort();
-    $('tachips').innerHTML = ta.map(t =>
-      `<button class="chip${S.fl.ta.has(t)?' on':''}" data-ta="${x(t)}">${x(t)}</button>`).join('');
-    qa('#tachips .chip').forEach(c =>
-      c.addEventListener('click', () => tog('ta', c.dataset.ta, '#tachips', 'data-ta')));
+  function getFavs() { try { return JSON.parse(localStorage.getItem('favScenarios')||'[]'); } catch { return []; } }
+  function setFavs(f) { localStorage.setItem('favScenarios', JSON.stringify(f)); }
+  function toggleFav(e, id) {
+    e.stopPropagation();
+    let f = getFavs();
+    if (f.includes(id)) f = f.filter(x => x !== id);
+    else f.push(id);
+    setFavs(f);
+    renderList();
   }
 
-  function tog(key, val, sel, attr) {
-    const s = S.fl[key];
-    if (s.has(val)) s.delete(val); else s.add(val);
-    qa(sel + ' .chip').forEach(c => c.classList.remove('on'));
-    s.forEach(v => qs(`${sel} .chip[${attr}="${v}"]`)?.classList.add('on'));
-    filt();
-  }
-
+  /* =====================================================
+     FILTER
+  ===================================================== */
   function filt() {
-    let f = [...S.all];
-    if (S.q) {
+    let f = S.all.filter(s => s.status === 'approved' || s.source === 'hand-authored' || s.status === 'ephemeral' || !s.status);
+    if (S.q.trim()) {
       const q = S.q.toLowerCase();
       f = f.filter(s =>
         (s.title||'').toLowerCase().includes(q) ||
         (s.description||'').toLowerCase().includes(q) ||
+        (s.id||'').toLowerCase().includes(q) ||
         (s.mitre_tactics||[]).some(t => t.toLowerCase().includes(q)) ||
         (s.tools||[]).some(t => t.toLowerCase().includes(q))
       );
     }
-    if (S.fl.prod.size) f = f.filter(s => S.fl.prod.has(s.product));
-    if (S.fl.ta.size) f = f.filter(s => (s.mitre_tactics||[]).some(t => S.fl.ta.has(t)));
     S.filt = f;
+    renderList();
+  }
+
+  function toggleGroup(key) {
+    S.groups[key] = !S.groups[key];
     renderList();
   }
 
@@ -1709,49 +1753,81 @@
       </div>`).join('');
   }
 
+  function renderRow(s, favIds) {
+    const sel = S.sel && S.sel.id === s.id;
+    const isFav = favIds.includes(s.id);
+    const prod = s.product || '';
+    return `<div class="srow ${sel?'sel':''} prod-${x(prod)}" data-id="${x(s.id)}" onclick="pick('${x(s.id)}')">
+      <button class="srow-fav ${isFav?'on':''}" onclick="toggleFav(event,'${x(s.id)}')" title="${isFav?'Remove from favorites':'Add to favorites'}">&#9733;</button>
+      <span class="srow-id">${x(s.id)}</span>
+      <span class="srow-title">${x(s.title||'Untitled')}</span>
+    </div>`;
+  }
+
   function renderList() {
-    const countEl = $('sccount');
-    if (countEl && S.all.length) {
-      countEl.textContent = S.filt.length === S.all.length
-        ? `${S.all.length} scenario${S.all.length !== 1 ? 's' : ''}`
-        : `Showing ${S.filt.length} of ${S.all.length} scenarios`;
-    }
+    const el = $('sl');
+    if (!el) return;
+    const list = S.filt;
+    const favIds = getFavs();
+    const isSearch = S.q.trim().length > 0;
+
     const ec = S.enriching
-      ? `<div class="encard"><div class="ensp"></div><div class="enlbl">Enriching via AI…</div></div>`
+      ? `<div class="encard"><div class="ensp"></div><div class="enlbl">Enriching via AI...</div></div>`
       : '';
-    if (!S.filt.length && !S.enriching) {
-      $('sl').innerHTML = ec + `
-        <div class="lempty">
-          <strong>No Matches</strong>
-          ${S.q ? `Nothing found for "<em>${x(S.q)}</em>"` : 'No scenarios match these filters'}
-        </div>`;
+
+    if (list.length === 0 && !S.enriching) {
+      el.innerHTML = ec + `<div style="padding:30px 16px;text-align:center;color:var(--text-sec)">No scenarios match your search</div>`;
       return;
     }
-    $('sl').innerHTML = ec + S.filt.map((s, i) => {
-      const sel = S.sel && S.sel.id === s.id;
-      const ai  = s.source === 'ollama-enriched' || s.source === 'ai-enriched' || s.source === 'se-enrichment';
-      const eph = s.status === 'ephemeral';
-      const ta  = (s.mitre_tactics||[]).slice(0, 2);
-      const au  = s.audience || 'Technical';
-      const ac  = au === 'Executive' ? 'dexec' : 'dm';
-      const eng = s.execution_engine || 'atomic';
-      const prodColor = {'endpoint':'#2196F3','ndr':'#4CAF50','firewall':'#FF9800'}[s.product] || '#999';
-      const prodLabel = s.product ? s.product.charAt(0).toUpperCase() + s.product.slice(1) : '';
-      return `
-        <div class="scard${sel?' sel':''}" data-id="${x(s.id)}"
-             style="animation-delay:${i*26}ms" onclick="pick('${x(s.id)}')">
-          <div class="cbadges">
-            ${ta.map(t=>`<span class="tbadge">${x(t)}</span>`).join('')}
-            <span class="dpill ${ac}">${x(au)}</span>
-            ${prodLabel?`<span style="font-family:var(--ft);font-weight:600;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:${prodColor}22;color:${prodColor};border:1px solid ${prodColor}55">${x(prodLabel)}</span>`:''}
-            ${ai?`<span class="aitag">AI</span>`:''}
-            ${eph?`<span class="aitag" style="background:rgba(var(--accent-cyan-rgb),.1);color:var(--accent-cyan);border-color:rgba(var(--accent-cyan-rgb),.3)">Session</span>`:''}
-            <span class="etag">${x(eng)}</span>
-          </div>
-          <div class="ctitle">${x(s.title||'Untitled')}</div>
-          ${eph?`<button class="pcard-approve" style="margin-top:5px;font-size:9px;padding:3px 8px" onclick="submitForReview('${x(s.id)}',event)">⊕ Submit for Review</button>`:''}
-        </div>`;
-    }).join('');
+
+    let h = ec;
+
+    // Favorites section
+    const favScenarios = list.filter(s => favIds.includes(s.id));
+    if (favScenarios.length > 0) {
+      h += `<div class="fav-section">`;
+      h += `<div class="fav-hdr">&#9733; My Scenarios</div>`;
+      favScenarios.forEach(s => { h += renderRow(s, favIds); });
+      h += `</div><div class="fav-divider"></div>`;
+    }
+
+    // Product groups
+    const groups = [
+      { key: 'endpoint', label: 'Endpoint', items: list.filter(s => s.product === 'endpoint') },
+      { key: 'ndr', label: 'NDR', items: list.filter(s => s.product === 'ndr') },
+      { key: 'firewall', label: 'Firewall', items: list.filter(s => s.product === 'firewall') }
+    ];
+
+    groups.forEach(g => {
+      if (g.items.length === 0) return;
+      const expanded = isSearch || S.groups[g.key];
+      h += `<div class="sgroup">`;
+      h += `<div class="sgroup-hdr" onclick="toggleGroup('${g.key}')">`;
+      h += `<span class="sgroup-arrow ${expanded?'expanded':''}">&#9654;</span>`;
+      h += `<span class="sgroup-label prod-${g.key}">${x(g.label)}</span>`;
+      h += `<span class="sgroup-count">${g.items.length}</span>`;
+      h += `</div>`;
+      h += `<div class="sgroup-body${expanded?'':' collapsed'}" style="max-height:${expanded?g.items.length*40+20:0}px">`;
+      g.items.forEach(s => { h += renderRow(s, favIds); });
+      h += `</div></div>`;
+    });
+
+    // Catch scenarios without a product
+    const other = list.filter(s => !s.product || !['endpoint','ndr','firewall'].includes(s.product));
+    if (other.length > 0) {
+      const expanded = isSearch || S.groups.other !== false;
+      h += `<div class="sgroup">`;
+      h += `<div class="sgroup-hdr" onclick="toggleGroup('other')">`;
+      h += `<span class="sgroup-arrow ${expanded?'expanded':''}">&#9654;</span>`;
+      h += `<span class="sgroup-label">Other</span>`;
+      h += `<span class="sgroup-count">${other.length}</span>`;
+      h += `</div>`;
+      h += `<div class="sgroup-body${expanded?'':' collapsed'}" style="max-height:${expanded?other.length*40+20:0}px">`;
+      other.forEach(s => { h += renderRow(s, favIds); });
+      h += `</div></div>`;
+    }
+
+    el.innerHTML = h;
   }
 
   /* =====================================================
@@ -1761,12 +1837,13 @@
     const s = S.all.find(a => a.id === id);
     if (!s) return;
     S.sel = s; S.xs = 'idle'; S.xr = null; S.xe = null;
-    updateDetectsOn();
-    qa('.scard').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+    renderList();
     $('lbtn').disabled = false;
     $('tpb').disabled = false;
     renderDet(s);
     if (S.drawer) closeDr();
+    const lb = $('launch-bar');
+    if (lb) lb.style.display = s ? 'flex' : 'none';
   }
 
   /* =====================================================
@@ -1785,10 +1862,14 @@
     const au  = s.audience || 'Technical';
     const ac  = au === 'Executive' ? 'dexec' : 'dm';
 
+    const prodColor = {'endpoint':'#2196F3','ndr':'#4CAF50','firewall':'#FF9800'}[s.product] || '#999';
+    const prodLabel = s.product ? s.product.charAt(0).toUpperCase() + s.product.slice(1) : '';
+
     $('dmeta').innerHTML =
       (s.mitre_tactics||[]).map(t=>`<span class="tbadge">${x(t)}</span>`).join('') +
       `<span class="sv ${SEVC[sev]||'sm'}">${sev}</span>` +
       `<span class="dpill ${ac}">${x(au)}</span>` +
+      (prodLabel ? `<span style="font-family:var(--ft);font-weight:600;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:${prodColor}22;color:${prodColor};border:1px solid ${prodColor}55">Detects on: ${x(prodLabel)}</span>` : '') +
       (ai ? `<span class="aitag">AI Enriched</span>` : '');
 
     $('dtit').textContent  = s.title || 'Untitled';
@@ -2115,7 +2196,7 @@
   function selectSavedTarget(t) {
     S.tgt = t.ip;
     $('tgt').value = t.ip;
-    if (t.platform) { S.plt = t.platform; $('plt').value = t.platform; }
+    if (t.platform) { S.plt = t.platform; }
     const d = $('pngdot'); if (d) d.className = 'pngdot';
   }
   function renderSavedTargets() {
@@ -2134,20 +2215,10 @@
   }
 
   /* =====================================================
-     DETECTS ON
+     DETECTS ON (now shown in detail panel badges)
   ===================================================== */
   function updateDetectsOn() {
-    const el = $('detects-on');
-    if (!el) return;
-    if (!S.sel || !S.sel.product) {
-      el.textContent = '\u2014';
-      el.className = 'det-badge';
-      return;
-    }
-    const p = S.sel.product;
-    const labels = { endpoint: 'Endpoint', ndr: 'NDR', firewall: 'Firewall' };
-    el.textContent = labels[p] || p;
-    el.className = 'det-badge det-' + p;
+    // No-op: Detects On is now rendered in the detail panel via renderDet()
   }
 
   /* =====================================================
@@ -2402,17 +2473,22 @@
   function openEnrichCard() {
     if (S.drawer) closeDr();
     S.enrichCard = true;
+    const section = $('action-section');
+    if (section) section.style.display = '';
     $('enrich-card').classList.add('open');
-    $('enrich-toggle').classList.add('active');
     if (!$('enc-tact-grid').children.length) buildEncTactGrid();
     clearEncErr();
+    // Close the tools dropdown
+    const dd = document.getElementById('tools-dropdown');
+    if (dd) dd.classList.remove('open');
     setTimeout(() => { const el = $('enc-name'); if (el) el.focus(); }, 240);
   }
 
   function closeEnrichCard() {
     S.enrichCard = false;
     $('enrich-card').classList.remove('open');
-    $('enrich-toggle').classList.remove('active');
+    const section = $('action-section');
+    if (section) section.style.display = 'none';
     ['enc-name','enc-desc','enc-ctx'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     if ($('enc-tact-grid')) qa('#enc-tact-grid .enc-tact').forEach(b => b.classList.remove('on'));
     clearEncErr();
@@ -2479,17 +2555,13 @@
         launchable:   false
       };
       S.all = [ns, ...S.all.filter(s => s.id !== ns.id)];
-      S.fl = { ta: new Set(), prod: new Set() };
-      qa('.chip').forEach(c => c.classList.remove('on'));
       S.filt = [...S.all]; S.enriching = false;
       closeEnrichCard();
       renderList(); pick(d.scenario.id);
       setTimeout(() => {
-        const card = document.querySelector(`.scard[data-id="${d.scenario.id}"]`);
+        const card = document.querySelector(`.srow[data-id="${d.scenario.id}"]`);
         if (card) {
-          card.classList.add('new-highlight');
           card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          setTimeout(() => card.classList.remove('new-highlight'), 2400);
         }
       }, 80);
     } catch(e) {
@@ -2506,7 +2578,6 @@
   function wire() {
     $('qi').addEventListener('input', e => { S.q = e.target.value; filt(); });
     $('lbtn').addEventListener('click', launch);
-    $('plt').addEventListener('change', e => S.plt = e.target.value);
     $('tgt').addEventListener('input', e => {
       S.tgt = e.target.value;
       const d = $('pngdot'); if (d) d.className = 'pngdot';
@@ -2522,12 +2593,10 @@
         else if (S.drawer) closeDr();
       }
     });
-    // Inline Enrich card
-    $('enrich-toggle').addEventListener('click', () => S.enrichCard ? closeEnrichCard() : openEnrichCard());
+    // Enrich card (now triggered from Tools dropdown)
     $('enc-cancel').addEventListener('click', closeEnrichCard);
     $('enc-generate').addEventListener('click', encGenerate);
     // Submit Case wizard
-    $('submitcasebtn').addEventListener('click', openWizard);
     $('wizcls').addEventListener('click', closeWizard);
     $('wizov').addEventListener('click', e => { if (e.target === $('wizov')) closeWizard(); });
     $('wiz-back').addEventListener('click', wizBack);
@@ -2535,6 +2604,11 @@
     $('wiz-submit').addEventListener('click', submitCase);
     $('wiz-toolbtn').addEventListener('click', () => addWizItem('wiz-toolin', 'wiz-toolchips', WC.tools));
     $('wiz-toolin').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addWizItem('wiz-toolin', 'wiz-toolchips', WC.tools); } });
+    // Tools dropdown close on outside click
+    document.addEventListener('click', e => {
+      const dd = document.getElementById('tools-dropdown');
+      if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+    });
     // MITRE autocomplete
     let techFocusIdx = -1;
     const techIn = $('wiz-techin');
@@ -2575,6 +2649,21 @@
         showTechDd(techSearch(''));
       }
     });
+  }
+
+  /* =====================================================
+     NAV TABS + TOOLS DROPDOWN
+  ===================================================== */
+  function switchView(view) {
+    document.querySelectorAll('.nav-tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    if (view === 'submit') {
+      openWizard();
+    }
+  }
+
+  function toggleToolsDropdown() {
+    const dd = document.getElementById('tools-dropdown');
+    dd.classList.toggle('open');
   }
 
   /* =====================================================
