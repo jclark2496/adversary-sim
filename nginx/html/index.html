@@ -516,21 +516,40 @@
 
     /* right footer */
     .rf {
-      flex-shrink:0; padding:10px 28px;
+      flex-shrink:0; padding:12px 28px;
       border-top:1px solid var(--border-dim);
       background:rgba(var(--bg-panel-rgb),.5);
-      display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:12px;
     }
-    .rfhi { font-size:11px; color:rgba(var(--text-rgb),0.65); }
-    #tpb {
-      display:flex; align-items:center; gap:7px; padding:7px 15px;
+    .rf-row {
+      display:flex; align-items:center; gap:10px;
+    }
+    .rf-row .tgt-input {
+      flex:1; display:flex; align-items:center; gap:0;
+    }
+    .rf-row .tgt-input input {
+      flex:1; border-radius:5px 0 0 5px; border-right:none;
+      height:38px; font-size:13px;
+    }
+    .rf-row .pngbtn {
+      border-radius:0; border-left:none; border-right:none;
+      height:38px; padding:0 14px;
+    }
+    .rf-row #lbtn {
+      flex-shrink:0; height:38px; padding:0 28px;
+      border-radius:0 5px 5px 0; font-size:13px;
+    }
+    .rf-row #tpb {
+      flex-shrink:0; height:38px; padding:0 16px;
+      display:flex; align-items:center; gap:6px;
       background:transparent; border:1px solid var(--border-acc); border-radius:5px;
       color:var(--accent-cyan); font-family:var(--ft); font-weight:600;
-      font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+      font-size:10px; letter-spacing:.14em; text-transform:uppercase;
       transition:background .15s, box-shadow .15s;
+      margin-left:6px;
     }
     #tpb:hover:not(:disabled) { background:rgba(var(--accent-cyan-rgb),.07); box-shadow:0 0 14px rgba(var(--accent-cyan-rgb),.14); }
     #tpb:disabled { opacity:.35; cursor:not-allowed; }
+    .rf .stgt-wrap { padding:6px 0 0; }
 
     /* ============================================================
        TALKING POINTS DRAWER
@@ -1094,17 +1113,7 @@
     }
     .fav-divider { height:1px; background:var(--border-dim); margin:4px 12px 8px; }
 
-    /* Launch bar in right panel */
-    .launch-bar {
-      display:flex; align-items:center; gap:10px; padding:10px 0;
-      flex-wrap:wrap;
-    }
-    .launch-bar .tgt-input {
-      flex:1; min-width:160px; display:flex; gap:6px; align-items:center;
-    }
-    .launch-bar .tgt-input input { flex:1; }
-    .launch-bar #lbtn { flex-shrink:0; width:auto; padding:9px 24px; }
-    .launch-bar .stgt-wrap { width:100%; padding:4px 0 0; }
+    /* Launch bar removed — now uses .rf-row layout */
   </style>
 </head>
 <body>
@@ -1129,14 +1138,14 @@
           </div>
         </nav>
         <div id="hdr-controls">
-          <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
-          <button class="settings-btn" onclick="openSettings()" title="Settings">&#x2699;</button>
           <div class="nav-wrap" id="nav-wrap">
             <button class="arch-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
             <div class="nav-dd" id="nav-dd">
-              <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
-              <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
+              <button class="nav-it" onclick="openSettings()">Settings</button>
+              <button class="nav-it" onclick="labmgrClick()">Lab Manager</button>
               <button class="nav-it" onclick="window.open('/admin.html','_blank')">Scenario Studio</button>
+              <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
+              <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
             </div>
           </div>
         </div>
@@ -1249,32 +1258,32 @@
     </div><!-- /rs -->
 
     <div class="rf" id="rf">
-      <div class="launch-bar" id="launch-bar" style="display:none">
+      <div class="rf-row" id="launch-bar" style="display:none">
         <div class="tgt-input">
           <input id="tgt" type="text" class="ctrl" placeholder="Target IP or hostname">
           <button class="pngbtn" id="pngb" title="Check host">
             <div class="pngdot" id="pngdot"></div>Check
           </button>
+          <button id="lbtn" disabled>
+            <div class="bsp"></div>
+            <span class="btx">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
+                <polygon points="3,2 13,7 3,12"/>
+              </svg>
+              Launch
+            </span>
+          </button>
         </div>
-        <button id="lbtn" disabled>
-          <div class="bsp"></div>
-          <span class="btx">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
-              <polygon points="3,2 13,7 3,12"/>
-            </svg>
-            Launch
-          </span>
-        </button>
-        <div id="saved-targets" class="stgt-wrap"></div>
-      </div>
-      <button id="tpb" disabled>
-        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
-             stroke="currentColor" stroke-width="1.5">
-          <circle cx="7" cy="7" r="5.5"/>
-          <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
+        <button id="tpb" disabled>
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <circle cx="7" cy="7" r="5.5"/>
+            <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
         </svg>
-        Show Talking Points
+        Talking Points
       </button>
+      </div>
+      <div id="saved-targets" class="stgt-wrap"></div>
     </div>
   </main>
 
