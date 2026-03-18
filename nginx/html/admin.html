@@ -7,40 +7,21 @@
   <link rel="stylesheet" href="shared.css">
   <style>
     /* ============================================================
-       PAGE-SPECIFIC VARIABLES (base tokens come from shared.css)
+       PAGE OVERRIDES
     ============================================================ */
-    :root {
-      --sev-crit-rgb:      181,41,247;
-      --sev-high-rgb:      32,6,247;
-      --sev-med-rgb:       0,156,251;
-      --sev-low-rgb:       106,136,155;
-      --accent-purple-rgb: 90,0,255;
-      --text-accent-blue:  #8ca8ff;
-    }
-
-    /* ============================================================
-       PAGE OVERRIDES (reset, fonts, base come from shared.css)
-    ============================================================ */
-    html, body {
-      width: 100%; min-height: 100%;
-    }
+    html, body { width: 100%; min-height: 100%; }
     a { color: inherit; text-decoration: none; }
 
     /* dot-grid bg */
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.055) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
       background-size: 28px 28px;
     }
 
-    /* scrollbar provided by shared.css */
-
     @keyframes su { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-    @keyframes blink {
-      0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(var(--accent-green-rgb),.55); }
-      50%    { opacity:.7; box-shadow:0 0 0 5px rgba(var(--accent-green-rgb),0); }
-    }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
 
     /* ============================================================
        PASSWORD GATE
@@ -49,11 +30,10 @@
       position: fixed; inset: 0; z-index: 9000;
       background: var(--bg-deep);
       display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 0;
     }
     #gate::before {
       content: ''; position: absolute; inset: 0; pointer-events: none;
-      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.055) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
       background-size: 28px 28px;
     }
     .gate-box {
@@ -65,15 +45,22 @@
       box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(var(--accent-cyan-rgb),.06);
       animation: su .28s ease-out;
     }
-    .gate-eyebrow {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .3em; text-transform: uppercase;
-      color: rgba(var(--accent-cyan-rgb),.5); margin-bottom: 6px;
+    .gate-brand {
+      font-family: var(--fm); font-weight: 700; font-size: 15px;
+      color: var(--text-primary); letter-spacing: 0.02em; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .gate-title {
-      font-family: var(--ft); font-weight: 800; font-size: 22px;
-      letter-spacing: .04em; text-transform: uppercase;
-      color: var(--text-primary); margin-bottom: 4px;
+    .gate-brand-tag {
+      font-family: var(--fm); font-size: 11px; font-weight: 400;
+      color: var(--accent-cyan);
+      background: rgba(var(--accent-cyan-rgb),0.08);
+      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
+      border-radius: 5px; padding: 3px 10px 3px 22px;
+      position: relative; letter-spacing: 0.03em;
+    }
+    .gate-brand-tag::before {
+      content: '>'; position: absolute; left: 8px;
+      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
     }
     .gate-sub {
       font-size: 12px; color: var(--text-sec); margin-bottom: 28px; line-height: 1.5;
@@ -96,15 +83,16 @@
     }
     .gate-btn {
       width: 100%; padding: 12px;
-      background: linear-gradient(130deg,#1900e8,#4200cc 60%,#5A00FF);
-      border-radius: 6px; color: var(--text-primary);
+      background: rgba(var(--accent-cyan-rgb),.12);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.4);
+      border-radius: 6px; color: var(--accent-cyan);
       font-family: var(--ft); font-weight: 700; font-size: 12px;
-      letter-spacing: .2em; text-transform: uppercase;
-      transition: opacity .15s, box-shadow .15s;
+      letter-spacing: .14em; text-transform: uppercase;
+      transition: all .15s; cursor: pointer;
     }
-    .gate-btn:hover { opacity: .9; box-shadow: 0 6px 24px rgba(90,0,255,.4); }
+    .gate-btn:hover { background: rgba(var(--accent-cyan-rgb),.22); box-shadow: 0 0 16px rgba(var(--accent-cyan-rgb),.18); }
     .gate-err {
-      margin-top: 10px; font-size: 11px; color: var(--sev-crit);
+      margin-top: 10px; font-size: 11px; color: var(--c-fail);
       text-align: center; font-family: var(--ft); font-weight: 600;
       letter-spacing: .08em; min-height: 16px;
     }
@@ -113,289 +101,135 @@
     /* ============================================================
        LAYOUT
     ============================================================ */
-    #app {
-      position: relative; z-index: 1; min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
-
-    /* ============================================================
-       HEADER
-    ============================================================ */
-    #hdr {
-      flex-shrink: 0;
-      background: rgba(var(--bg-panel-rgb),.97);
-      border-bottom: 1px solid var(--border-dim);
-      padding: 12px 24px;
-      display: flex; align-items: center; gap: 12px;
-      position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .logo-word {
-      font-family: var(--fm); font-size: 15px; font-weight: 700;
-      color: var(--text-primary); letter-spacing: 0.02em; white-space: nowrap;
-    }
-    .logo-tag {
-      font-family: var(--fm); font-size: 11px; font-weight: 400;
-      color: var(--accent-cyan);
-      background: rgba(var(--accent-cyan-rgb),0.08);
-      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
-      border-radius: 5px; padding: 3px 10px 3px 22px;
-      position: relative; letter-spacing: 0.03em; white-space: nowrap;
-    }
-    .logo-tag::before {
-      content: '>'; position: absolute; left: 8px;
-      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
-    }
-    .hdr-sep { flex: 1; }
-    .hdr-pill {
-      position: fixed; top: 8px; right: 16px; z-index: 100;
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(var(--bg-deep-rgb),.85);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      padding: 4px 10px; border-radius: 6px;
-      border: 1px solid rgba(var(--accent-cyan-rgb),.08);
-    }
-    .hdr-link {
-      display: flex; align-items: center; gap: 5px;
-      font-family: var(--fm); font-size: 11px;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--accent-cyan); background: transparent;
-      border: 1px solid var(--accent-cyan); border-radius: 6px;
-      padding: 5px 13px; cursor: pointer;
-      transition: background .15s, box-shadow .15s;
-      white-space: nowrap;
-    }
-    .hdr-link:hover {
-      background: rgba(var(--accent-cyan-rgb),.1);
-      box-shadow: 0 0 10px rgba(var(--accent-cyan-rgb),.25);
-    }
-    .lpip {
-      display: flex; align-items: center; gap: 6px;
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .2em; text-transform: uppercase; color: var(--accent-green);
-      background: rgba(var(--bg-panel-rgb),.92); padding: 4px 12px 4px 8px;
-      border-radius: 100px; border: 1px solid rgba(var(--accent-green-rgb),.22);
-    }
-    .ldot {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
-      animation: blink 2.2s ease-in-out infinite;
-    }
+    #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .content { max-width: 1200px; margin: 0 auto; padding: 0 28px 80px; width: 100%; }
 
     /* ============================================================
        WEBHOOK NOTICE
     ============================================================ */
     #wh-notice {
-      background: rgba(var(--sev-crit-rgb),.06);
-      border-bottom: 1px solid rgba(var(--sev-crit-rgb),.2);
+      background: rgba(255,68,68,.06);
+      border-bottom: 1px solid rgba(255,68,68,.2);
       padding: 9px 24px;
       display: flex; align-items: center; gap: 10px;
-      font-size: 12px; color: rgba(var(--sev-crit-rgb),.9);
+      font-size: 12px; color: rgba(255,68,68,.9);
     }
     #wh-notice.hidden { display: none; }
-    .wh-icon { font-size: 14px; flex-shrink: 0; }
     .wh-dismiss {
       margin-left: auto; background: none; border: none;
-      color: rgba(var(--sev-crit-rgb),.5); font-size: 16px;
+      color: rgba(255,68,68,.5); font-size: 16px;
       line-height: 1; cursor: pointer; padding: 0 2px;
       transition: color .12s;
     }
-    .wh-dismiss:hover { color: rgba(var(--sev-crit-rgb),.9); }
+    .wh-dismiss:hover { color: rgba(255,68,68,.9); }
 
     /* ============================================================
        STATS BAR
     ============================================================ */
-    #stats {
-      flex-shrink: 0; padding: 16px 24px;
-      display: flex; gap: 12px; flex-wrap: wrap;
-      border-bottom: 1px solid var(--border-dim);
-      background: rgba(var(--bg-panel-rgb),.4);
+    .stats-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 16px 0; font-size: 14px; color: var(--text-sec);
     }
-    .stat {
-      flex: 1; min-width: 120px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-dim);
-      border-radius: 8px; padding: 14px 16px;
-      display: flex; flex-direction: column; gap: 4px;
-      transition: border-color .15s;
-    }
-    .stat:hover { border-color: rgba(var(--accent-cyan-rgb),.22); }
-    .stat-val {
-      font-family: var(--fm); font-weight: 700; font-size: 28px;
-      letter-spacing: -.02em; color: var(--text-primary); line-height: 1;
-    }
-    .stat-lbl {
-      font-family: var(--ft); font-weight: 600; font-size: 11px;
-      letter-spacing: .26em; text-transform: uppercase; color: var(--text-label);
-    }
-    .stat.s-approved .stat-val { color: var(--accent-green); }
-    .stat.s-pending  .stat-val { color: var(--sev-med); }
-    .stat.s-launch   .stat-val { color: var(--accent-cyan); }
-    .stat.s-warn     .stat-val { color: var(--sev-crit); }
+    .stat-item { font-family: var(--fm); font-weight: 600; font-size: 16px; }
+    .stat-label { font-family: var(--fb); font-weight: 400; font-size: 13px; color: var(--text-sec); }
+    .stat-sep { color: var(--text-dim); }
+    .s-ok { color: var(--accent-green); }
+    .s-warn { color: #FF9800; }
+    .s-cyan { color: var(--accent-cyan); }
 
     /* ============================================================
-       MAIN CONTENT
+       FILTER ROW
     ============================================================ */
-    #main {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 20px 24px 40px;
-    }
-
-    /* ============================================================
-       FILTER BAR
-    ============================================================ */
-    #filterbar {
+    .filter-row {
       display: flex; align-items: center; gap: 10px;
-      flex-wrap: wrap; margin-bottom: 14px;
+      padding: 12px 0; flex-wrap: wrap;
     }
-    .fgrp {
-      display: flex; align-items: center; gap: 5px;
+    .filter-row select.ctrl {
+      min-width: 130px; font-size: 12px; padding: 6px 28px 6px 10px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 9px center;
+      cursor: pointer;
     }
-    .fgrp-lbl {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .22em; text-transform: uppercase;
-      color: var(--text-dim); white-space: nowrap; padding-right: 2px;
+    .filter-row select.ctrl option { background: var(--bg-panel); }
+    .filter-spacer { flex: 1; }
+    .filter-row .search-input {
+      width: 220px; font-size: 12px; padding: 6px 12px 6px 30px;
     }
-    .chip {
-      padding: 4px 10px; border-radius: 100px;
-      background: transparent; border: 1px solid var(--border-dim);
-      color: var(--text-sec); font-family: var(--fb); font-weight: 500;
-      font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
-      cursor: pointer; transition: all .14s; white-space: nowrap;
-    }
-    .chip:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
-    .chip.on {
-      background: rgba(var(--accent-cyan-rgb),.1);
-      border-color: rgba(var(--accent-cyan-rgb),.45);
-      color: var(--accent-cyan);
-    }
-    .chip.on-green {
-      background: rgba(var(--accent-green-rgb),.1);
-      border-color: rgba(var(--accent-green-rgb),.45);
-      color: var(--accent-green);
-    }
-    .chip.on-orange {
-      background: rgba(var(--sev-med-rgb),.1);
-      border-color: rgba(var(--sev-med-rgb),.4);
-      color: var(--sev-med);
-    }
-    .chip.on-crit {
-      background: rgba(var(--sev-crit-rgb),.1);
-      border-color: rgba(var(--sev-crit-rgb),.4);
-      color: var(--sev-crit);
-    }
-    .filter-sep {
-      width: 1px; height: 20px; background: var(--border-dim); flex-shrink: 0;
-    }
-    #search-wrap {
-      position: relative; margin-left: auto;
-    }
-    #search-wrap svg {
+    .search-wrap { position: relative; }
+    .search-wrap svg {
       position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
       color: var(--text-dim); pointer-events: none;
     }
-    #fsearch {
-      background: rgba(var(--bg-deep-rgb),.75);
-      border: 1px solid var(--border-dim); border-radius: 6px;
-      padding: 7px 12px 7px 30px;
-      color: var(--text-primary); font-size: 12px; outline: none;
-      width: 220px; transition: border-color .18s;
+    .filter-count {
+      font-family: var(--fm); font-size: 11px; color: var(--text-dim);
+      letter-spacing: .04em; white-space: nowrap;
     }
-    #fsearch:focus { border-color: rgba(var(--accent-cyan-rgb),.36); }
-    #fsearch::placeholder { color: rgba(var(--text-rgb),0.38); }
 
     /* ============================================================
-       BULK ACTIONS BAR
+       PRODUCT GROUPS
     ============================================================ */
-    #bulkbar {
-      display: none; align-items: center; gap: 10px;
-      background: rgba(var(--accent-cyan-rgb),.05);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.18);
-      border-radius: 7px; padding: 10px 14px; margin-bottom: 12px;
+    .prod-group { margin-bottom: 20px; }
+    .prod-group-hdr {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; cursor: pointer; user-select: none;
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      border-radius: var(--radius) var(--radius) 0 0;
+      transition: background .12s;
     }
-    #bulkbar.show { display: flex; animation: su .16s ease-out; }
-    .bulk-count {
-      font-family: var(--ft); font-weight: 700; font-size: 11px;
-      letter-spacing: .12em; text-transform: uppercase;
-      color: var(--accent-cyan); white-space: nowrap;
+    .prod-group-hdr:hover { background: var(--bg-card-hov); }
+    .prod-group-hdr.collapsed { border-radius: var(--radius); }
+    .prod-group-arrow {
+      font-family: var(--fm); font-size: 11px; color: var(--text-dim);
+      transition: transform .2s; flex-shrink: 0;
     }
-    .bulk-sep { flex: 1; }
-    .bulk-sel-lbl {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .18em; text-transform: uppercase;
-      color: var(--text-dim); white-space: nowrap;
+    .prod-group-hdr.collapsed .prod-group-arrow { transform: rotate(-90deg); }
+    .prod-group-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
-    .bulk-sel-btn {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .1em; text-transform: uppercase;
-      padding: 4px 9px; border-radius: 4px;
-      background: transparent; border: 1px solid var(--border-dim);
-      color: var(--text-sec); cursor: pointer; transition: all .14s;
-      white-space: nowrap;
+    .prod-group-name {
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .22em; text-transform: uppercase;
     }
-    .bulk-sel-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
-    .bulk-action-btn {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .14em; text-transform: uppercase;
-      padding: 6px 14px; border-radius: 5px;
-      cursor: pointer; transition: all .14s; white-space: nowrap;
+    .prod-group-count {
+      font-family: var(--fm); font-size: 11px; color: var(--text-dim);
     }
-    .bulk-approve {
-      background: rgba(var(--accent-green-rgb),.1);
-      border: 1px solid rgba(var(--accent-green-rgb),.35);
-      color: var(--accent-green);
+    .prod-group-body {
+      border: 1px solid var(--border-dim); border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      overflow: hidden; transition: max-height .25s ease;
     }
-    .bulk-approve:hover { background: rgba(var(--accent-green-rgb),.2); }
-    .bulk-hide {
-      background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
-    }
-    .bulk-hide:hover { border-color: rgba(var(--sev-crit-rgb),.35); color: var(--sev-crit); }
-    .bulk-delete {
-      background: rgba(var(--sev-crit-rgb),.08);
-      border: 1px solid rgba(var(--sev-crit-rgb),.3);
-      color: var(--sev-crit);
-    }
-    .bulk-delete:hover { background: rgba(var(--sev-crit-rgb),.16); }
+    .prod-group-body.collapsed { max-height: 0 !important; border: none; }
+
+    /* product colors */
+    .pg-endpoint .prod-group-dot { background: #2196F3; }
+    .pg-endpoint .prod-group-name { color: #64b5f6; }
+    .pg-endpoint .prod-group-body { border-left: 2px solid rgba(33,150,243,0.3); }
+
+    .pg-ndr .prod-group-dot { background: #4CAF50; }
+    .pg-ndr .prod-group-name { color: #81c784; }
+    .pg-ndr .prod-group-body { border-left: 2px solid rgba(76,175,80,0.3); }
+
+    .pg-firewall .prod-group-dot { background: #FF9800; }
+    .pg-firewall .prod-group-name { color: #ffb74d; }
+    .pg-firewall .prod-group-body { border-left: 2px solid rgba(255,152,0,0.3); }
+
+    .pg-other .prod-group-dot { background: var(--text-dim); }
+    .pg-other .prod-group-name { color: var(--text-sec); }
+    .pg-other .prod-group-body { border-left: 2px solid var(--border-dim); }
 
     /* ============================================================
-       SCENARIO TABLE
+       SCENARIO ROWS (within groups)
     ============================================================ */
-    #scenario-count {
-      font-family: var(--ft); font-size: 10px; color: var(--text-dim);
-      letter-spacing: .08em; margin-bottom: 8px;
+    .admin-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.05);
+      transition: background .12s;
     }
-    .tbl-wrap {
-      background: var(--bg-card);
-      border: 1px solid var(--border-dim);
-      border-radius: 10px; overflow: hidden;
-      margin-bottom: 32px;
-    }
-    .tbl-head {
-      display: grid; grid-template-columns: 28px 1fr 140px 110px 110px 110px 160px;
-      align-items: center; gap: 0;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-dim);
-      background: rgba(var(--bg-panel-rgb),.6);
-    }
-    .th {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .18em; text-transform: uppercase;
-      color: var(--text-dim); padding: 0 8px;
-    }
-    .th:first-child { padding: 0; }
-    .tbl-row {
-      display: grid; grid-template-columns: 28px 1fr 140px 110px 110px 110px 160px;
-      align-items: center; gap: 0;
-      padding: 11px 14px; border-bottom: 1px solid var(--border-dim);
-      transition: background .12s; cursor: pointer;
-      position: relative;
-    }
-    .tbl-row:last-child { border-bottom: none; }
-    .tbl-row:hover { background: rgba(var(--bg-card-hov),0.6); }
-    .tbl-row.selected { background: rgba(var(--accent-cyan-rgb),.04); }
-    .tbl-row.hidden-row { opacity: .42; }
+    .admin-row:last-child { border-bottom: none; }
+    .admin-row:hover { background: rgba(var(--accent-cyan-rgb),.03); }
+    .admin-row.selected { background: rgba(var(--accent-cyan-rgb),.06); }
 
-    /* row checkbox */
     .row-cb {
       width: 16px; height: 16px;
       border: 1px solid var(--border-dim); border-radius: 3px;
@@ -409,100 +243,59 @@
       border-color: var(--accent-cyan);
     }
     .row-cb.checked::after {
-      content: '✓'; font-size: 10px; color: var(--accent-cyan); line-height: 1;
+      content: '\2713'; font-size: 10px; color: var(--accent-cyan); line-height: 1;
     }
 
-    .td { padding: 0 8px; }
-    .td:first-child { padding: 0; }
-
-    /* scenario name cell */
-    .row-name { display: flex; flex-direction: column; gap: 3px; }
-    .row-title {
-      font-family: var(--fb); font-weight: 600; font-size: 12px;
-      color: var(--text-primary); white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
-    }
     .row-id {
-      font-family: var(--fm); font-size: 10px;
-      color: var(--text-dim); letter-spacing: .04em;
+      font-family: var(--fm); font-size: 11px; color: var(--text-dim);
+      letter-spacing: .04em; flex-shrink: 0; width: 80px;
     }
-    .row-badges { display: flex; gap: 3px; flex-wrap: wrap; }
+    .row-title {
+      font-family: var(--fb); font-weight: 600; font-size: 13px;
+      color: var(--text-primary); flex: 1; min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
 
     /* status pill */
     .spill {
       font-family: var(--ft); font-weight: 700; font-size: 9px;
-      letter-spacing: .16em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 3px; white-space: nowrap;
+      letter-spacing: .14em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0;
     }
     .sp-approved { background: rgba(var(--accent-green-rgb),.1); color: var(--accent-green); border: 1px solid rgba(var(--accent-green-rgb),.28); }
-    .sp-pending  { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.28); }
+    .sp-pending  { background: rgba(255,152,0,.1); color: #FF9800; border: 1px solid rgba(255,152,0,.28); }
     .sp-ephemeral{ background: rgba(var(--accent-cyan-rgb),.08); color: var(--accent-cyan); border: 1px solid rgba(var(--accent-cyan-rgb),.22); }
-    .sp-expired  { background: rgba(var(--sev-crit-rgb),.07); color: rgba(var(--sev-crit-rgb),.7); border: 1px solid rgba(var(--sev-crit-rgb),.2); }
-    .sp-hidden   { background: rgba(var(--text-rgb),.04); color: var(--text-dim); border: 1px solid var(--border-dim); }
+    .sp-expired  { background: rgba(255,68,68,.07); color: rgba(255,68,68,.7); border: 1px solid rgba(255,68,68,.2); }
 
-    /* source pill */
-    .src-pill {
+    /* ready indicator */
+    .ready-ind {
+      display: flex; align-items: center; gap: 4px;
       font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .12em; text-transform: uppercase;
-      padding: 2px 7px; border-radius: 3px; white-space: nowrap;
-    }
-    .src-hand { background: rgba(var(--accent-blue-rgb),.1,1); color: var(--text-accent-blue); border: 1px solid rgba(32,6,247,.25); }
-    .src-ai   { background: rgba(var(--accent-violet-rgb),.1,1); color: #c080ff; border: 1px solid rgba(181,41,247,.25); }
-    .src-case { background: rgba(var(--accent-green-rgb),.08); color: rgba(var(--accent-green-rgb),1); border: 1px solid rgba(var(--accent-green-rgb),.2); }
-    .src-se   { background: rgba(var(--accent-cyan-rgb),.08); color: var(--accent-cyan); border: 1px solid rgba(var(--accent-cyan-rgb),.2); }
-
-    /* launchable indicator */
-    .launch-ind {
-      display: flex; align-items: center; gap: 5px;
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
       letter-spacing: .08em; text-transform: uppercase;
+      flex-shrink: 0; white-space: nowrap;
     }
-    .launch-dot {
-      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-    }
-    .launch-yes { color: var(--accent-green); }
-    .launch-yes .launch-dot { background: var(--accent-green); box-shadow: 0 0 6px rgba(var(--accent-green-rgb),.7); }
-    .launch-no  { color: var(--text-dim); }
-    .launch-no  .launch-dot { background: rgba(var(--text-rgb),.2); }
-
-    /* audience */
-    .aud-pill {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .12em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 3px; white-space: nowrap;
-    }
-    .aud-tech { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.25); }
-    .aud-exec { background: rgba(var(--accent-purple-rgb),.1); color: var(--text-accent-blue); border: 1px solid rgba(var(--accent-purple-rgb),.25); }
+    .ready-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .ready-yes { color: var(--accent-green); }
+    .ready-yes .ready-dot { background: var(--accent-green); box-shadow: 0 0 6px rgba(var(--accent-green-rgb),.7); }
+    .ready-no { color: var(--text-dim); }
+    .ready-no .ready-dot { background: rgba(var(--text-rgb),.2); }
 
     /* row actions */
-    .row-actions {
-      display: flex; align-items: center; gap: 4px; justify-content: flex-end;
-    }
+    .row-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto; }
     .act-btn {
-      padding: 4px 8px; border-radius: 4px;
+      padding: 4px 10px; border-radius: 4px;
       font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .12em; text-transform: uppercase;
-      transition: all .12s; white-space: nowrap;
+      letter-spacing: .1em; text-transform: uppercase;
+      transition: all .12s; white-space: nowrap; cursor: pointer;
     }
-    .act-approve {
-      background: rgba(var(--accent-green-rgb),.1);
-      border: 1px solid rgba(var(--accent-green-rgb),.28);
-      color: var(--accent-green);
-    }
-    .act-approve:hover { background: rgba(var(--accent-green-rgb),.2); }
-    .act-reject {
-      background: transparent; border: 1px solid rgba(var(--sev-crit-rgb),.28);
-      color: rgba(var(--sev-crit-rgb),.8);
-    }
-    .act-reject:hover { background: rgba(var(--sev-crit-rgb),.1); }
     .act-edit {
       background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
     }
     .act-edit:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
-    .act-hide {
-      background: transparent; border: 1px solid var(--border-dim); color: var(--text-sec);
+    .act-delete {
+      background: transparent; border: 1px solid var(--border-dim); color: var(--text-dim);
     }
-    .act-hide:hover { border-color: rgba(var(--sev-crit-rgb),.25); color: var(--sev-crit); }
+    .act-delete:hover { border-color: rgba(255,68,68,.4); color: var(--c-fail); background: rgba(255,68,68,.06); }
 
     /* empty state */
     .tbl-empty {
@@ -512,55 +305,33 @@
     .tbl-empty strong { display: block; font-size: 15px; margin-bottom: 5px; color: var(--text-sec); }
 
     /* ============================================================
-       CATALOG HEALTH
+       BULK BAR
     ============================================================ */
-    #health {
-      background: var(--bg-card);
-      border: 1px solid var(--border-dim);
-      border-radius: 10px; padding: 20px 22px;
-      margin-bottom: 32px;
+    .bulk-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(var(--bg-panel-rgb),.98);
+      border-top: 1px solid var(--border-acc);
+      padding: 12px 24px;
+      display: none; align-items: center; gap: 12px;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: su .16s ease-out;
     }
-    .health-hdr {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    .bulk-bar.show { display: flex; }
+    .bulk-count {
+      font-family: var(--ft); font-weight: 700; font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent-cyan); white-space: nowrap;
     }
-    .health-title {
-      font-family: var(--ft); font-weight: 700; font-size: 13px;
-      letter-spacing: .1em; text-transform: uppercase; color: var(--text-primary);
+    .bulk-sep { width: 1px; height: 20px; background: var(--border-dim); flex-shrink: 0; }
+    .btn-text {
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+      background: none; border: none; color: var(--text-sec);
+      cursor: pointer; padding: 4px 8px; transition: color .12s;
     }
-    .health-badge {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .2em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 3px;
-    }
-    .hb-ok   { background: rgba(var(--accent-green-rgb),.1); color: var(--accent-green); border: 1px solid rgba(var(--accent-green-rgb),.28); }
-    .hb-warn { background: rgba(var(--sev-med-rgb),.1); color: var(--sev-med); border: 1px solid rgba(var(--sev-med-rgb),.28); }
-    .hb-crit { background: rgba(var(--sev-crit-rgb),.1); color: var(--sev-crit); border: 1px solid rgba(var(--sev-crit-rgb),.28); }
-    .health-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px;
-    }
-    .hcheck {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px; border-radius: 7px;
-      background: rgba(var(--bg-panel-rgb),.5);
-      border: 1px solid var(--border-dim);
-    }
-    .hcheck-ico {
-      width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; flex-shrink: 0; margin-top: 1px;
-    }
-    .hico-ok   { background: rgba(var(--accent-green-rgb),.15); color: var(--accent-green); }
-    .hico-warn { background: rgba(var(--sev-med-rgb),.15); color: var(--sev-med); }
-    .hico-crit { background: rgba(var(--sev-crit-rgb),.15); color: var(--sev-crit); }
-    .hcheck-body {}
-    .hcheck-name {
-      font-family: var(--ft); font-weight: 600; font-size: 11px;
-      letter-spacing: .04em; color: var(--text-primary); margin-bottom: 2px;
-    }
-    .hcheck-val {
-      font-size: 11px; color: var(--text-sec); line-height: 1.4;
-    }
+    .btn-text:hover { color: var(--accent-cyan); }
 
     /* ============================================================
        EDIT PANEL (slide-in from right)
@@ -575,7 +346,7 @@
     }
     #editov.open { opacity: 1; visibility: visible; }
     #editd {
-      position: fixed; top: 0; right: 0; bottom: 0; width: 480px; z-index: 201;
+      position: fixed; top: 0; right: 0; bottom: 0; width: 380px; z-index: 201;
       background: rgba(var(--bg-panel-rgb),.98);
       border-left: 1px solid rgba(var(--accent-cyan-rgb),.22);
       box-shadow: -10px 0 48px rgba(0,0,0,.6);
@@ -606,7 +377,7 @@
       background: transparent; border: 1px solid var(--border-dim); border-radius: 4px;
       width: 27px; height: 27px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      color: var(--text-sec); transition: all .14s;
+      color: var(--text-sec); transition: all .14s; cursor: pointer;
     }
     .cls-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
     .edit-body {
@@ -615,17 +386,20 @@
     }
     .ef-group { display: flex; flex-direction: column; gap: 5px; }
     .ef-label {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .22em; text-transform: uppercase; color: var(--text-label);
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .26em; text-transform: uppercase; color: var(--text-label);
     }
     .ef-ctrl {
-      background: rgba(var(--bg-deep-rgb),.75);
+      background: rgba(var(--bg-deep-rgb),.7);
       border: 1px solid var(--border-dim); border-radius: 5px;
-      padding: 8px 10px; color: var(--text-primary); font-size: 13px;
-      outline: none; width: 100%; transition: border-color .16s;
+      padding: 7px 10px; color: var(--text-primary); font-size: 13px;
+      outline: none; width: 100%; transition: border-color .18s, box-shadow .18s;
     }
-    .ef-ctrl:focus { border-color: rgba(var(--accent-cyan-rgb),.36); }
-    .ef-ctrl::placeholder { color: rgba(var(--text-rgb),0.38); }
+    .ef-ctrl:focus {
+      border-color: rgba(var(--accent-cyan-rgb),.38);
+      box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07);
+    }
+    .ef-ctrl::placeholder { color: rgba(var(--text-rgb),0.50); }
     select.ef-ctrl {
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -635,25 +409,11 @@
     select.ef-ctrl option { background: var(--bg-panel); }
     textarea.ef-ctrl { min-height: 80px; resize: vertical; }
     .ef-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .ef-notice {
-      padding: 8px 10px; border-radius: 5px;
-      background: rgba(var(--sev-med-rgb),.06);
-      border: 1px solid rgba(var(--sev-med-rgb),.2);
-      font-size: 11px; color: var(--sev-med); line-height: 1.5;
-    }
     .edit-ftr {
       flex-shrink: 0; padding: 12px 20px 16px;
       border-top: 1px solid rgba(var(--accent-cyan-rgb),.08);
       display: flex; gap: 8px; justify-content: flex-end;
     }
-    .ef-cancel {
-      padding: 8px 16px; border-radius: 5px;
-      background: transparent; border: 1px solid var(--border-dim);
-      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
-      font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
-      transition: all .14s;
-    }
-    .ef-cancel:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
     .ef-save {
       padding: 8px 20px; border-radius: 5px;
       background: rgba(var(--accent-cyan-rgb),.12);
@@ -661,6 +421,7 @@
       color: var(--accent-cyan); font-family: var(--ft); font-weight: 700;
       font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
       transition: all .15s; display: flex; align-items: center; gap: 6px;
+      cursor: pointer;
     }
     .ef-save:hover { background: rgba(var(--accent-cyan-rgb),.22); box-shadow: 0 0 16px rgba(var(--accent-cyan-rgb),.18); }
     .ef-save:disabled { opacity: .4; cursor: not-allowed; }
@@ -673,6 +434,62 @@
     .ef-save.busy .bsp { display: block; }
 
     /* ============================================================
+       CATALOG HEALTH (collapsible)
+    ============================================================ */
+    .health-section { margin-top: 32px; }
+    .health-toggle {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; width: 100%; text-align: left;
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      border-radius: var(--radius); cursor: pointer;
+      font-family: var(--ft); font-weight: 700; font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-primary); transition: background .12s;
+    }
+    .health-toggle:hover { background: var(--bg-card-hov); }
+    .health-toggle .arrow {
+      font-family: var(--fm); font-size: 11px; color: var(--text-dim);
+      transition: transform .2s;
+    }
+    .health-toggle.open .arrow { transform: rotate(90deg); }
+    .health-badge {
+      font-family: var(--ft); font-weight: 600; font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 3px; margin-left: auto;
+    }
+    .hb-ok   { background: rgba(var(--accent-green-rgb),.1); color: var(--accent-green); border: 1px solid rgba(var(--accent-green-rgb),.28); }
+    .hb-warn { background: rgba(255,152,0,.1); color: #FF9800; border: 1px solid rgba(255,152,0,.28); }
+    .hb-crit { background: rgba(255,68,68,.1); color: var(--c-fail); border: 1px solid rgba(255,68,68,.28); }
+    .health-body {
+      background: var(--bg-card); border: 1px solid var(--border-dim); border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 16px;
+    }
+    .health-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .hcheck {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px; border-radius: 7px;
+      background: rgba(var(--bg-panel-rgb),.5);
+      border: 1px solid var(--border-dim);
+    }
+    .hcheck-ico {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; flex-shrink: 0; margin-top: 1px;
+    }
+    .hico-ok   { background: rgba(var(--accent-green-rgb),.15); color: var(--accent-green); }
+    .hico-warn { background: rgba(255,152,0,.15); color: #FF9800; }
+    .hico-crit { background: rgba(255,68,68,.15); color: var(--c-fail); }
+    .hcheck-name {
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .04em; color: var(--text-primary); margin-bottom: 2px;
+    }
+    .hcheck-val { font-size: 11px; color: var(--text-sec); line-height: 1.4; }
+
+    /* ============================================================
        TOAST
     ============================================================ */
     #toast-area {
@@ -680,29 +497,17 @@
       display: flex; flex-direction: column; gap: 8px;
     }
 
-    /* ── NAV MENU ─────────────────────────────────────────────────────── */
-    .nav-wrap { position:relative; flex-shrink:0; }
-    .nav-dd {
-      position:absolute; top:calc(100% + 6px); right:0; min-width:218px;
-      background:rgba(var(--bg-panel-rgb),.98);
-      border:1px solid var(--border-acc); border-radius:7px;
-      box-shadow:0 8px 32px rgba(0,0,0,.5);
-      z-index:1001; display:none; overflow:hidden;
+    /* ============================================================
+       SECTIONS (fade-in)
+    ============================================================ */
+    .fade-section {
+      opacity: 0; transform: translateY(12px);
+      animation: fadeUp 0.45s ease forwards;
     }
-    @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
-    .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
-    .nav-it {
-      display:flex; align-items:center; gap:9px; padding:9px 14px;
-      font-size:12px; color:var(--text-sec); letter-spacing:.02em;
-      width:100%; text-align:left; background:none; border:none;
-      cursor:pointer; transition:background .1s, color .1s; font-family:var(--fb);
-    }
-    .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.07); color:var(--text-primary); }
-    .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
-    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-dim);cursor:pointer;background:none;border:none;font-family:var(--fb);transition:color .15s;padding:0;margin-right:8px}
-    .labmgr-link:hover{color:var(--accent-cyan)}
-    .labmgr-link .lm-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(232,240,255,.2)}
-    .labmgr-link .lm-dot.green{background:#00FF41;box-shadow:0 0 4px rgba(0,255,65,.4)}
+    .fade-section:nth-child(1) { animation-delay: 0.05s; }
+    .fade-section:nth-child(2) { animation-delay: 0.10s; }
+    .fade-section:nth-child(3) { animation-delay: 0.15s; }
+    .fade-section:nth-child(4) { animation-delay: 0.20s; }
   </style>
 </head>
 <body>
@@ -710,12 +515,14 @@
 <!-- ===================== PASSWORD GATE ===================== -->
 <div id="gate">
   <div class="gate-box">
-    <div class="gate-eyebrow">Sophos Adversary Simulation Platform</div>
-    <div class="gate-title">Admin Console</div>
-    <div class="gate-sub">Scenario catalog management. Restricted access.</div>
+    <div class="gate-brand">
+      Sophos Adversary
+      <span class="gate-brand-tag">admin_console</span>
+    </div>
+    <div class="gate-sub">Scenario catalog management</div>
     <label class="gate-lbl" for="gate-pw">Password</label>
     <input id="gate-pw" type="password" class="gate-input" placeholder="Enter admin password" autocomplete="current-password">
-    <button class="gate-btn" id="gate-btn">Authenticate →</button>
+    <button class="gate-btn" id="gate-btn">Authenticate &rarr;</button>
     <div class="gate-err" id="gate-err"></div>
   </div>
 </div>
@@ -724,145 +531,91 @@
 <div id="app">
 
   <!-- HEADER -->
-  <header id="hdr">
-    <span class="logo-word">Sophos Adversary</span>
-    <span class="logo-tag">admin_console</span>
-    <div class="hdr-sep"></div>
+  <header class="shared-header">
+    <span class="shared-brand">Sophos Adversary</span>
+    <span class="shared-tag">admin_console</span>
   </header>
 
-  <div class="hdr-pill" id="hdr-pill">
-    <a href="/" class="hdr-link">
-      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <path d="M7 2L3 6l4 4"/>
-      </svg>
-      SE Console
-    </a>
-    <div class="lpip"><div class="ldot"></div>Live</div>
-    <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
-    <div class="nav-wrap" id="nav-wrap">
-      <button class="hdr-link" id="nav-btn" onclick="navToggle()">&#9776; Menu</button>
-      <div class="nav-dd" id="nav-dd">
-        <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
-        <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
-        <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
-      </div>
-    </div>
+  <div class="shared-hdr-right">
+    <a href="index.html" class="shared-hdr-link">&larr; SE Console</a>
+    <a href="architecture.html" class="shared-hdr-link">Architecture</a>
   </div>
 
   <!-- WEBHOOK NOTICE -->
   <div id="wh-notice">
-    <span class="wh-icon">⚠</span>
-    <span>Write operations (approve, edit, delete) require the <strong>scenario-approve</strong> n8n workflow to be active at <code style="font-family:var(--fm);font-size:11px">/webhook/scenario-approve</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
-    <button class="wh-dismiss" id="wh-dismiss" title="Dismiss">×</button>
+    <span>&#9888; Write operations (approve, edit, delete) require the <strong>scenario-approve</strong> n8n workflow at <code style="font-family:var(--fm);font-size:11px">/webhook/scenario-approve</code>. Until active, changes update the UI only.</span>
+    <button class="wh-dismiss" id="wh-dismiss" title="Dismiss">&times;</button>
   </div>
 
-  <!-- STATS BAR -->
-  <div id="stats">
-    <div class="stat">
-      <div class="stat-val" id="st-total">—</div>
-      <div class="stat-lbl">Total Scenarios</div>
-    </div>
-    <div class="stat s-approved">
-      <div class="stat-val" id="st-approved">—</div>
-      <div class="stat-lbl">Approved</div>
-    </div>
-    <div class="stat s-pending">
-      <div class="stat-val" id="st-pending">—</div>
-      <div class="stat-lbl">Pending Review</div>
-    </div>
-    <div class="stat s-launch">
-      <div class="stat-val" id="st-launch">—</div>
-      <div class="stat-lbl">Launchable</div>
-    </div>
-    <div class="stat s-warn">
-      <div class="stat-val" id="st-warn">—</div>
-      <div class="stat-lbl">Expiring Soon</div>
-    </div>
-  </div>
+  <!-- CONTENT -->
+  <div class="content">
 
-  <!-- MAIN -->
-  <div id="main">
+    <!-- STATS BAR -->
+    <div class="stats-bar fade-section" id="stats-bar">
+      <span class="stat-item" id="st-total">--</span> <span class="stat-label">scenarios</span>
+      <span class="stat-sep">&middot;</span>
+      <span class="stat-item s-ok" id="st-approved">--</span> <span class="stat-label">approved</span>
+      <span class="stat-sep">&middot;</span>
+      <span class="stat-item s-warn" id="st-pending">--</span> <span class="stat-label">pending</span>
+      <span class="stat-sep">&middot;</span>
+      <span class="stat-item s-cyan" id="st-launch">--</span> <span class="stat-label">launchable</span>
+    </div>
 
-    <!-- FILTER BAR -->
-    <div id="filterbar">
-      <!-- Status -->
-      <div class="fgrp">
-        <span class="fgrp-lbl">Status</span>
-        <button class="chip on" data-filter="status" data-val="all">All</button>
-        <button class="chip" data-filter="status" data-val="approved">Approved</button>
-        <button class="chip" data-filter="status" data-val="pending">Pending</button>
-        <button class="chip" data-filter="status" data-val="ephemeral">Ephemeral</button>
-        <button class="chip" data-filter="status" data-val="expired">Expired</button>
-      </div>
-      <div class="filter-sep"></div>
-      <!-- Source -->
-      <div class="fgrp">
-        <span class="fgrp-lbl">Source</span>
-        <button class="chip" data-filter="source" data-val="hand-authored">Authored</button>
-        <button class="chip" data-filter="source" data-val="ollama-enriched">AI</button>
-        <button class="chip" data-filter="source" data-val="case-submission">Case</button>
-        <button class="chip" data-filter="source" data-val="se-enrichment">SE</button>
-      </div>
-      <div class="filter-sep"></div>
-      <!-- Launchable -->
-      <div class="fgrp">
-        <span class="fgrp-lbl">Launch</span>
-        <button class="chip" data-filter="launchable" data-val="yes">Launchable</button>
-        <button class="chip" data-filter="launchable" data-val="no">Not Ready</button>
-      </div>
-      <!-- Search -->
-      <div id="search-wrap">
+    <!-- FILTER ROW -->
+    <div class="filter-row fade-section">
+      <select class="ctrl" id="f-status">
+        <option value="all">All Statuses</option>
+        <option value="approved">Approved</option>
+        <option value="pending">Pending</option>
+        <option value="ephemeral">Ephemeral</option>
+        <option value="expired">Expired</option>
+      </select>
+      <select class="ctrl" id="f-source">
+        <option value="all">All Sources</option>
+        <option value="hand-authored">Authored</option>
+        <option value="ai">AI</option>
+        <option value="case-submission">Case</option>
+        <option value="se-enrichment">SE</option>
+      </select>
+      <div class="filter-spacer"></div>
+      <div class="search-wrap">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
           <circle cx="6.5" cy="6.5" r="5.2"/>
           <path d="M10.5 10.5L14 14" stroke-linecap="round"/>
         </svg>
-        <input id="fsearch" type="text" autocomplete="off" placeholder="Search scenarios…">
+        <input id="fsearch" type="text" class="ctrl search-input" autocomplete="off" placeholder="Search scenarios...">
       </div>
+      <span class="filter-count" id="scenario-count"></span>
     </div>
 
-    <!-- BULK ACTIONS BAR -->
-    <div id="bulkbar">
-      <span class="bulk-count" id="bulk-count">0 selected</span>
-      <div class="bulk-sep"></div>
-      <span class="bulk-sel-lbl">Select:</span>
-      <button class="bulk-sel-btn" id="sel-all-ai">All AI-generated</button>
-      <button class="bulk-sel-btn" id="sel-all-pending">All Pending</button>
-      <button class="bulk-sel-btn" id="sel-not-launchable">All Non-launchable</button>
-      <button class="bulk-sel-btn" id="sel-clear">Clear</button>
-      <div class="filter-sep"></div>
-      <button class="bulk-action-btn bulk-approve" id="bulk-approve">✓ Approve</button>
-      <button class="bulk-action-btn bulk-hide" id="bulk-hide">Hide</button>
-      <button class="bulk-action-btn bulk-delete" id="bulk-delete">Delete</button>
-    </div>
-
-    <!-- TABLE -->
-    <div id="scenario-count"></div>
-    <div class="tbl-wrap">
-      <div class="tbl-head">
-        <div class="th">
-          <div class="row-cb" id="cb-all" title="Select all"></div>
-        </div>
-        <div class="th">Scenario</div>
-        <div class="th">Source</div>
-        <div class="th">Status</div>
-        <div class="th">Launch</div>
-        <div class="th">Audience</div>
-        <div class="th" style="text-align:right">Actions</div>
-      </div>
-      <div id="tbl-body"></div>
-    </div>
+    <!-- SCENARIO LIST (grouped by product) -->
+    <div id="scenario-list" class="fade-section"></div>
 
     <!-- CATALOG HEALTH -->
-    <div id="health">
-      <div class="health-hdr">
-        <div class="health-title">Catalog Health</div>
-        <div class="health-badge hb-ok" id="health-badge">Checking…</div>
+    <div class="health-section fade-section">
+      <button class="health-toggle" id="health-toggle" onclick="toggleHealth()">
+        <span class="arrow" id="health-arrow">&#9654;</span>
+        Catalog Health
+        <span class="health-badge hb-ok" id="health-badge">Checking...</span>
+      </button>
+      <div class="health-body" id="health-body" style="display:none">
+        <div class="health-grid" id="health-grid"></div>
       </div>
-      <div class="health-grid" id="health-grid"></div>
     </div>
 
-  </div><!-- /main -->
+  </div><!-- /content -->
 </div><!-- /app -->
+
+<!-- BULK BAR -->
+<div class="bulk-bar" id="bulkbar">
+  <span class="bulk-count" id="bulk-count">0 selected</span>
+  <button class="btn" onclick="bulkApprove()">Approve Selected</button>
+  <button class="btn btn-danger" onclick="bulkDelete()">Delete Selected</button>
+  <span class="bulk-sep"></span>
+  <button class="btn-text" onclick="selectWhere(s => s.source !== 'hand-authored')">Select AI</button>
+  <button class="btn-text" onclick="selectWhere(s => s.status === 'pending')">Select Pending</button>
+  <button class="btn-text" onclick="clearSel()">Clear</button>
+</div>
 
 <!-- EDIT PANEL -->
 <div id="editov"></div>
@@ -879,11 +632,9 @@
       </svg>
     </button>
   </div>
-  <div class="edit-body" id="edit-body">
-    <!-- populated by openEdit() -->
-  </div>
+  <div class="edit-body" id="edit-body"></div>
   <div class="edit-ftr">
-    <button class="ef-cancel" id="edit-cancel">Cancel</button>
+    <button class="btn" id="edit-cancel">Cancel</button>
     <button class="ef-save" id="edit-save">
       <div class="bsp"></div><span class="btx">Save Changes</span>
     </button>
@@ -899,7 +650,7 @@
   ===================================================== */
   const ADMIN_PASSWORD = 'SEdemo2026';
   const SCENARIOS_URL  = '/scenarios.json';
-  const ADMIN_WH       = `/api/scenario-approve`;
+  const ADMIN_WH       = '/api/scenario-approve';
   const SESSION_KEY    = 'mdr_admin_auth';
 
   /* =====================================================
@@ -912,24 +663,11 @@
     if (s == null) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-  function iso2rel(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    const now = new Date();
-    const diff = now - d;
-    const days = Math.floor(diff / 86400000);
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7)  return `${days}d ago`;
-    if (days < 30) return `${Math.floor(days/7)}w ago`;
-    return d.toLocaleDateString();
-  }
   function isExpired(s) {
     return s.status === 'ephemeral' && s.expires_at && new Date(s.expires_at) < new Date();
   }
   function effectiveStatus(s) {
     if (isExpired(s)) return 'expired';
-    if (s.hidden)     return 'hidden';
     return s.status || 'pending';
   }
   function srcLabel(source) {
@@ -951,8 +689,9 @@
     filt: [],
     selected: new Set(),
     editId: null,
-    filters: { status: 'all', source: null, launchable: null },
-    q: ''
+    filters: { status: 'all', source: null },
+    q: '',
+    groups: { endpoint: true, ndr: true, firewall: true, other: false }
   };
 
   /* =====================================================
@@ -975,7 +714,7 @@
       load();
     } else {
       $('gate-err').textContent = 'Incorrect password.';
-      $('gate-pw').style.borderColor = 'rgba(181,41,247,.7)';
+      $('gate-pw').style.borderColor = 'rgba(255,68,68,.7)';
       setTimeout(() => {
         $('gate-err').textContent = '';
         $('gate-pw').style.borderColor = '';
@@ -997,7 +736,7 @@
       renderStats();
       renderHealth();
     } catch (e) {
-      $('tbl-body').innerHTML = `<div class="tbl-empty"><strong>Load Failed</strong>${x(e.message)}</div>`;
+      $('scenario-list').innerHTML = `<div class="tbl-empty"><strong>Load Failed</strong>${x(e.message)}</div>`;
     }
   }
 
@@ -1009,24 +748,17 @@
 
     // status filter
     if (A.filters.status && A.filters.status !== 'all') {
-      f = f.filter(s => {
-        const es = effectiveStatus(s);
-        return es === A.filters.status;
-      });
+      f = f.filter(s => effectiveStatus(s) === A.filters.status);
     }
 
     // source filter
     if (A.filters.source) {
-      if (A.filters.source === 'ollama-enriched') {
+      if (A.filters.source === 'ai') {
         f = f.filter(s => s.source === 'ollama-enriched' || s.source === 'ai-enriched');
       } else {
         f = f.filter(s => s.source === A.filters.source);
       }
     }
-
-    // launchable filter
-    if (A.filters.launchable === 'yes') f = f.filter(s => s.launchable);
-    if (A.filters.launchable === 'no')  f = f.filter(s => !s.launchable);
 
     // search
     if (A.q) {
@@ -1040,7 +772,7 @@
     }
 
     A.filt = f;
-    renderTable();
+    render();
   }
 
   /* =====================================================
@@ -1048,89 +780,104 @@
   ===================================================== */
   function renderStats() {
     const all = A.all;
-    const now = new Date();
     const approved  = all.filter(s => s.status === 'approved').length;
     const pending   = all.filter(s => s.status === 'pending').length;
     const launchable= all.filter(s => s.launchable).length;
-    const expiring  = all.filter(s => {
-      if (!s.expires_at) return false;
-      const exp = new Date(s.expires_at);
-      const diff = exp - now;
-      return diff > 0 && diff < 86400000 * 3; // expiring within 3 days
-    }).length;
 
     $('st-total').textContent    = all.length;
     $('st-approved').textContent = approved;
     $('st-pending').textContent  = pending;
     $('st-launch').textContent   = launchable;
-    $('st-warn').textContent     = expiring;
   }
 
   /* =====================================================
-     RENDER TABLE
+     RENDER (grouped by product)
   ===================================================== */
-  function renderTable() {
+  function render() {
     const countEl = $('scenario-count');
     const f = A.filt;
     countEl.textContent = f.length === A.all.length
-      ? `${A.all.length} scenario${A.all.length !== 1 ? 's' : ''}`
-      : `Showing ${f.length} of ${A.all.length} scenarios`;
+      ? `${A.all.length} scenarios`
+      : `${f.length} of ${A.all.length}`;
 
     if (!f.length) {
-      $('tbl-body').innerHTML = `<div class="tbl-empty"><strong>No Matches</strong>Try adjusting your filters.</div>`;
+      $('scenario-list').innerHTML = `<div class="tbl-empty"><strong>No Matches</strong>Try adjusting your filters.</div>`;
       return;
     }
 
-    $('tbl-body').innerHTML = f.map(s => {
-      const es  = effectiveStatus(s);
-      const sel = A.selected.has(s.id);
-      const [srcLbl, srcCls] = srcLabel(s.source);
-      const au  = s.audience || 'Technical';
-      const audCls = au === 'Executive' ? 'aud-exec' : 'aud-tech';
+    // Group by product
+    const groups = [
+      { key: 'endpoint', label: 'Endpoint', items: f.filter(s => (s.product||'').toLowerCase() === 'endpoint') },
+      { key: 'ndr',      label: 'NDR',      items: f.filter(s => (s.product||'').toLowerCase() === 'ndr') },
+      { key: 'firewall', label: 'Firewall',  items: f.filter(s => (s.product||'').toLowerCase() === 'firewall') }
+    ];
+    const categorized = new Set();
+    groups.forEach(g => g.items.forEach(s => categorized.add(s.id)));
+    const other = f.filter(s => !categorized.has(s.id));
 
-      const statusPill = {
-        approved:  `<span class="spill sp-approved">Approved</span>`,
-        pending:   `<span class="spill sp-pending">Pending</span>`,
-        ephemeral: `<span class="spill sp-ephemeral">Ephemeral</span>`,
-        expired:   `<span class="spill sp-expired">Expired</span>`,
-        hidden:    `<span class="spill sp-hidden">Hidden</span>`
-      }[es] || `<span class="spill sp-pending">${x(es)}</span>`;
+    let html = '';
+    groups.forEach(g => {
+      if (!g.items.length) return;
+      const expanded = A.groups[g.key];
+      html += renderGroup(g.key, g.label, g.items, expanded);
+    });
+    if (other.length) {
+      const expanded = A.groups.other;
+      html += renderGroup('other', 'Other / AI-Generated', other, expanded);
+    }
 
-      const launchHtml = s.launchable
-        ? `<div class="launch-ind launch-yes"><div class="launch-dot"></div>Ready</div>`
-        : `<div class="launch-ind launch-no"><div class="launch-dot"></div>Not Ready</div>`;
+    $('scenario-list').innerHTML = html;
+  }
 
-      const approveBtn = es !== 'approved'
-        ? `<button class="act-btn act-approve" data-id="${x(s.id)}" onclick="approveOne('${x(s.id)}')">✓</button>`
-        : `<button class="act-btn act-reject" data-id="${x(s.id)}" onclick="rejectOne('${x(s.id)}')">✕</button>`;
+  function renderGroup(key, label, items, expanded) {
+    const collCls = expanded ? '' : ' collapsed';
+    let h = `<div class="prod-group pg-${key}">`;
+    h += `<div class="prod-group-hdr${collCls}" onclick="toggleGroup('${key}')">`;
+    h += `<span class="prod-group-arrow">${expanded ? '\u25BC' : '\u25B6'}</span>`;
+    h += `<span class="prod-group-dot"></span>`;
+    h += `<span class="prod-group-name">${x(label)}</span>`;
+    h += `<span class="prod-group-count">(${items.length})</span>`;
+    h += `</div>`;
+    h += `<div class="prod-group-body${collCls}" style="max-height:${expanded ? items.length * 42 + 20 : 0}px">`;
+    items.forEach(s => { h += renderRow(s); });
+    h += `</div></div>`;
+    return h;
+  }
 
-      const hideLabel = s.hidden ? 'Show' : 'Hide';
+  function renderRow(s) {
+    const es = effectiveStatus(s);
+    const sel = A.selected.has(s.id);
 
-      return `
-        <div class="tbl-row${sel?' selected':''}${s.hidden?' hidden-row':''}" data-id="${x(s.id)}">
-          <div class="td">
-            <div class="row-cb${sel?' checked':''}" data-id="${x(s.id)}" onclick="toggleSel('${x(s.id)}',event)"></div>
-          </div>
-          <div class="td">
-            <div class="row-name">
-              <div class="row-title" title="${x(s.title)}">${x(s.title||'Untitled')}</div>
-              <div class="row-id">${x(s.id||'—')}</div>
-            </div>
-          </div>
-          <div class="td">
-            <span class="src-pill ${srcCls}">${x(srcLbl)}</span>
-            <div style="font-size:10px;color:var(--text-dim);margin-top:3px">${x(iso2rel(s.submitted_at))} · ${x(s.submitted_by||'—')}</div>
-          </div>
-          <div class="td">${statusPill}</div>
-          <div class="td">${launchHtml}</div>
-          <div class="td"><span class="aud-pill ${audCls}">${x(au)}</span></div>
-          <div class="td row-actions">
-            ${approveBtn}
-            <button class="act-btn act-edit" onclick="openEdit('${x(s.id)}')">Edit</button>
-            <button class="act-btn act-hide" onclick="toggleHide('${x(s.id)}')">${hideLabel}</button>
-          </div>
-        </div>`;
-    }).join('');
+    const statusPill = {
+      approved:  '<span class="spill sp-approved">Approved</span>',
+      pending:   '<span class="spill sp-pending">Pending</span>',
+      ephemeral: '<span class="spill sp-ephemeral">Ephemeral</span>',
+      expired:   '<span class="spill sp-expired">Expired</span>'
+    }[es] || `<span class="spill sp-pending">${x(es)}</span>`;
+
+    const readyHtml = s.launchable
+      ? '<span class="ready-ind ready-yes"><span class="ready-dot"></span>Ready</span>'
+      : '<span class="ready-ind ready-no"><span class="ready-dot"></span>Not Ready</span>';
+
+    return `<div class="admin-row${sel ? ' selected' : ''}" data-id="${x(s.id)}">
+      <div class="row-cb${sel ? ' checked' : ''}" onclick="toggleSel('${x(s.id)}',event)"></div>
+      <span class="row-id">${x(s.id || '--')}</span>
+      <span class="row-title" title="${x(s.title)}">${x(s.title || 'Untitled')}</span>
+      ${statusPill}
+      ${readyHtml}
+      <span class="row-actions">
+        <button class="act-btn act-edit" onclick="openEdit('${x(s.id)}')">Edit</button>
+        <button class="act-btn act-delete" onclick="deleteOne('${x(s.id)}')">&#128465;</button>
+      </span>
+    </div>`;
+  }
+
+  /* =====================================================
+     GROUP TOGGLE
+  ===================================================== */
+  function toggleGroup(key) {
+    A.groups[key] = !A.groups[key];
+    render();
   }
 
   /* =====================================================
@@ -1141,7 +888,30 @@
     if (A.selected.has(id)) A.selected.delete(id);
     else A.selected.add(id);
     syncBulk();
-    renderTable();
+    render();
+  }
+
+  function selectAll() {
+    if (A.selected.size === A.filt.length && A.filt.length > 0) {
+      A.selected.clear();
+    } else {
+      A.filt.forEach(s => A.selected.add(s.id));
+    }
+    syncBulk();
+    render();
+  }
+
+  function selectWhere(pred) {
+    A.selected.clear();
+    A.all.filter(pred).forEach(s => A.selected.add(s.id));
+    syncBulk();
+    render();
+  }
+
+  function clearSel() {
+    A.selected.clear();
+    syncBulk();
+    render();
   }
 
   function syncBulk() {
@@ -1149,13 +919,6 @@
     const bar = $('bulkbar');
     bar.classList.toggle('show', n > 0);
     if (n > 0) $('bulk-count').textContent = `${n} selected`;
-  }
-
-  function selectWhere(pred) {
-    A.selected.clear();
-    A.all.filter(pred).forEach(s => A.selected.add(s.id));
-    syncBulk();
-    renderTable();
   }
 
   /* =====================================================
@@ -1168,24 +931,6 @@
     persistAction('approve', [id]);
     filt(); renderStats(); renderHealth();
     toast(`Approved: ${s.title}`);
-  }
-
-  function rejectOne(id) {
-    const s = A.all.find(a => a.id === id);
-    if (!s) return;
-    s.status = 'pending';
-    persistAction('reject', [id]);
-    filt(); renderStats(); renderHealth();
-    toast(`Moved to pending: ${s.title}`);
-  }
-
-  function toggleHide(id) {
-    const s = A.all.find(a => a.id === id);
-    if (!s) return;
-    s.hidden = !s.hidden;
-    persistAction('hide', [id], { hidden: s.hidden });
-    filt(); renderStats();
-    toast(s.hidden ? `Hidden: ${s.title}` : `Visible: ${s.title}`);
   }
 
   function deleteOne(id) {
@@ -1214,19 +959,6 @@
     toast(`Approved ${ids.length} scenarios`);
   }
 
-  function bulkHide() {
-    const ids = [...A.selected];
-    ids.forEach(id => {
-      const s = A.all.find(a => a.id === id);
-      if (s) s.hidden = true;
-    });
-    persistAction('hide', ids, { hidden: true });
-    A.selected.clear();
-    syncBulk();
-    filt(); renderStats();
-    toast(`Hidden ${ids.length} scenarios`);
-  }
-
   function bulkDelete() {
     const ids = [...A.selected];
     if (!confirm(`Delete ${ids.length} scenarios? This cannot be undone.`)) return;
@@ -1239,7 +971,7 @@
   }
 
   /* =====================================================
-     PERSIST ACTION → scenario-approve webhook
+     PERSIST ACTION -> scenario-approve webhook
   ===================================================== */
   async function persistAction(action, ids, extra = {}) {
     try {
@@ -1249,7 +981,7 @@
         body: JSON.stringify({ action, ids, ...extra, scenarios: A.all })
       });
     } catch {
-      // Webhook may not be configured — UI update already done
+      // Webhook may not be configured -- UI update already done
     }
   }
 
@@ -1265,10 +997,6 @@
     $('edit-id-hdr').textContent    = s.id || '';
 
     $('edit-body').innerHTML = `
-      <div class="ef-notice">
-        ⚠ Edits are applied immediately in the UI. Persistence to scenarios.json requires the
-        <strong>scenario-approve</strong> n8n webhook to be active.
-      </div>
       <div class="ef-group">
         <div class="ef-label">Title</div>
         <input id="ef-title" type="text" class="ef-ctrl" value="${x(s.title||'')}">
@@ -1287,37 +1015,29 @@
           </select>
         </div>
         <div class="ef-group">
-          <div class="ef-label">Audience</div>
-          <select id="ef-audience" class="ef-ctrl">
-            <option value="Technical"  ${s.audience==='Technical'?'selected':''}>Technical</option>
-            <option value="Executive"  ${s.audience==='Executive'?'selected':''}>Executive</option>
+          <div class="ef-label">Source</div>
+          <select id="ef-source" class="ef-ctrl">
+            <option value="hand-authored"   ${s.source==='hand-authored'?'selected':''}>Hand-authored</option>
+            <option value="ai-enriched"     ${(s.source==='ai-enriched'||s.source==='ollama-enriched')?'selected':''}>AI-enriched</option>
+            <option value="case-submission" ${s.source==='case-submission'?'selected':''}>Case Submission</option>
+            <option value="se-enrichment"   ${s.source==='se-enrichment'?'selected':''}>SE Enrichment</option>
           </select>
         </div>
       </div>
       <div class="ef-grid2">
         <div class="ef-group">
-          <div class="ef-label">Source</div>
-          <select id="ef-source" class="ef-ctrl">
-            <option value="hand-authored"   ${s.source==='hand-authored'?'selected':''}>Hand-authored</option>
-            <option value="ollama-enriched" ${s.source==='ollama-enriched'?'selected':''}>AI Generated (Ollama)</option>
-            <option value="ai-enriched" ${s.source==='ai-enriched'?'selected':''}>AI Generated</option>
-            <option value="case-submission" ${s.source==='case-submission'?'selected':''}>Case Submission</option>
-            <option value="se-enrichment"   ${s.source==='se-enrichment'?'selected':''}>SE Enrichment</option>
+          <div class="ef-label">Launchable</div>
+          <select id="ef-launchable" class="ef-ctrl">
+            <option value="true"  ${s.launchable?'selected':''}>Yes</option>
+            <option value="false" ${!s.launchable?'selected':''}>No</option>
           </select>
         </div>
         <div class="ef-group">
-          <div class="ef-label">Launchable</div>
-          <select id="ef-launchable" class="ef-ctrl">
-            <option value="true"  ${s.launchable?'selected':''}>Yes — CALDERA ready</option>
-            <option value="false" ${!s.launchable?'selected':''}>No — placeholder</option>
-          </select>
+          <div class="ef-label">CALDERA Adversary ID</div>
+          <input id="ef-adversary" type="text" class="ef-ctrl"
+            value="${x(s.caldera_adversary_id||s.caldera_ability||'')}"
+            placeholder="e.g. scn001-credential-dumping">
         </div>
-      </div>
-      <div class="ef-group">
-        <div class="ef-label">CALDERA Adversary ID</div>
-        <input id="ef-adversary" type="text" class="ef-ctrl"
-          value="${x(s.caldera_adversary_id||s.caldera_ability||'')}"
-          placeholder="e.g. scn001-credential-dumping">
       </div>
       <div class="ef-grid2">
         <div class="ef-group">
@@ -1353,7 +1073,6 @@
     s.title         = $('ef-title').value.trim();
     s.description   = $('ef-desc').value.trim();
     s.status        = $('ef-status').value;
-    s.audience      = $('ef-audience').value;
     s.source        = $('ef-source').value;
     s.launchable    = $('ef-launchable').value === 'true';
     s.submitted_by  = $('ef-submitter').value.trim();
@@ -1372,6 +1091,18 @@
   /* =====================================================
      CATALOG HEALTH
   ===================================================== */
+  function toggleHealth() {
+    const body = $('health-body');
+    const toggle = $('health-toggle');
+    const arrow = $('health-arrow');
+    const showing = body.style.display !== 'none';
+    body.style.display = showing ? 'none' : 'block';
+    toggle.classList.toggle('open', !showing);
+    arrow.innerHTML = showing ? '&#9654;' : '&#9660;';
+    if (!showing) toggle.style.borderRadius = 'var(--radius) var(--radius) 0 0';
+    else toggle.style.borderRadius = '';
+  }
+
   function renderHealth() {
     const all = A.all;
     const approved   = all.filter(s => s.status === 'approved');
@@ -1441,10 +1172,10 @@
 
     $('health-grid').innerHTML = checks.map(c => `
       <div class="hcheck">
-        <div class="hcheck-ico hico-${c.ico}">${c.ico==='ok'?'✓':c.ico==='warn'?'!':'✕'}</div>
-        <div class="hcheck-body">
+        <div class="hcheck-ico hico-${c.ico}">${c.ico==='ok'?'\u2713':c.ico==='warn'?'!':'\u2717'}</div>
+        <div>
           <div class="hcheck-name">${x(c.name)}</div>
-          <div class="hcheck-val">${x(c.val)} — ${x(c.tip)}</div>
+          <div class="hcheck-val">${x(c.val)} -- ${x(c.tip)}</div>
         </div>
       </div>`).join('');
   }
@@ -1454,11 +1185,12 @@
   ===================================================== */
   function toast(msg, type = 'default') {
     const t = document.createElement('div');
-    const colors = {
+    const colorMap = {
       default: ['rgba(0,242,179,.4)', 'var(--accent-green)'],
-      error:   ['rgba(181,41,247,.4)', 'var(--sev-crit)'],
-      warn:    ['rgba(0,156,251,.4)',  'var(--sev-med)']
-    }[type] || colors.default;
+      error:   ['rgba(255,68,68,.4)',  'var(--c-fail)'],
+      warn:    ['rgba(255,152,0,.4)',  '#FF9800']
+    };
+    const colors = colorMap[type] || colorMap.default;
     t.style.cssText = [
       'background:rgba(8,15,46,.97)',
       `border:1px solid ${colors[0]}`,
@@ -1476,7 +1208,7 @@
 
   /* =====================================================
      EVENTS
-  =====================================================*/
+  ===================================================== */
   function wire() {
     // Gate
     $('gate-btn').addEventListener('click', tryLogin);
@@ -1488,67 +1220,18 @@
       .then(r => { if (r.ok || r.status === 400) $('wh-notice').classList.add('hidden'); })
       .catch(() => {});
 
-    // Filter chips — status
-    qa('[data-filter="status"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        qa('[data-filter="status"]').forEach(b => b.classList.remove('on','on-green','on-orange','on-crit'));
-        A.filters.status = btn.dataset.val;
-        const cls = { all:'on', approved:'on-green', pending:'on-orange', ephemeral:'on', expired:'on-crit' }[btn.dataset.val] || 'on';
-        btn.classList.add(cls);
-        filt();
-      });
+    // Filter dropdowns
+    $('f-status').addEventListener('change', e => {
+      A.filters.status = e.target.value;
+      filt();
     });
-
-    // Filter chips — source
-    qa('[data-filter="source"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const active = btn.classList.contains('on');
-        qa('[data-filter="source"]').forEach(b => b.classList.remove('on'));
-        A.filters.source = active ? null : btn.dataset.val;
-        if (!active) btn.classList.add('on');
-        filt();
-      });
-    });
-
-    // Filter chips — launchable
-    qa('[data-filter="launchable"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const active = btn.classList.contains('on');
-        qa('[data-filter="launchable"]').forEach(b => b.classList.remove('on'));
-        A.filters.launchable = active ? null : btn.dataset.val;
-        if (!active) btn.classList.add('on');
-        filt();
-      });
+    $('f-source').addEventListener('change', e => {
+      A.filters.source = e.target.value === 'all' ? null : e.target.value;
+      filt();
     });
 
     // Search
     $('fsearch').addEventListener('input', e => { A.q = e.target.value; filt(); });
-
-    // Select all header checkbox
-    $('cb-all').addEventListener('click', () => {
-      if (A.selected.size === A.filt.length && A.filt.length > 0) {
-        A.selected.clear();
-      } else {
-        A.filt.forEach(s => A.selected.add(s.id));
-      }
-      syncBulk();
-      renderTable();
-    });
-
-    // Bulk smart selectors
-    $('sel-all-ai').addEventListener('click', () => selectWhere(s => s.source === 'ollama-enriched' || s.source === 'ai-enriched'));
-    $('sel-all-pending').addEventListener('click', () => selectWhere(s => s.status === 'pending'));
-    $('sel-not-launchable').addEventListener('click', () => selectWhere(s => !s.launchable));
-    $('sel-clear').addEventListener('click', () => {
-      A.selected.clear();
-      syncBulk();
-      renderTable();
-    });
-
-    // Bulk actions
-    $('bulk-approve').addEventListener('click', bulkApprove);
-    $('bulk-hide').addEventListener('click', bulkHide);
-    $('bulk-delete').addEventListener('click', bulkDelete);
 
     // Edit panel
     $('editcls').addEventListener('click', closeEdit);
@@ -1569,39 +1252,6 @@
     wire();
     checkAuth();
   });
-
-// ── Nav Menu ─────────────────────────────────────────────────────────────────
-function navToggle() { document.getElementById('nav-dd').classList.toggle('open'); }
-document.addEventListener('click', function(e) {
-  var w = document.getElementById('nav-wrap');
-  if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
-});
-function navCopyLink() {
-  navigator.clipboard.writeText(location.href)
-}
-function navFb(id, txt) {
-  var el = document.getElementById(id); if (!el) return;
-  var orig = el.textContent; el.textContent = txt;
-  setTimeout(function() { el.textContent = orig; }, 1800);
-}
-
-// ── Lab Manager Link ──────────────────────────────────────────────────
-function labmgrUpdateDot(url) {
-  var dot = document.getElementById('labmgr-dot');
-  if (url) { dot.classList.add('green'); } else { dot.classList.remove('green'); }
-}
-async function labmgrClick() {
-  var url = localStorage.getItem('labopsUrl') || '';
-  if (!url) { try { var r = await fetch('/api/settings'); if (r.ok) { var cfg = await r.json(); url = cfg.labopsUrl || ''; } } catch(e) {} }
-  if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
-}
-(function() {
-  var cached = localStorage.getItem('labopsUrl');
-  if (cached) { labmgrUpdateDot(cached); return; }
-  fetch('/api/settings').then(function(r) { return r.ok ? r.json() : {}; }).then(function(cfg) {
-    if (cfg.labopsUrl) { localStorage.setItem('labopsUrl', cfg.labopsUrl); labmgrUpdateDot(cfg.labopsUrl); }
-  }).catch(function() {});
-})();
 </script>
 </body>
 </html>
