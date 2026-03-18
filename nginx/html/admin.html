@@ -296,6 +296,10 @@
       background: transparent; border: 1px solid var(--border-dim); color: var(--text-dim);
     }
     .act-delete:hover { border-color: rgba(255,68,68,.4); color: var(--c-fail); background: rgba(255,68,68,.06); }
+    .act-approve {
+      background: rgba(0,242,179,.08); border: 1px solid rgba(0,242,179,.3); color: var(--accent-green);
+    }
+    .act-approve:hover { background: rgba(0,242,179,.15); border-color: rgba(0,242,179,.5); }
 
     /* empty state */
     .tbl-empty {
@@ -866,6 +870,7 @@
       ${statusPill}
       ${readyHtml}
       <span class="row-actions">
+        ${es !== 'approved' ? `<button class="act-btn act-approve" onclick="approveOne('${x(s.id)}')">Approve</button>` : ''}
         <button class="act-btn act-edit" onclick="openEdit('${x(s.id)}')">Edit</button>
         <button class="act-btn act-delete" onclick="deleteOne('${x(s.id)}')">&#128465;</button>
       </span>
