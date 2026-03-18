@@ -26,3 +26,10 @@ node_modules/
 # Atomic Runner results
 atomic-runner/results/
 atomic-runner/tests/
+
+# Update system rollback state
+.update-rollback-hash
+.update-rollback-version.json
+
+# Superpowers brainstorm/workspace artifacts
+.superpowers/
