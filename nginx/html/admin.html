@@ -761,6 +761,43 @@
       font-size: 11px; color: var(--text-dim); margin-left: 8px;
       font-style: italic;
     }
+
+    /* ── Custom Select ───────────────────────────────────────── */
+    /* suppress SVG arrow and extra padding from .ctrl/.cf-ctrl/.ef-ctrl on the trigger */
+    .cs-trigger { background-image: none !important; padding-right: 10px !important; }
+    .cs-wrap { position: relative; display: flex; flex-direction: column; }
+    .cs-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .cs-arrow {
+      flex-shrink: 0; margin-left: 8px; opacity: .55;
+      transition: transform .15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.6)' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: center;
+      width: 10px; height: 6px;
+    }
+    .cs-trigger.open .cs-arrow { transform: rotate(180deg); }
+    .cs-dd {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--bg-card); border: 1px solid rgba(var(--accent-cyan-rgb),.2);
+      border-radius: 6px; z-index: 999; overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0,0,0,.6);
+      animation: cs-in .1s ease-out;
+      min-width: 100%;
+    }
+    .cs-dd.open { display: block; }
+    @keyframes cs-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .cs-opt {
+      padding: 8px 14px; cursor: pointer; color: var(--text-sec);
+      font-size: 13px; font-family: var(--fb);
+      transition: background .1s, color .1s;
+    }
+    .cs-opt:hover { background: rgba(var(--accent-cyan-rgb),.08); color: var(--text-primary); }
+    .cs-opt.cs-selected { color: var(--accent-cyan); }
   </style>
 </head>
 <body>
@@ -1033,6 +1070,14 @@
   ===================================================== */
   const SCENARIOS_URL  = '/scenarios.json';
   const ADMIN_WH       = '/api/scenario-approve';
+
+  // Close custom selects on outside click
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.cs-dd.open').forEach(d => {
+      d.classList.remove('open');
+      if (d.previousElementSibling) d.previousElementSibling.classList.remove('open');
+    });
+  });
 
   /* =====================================================
      UTILS
@@ -1958,11 +2003,84 @@ Return the response with emphasis on expected_detections and talking_points fiel
   /* =====================================================
      BOOT
   ===================================================== */
+  function customizeSelect(sel) {
+    if (sel.dataset.csInit) return;
+    sel.dataset.csInit = '1';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cs-wrap';
+    // preserve width behaviour
+    if (sel.style.width) wrap.style.width = sel.style.width;
+    if (sel.style.flex)  wrap.style.flex  = sel.style.flex;
+    if (sel.style.minWidth) wrap.style.minWidth = sel.style.minWidth;
+
+    const trigger = document.createElement('div');
+    // copy the control class so it gets the same bg/border/padding
+    trigger.className = 'cs-trigger ' + (sel.className || 'ctrl');
+
+    const label = document.createElement('span');
+    label.className = 'cs-label';
+    const arrow = document.createElement('span');
+    arrow.className = 'cs-arrow';
+
+    trigger.appendChild(label);
+    trigger.appendChild(arrow);
+
+    const dd = document.createElement('div');
+    dd.className = 'cs-dd';
+
+    function refresh() {
+      const opt = sel.options[sel.selectedIndex];
+      label.textContent = opt ? opt.text : '';
+      dd.querySelectorAll('.cs-opt').forEach(o =>
+        o.classList.toggle('cs-selected', o.dataset.val === sel.value));
+    }
+
+    Array.from(sel.options).forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'cs-opt';
+      div.dataset.val = opt.value;
+      div.textContent = opt.text;
+      div.addEventListener('mousedown', e => {
+        e.preventDefault();
+        sel.value = opt.value;
+        sel.dispatchEvent(new Event('change', {bubbles: true}));
+        refresh();
+        dd.classList.remove('open');
+        trigger.classList.remove('open');
+      });
+      dd.appendChild(div);
+    });
+
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const wasOpen = dd.classList.contains('open');
+      // close all others
+      document.querySelectorAll('.cs-dd.open').forEach(d => {
+        d.classList.remove('open');
+        d.previousElementSibling && d.previousElementSibling.classList.remove('open');
+      });
+      if (!wasOpen) { dd.classList.add('open'); trigger.classList.add('open'); }
+    });
+
+    sel.style.display = 'none';
+    wrap.appendChild(trigger);
+    wrap.appendChild(dd);
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+    refresh();
+  }
+
+  function initCustomSelects() {
+    document.querySelectorAll('select').forEach(customizeSelect);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     wire();
     renderTacticChips();
     load();
     loadMitreData();
+    initCustomSelects();
 
     // Technique browser: search input
     document.addEventListener('input', e => {
