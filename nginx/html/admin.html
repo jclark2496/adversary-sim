@@ -593,6 +593,66 @@
     .fade-section:nth-child(3) { animation-delay: 0.15s; }
     .fade-section:nth-child(4) { animation-delay: 0.20s; }
     .fade-section:nth-child(5) { animation-delay: 0.25s; }
+
+    /* Technique autocomplete */
+    .tech-input-wrap { position: relative; }
+    .tech-dd {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+      background: var(--bg-card); border: 1px solid var(--border-acc);
+      border-radius: var(--radius); max-height: 240px; overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .tech-dd::-webkit-scrollbar { width: 3px; }
+    .tech-dd::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.2); border-radius: 2px; }
+    .tech-dd-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      cursor: pointer; border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.06);
+      font-size: 12px; transition: background .1s;
+    }
+    .tech-dd-item:last-child { border-bottom: none; }
+    .tech-dd-item:hover { background: rgba(var(--accent-cyan-rgb),.08); }
+    .tech-dd-id { font-family: var(--fm); font-weight: 500; color: var(--accent-cyan); min-width: 72px; }
+    .tech-dd-name { flex: 1; color: var(--text-primary); }
+    .tech-dd-tact { font-size: 10px; color: var(--text-dim); }
+    .tech-dd-lab {
+      font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--accent-green); background: rgba(0,242,179,.08);
+      padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(0,242,179,.2);
+    }
+
+    .wiz-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .wiz-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 4px;
+      background: rgba(var(--accent-cyan-rgb),.06); border: 1px solid rgba(var(--accent-cyan-rgb),.18);
+      color: var(--accent-cyan); font-family: var(--fm); font-size: 11px; font-weight: 500;
+    }
+    .wiz-chip.in-lab { background: rgba(0,242,179,.07); border-color: rgba(0,242,179,.25); color: var(--accent-green); }
+    .wiz-chip-rm { background: none; border: none; cursor: pointer; padding: 0; color: rgba(var(--accent-cyan-rgb),.4); font-size: 13px; transition: color .12s; }
+    .wiz-chip-rm:hover { color: var(--text-primary); }
+    .tech-lab-sm { font-size: 9px; opacity: .7; }
+    .tech-coverage { font-size: 11px; margin-top: 6px; padding: 4px 0; }
+    .tech-coverage.all { color: var(--accent-green); }
+    .tech-coverage.some { color: var(--accent-cyan); }
+    .tech-coverage.none { color: #ff6b6b; }
+
+    @keyframes tech-dup { 0%,100% { transform:none; } 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
+    .wiz-chip.dup-flash { animation: tech-dup .36s ease 2; }
+
+    /* AI assist button */
+    .cf-label-row { display: flex; align-items: center; justify-content: space-between; }
+    .ai-assist-btn {
+      font-family: var(--fm); font-size: 10px; font-weight: 500;
+      padding: 4px 12px; border-radius: 4px;
+      background: rgba(var(--accent-cyan-rgb),.08); border: 1px solid rgba(var(--accent-cyan-rgb),.22);
+      color: var(--accent-cyan); cursor: pointer; transition: all .15s;
+      white-space: nowrap;
+    }
+    .ai-assist-btn:hover { background: rgba(var(--accent-cyan-rgb),.15); border-color: rgba(var(--accent-cyan-rgb),.4); }
+    .ai-assist-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .cf-divider { height: 1px; background: var(--border-dim); margin: 16px 0; }
+    .cf-row { display: flex; gap: 12px; }
   </style>
 </head>
 <body>
@@ -643,31 +703,55 @@
           <div class="cf-title">&#128295; Design Scenario</div>
           <div class="cf-group">
             <div class="cf-label">Scenario Name *</div>
-            <input id="design-name" type="text" class="cf-ctrl" placeholder="e.g. Supply Chain Attack via npm" autocomplete="off">
+            <input id="design-name" type="text" class="ctrl" placeholder="e.g. Supply Chain Attack via npm">
           </div>
           <div class="cf-group">
             <div class="cf-label">Description</div>
-            <textarea id="design-desc" class="cf-ctrl" rows="3" placeholder="What this scenario demonstrates..."></textarea>
+            <textarea id="design-desc" class="ctrl" rows="2" placeholder="What this scenario demonstrates..."></textarea>
+          </div>
+          <div class="cf-row">
+            <div class="cf-group" style="flex:1">
+              <div class="cf-label">Product Category</div>
+              <select id="design-product" class="ctrl">
+                <option value="endpoint">Endpoint</option>
+                <option value="ndr">NDR</option>
+                <option value="firewall">Firewall</option>
+              </select>
+            </div>
+            <div class="cf-group" style="flex:1">
+              <div class="cf-label">Tools / Threat Actor</div>
+              <input id="design-tools" type="text" class="ctrl" placeholder="e.g. Mimikatz, CobaltStrike">
+            </div>
           </div>
           <div class="cf-group">
-            <div class="cf-label">Product Category</div>
-            <select id="design-product" class="cf-ctrl">
-              <option value="endpoint">Endpoint</option>
-              <option value="ndr">NDR</option>
-              <option value="firewall">Firewall</option>
-            </select>
+            <div class="cf-label">MITRE ATT&amp;CK Techniques</div>
+            <div class="tech-input-wrap">
+              <input id="design-tech-input" type="text" class="ctrl" placeholder="Search by T-code or technique name..." autocomplete="off">
+              <div class="tech-dd" id="design-tech-dd" style="display:none"></div>
+            </div>
+            <div class="wiz-chips" id="design-tech-chips"></div>
+            <div class="tech-coverage" id="design-tech-coverage"></div>
           </div>
           <div class="cf-group">
             <div class="cf-label">MITRE Tactics</div>
             <div class="tactic-grid" id="design-tactic-grid"></div>
           </div>
+          <div class="cf-divider"></div>
           <div class="cf-group">
-            <div class="cf-label">Tools / Threat Actor</div>
-            <input id="design-tools" type="text" class="cf-ctrl" placeholder="e.g. Mimikatz, CobaltStrike, LockBit" autocomplete="off">
+            <div class="cf-label-row">
+              <span>Expected Detections</span>
+              <button type="button" class="ai-assist-btn" id="ai-assist-btn" onclick="aiAssist()">&#10024; Generate Detections &amp; Talking Points</button>
+            </div>
+            <div class="cf-note" style="margin-bottom:8px">AI will generate expected Sophos detections and customer talking points based on the techniques you selected.</div>
+            <textarea id="design-detections" class="ctrl" rows="3" placeholder="[critical] LSASS memory access by non-system process&#10;[high] Mimikatz signature in process memory"></textarea>
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Talking Points</div>
+            <textarea id="design-talking" class="ctrl" rows="3" placeholder="Key points to discuss with the customer during the demo...&#10;&#10;Separate points with blank lines."></textarea>
           </div>
           <div class="cf-actions">
-            <button class="cf-cancel" onclick="cancelCreate()">Cancel</button>
-            <button class="cf-submit" id="design-submit" onclick="submitDesign()">&#128295; Create Scenario</button>
+            <button class="btn" onclick="cancelCreate()">Cancel</button>
+            <button class="btn btn-primary" id="design-submit" onclick="submitDesign()">&#128295; Create Scenario</button>
           </div>
         </div>
 
@@ -848,6 +932,166 @@
     'Collection','Command and Control','Exfiltration','Impact','Reconnaissance'
   ];
 
+  /* =====================================================
+     MITRE ATT&CK DATA
+  ===================================================== */
+  let MITRE_DATA = [];
+
+  async function loadMitreData() {
+    try {
+      const r = await fetch('mitre-attack.json');
+      if (!r.ok) return;
+      MITRE_DATA = await r.json();
+    } catch { /* offline — autocomplete disabled */ }
+  }
+
+  const TECH_DEFAULTS = ['T1566.001','T1059.001','T1003.001','T1057','T1082','T1486','T1547.001','T1105'];
+
+  function techSearch(q) {
+    if (!MITRE_DATA.length) return [];
+    q = q.trim();
+    if (!q) return TECH_DEFAULTS.map(id => MITRE_DATA.find(t => t.id === id)).filter(Boolean);
+    const lq = q.toLowerCase();
+    const seen = new Set();
+    const out = [];
+    const add = t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(t); } };
+    MITRE_DATA.filter(t => t.id.toLowerCase() === lq).forEach(add);
+    MITRE_DATA.filter(t => t.id.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().includes(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.description && t.description.toLowerCase().includes(lq)).forEach(add);
+    return out.slice(0, 8);
+  }
+
+  /* =====================================================
+     DESIGN FORM TECHNIQUE STATE
+  ===================================================== */
+  let designTechs = [];      // array of {id, name, tactic, in_lab}
+
+  function showDesignTechDd(items) {
+    const dd = $('design-tech-dd');
+    if (!items || !items.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = items.map(t =>
+      `<div class="tech-dd-item" data-id="${t.id}">
+         <span class="tech-dd-id">${t.id}</span>
+         <span class="tech-dd-name">${t.name}</span>
+         <span class="tech-dd-tact">${t.tactic || ''}</span>
+         ${t.in_lab ? '<span class="tech-dd-lab">in lab</span>' : ''}
+       </div>`
+    ).join('');
+    dd.style.display = '';
+    dd.querySelectorAll('.tech-dd-item').forEach(el => {
+      el.addEventListener('mousedown', e => {
+        e.preventDefault();
+        const item = MITRE_DATA.find(t => t.id === el.dataset.id);
+        if (item) addDesignTech(item);
+      });
+    });
+  }
+
+  function addDesignTech(item) {
+    if (designTechs.some(t => t.id === item.id)) {
+      // Duplicate flash
+      const chip = document.querySelector(`[data-dtechid="${item.id}"]`);
+      if (chip) { chip.classList.remove('dup-flash'); void chip.offsetWidth; chip.classList.add('dup-flash'); }
+      $('design-tech-input').value = '';
+      $('design-tech-dd').style.display = 'none';
+      return;
+    }
+    designTechs.push({ id: item.id, name: item.name, tactic: item.tactic, in_lab: item.in_lab });
+    $('design-tech-input').value = '';
+    $('design-tech-dd').style.display = 'none';
+    renderDesignTechChips();
+  }
+
+  function removeDesignTech(id) {
+    designTechs = designTechs.filter(t => t.id !== id);
+    renderDesignTechChips();
+  }
+
+  function renderDesignTechChips() {
+    const el = $('design-tech-chips');
+    if (!el) return;
+    el.innerHTML = designTechs.map(t =>
+      `<span class="wiz-chip${t.in_lab ? ' in-lab' : ''}" data-dtechid="${t.id}">
+         ${t.id}${t.in_lab ? '<span class="tech-lab-sm"> \u2713</span>' : ''}
+         <button type="button" class="wiz-chip-rm" onclick="removeDesignTech('${t.id}')">\u00d7</button>
+       </span>`
+    ).join('');
+
+    // Update coverage
+    const cov = $('design-tech-coverage');
+    if (!cov) return;
+    if (!designTechs.length) { cov.textContent = ''; cov.className = 'tech-coverage'; return; }
+    const labCount = designTechs.filter(t => t.in_lab).length;
+    if (labCount === designTechs.length) {
+      cov.textContent = `\u2713 All ${labCount} technique${labCount > 1 ? 's' : ''} covered in this demo lab`;
+      cov.className = 'tech-coverage all';
+    } else if (labCount > 0) {
+      cov.textContent = `${labCount} of ${designTechs.length} techniques present in lab`;
+      cov.className = 'tech-coverage some';
+    } else {
+      cov.textContent = 'No selected techniques are in this lab\'s scenario library';
+      cov.className = 'tech-coverage none';
+    }
+  }
+
+  /* =====================================================
+     AI ASSIST
+  ===================================================== */
+  async function aiAssist() {
+    if (!designTechs.length) { toast('Select at least one MITRE technique first', 'warn'); return; }
+
+    const name = $('design-name').value.trim() || 'Custom Scenario';
+    const desc = $('design-desc').value.trim();
+    const product = $('design-product').value;
+    const tools = $('design-tools').value.trim();
+    const techs = designTechs.map(t => t.id + ' ' + t.name).join(', ');
+
+    const btn = $('ai-assist-btn');
+    btn.disabled = true; btn.textContent = 'Generating...';
+
+    try {
+      // Use the scenario-enrich endpoint to get detections + talking points
+      const r = await fetch('/api/scenario-enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          needs_enrichment: true,
+          freetext: `Generate expected detections and SE talking points for this scenario:
+Name: ${name}
+Description: ${desc}
+Product: ${product}
+MITRE Techniques: ${techs}
+Tools: ${tools}
+Return the response with emphasis on expected_detections and talking_points fields.`
+        })
+      });
+
+      if (r.ok) {
+        const d = await r.json();
+        // Populate the AI-generated fields
+        if (d.scenario) {
+          if (d.scenario.expected_detections && d.scenario.expected_detections.length) {
+            $('design-detections').value = d.scenario.expected_detections
+              .map(det => `[${det.severity}] ${det.detection}`)
+              .join('\n');
+          }
+          if (d.scenario.talking_points && d.scenario.talking_points.universal) {
+            $('design-talking').value = d.scenario.talking_points.universal.join('\n\n');
+          }
+        }
+        toast('Detections & talking points generated!');
+      } else {
+        toast('AI assist failed \u2014 is the AI provider configured?', 'error');
+      }
+    } catch(e) {
+      toast('AI assist failed: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '\u2728 Generate Detections & Talking Points';
+    }
+  }
+
   function renderTacticChips() {
     const grids = document.querySelectorAll('.tactic-grid');
     grids.forEach(grid => {
@@ -871,6 +1115,8 @@
 
   function cancelCreate() {
     createMode = null;
+    designTechs = [];
+    renderDesignTechChips();
     $('create-forms').style.display = 'none';
     $('create-cards').style.display = 'grid';
   }
@@ -885,6 +1131,17 @@
     const toolsRaw = $('design-tools').value.trim();
     const tools = toolsRaw ? toolsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
+    // Parse detections from textarea
+    const detectionsRaw = ($('design-detections') ? $('design-detections').value : '').trim();
+    const expected_detections = detectionsRaw ? detectionsRaw.split('\n').filter(Boolean).map(line => {
+      const match = line.match(/^\[(\w+)\]\s*(.+)/);
+      return match ? { severity: match[1].toLowerCase(), detection: match[2] } : { severity: 'medium', detection: line };
+    }) : [];
+
+    // Parse talking points from textarea
+    const talkingRaw = ($('design-talking') ? $('design-talking').value : '').trim();
+    const talking_points = talkingRaw ? { universal: talkingRaw.split('\n\n').filter(Boolean) } : { universal: [] };
+
     const btn = $('design-submit');
     btn.disabled = true; btn.textContent = 'Creating...';
 
@@ -898,12 +1155,16 @@
           description: $('design-desc').value.trim(),
           product: $('design-product').value,
           tactics,
-          tools
+          techniques: designTechs.map(t => t.id),
+          tools,
+          expected_detections,
+          talking_points
         })
       });
       const d = await r.json();
       if (d.success) {
         toast('Scenario created: ' + d.title);
+        designTechs = [];
         cancelCreate();
         setTimeout(load, 1000);
       } else {
@@ -1477,6 +1738,40 @@
     wire();
     renderTacticChips();
     load();
+    loadMitreData();
+
+    // Technique autocomplete: input
+    document.addEventListener('input', e => {
+      if (e.target.id === 'design-tech-input') {
+        const items = techSearch(e.target.value);
+        showDesignTechDd(items);
+      }
+    });
+
+    // Technique autocomplete: focus
+    document.addEventListener('focus', e => {
+      if (e.target.id === 'design-tech-input') {
+        const items = techSearch(e.target.value);
+        showDesignTechDd(items);
+      }
+    }, true);
+
+    // Technique autocomplete: blur
+    document.addEventListener('blur', e => {
+      if (e.target.id === 'design-tech-input') {
+        setTimeout(() => { const dd = $('design-tech-dd'); if (dd) dd.style.display = 'none'; }, 200);
+      }
+    }, true);
+
+    // Keyboard navigation for technique dropdown
+    document.addEventListener('keydown', e => {
+      if (e.target.id === 'design-tech-input') {
+        if (e.key === 'Escape') { $('design-tech-dd').style.display = 'none'; }
+        if (e.key === 'Backspace' && !e.target.value && designTechs.length) {
+          removeDesignTech(designTechs[designTechs.length - 1].id);
+        }
+      }
+    });
   });
 </script>
 </body>
