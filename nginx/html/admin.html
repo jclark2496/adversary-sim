@@ -594,31 +594,72 @@
     .fade-section:nth-child(4) { animation-delay: 0.20s; }
     .fade-section:nth-child(5) { animation-delay: 0.25s; }
 
-    /* Technique autocomplete */
-    .tech-input-wrap { position: relative; }
-    .tech-dd {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
-      background: var(--bg-card); border: 1px solid var(--border-acc);
-      border-radius: var(--radius); max-height: 240px; overflow-y: auto;
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    /* Technique browser — grouped by tactic */
+    .tech-browser {
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      background: rgba(var(--bg-deep-rgb), 0.5);
     }
-    .tech-dd::-webkit-scrollbar { width: 3px; }
-    .tech-dd::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.2); border-radius: 2px; }
-    .tech-dd-item {
-      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-      cursor: pointer; border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.06);
-      font-size: 12px; transition: background .1s;
+    .tech-browser::-webkit-scrollbar { width: 4px; }
+    .tech-browser::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.15); border-radius: 2px; }
+
+    .tb-group {}
+    .tb-group-hdr {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; cursor: pointer; user-select: none;
+      border-bottom: 1px solid rgba(var(--accent-cyan-rgb), 0.05);
+      transition: background .1s;
     }
-    .tech-dd-item:last-child { border-bottom: none; }
-    .tech-dd-item:hover { background: rgba(var(--accent-cyan-rgb),.08); }
-    .tech-dd-id { font-family: var(--fm); font-weight: 500; color: var(--accent-cyan); min-width: 72px; }
-    .tech-dd-name { flex: 1; color: var(--text-primary); }
-    .tech-dd-tact { font-size: 10px; color: var(--text-dim); }
-    .tech-dd-lab {
-      font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
-      color: var(--accent-green); background: rgba(0,242,179,.08);
-      padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(0,242,179,.2);
+    .tb-group-hdr:hover { background: rgba(var(--accent-cyan-rgb), 0.03); }
+    .tb-group-arrow {
+      font-size: 9px; color: var(--text-dim); width: 10px;
+      transition: transform .15s; display: inline-block;
     }
+    .tb-group-arrow.open { transform: rotate(90deg); }
+    .tb-group-name {
+      font-family: var(--ft); font-size: 11px; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--text-sec);
+    }
+    .tb-group-count {
+      font-size: 10px; color: var(--text-dim);
+      background: rgba(var(--text-rgb), 0.05);
+      padding: 1px 6px; border-radius: 8px;
+    }
+    .tb-group-body { overflow: hidden; }
+    .tb-group-body.collapsed { display: none; }
+
+    .tb-tech {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px 6px 28px;
+      cursor: pointer; transition: background .1s;
+      border-bottom: 1px solid rgba(var(--accent-cyan-rgb), 0.03);
+      font-size: 12px;
+    }
+    .tb-tech:hover { background: rgba(var(--accent-cyan-rgb), 0.05); }
+    .tb-tech.added { opacity: 0.35; pointer-events: none; }
+    .tb-tech-add {
+      font-size: 11px; color: var(--accent-cyan); font-weight: 600;
+      flex-shrink: 0; width: 16px;
+    }
+    .tb-tech-id {
+      font-family: var(--fm); font-weight: 500; font-size: 11px;
+      color: var(--accent-cyan); min-width: 70px; flex-shrink: 0;
+    }
+    .tb-tech-name {
+      color: var(--text-primary); flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .tb-tech-lab {
+      font-size: 8px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--accent-green);
+      background: rgba(0,242,179,.08); padding: 1px 5px;
+      border-radius: 3px; border: 1px solid rgba(0,242,179,.2);
+      flex-shrink: 0;
+    }
+
+    .tech-selected { min-height: 10px; margin-bottom: 8px; }
 
     .wiz-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
     .wiz-chip {
@@ -757,13 +798,14 @@
               <button class="exec-btn exec-active" title="29 techniques with CALDERA abilities">CALDERA ✓</button>
               <button class="exec-btn exec-disabled" title="Coming soon">Kali</button>
               <button class="exec-btn exec-disabled" title="Coming soon">Atomic Red Team</button>
-              <span class="exec-hint">29 techniques available · green = ready to launch</span>
             </div>
-            <div class="tech-input-wrap">
-              <input id="design-tech-input" type="text" class="ctrl" style="width:100%" placeholder="Search by T-code or technique name..." autocomplete="off">
-              <div class="tech-dd" id="design-tech-dd" style="display:none"></div>
+            <input id="design-tech-search" type="text" class="ctrl" style="width:100%;margin-bottom:10px" placeholder="Search techniques by T-code or name..." autocomplete="off">
+            <div class="tech-selected" id="design-tech-chips">
+              <!-- Selected technique chips appear here -->
             </div>
-            <div class="wiz-chips" id="design-tech-chips"></div>
+            <div class="tech-browser" id="tech-browser">
+              <!-- Grouped technique list rendered by JS -->
+            </div>
             <div class="tech-coverage" id="design-tech-coverage"></div>
           </div>
           <div class="cf-divider"></div>
@@ -978,7 +1020,7 @@
   function techSearch(q) {
     if (!MITRE_DATA.length) return [];
     q = (q || '').trim();
-    if (!q) return MITRE_DATA.filter(t => t.in_lab).slice(0, 15);
+    if (!q) return MITRE_DATA.filter(t => t.in_lab);
     const lq = q.toLowerCase();
     const seen = new Set();
     const out = [];
@@ -999,45 +1041,109 @@
   ===================================================== */
   let designTechs = [];      // array of {id, name, tactic, in_lab}
 
-  function showDesignTechDd(items) {
-    const dd = $('design-tech-dd');
-    if (!items || !items.length) { dd.style.display = 'none'; return; }
-    dd.innerHTML = items.map(t =>
-      `<div class="tech-dd-item" data-id="${t.id}">
-         <span class="tech-dd-id">${t.id}</span>
-         <span class="tech-dd-name">${t.name}</span>
-         <span class="tech-dd-tact">${t.tactic || ''}</span>
-         ${t.in_lab ? '<span class="tech-dd-lab">in lab</span>' : ''}
-       </div>`
-    ).join('');
-    dd.style.display = '';
-    dd.querySelectorAll('.tech-dd-item').forEach(el => {
-      el.addEventListener('mousedown', e => {
-        e.preventDefault();
-        const item = MITRE_DATA.find(t => t.id === el.dataset.id);
-        if (item) addDesignTech(item);
-      });
+  // State for which tactic groups are expanded
+  let techGroupsOpen = {};
+
+  function renderTechBrowser(filter) {
+    const browser = $('tech-browser');
+    if (!browser || !MITRE_DATA.length) return;
+
+    filter = (filter || '').toLowerCase().trim();
+
+    // Get in-lab techniques
+    const inLab = MITRE_DATA.filter(t => t.in_lab);
+
+    // If searching, show flat filtered list (not grouped)
+    if (filter) {
+      const matches = MITRE_DATA.filter(t =>
+        t.id.toLowerCase().includes(filter) ||
+        t.name.toLowerCase().includes(filter) ||
+        (t.description && t.description.toLowerCase().includes(filter))
+      ).slice(0, 20);
+
+      if (!matches.length) {
+        browser.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-dim);font-size:12px">No techniques match your search</div>';
+        return;
+      }
+
+      browser.innerHTML = matches.map(t => renderTechRow(t)).join('');
+      return;
+    }
+
+    // Group in-lab techniques by tactic
+    const tacticOrder = [
+      'initial-access', 'execution', 'persistence', 'privilege-escalation',
+      'defense-evasion', 'credential-access', 'discovery', 'lateral-movement',
+      'collection', 'command-and-control', 'exfiltration', 'impact', 'reconnaissance'
+    ];
+    const tacticLabels = {
+      'initial-access': 'Initial Access', 'execution': 'Execution',
+      'persistence': 'Persistence', 'privilege-escalation': 'Privilege Escalation',
+      'defense-evasion': 'Defense Evasion', 'credential-access': 'Credential Access',
+      'discovery': 'Discovery', 'lateral-movement': 'Lateral Movement',
+      'collection': 'Collection', 'command-and-control': 'Command and Control',
+      'exfiltration': 'Exfiltration', 'impact': 'Impact', 'reconnaissance': 'Reconnaissance'
+    };
+
+    const groups = {};
+    inLab.forEach(t => {
+      const tactic = t.tactic || 'other';
+      if (!groups[tactic]) groups[tactic] = [];
+      groups[tactic].push(t);
     });
+
+    let html = '';
+    tacticOrder.forEach(tactic => {
+      const items = groups[tactic];
+      if (!items || !items.length) return;
+      const isOpen = techGroupsOpen[tactic] || false;
+
+      html += `<div class="tb-group">`;
+      html += `<div class="tb-group-hdr" onclick="toggleTechGroup('${tactic}')">`;
+      html += `<span class="tb-group-arrow ${isOpen ? 'open' : ''}">&#9654;</span>`;
+      html += `<span class="tb-group-name">${tacticLabels[tactic] || tactic}</span>`;
+      html += `<span class="tb-group-count">${items.length}</span>`;
+      html += `</div>`;
+      html += `<div class="tb-group-body${isOpen ? '' : ' collapsed'}">`;
+      items.forEach(t => { html += renderTechRow(t); });
+      html += `</div></div>`;
+    });
+
+    browser.innerHTML = html;
+  }
+
+  function renderTechRow(t) {
+    const isAdded = designTechs.some(dt => dt.id === t.id);
+    return `<div class="tb-tech${isAdded ? ' added' : ''}" onclick="addDesignTech(MITRE_DATA.find(x=>x.id==='${t.id}'))">
+      <span class="tb-tech-add">${isAdded ? '\u2713' : '+'}</span>
+      <span class="tb-tech-id">${t.id}</span>
+      <span class="tb-tech-name">${t.name}</span>
+      ${t.in_lab ? '<span class="tb-tech-lab">IN LAB</span>' : ''}
+    </div>`;
+  }
+
+  function toggleTechGroup(tactic) {
+    techGroupsOpen[tactic] = !techGroupsOpen[tactic];
+    renderTechBrowser($('design-tech-search') ? $('design-tech-search').value : '');
   }
 
   function addDesignTech(item) {
+    if (!item) return;
     if (designTechs.some(t => t.id === item.id)) {
       // Duplicate flash
       const chip = document.querySelector(`[data-dtechid="${item.id}"]`);
       if (chip) { chip.classList.remove('dup-flash'); void chip.offsetWidth; chip.classList.add('dup-flash'); }
-      $('design-tech-input').value = '';
-      $('design-tech-dd').style.display = 'none';
       return;
     }
     designTechs.push({ id: item.id, name: item.name, tactic: item.tactic, in_lab: item.in_lab });
-    $('design-tech-input').value = '';
-    $('design-tech-dd').style.display = 'none';
     renderDesignTechChips();
+    renderTechBrowser($('design-tech-search') ? $('design-tech-search').value : '');
   }
 
   function removeDesignTech(id) {
     designTechs = designTechs.filter(t => t.id !== id);
     renderDesignTechChips();
+    renderTechBrowser($('design-tech-search') ? $('design-tech-search').value : '');
   }
 
   function renderDesignTechChips() {
@@ -1141,7 +1247,10 @@ Return the response with emphasis on expected_detections and talking_points fiel
     $('create-ai').style.display = mode === 'ai' ? 'block' : 'none';
     $('create-cards').style.display = 'none';
     $('create-forms').style.display = 'block';
-    if (mode === 'design') renderTacticChips();
+    if (mode === 'design') {
+      renderTacticChips();
+      renderTechBrowser('');
+    }
   }
 
   function cancelCreate() {
@@ -1771,36 +1880,10 @@ Return the response with emphasis on expected_detections and talking_points fiel
     load();
     loadMitreData();
 
-    // Technique autocomplete: input
+    // Technique browser: search input
     document.addEventListener('input', e => {
-      if (e.target.id === 'design-tech-input') {
-        const items = techSearch(e.target.value);
-        showDesignTechDd(items);
-      }
-    });
-
-    // Technique autocomplete: focus
-    document.addEventListener('focus', e => {
-      if (e.target.id === 'design-tech-input') {
-        const items = techSearch(e.target.value);
-        showDesignTechDd(items);
-      }
-    }, true);
-
-    // Technique autocomplete: blur
-    document.addEventListener('blur', e => {
-      if (e.target.id === 'design-tech-input') {
-        setTimeout(() => { const dd = $('design-tech-dd'); if (dd) dd.style.display = 'none'; }, 200);
-      }
-    }, true);
-
-    // Keyboard navigation for technique dropdown
-    document.addEventListener('keydown', e => {
-      if (e.target.id === 'design-tech-input') {
-        if (e.key === 'Escape') { $('design-tech-dd').style.display = 'none'; }
-        if (e.key === 'Backspace' && !e.target.value && designTechs.length) {
-          removeDesignTech(designTechs[designTechs.length - 1].id);
-        }
+      if (e.target.id === 'design-tech-search') {
+        renderTechBrowser(e.target.value);
       }
     });
   });
