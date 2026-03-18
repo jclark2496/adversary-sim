@@ -676,13 +676,9 @@
       background: rgba(var(--text-rgb),.03); border-color: rgba(var(--text-rgb),.08);
       color: var(--text-dim); opacity: .5;
     }
-    .exec-toggle {
-      display: flex; align-items: center; gap: 5px; margin-left: 8px;
-      font-family: var(--fb); font-size: 11px; color: var(--text-sec);
-      cursor: pointer; user-select: none;
-    }
-    .exec-toggle input {
-      accent-color: var(--accent-cyan); cursor: pointer;
+    .exec-hint {
+      font-size: 11px; color: var(--text-dim); margin-left: 8px;
+      font-style: italic;
     }
   </style>
 </head>
@@ -758,12 +754,10 @@
             <div class="cf-label">MITRE ATT&amp;CK Techniques</div>
             <div class="exec-filter">
               <span class="exec-label">Execution:</span>
-              <button class="exec-btn exec-active" id="exec-caldera" onclick="toggleExecFilter('caldera')" title="CALDERA — 24 launchable scenarios">CALDERA ✓</button>
-              <button class="exec-btn exec-disabled" title="Coming soon — requires 'make tools'">Kali</button>
-              <button class="exec-btn exec-disabled" title="Coming soon — requires 'make tools'">Atomic Red Team</button>
-              <label class="exec-toggle" title="Only show techniques with CALDERA abilities">
-                <input type="checkbox" id="lab-only-toggle" onchange="toggleLabOnly()"> Launchable only
-              </label>
+              <button class="exec-btn exec-active" title="29 techniques with CALDERA abilities">CALDERA ✓</button>
+              <button class="exec-btn exec-disabled" title="Coming soon">Kali</button>
+              <button class="exec-btn exec-disabled" title="Coming soon">Atomic Red Team</button>
+              <span class="exec-hint">29 techniques available · green = ready to launch</span>
             </div>
             <div class="tech-input-wrap">
               <input id="design-tech-input" type="text" class="ctrl" style="width:100%" placeholder="Search by T-code or technique name..." autocomplete="off">
@@ -986,46 +980,19 @@
   }
 
   const TECH_DEFAULTS = ['T1566.001','T1059.001','T1003.001','T1057','T1082','T1486','T1547.001','T1105'];
-  let labOnlyMode = false;
-
-  function toggleLabOnly() {
-    labOnlyMode = $('lab-only-toggle').checked;
-    // Re-trigger search if input has value
-    const input = $('design-tech-input');
-    if (input) {
-      const items = techSearch(input.value);
-      showDesignTechDd(items);
-    }
-  }
-
-  function toggleExecFilter(engine) {
-    // For now only CALDERA is active — future: toggle Kali/Atomic
-    if (engine === 'caldera') {
-      labOnlyMode = !labOnlyMode;
-      $('lab-only-toggle').checked = labOnlyMode;
-      toggleLabOnly();
-    }
-  }
-
   function techSearch(q) {
     if (!MITRE_DATA.length) return [];
-    let pool = MITRE_DATA;
-    if (labOnlyMode) pool = pool.filter(t => t.in_lab);
-
     q = (q || '').trim();
-    if (!q) {
-      if (labOnlyMode) return pool.slice(0, 8);
-      return TECH_DEFAULTS.map(id => pool.find(t => t.id === id)).filter(Boolean);
-    }
+    if (!q) return TECH_DEFAULTS.map(id => MITRE_DATA.find(t => t.id === id)).filter(Boolean);
     const lq = q.toLowerCase();
     const seen = new Set();
     const out = [];
     const add = t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(t); } };
-    pool.filter(t => t.id.toLowerCase() === lq).forEach(add);
-    pool.filter(t => t.id.toLowerCase().startsWith(lq)).forEach(add);
-    pool.filter(t => t.name.toLowerCase().startsWith(lq)).forEach(add);
-    pool.filter(t => t.name.toLowerCase().includes(lq)).forEach(add);
-    pool.filter(t => t.description && t.description.toLowerCase().includes(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.id.toLowerCase() === lq).forEach(add);
+    MITRE_DATA.filter(t => t.id.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.name.toLowerCase().includes(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.description && t.description.toLowerCase().includes(lq)).forEach(add);
     return out.slice(0, 8);
   }
 
