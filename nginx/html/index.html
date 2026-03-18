@@ -73,12 +73,8 @@
     /* brand */
     .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; flex-wrap: wrap; }
     #hdr-controls {
-      position: fixed; top: 8px; right: 16px; z-index: 100;
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(var(--bg-deep-rgb),.85);
-      backdrop-filter: blur(8px);
-      padding: 4px 10px; border-radius: 6px;
-      border: 1px solid rgba(var(--accent-cyan-rgb),.08);
+      position: fixed; top: 10px; right: 16px; z-index: 100;
+      display: flex; align-items: center; gap: 8px;
     }
     .arch-btn {
       font-family: var(--fm); font-size: 11px;
@@ -428,7 +424,7 @@
     #det { display:none; }
     #det.show { display:block; animation:su .2s ease-out; }
 
-    .dh { margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--border-dim); }
+    .dh { margin-bottom:22px; padding:20px 0; border-bottom:1px solid var(--border-dim); }
     .dmeta { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
     .dtit { font-family:var(--ft); font-weight:700; font-size:22px; letter-spacing:.06em; text-transform:uppercase; line-height:1.15; color:var(--text-primary); margin-bottom:10px; }
     .ddesc { font-size:13px; color:var(--text-sec); line-height:1.65; max-width:640px; }
@@ -534,6 +530,10 @@
     }
     .ls-tp:hover:not(:disabled) { border-color:var(--border-acc); background:rgba(var(--accent-cyan-rgb),.05); }
     .ls-tp:disabled { opacity:.35; cursor:not-allowed; }
+    .st-inline { display:flex; align-items:center; gap:4px; margin-bottom:6px; }
+    .st-input { flex:1; height:28px; font-size:11px; }
+    .st-ok { height:28px; padding:0 10px; font-size:10px; font-weight:600; border-radius:4px; background:rgba(var(--accent-green-rgb),.1); border:1px solid rgba(var(--accent-green-rgb),.3); color:var(--accent-green); cursor:pointer; }
+    .st-cancel { height:28px; width:28px; font-size:12px; border-radius:4px; background:none; border:1px solid var(--border-dim); color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
     /* ============================================================
        TALKING POINTS DRAWER
@@ -1190,6 +1190,11 @@
         </button>
       </div>
       <div id="saved-targets" class="stgt-wrap ls-saved"></div>
+      <div id="save-target-inline" class="st-inline" style="display:none">
+        <input id="save-target-label" type="text" class="ctrl st-input" placeholder="Label (optional)" onkeydown="if(event.key==='Enter')confirmSaveTarget();if(event.key==='Escape')cancelSaveTarget();">
+        <button class="st-ok" onclick="confirmSaveTarget()">Save</button>
+        <button class="st-cancel" onclick="cancelSaveTarget()">✕</button>
+      </div>
       <button id="lbtn" class="ls-launch" disabled>
         <div class="bsp"></div>
         <span class="btx">
@@ -2141,11 +2146,35 @@
     if (!ip) return;
     const list = getSavedTargets();
     if (list.some(t => t.ip === ip)) { showToast('Target already saved'); return; }
-    const label = prompt('Label for this target (optional):', '') || '';
-    list.push({ ip, label, platform: S.plt });
+    // Show inline label input instead of browser prompt
+    const wrap = $('save-target-inline');
+    if (wrap) {
+      wrap.style.display = 'flex';
+      const inp = $('save-target-label');
+      if (inp) { inp.value = ''; inp.focus(); }
+      return;
+    }
+    // Fallback: save without label
+    list.push({ ip, label: '', platform: S.plt });
     saveSavedTargets(list);
     renderSavedTargets();
     showToast('Target saved');
+  }
+  function confirmSaveTarget() {
+    const ip = S.tgt.trim();
+    if (!ip) return;
+    const list = getSavedTargets();
+    const label = ($('save-target-label') ? $('save-target-label').value : '').trim();
+    list.push({ ip, label, platform: S.plt });
+    saveSavedTargets(list);
+    renderSavedTargets();
+    const wrap = $('save-target-inline');
+    if (wrap) wrap.style.display = 'none';
+    showToast('Target saved' + (label ? ': ' + label : ''));
+  }
+  function cancelSaveTarget() {
+    const wrap = $('save-target-inline');
+    if (wrap) wrap.style.display = 'none';
   }
   function removeSavedTarget(ip) {
     const list = getSavedTargets().filter(t => t.ip !== ip);
