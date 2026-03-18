@@ -42,8 +42,8 @@ This is a **production SE enablement platform** for running live attack simulati
 |    Scenario case ingest + AI enrichment + config/settings   |
 |    Always runs (both standalone and LabOps modes)           |
 |                                                             |
-|  advsim-kali       172.20.0.70  :2222->22                   |
-|  advsim-atomic     172.20.0.40  (arm64, idle)               |
+|  advsim-kali       172.20.0.70  :2222->22   (optional)       |
+|  advsim-atomic     172.20.0.40  (arm64, idle, optional)     |
 |                                                             |
 |  --- Standalone mode only (no LabOps) ---                   |
 |  advsim-guacamole  172.20.0.81  :8085->8080 (amd64/Rosetta)|
@@ -68,8 +68,8 @@ This is a **production SE enablement platform** for running live attack simulati
 | advsim-caldera | caldera:local (GHCR ARM64 v5.1.0) | 172.20.0.10 | 8888 | red/admin, admin/admin |
 | advsim-n8n | n8nio/n8n:latest (arm64) | 172.20.0.31 | 5679->5678 | Always runs. Handles AI scenario workflows. |
 | advsim-nginx | nginx:alpine (arm64) | 172.20.0.51 | 8081->80 | -- |
-| advsim-atomic | custom build (arm64) | 172.20.0.40 | none | Idle (tail -f /dev/null) |
-| advsim-kali | kalilinux/kali-rolling (arm64) | 172.20.0.70 | 2222 | root/kali |
+| advsim-atomic | custom build (arm64) | 172.20.0.40 | none | Idle (tail -f /dev/null). Optional -- Docker Compose profile, `make tools` |
+| advsim-kali | kalilinux/kali-rolling (arm64) | 172.20.0.70 | 2222 | root/kali. Optional -- Docker Compose profile, `make tools` |
 | advsim-guacamole | guacamole/guacamole:latest (**amd64**) | 172.20.0.81 | 8085->8080 | Standalone only |
 | advsim-guacd | guacamole/guacd:latest (**amd64**) | 172.20.0.80 | none | Standalone only |
 | advsim-guac-postgres | postgres:15-alpine (arm64) | 172.20.0.82 | none | Standalone only |
@@ -109,7 +109,7 @@ This is a **production SE enablement platform** for running live attack simulati
 ```
 SE Front-End:       http://localhost:8081
 Attack Console:     http://localhost:8081/console.html
-Admin Panel:        http://localhost:8081/admin.html
+Scenario Studio:    http://localhost:8081/admin.html
 Architecture Ref:   http://localhost:8081/architecture.html
 CALDERA:            http://localhost:8888
 n8n:                http://localhost:5679
@@ -145,12 +145,13 @@ adversary-sim/
 |   +-- html/                       <- Served at http://localhost:8081/
 |       +-- index.html              <- SE Console: scenario picker with product/tactic filters, saved targets, launch button
 |       +-- console.html            <- Attack Console: CALDERA feed + Guacamole RDP split panel
-|       +-- admin.html              <- Admin panel
+|       +-- admin.html              <- Scenario Studio: creative workspace for building and managing attack scenarios. Two creation paths: Design Scenario (manual with MITRE technique picker) and AI Generate (plain English -> auto-built scenario with CALDERA abilities). No password gate.
 |       +-- architecture.html       <- Platform reference for SEs (not customers)
 |       +-- scenarios.json          <- Scenario catalog: source of truth for all scenarios
 |       +-- ai-config.json          <- AI provider + labopsUrl config (gitignored, written by make install / Settings UI)
 |       +-- caldera-library.json    <- CALDERA ability/adversary index for n8n AI prompts
 |       +-- mitre-attack.json       <- ATT&CK Enterprise techniques for autocomplete
+|       +-- shared.css              <- Shared design system (fonts, colors, components) imported by all pages
 |       +-- s.ps1                   <- One-liner sandcat bootstrap for Windows victims
 |
 +-- caldera/
@@ -208,6 +209,7 @@ adversary-sim/
 |       +-- scenario_approve.json   <- POST /webhook/scenario-approve -> scenarios.json
 |       +-- config_api.json         <- GET /webhook/config -> returns Guac + victim credentials
 |       +-- settings_api.json       <- GET/POST /webhook/settings -> reads/writes ai-config.json
+|       +-- scenario_builder.json   <- Scenario Builder workflow (AI + manual scenario creation with CALDERA auto-loading)
 |
 +-- atomic-runner/
     +-- Dockerfile                  <- ARM64 Ubuntu with Atomic Red Team definitions
@@ -500,6 +502,18 @@ Reads/writes `ai-config.json` on disk. The config object contains:
 - POST writes the full config (including `labopsUrl`) to `/data/scenarios/ai-config.json`.
 - POST `/api/settings/test` tests AI provider connectivity (does not test labopsUrl -- that is tested client-side).
 
+### Workflow: Scenario Builder
+
+**File:** `n8n/workflows/scenario_builder.json`
+**Webhook:** POST `http://localhost:5679/webhook/scenario-build`
+**Via nginx:** POST `http://localhost:8081/api/scenario-build`
+
+Two modes:
+- **`mode: 'ai'`**: LLM generates scenario from plain English description, auto-maps MITRE techniques, selects CALDERA abilities, and loads the adversary profile into CALDERA
+- **`mode: 'manual'`**: accepts direct entry from the Design Scenario form and writes to scenarios.json
+
+Used by Scenario Studio (admin.html) for both AI Generate and Design Scenario creation paths.
+
 ### n8n File Write Requirement
 
 All write workflows write to `/data/scenarios/scenarios.json` using `require('fs')`. This requires:
@@ -558,8 +572,11 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
 
 ### SE Console UI Features (index.html)
 
+- **Grouped scenario list**: scenarios grouped by product category (Endpoint/NDR/Firewall) with compact rows
 - **Product filter chips**: Endpoint (blue), NDR (green), Firewall (orange) -- filter the scenario catalog by Sophos product
 - **Tactic filter**: dropdown to filter by MITRE ATT&CK tactic (existing)
+- **Favorites**: SEs can star scenarios for quick access
+- **Launch panel**: scenario details and launch controls in right panel
 - **Product badge**: each scenario card shows a color-coded badge indicating which product it targets
 - **"Detects On" badge**: auto-displays which Sophos product detects the selected scenario (replaces the former Industry dropdown)
 - **Industry dropdown removed**: talking points now default to "universal" for all scenarios
@@ -567,6 +584,22 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
   - Click + to save the current target IP with an optional label
   - Click a saved target chip to auto-fill the IP field
   - Persists across browser sessions
+
+### Scenario Studio (admin.html)
+
+- **No password gate** -- open access for all SEs
+- **Two creation paths**:
+  - **Design Scenario**: manual entry with MITRE technique picker
+  - **AI Generate**: plain English description -> auto-built scenario with CALDERA abilities
+- Replaces the former Admin Console
+
+### Architecture Page (architecture.html)
+
+- Single scrollable page (not 4 tabs)
+
+### Shared Design System (shared.css)
+
+- `nginx/html/shared.css`: unified design system (fonts, colors, components) imported by all pages (index.html, console.html, admin.html, architecture.html)
 
 ### The caldera_ability Field Convention
 
@@ -756,4 +789,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-17 — Expanded to 24 scenarios across 3 product categories (Endpoint, NDR, Firewall); added product filter chips, saved targets, and "Detects On" badges to SE Console*
+*Last updated: 2026-03-18 — Scenario Studio replaces Admin Console (Design + AI Generate paths, no password gate); Scenario Builder n8n workflow; shared.css design system; architecture.html now single scrollable page; SE Console with grouped scenario list, favorites, compact rows; Kali + Atomic Red Team now optional (Docker Compose profiles, `make tools`)*
