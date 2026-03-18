@@ -381,7 +381,7 @@
       background:var(--bg-deep); position:relative;
     }
     .rs {
-      flex:1; overflow-y:auto; padding:26px 30px 20px;
+      flex:1; overflow-y:auto; padding:32px 30px 20px;
     }
     .rs::-webkit-scrollbar { width:3px; }
     .rs::-webkit-scrollbar-thumb { background:rgba(var(--accent-cyan-rgb),.18); border-radius:2px; }
@@ -428,7 +428,7 @@
     #det.show { display:block; animation:su .2s ease-out; }
 
     .dh { margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--border-dim); }
-    .dmeta { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .dmeta { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
     .dtit { font-family:var(--ft); font-weight:700; font-size:27px; letter-spacing:.04em; text-transform:uppercase; line-height:1.1; color:var(--text-primary); margin-bottom:9px; }
     .ddesc { font-size:13px; color:var(--text-sec); line-height:1.65; max-width:640px; }
 
@@ -514,33 +514,31 @@
     .xerlbl{ font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--sev-crit); }
     .xermsg{ font-size:11px; color:rgba(var(--text-rgb),0.65); margin-left:32px; }
 
-    /* Launch card (inside scrollable detail) */
-    .launch-card {
-      margin-top:20px; padding:18px;
-      background:var(--bg-card); border:1px solid var(--border-acc);
-      border-radius:var(--radius);
+    /* Launch section (fixed at bottom of left sidebar) */
+    .launch-section {
+      flex-shrink:0; padding:12px 14px;
+      border-top:1px solid var(--border-dim);
+      background:rgba(var(--bg-panel-rgb),.97);
     }
-    .lc-row {
-      display:flex; align-items:center; gap:8px;
+    .ls-target {
+      display:flex; align-items:center; gap:6px; margin-bottom:6px;
     }
-    .lc-input { flex:1; height:38px; font-size:13px; }
-    .lc-row .pngbtn { height:38px; flex-shrink:0; }
-    .lc-row #lbtn {
-      flex-shrink:0; height:38px; padding:0 24px; font-size:13px;
+    .ls-target input { flex:1; height:34px; font-size:12px; }
+    .ls-target .pngbtn { height:34px; padding:0 10px; font-size:10px; }
+    .ls-saved { margin-bottom:8px; }
+    .ls-launch {
+      width:100%; height:40px; font-size:13px;
     }
-    .launch-card .stgt-wrap { padding:8px 0 0; }
-
-    /* Talking points button (inline, below launch card) */
-    .tpb-inline {
-      display:flex; align-items:center; gap:7px;
-      margin-top:12px; padding:8px 16px;
+    .ls-tp {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      width:100%; margin-top:6px; padding:7px 0;
       background:transparent; border:1px solid var(--border-dim); border-radius:5px;
       color:var(--accent-cyan); font-family:var(--ft); font-weight:600;
-      font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-      transition:all .15s; width:fit-content;
+      font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+      transition:all .15s;
     }
-    .tpb-inline:hover:not(:disabled) { border-color:var(--border-acc); background:rgba(var(--accent-cyan-rgb),.05); }
-    .tpb-inline:disabled { opacity:.35; cursor:not-allowed; }
+    .ls-tp:hover:not(:disabled) { border-color:var(--border-acc); background:rgba(var(--accent-cyan-rgb),.05); }
+    .ls-tp:disabled { opacity:.35; cursor:not-allowed; }
 
     /* ============================================================
        TALKING POINTS DRAWER
@@ -964,17 +962,17 @@
     /* ── NAV MENU ─────────────────────────────────────────────────────── */
     .nav-wrap { position:relative; flex-shrink:0; }
     .nav-dd {
-      position:absolute; top:calc(100% + 6px); right:0; min-width:218px;
+      position:absolute; top:calc(100% + 4px); right:0; min-width:170px;
       background:rgba(var(--bg-panel-rgb),.98);
-      border:1px solid var(--border-acc); border-radius:7px;
-      box-shadow:0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(var(--accent-cyan-rgb),.04);
-      z-index:1001; display:none; overflow:hidden;
+      border:1px solid var(--border-acc); border-radius:6px;
+      box-shadow:0 6px 24px rgba(0,0,0,.5);
+      z-index:1001; display:none; overflow:hidden; padding:4px 0;
     }
     @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
     .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
     .nav-it {
-      display:flex; align-items:center; gap:9px; padding:9px 14px;
-      font-size:12px; color:rgba(var(--text-rgb),.65); letter-spacing:.02em;
+      display:flex; align-items:center; gap:8px; padding:7px 14px;
+      font-size:12px; color:var(--text-sec); letter-spacing:.02em;
       width:100%; text-align:left; background:none; border:none;
       cursor:pointer; transition:background .1s, color .1s; font-family:var(--fb);
     }
@@ -1187,6 +1185,33 @@
         </div>
       </div>
     </div>
+
+    <!-- Launch Section (always visible at bottom of sidebar) -->
+    <div class="launch-section" id="launch-bar">
+      <div class="ls-target">
+        <input id="tgt" type="text" class="ctrl" placeholder="Target IP or hostname">
+        <button class="pngbtn" id="pngb" title="Check host">
+          <div class="pngdot" id="pngdot"></div>Check
+        </button>
+      </div>
+      <div id="saved-targets" class="stgt-wrap ls-saved"></div>
+      <button id="lbtn" class="ls-launch" disabled>
+        <div class="bsp"></div>
+        <span class="btx">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
+            <polygon points="3,2 13,7 3,12"/>
+          </svg>
+          Launch Simulation
+        </span>
+      </button>
+      <button id="tpb" class="ls-tp" disabled>
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="7" cy="7" r="5.5"/>
+          <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
+        </svg>
+        Talking Points
+      </button>
+    </div>
   </aside>
 
   <!-- =================== RIGHT PANEL =================== -->
@@ -1245,33 +1270,6 @@
           <div id="xs"></div>
         </div>
 
-        <!-- Launch Controls (inside scrollable detail) -->
-        <div class="launch-card" id="launch-bar" style="display:none">
-          <div class="lc-row">
-            <input id="tgt" type="text" class="ctrl lc-input" placeholder="Target IP or hostname">
-            <button class="pngbtn" id="pngb" title="Check host">
-              <div class="pngdot" id="pngdot"></div>Check
-            </button>
-            <button id="lbtn" disabled>
-              <div class="bsp"></div>
-              <span class="btx">
-                <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
-                  <polygon points="3,2 13,7 3,12"/>
-                </svg>
-                Launch
-              </span>
-            </button>
-          </div>
-          <div id="saved-targets" class="stgt-wrap"></div>
-        </div>
-
-        <button id="tpb" class="tpb-inline" disabled>
-          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="7" cy="7" r="5.5"/>
-            <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
-          </svg>
-          Show Talking Points
-        </button>
       </div>
 
     </div><!-- /rs -->
@@ -1809,8 +1807,7 @@
     $('tpb').disabled = false;
     renderDet(s);
     if (S.drawer) closeDr();
-    const lb = $('launch-bar');
-    if (lb) lb.style.display = s ? 'flex' : 'none';
+    // Launch section is always visible in sidebar
   }
 
   /* =====================================================
