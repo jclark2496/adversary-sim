@@ -514,42 +514,33 @@
     .xerlbl{ font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--sev-crit); }
     .xermsg{ font-size:11px; color:rgba(var(--text-rgb),0.65); margin-left:32px; }
 
-    /* right footer */
-    .rf {
-      flex-shrink:0; padding:12px 28px;
-      border-top:1px solid var(--border-dim);
-      background:rgba(var(--bg-panel-rgb),.5);
+    /* Launch card (inside scrollable detail) */
+    .launch-card {
+      margin-top:20px; padding:18px;
+      background:var(--bg-card); border:1px solid var(--border-acc);
+      border-radius:var(--radius);
     }
-    .rf-row {
-      display:flex; align-items:center; gap:10px;
+    .lc-row {
+      display:flex; align-items:center; gap:8px;
     }
-    .rf-row .tgt-input {
-      flex:1; display:flex; align-items:center; gap:0;
+    .lc-input { flex:1; height:38px; font-size:13px; }
+    .lc-row .pngbtn { height:38px; flex-shrink:0; }
+    .lc-row #lbtn {
+      flex-shrink:0; height:38px; padding:0 24px; font-size:13px;
     }
-    .rf-row .tgt-input input {
-      flex:1; border-radius:5px 0 0 5px; border-right:none;
-      height:38px; font-size:13px;
-    }
-    .rf-row .pngbtn {
-      border-radius:0; border-left:none; border-right:none;
-      height:38px; padding:0 14px;
-    }
-    .rf-row #lbtn {
-      flex-shrink:0; height:38px; padding:0 28px;
-      border-radius:0 5px 5px 0; font-size:13px;
-    }
-    .rf-row #tpb {
-      flex-shrink:0; height:38px; padding:0 16px;
-      display:flex; align-items:center; gap:6px;
-      background:transparent; border:1px solid var(--border-acc); border-radius:5px;
+    .launch-card .stgt-wrap { padding:8px 0 0; }
+
+    /* Talking points button (inline, below launch card) */
+    .tpb-inline {
+      display:flex; align-items:center; gap:7px;
+      margin-top:12px; padding:8px 16px;
+      background:transparent; border:1px solid var(--border-dim); border-radius:5px;
       color:var(--accent-cyan); font-family:var(--ft); font-weight:600;
       font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-      transition:background .15s, box-shadow .15s;
-      margin-left:6px;
+      transition:all .15s; width:fit-content;
     }
-    #tpb:hover:not(:disabled) { background:rgba(var(--accent-cyan-rgb),.07); box-shadow:0 0 14px rgba(var(--accent-cyan-rgb),.14); }
-    #tpb:disabled { opacity:.35; cursor:not-allowed; }
-    .rf .stgt-wrap { padding:6px 0 0; }
+    .tpb-inline:hover:not(:disabled) { border-color:var(--border-acc); background:rgba(var(--accent-cyan-rgb),.05); }
+    .tpb-inline:disabled { opacity:.35; cursor:not-allowed; }
 
     /* ============================================================
        TALKING POINTS DRAWER
@@ -1113,7 +1104,7 @@
     }
     .fav-divider { height:1px; background:var(--border-dim); margin:4px 12px 8px; }
 
-    /* Launch bar removed — now uses .rf-row layout */
+    /* Launch controls are now inside the detail panel (.launch-card) */
   </style>
 </head>
 <body>
@@ -1253,38 +1244,37 @@
           <div class="slbl">Execution Status</div>
           <div id="xs"></div>
         </div>
+
+        <!-- Launch Controls (inside scrollable detail) -->
+        <div class="launch-card" id="launch-bar" style="display:none">
+          <div class="lc-row">
+            <input id="tgt" type="text" class="ctrl lc-input" placeholder="Target IP or hostname">
+            <button class="pngbtn" id="pngb" title="Check host">
+              <div class="pngdot" id="pngdot"></div>Check
+            </button>
+            <button id="lbtn" disabled>
+              <div class="bsp"></div>
+              <span class="btx">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
+                  <polygon points="3,2 13,7 3,12"/>
+                </svg>
+                Launch
+              </span>
+            </button>
+          </div>
+          <div id="saved-targets" class="stgt-wrap"></div>
+        </div>
+
+        <button id="tpb" class="tpb-inline" disabled>
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="7" cy="7" r="5.5"/>
+            <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
+          </svg>
+          Show Talking Points
+        </button>
       </div>
 
     </div><!-- /rs -->
-
-    <div class="rf" id="rf">
-      <div class="rf-row" id="launch-bar" style="display:none">
-        <div class="tgt-input">
-          <input id="tgt" type="text" class="ctrl" placeholder="Target IP or hostname">
-          <button class="pngbtn" id="pngb" title="Check host">
-            <div class="pngdot" id="pngdot"></div>Check
-          </button>
-          <button id="lbtn" disabled>
-            <div class="bsp"></div>
-            <span class="btx">
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:middle;margin-right:3px">
-                <polygon points="3,2 13,7 3,12"/>
-              </svg>
-              Launch
-            </span>
-          </button>
-        </div>
-        <button id="tpb" disabled>
-          <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
-               stroke="currentColor" stroke-width="1.5">
-            <circle cx="7" cy="7" r="5.5"/>
-            <path d="M7 4.5v3M7 9.5v.5" stroke-linecap="round"/>
-        </svg>
-        Talking Points
-      </button>
-      </div>
-      <div id="saved-targets" class="stgt-wrap"></div>
-    </div>
   </main>
 
   <!-- =================== DRAWER =================== -->
