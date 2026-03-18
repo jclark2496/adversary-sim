@@ -1,0 +1,159 @@
+{
+  "name": "Platform Update API",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "update-check",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "update-check-webhook",
+      "name": "Webhook - GET Update Check",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "webhookId": "update-check"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execFileSync } = require('child_process');\nconst fs = require('fs');\nconst git = '/usr/bin/git';\nconst repo = '/data/repo';\nconst gitOpts = { cwd: repo, env: { HOME: '/root', PATH: '/usr/local/bin:/usr/bin:/bin' } };\n\ntry {\n  // Read local version\n  let localData = { version: '0.0.0', changelog: [], date: '' };\n  try { localData = JSON.parse(fs.readFileSync('/data/scenarios/version.json', 'utf8')); } catch(e) {}\n\n  // Fetch remote\n  try { execFileSync(git, ['fetch', 'origin', 'main', '--quiet'], { ...gitOpts, timeout: 15000 }); } catch(e) {}\n\n  const localHash = execFileSync(git, ['rev-parse', 'HEAD'], gitOpts).toString().trim();\n  let remoteHash = localHash;\n  try { remoteHash = execFileSync(git, ['rev-parse', 'origin/main'], gitOpts).toString().trim(); } catch(e) {}\n\n  let remoteData = { version: localData.version, changelog: localData.changelog, date: localData.date };\n  try {\n    const raw = execFileSync(git, ['show', 'origin/main:nginx/html/version.json'], gitOpts).toString();\n    remoteData = JSON.parse(raw);\n  } catch(e) {}\n\n  const updateAvailable = localHash !== remoteHash;\n  const rollbackAvailable = fs.existsSync(repo + '/.update-rollback-hash');\n\n  return [{ json: {\n    localVersion: localData.version,\n    remoteVersion: remoteData.version,\n    remoteDate: remoteData.date || '',\n    updateAvailable: updateAvailable,\n    localHash: localHash.slice(0, 8),\n    remoteHash: remoteHash.slice(0, 8),\n    changelog: remoteData.changelog || [],\n    rollbackAvailable: rollbackAvailable\n  }}];\n} catch(e) {\n  return [{ json: { error: e.message, status: 'error' } }];\n}"
+      },
+      "id": "update-check-code",
+      "name": "Run Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-180, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "update-check-respond",
+      "name": "Respond Update Check",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [40, 0]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "update-apply",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "update-apply-webhook",
+      "name": "Webhook - POST Update Apply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 250],
+      "webhookId": "update-apply"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execFileSync } = require('child_process');\nconst fs = require('fs');\nconst git = '/usr/bin/git';\nconst repo = '/data/repo';\nconst gitOpts = { cwd: repo, env: { HOME: '/root', PATH: '/usr/local/bin:/usr/bin:/bin' }, timeout: 120000 };\n\ntry {\n  // Save rollback point\n  const currentHash = execFileSync(git, ['rev-parse', 'HEAD'], gitOpts).toString().trim();\n  fs.writeFileSync(repo + '/.update-rollback-hash', currentHash, 'utf8');\n  try {\n    const ver = fs.readFileSync(repo + '/nginx/html/version.json', 'utf8');\n    fs.writeFileSync(repo + '/.update-rollback-version.json', ver, 'utf8');\n  } catch(e) {}\n\n  // Pull\n  const pullOut = execFileSync(git, ['pull', 'origin', 'main', '--ff-only'], gitOpts).toString();\n\n  // Clear update cache signal\n  return [{ json: { status: 'ok', message: 'Update applied successfully', detail: pullOut.trim() } }];\n} catch(e) {\n  return [{ json: { error: e.message, status: 'error' } }];\n}"
+      },
+      "id": "update-apply-code",
+      "name": "Run Apply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-180, 250]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "update-apply-respond",
+      "name": "Respond Update Apply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [40, 250]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "update-rollback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "update-rollback-webhook",
+      "name": "Webhook - POST Update Rollback",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 500],
+      "webhookId": "update-rollback"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execFileSync } = require('child_process');\nconst fs = require('fs');\nconst git = '/usr/bin/git';\nconst repo = '/data/repo';\nconst gitOpts = { cwd: repo, env: { HOME: '/root', PATH: '/usr/local/bin:/usr/bin:/bin' }, timeout: 60000 };\n\ntry {\n  const rollbackFile = repo + '/.update-rollback-hash';\n  if (!fs.existsSync(rollbackFile)) {\n    return [{ json: { status: 'error', message: 'No rollback point available' } }];\n  }\n  const rollbackHash = fs.readFileSync(rollbackFile, 'utf8').trim();\n  execFileSync(git, ['checkout', rollbackHash, '--', '.'], gitOpts);\n  fs.unlinkSync(rollbackFile);\n  try { fs.unlinkSync(repo + '/.update-rollback-version.json'); } catch(e) {}\n  return [{ json: { status: 'ok', message: 'Rolled back successfully' } }];\n} catch(e) {\n  return [{ json: { error: e.message, status: 'error' } }];\n}"
+      },
+      "id": "update-rollback-code",
+      "name": "Run Rollback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-180, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "update-rollback-respond",
+      "name": "Respond Update Rollback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [40, 500]
+    }
+  ],
+  "connections": {
+    "Webhook - GET Update Check": {
+      "main": [[{ "node": "Run Check", "type": "main", "index": 0 }]]
+    },
+    "Run Check": {
+      "main": [[{ "node": "Respond Update Check", "type": "main", "index": 0 }]]
+    },
+    "Webhook - POST Update Apply": {
+      "main": [[{ "node": "Run Apply", "type": "main", "index": 0 }]]
+    },
+    "Run Apply": {
+      "main": [[{ "node": "Respond Update Apply", "type": "main", "index": 0 }]]
+    },
+    "Webhook - POST Update Rollback": {
+      "main": [[{ "node": "Run Rollback", "type": "main", "index": 0 }]]
+    },
+    "Run Rollback": {
+      "main": [[{ "node": "Respond Update Rollback", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "update-api-workflow"
+}
