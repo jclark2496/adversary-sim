@@ -32,6 +32,7 @@
       --sev-low:       #6A889B;
       --ft: 'Syne', sans-serif;
       --fb: 'Syne', sans-serif;
+      --fm: 'JetBrains Mono', monospace;
       --accent-cyan-rgb:   0,237,255;
       --accent-green-rgb:  0,242,179;
       --text-rgb:          232,240,255;
@@ -172,7 +173,7 @@
       color: var(--text-primary); letter-spacing: -0.01em; white-space: nowrap;
     }
     .logo-tag {
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
+      font-family: var(--fm); font-size: 11px; font-weight: 400;
       color: var(--accent-cyan);
       background: rgba(var(--accent-cyan-rgb),0.08);
       border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
@@ -193,7 +194,7 @@
     }
     .hdr-link {
       display: flex; align-items: center; gap: 5px;
-      font-family: 'Courier New', monospace; font-size: 11px;
+      font-family: var(--fm); font-size: 11px;
       letter-spacing: .08em; text-transform: uppercase;
       color: var(--accent-cyan); background: transparent;
       border: 1px solid var(--accent-cyan); border-radius: 6px;
@@ -458,7 +459,7 @@
       overflow: hidden; text-overflow: ellipsis;
     }
     .row-id {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-family: var(--fm); font-size: 10px;
       color: var(--text-dim); letter-spacing: .04em;
     }
     .row-badges { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -634,7 +635,7 @@
       letter-spacing: .06em; text-transform: uppercase; color: var(--text-primary);
     }
     .edit-id {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-family: var(--fm); font-size: 10px;
       color: var(--text-dim); letter-spacing: .04em;
     }
     .cls-btn {
@@ -785,7 +786,7 @@
   <!-- WEBHOOK NOTICE -->
   <div id="wh-notice">
     <span class="wh-icon">⚠</span>
-    <span>Write operations (approve, edit, delete) require the <strong>scenario-approve</strong> n8n workflow to be active at <code style="font-family:monospace;font-size:11px">/webhook/scenario-approve</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
+    <span>Write operations (approve, edit, delete) require the <strong>scenario-approve</strong> n8n workflow to be active at <code style="font-family:var(--fm);font-size:11px">/webhook/scenario-approve</code>. Until active, changes update the UI only and will not persist to scenarios.json.</span>
     <button class="wh-dismiss" id="wh-dismiss" title="Dismiss">×</button>
   </div>
 
