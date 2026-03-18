@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Console — Sophos Adversary Simulation Platform</title>
+  <title>Scenario Studio — Sophos Adversary Simulation Platform</title>
   <link rel="stylesheet" href="shared.css">
   <style>
     /* ============================================================
@@ -24,85 +24,154 @@
     @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
 
     /* ============================================================
-       PASSWORD GATE
-    ============================================================ */
-    #gate {
-      position: fixed; inset: 0; z-index: 9000;
-      background: var(--bg-deep);
-      display: flex; align-items: center; justify-content: center;
-    }
-    #gate::before {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
-      background-size: 28px 28px;
-    }
-    .gate-box {
-      position: relative; z-index: 1;
-      background: rgba(var(--bg-panel-rgb),.97);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.22);
-      border-radius: 12px; padding: 36px 40px;
-      width: 380px; max-width: 92vw;
-      box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(var(--accent-cyan-rgb),.06);
-      animation: su .28s ease-out;
-    }
-    .gate-brand {
-      font-family: var(--fm); font-weight: 700; font-size: 15px;
-      color: var(--text-primary); letter-spacing: 0.02em; margin-bottom: 6px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .gate-brand-tag {
-      font-family: var(--fm); font-size: 11px; font-weight: 400;
-      color: var(--accent-cyan);
-      background: rgba(var(--accent-cyan-rgb),0.08);
-      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
-      border-radius: 5px; padding: 3px 10px 3px 22px;
-      position: relative; letter-spacing: 0.03em;
-    }
-    .gate-brand-tag::before {
-      content: '>'; position: absolute; left: 8px;
-      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
-    }
-    .gate-sub {
-      font-size: 12px; color: var(--text-sec); margin-bottom: 28px; line-height: 1.5;
-    }
-    .gate-lbl {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .22em; text-transform: uppercase;
-      color: var(--text-label); margin-bottom: 6px; display: block;
-    }
-    .gate-input {
-      width: 100%; padding: 10px 12px; margin-bottom: 20px;
-      background: rgba(var(--bg-deep-rgb),.75);
-      border: 1px solid var(--border-dim); border-radius: 6px;
-      color: var(--text-primary); font-size: 14px; outline: none;
-      transition: border-color .18s, box-shadow .18s;
-    }
-    .gate-input:focus {
-      border-color: rgba(var(--accent-cyan-rgb),.36);
-      box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07);
-    }
-    .gate-btn {
-      width: 100%; padding: 12px;
-      background: rgba(var(--accent-cyan-rgb),.12);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.4);
-      border-radius: 6px; color: var(--accent-cyan);
-      font-family: var(--ft); font-weight: 700; font-size: 12px;
-      letter-spacing: .14em; text-transform: uppercase;
-      transition: all .15s; cursor: pointer;
-    }
-    .gate-btn:hover { background: rgba(var(--accent-cyan-rgb),.22); box-shadow: 0 0 16px rgba(var(--accent-cyan-rgb),.18); }
-    .gate-err {
-      margin-top: 10px; font-size: 11px; color: var(--c-fail);
-      text-align: center; font-family: var(--ft); font-weight: 600;
-      letter-spacing: .08em; min-height: 16px;
-    }
-    #gate.hidden { display: none; }
-
-    /* ============================================================
        LAYOUT
     ============================================================ */
     #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
     .content { max-width: 1200px; margin: 0 auto; padding: 0 28px 80px; width: 100%; }
+
+    /* ============================================================
+       CREATE SECTION
+    ============================================================ */
+    .create-section { margin-top: 24px; }
+
+    .create-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 700px) { .create-cards { grid-template-columns: 1fr; } }
+
+    .create-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 28px 24px 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color .25s, box-shadow .25s, background .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .create-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(var(--accent-cyan-rgb),.18), transparent 60%);
+      opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 0;
+    }
+    .create-card:hover {
+      border-color: rgba(var(--accent-cyan-rgb),.35);
+      box-shadow: 0 0 28px rgba(var(--accent-cyan-rgb),.08);
+      background: var(--bg-card-hov);
+    }
+    .create-card:hover::before { opacity: 1; }
+    .create-card > * { position: relative; z-index: 1; }
+
+    .cc-icon { font-size: 24px; margin-bottom: 2px; }
+    .cc-title {
+      font-family: var(--ft); font-weight: 700; font-size: 13px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--text-primary);
+    }
+    .cc-desc {
+      font-size: 13px; color: var(--text-sec); line-height: 1.55;
+    }
+    .cc-btn {
+      margin-top: auto; align-self: flex-start;
+      padding: 8px 18px; border-radius: 5px;
+      background: rgba(var(--accent-cyan-rgb),.08);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.28);
+      color: var(--accent-cyan);
+      font-family: var(--ft); font-weight: 700; font-size: 11px;
+      letter-spacing: .1em; text-transform: uppercase;
+      cursor: pointer; transition: all .15s;
+    }
+    .cc-btn:hover {
+      background: rgba(var(--accent-cyan-rgb),.18);
+      box-shadow: 0 0 14px rgba(var(--accent-cyan-rgb),.15);
+    }
+
+    /* Create forms */
+    .create-forms { display: none; }
+    .create-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .cf-title {
+      font-family: var(--ft); font-weight: 700; font-size: 13px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-primary); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cf-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .cf-label {
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--text-label);
+    }
+    .cf-ctrl {
+      background: rgba(var(--bg-deep-rgb),.7);
+      border: 1px solid var(--border-dim); border-radius: 5px;
+      padding: 8px 12px; color: var(--text-primary); font-size: 13px;
+      outline: none; width: 100%;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .cf-ctrl:focus {
+      border-color: rgba(var(--accent-cyan-rgb),.38);
+      box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07);
+    }
+    .cf-ctrl::placeholder { color: rgba(var(--text-rgb),0.50); }
+    textarea.cf-ctrl { min-height: 80px; resize: vertical; font-family: inherit; }
+    select.cf-ctrl {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 9px center;
+      padding-right: 28px;
+    }
+    select.cf-ctrl option { background: var(--bg-panel); }
+
+    /* Tactic chips */
+    .tactic-grid {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;
+    }
+    .tactic-chip {
+      padding: 4px 12px; border-radius: 4px;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(var(--bg-deep-rgb),.7);
+      border: 1px solid var(--border-dim);
+      color: var(--text-sec); cursor: pointer;
+      transition: all .15s;
+    }
+    .tactic-chip:hover {
+      border-color: rgba(var(--accent-cyan-rgb),.3);
+      color: var(--text-primary);
+    }
+    .tactic-chip.on {
+      background: rgba(var(--accent-cyan-rgb),.12);
+      border-color: rgba(var(--accent-cyan-rgb),.4);
+      color: var(--accent-cyan);
+    }
+
+    .cf-actions {
+      display: flex; gap: 10px; margin-top: 8px; justify-content: flex-end;
+    }
+    .cf-cancel {
+      padding: 8px 18px; border-radius: 5px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
+      font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      cursor: pointer; transition: all .15s;
+    }
+    .cf-cancel:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
+    .cf-submit {
+      padding: 8px 20px; border-radius: 5px;
+      background: rgba(var(--accent-cyan-rgb),.12);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.4);
+      color: var(--accent-cyan); font-family: var(--ft); font-weight: 700;
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      cursor: pointer; transition: all .15s;
+    }
+    .cf-submit:hover {
+      background: rgba(var(--accent-cyan-rgb),.22);
+      box-shadow: 0 0 16px rgba(var(--accent-cyan-rgb),.18);
+    }
+    .cf-submit:disabled { opacity: .4; cursor: not-allowed; }
 
     /* ============================================================
        WEBHOOK NOTICE
@@ -438,7 +507,7 @@
     .ef-save.busy .bsp { display: block; }
 
     /* ============================================================
-       CATALOG HEALTH (collapsible)
+       LIBRARY HEALTH (collapsible)
     ============================================================ */
     .health-section { margin-top: 32px; }
     .health-toggle {
@@ -512,24 +581,10 @@
     .fade-section:nth-child(2) { animation-delay: 0.10s; }
     .fade-section:nth-child(3) { animation-delay: 0.15s; }
     .fade-section:nth-child(4) { animation-delay: 0.20s; }
+    .fade-section:nth-child(5) { animation-delay: 0.25s; }
   </style>
 </head>
 <body>
-
-<!-- ===================== PASSWORD GATE ===================== -->
-<div id="gate">
-  <div class="gate-box">
-    <div class="gate-brand">
-      Sophos Adversary
-      <span class="gate-brand-tag">admin_console</span>
-    </div>
-    <div class="gate-sub">Scenario catalog management</div>
-    <label class="gate-lbl" for="gate-pw">Password</label>
-    <input id="gate-pw" type="password" class="gate-input" placeholder="Enter admin password" autocomplete="current-password">
-    <button class="gate-btn" id="gate-btn">Authenticate &rarr;</button>
-    <div class="gate-err" id="gate-err"></div>
-  </div>
-</div>
 
 <!-- ===================== APP ===================== -->
 <div id="app">
@@ -537,7 +592,7 @@
   <!-- HEADER -->
   <header class="shared-header">
     <span class="shared-brand">Sophos Adversary</span>
-    <span class="shared-tag">admin_console</span>
+    <span class="shared-tag">scenario_studio</span>
   </header>
 
   <div class="shared-hdr-right">
@@ -553,6 +608,82 @@
 
   <!-- CONTENT -->
   <div class="content">
+
+    <!-- CREATE SECTION -->
+    <div class="create-section fade-section">
+      <div class="create-cards" id="create-cards">
+        <div class="create-card">
+          <span class="cc-icon">&#10024;</span>
+          <div class="cc-title">Build from Description</div>
+          <div class="cc-desc">Describe an attack and AI generates a complete scenario with MITRE mappings and detections.</div>
+          <button class="cc-btn" onclick="openCreate('build')">Get Started &rarr;</button>
+        </div>
+        <div class="create-card">
+          <span class="cc-icon">&#128203;</span>
+          <div class="cc-title">Import MDR Case</div>
+          <div class="cc-desc">Paste a real MDR incident and convert it into a demo scenario with MITRE techniques and talking points.</div>
+          <button class="cc-btn" onclick="openCreate('import')">Get Started &rarr;</button>
+        </div>
+      </div>
+
+      <div class="create-forms" id="create-forms">
+        <!-- BUILD FORM -->
+        <div class="create-form" id="create-build" style="display:none">
+          <div class="cf-title">&#10024; Build from Description</div>
+          <div class="cf-group">
+            <div class="cf-label">Scenario Name</div>
+            <input id="build-name" type="text" class="cf-ctrl" placeholder="e.g. Ransomware via Phishing Email" autocomplete="off">
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Description</div>
+            <textarea id="build-desc" class="cf-ctrl" placeholder="Describe the attack scenario you want to build..."></textarea>
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">MITRE Tactics</div>
+            <div class="tactic-grid" id="tactic-grid"></div>
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Additional Context <span style="font-weight:400;letter-spacing:normal;text-transform:none;color:var(--text-dim)">(optional)</span></div>
+            <textarea id="build-context" class="cf-ctrl" placeholder="Any extra context, constraints, or requirements..."></textarea>
+          </div>
+          <div class="cf-actions">
+            <button class="cf-cancel" onclick="cancelCreate()">Cancel</button>
+            <button class="cf-submit" id="build-submit" onclick="submitBuild()">&#10024; Generate Scenario</button>
+          </div>
+        </div>
+
+        <!-- IMPORT FORM -->
+        <div class="create-form" id="create-import" style="display:none">
+          <div class="cf-title">&#128203; Import MDR Case</div>
+          <div class="cf-group">
+            <div class="cf-label">Case Title</div>
+            <input id="import-title" type="text" class="cf-ctrl" placeholder="e.g. BlackCat Ransomware — Healthcare Org" autocomplete="off">
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Description</div>
+            <textarea id="import-desc" class="cf-ctrl" placeholder="What happened? Include TTPs, timeline, and indicators..."></textarea>
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Threat Actor</div>
+            <input id="import-actor" type="text" class="cf-ctrl" placeholder="e.g. BlackCat / ALPHV" autocomplete="off">
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Target Industry</div>
+            <select id="import-industry" class="cf-ctrl">
+              <option value="universal">Universal</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="financial">Financial</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="retail">Retail</option>
+            </select>
+          </div>
+          <div class="cf-actions">
+            <button class="cf-cancel" onclick="cancelCreate()">Cancel</button>
+            <button class="cf-submit" id="import-submit" onclick="submitImport()">&#128203; Submit Case</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- STATS BAR -->
     <div class="stats-bar fade-section" id="stats-bar">
@@ -595,11 +726,11 @@
     <!-- SCENARIO LIST (grouped by product) -->
     <div id="scenario-list" class="fade-section"></div>
 
-    <!-- CATALOG HEALTH -->
+    <!-- LIBRARY HEALTH -->
     <div class="health-section fade-section">
       <button class="health-toggle" id="health-toggle" onclick="toggleHealth()">
         <span class="arrow" id="health-arrow">&#9654;</span>
-        Catalog Health
+        Library Health
         <span class="health-badge hb-ok" id="health-badge">Checking...</span>
       </button>
       <div class="health-body" id="health-body" style="display:none">
@@ -652,10 +783,8 @@
   /* =====================================================
      CONSTANTS
   ===================================================== */
-  const ADMIN_PASSWORD = 'SEdemo2026';
   const SCENARIOS_URL  = '/scenarios.json';
   const ADMIN_WH       = '/api/scenario-approve';
-  const SESSION_KEY    = 'mdr_admin_auth';
 
   /* =====================================================
      UTILS
@@ -698,32 +827,109 @@
     groups: { endpoint: true, ndr: true, firewall: true, other: false }
   };
 
+  let createMode = null; // 'build' | 'import' | null
+
   /* =====================================================
-     AUTH GATE
+     MITRE TACTICS
   ===================================================== */
-  function checkAuth() {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') {
-      $('gate').classList.add('hidden');
-      load();
-    } else {
-      setTimeout(() => $('gate-pw').focus(), 100);
+  const TACTICS = [
+    'Initial Access','Execution','Persistence','Privilege Escalation',
+    'Defense Evasion','Credential Access','Discovery','Lateral Movement',
+    'Collection','Command and Control','Exfiltration','Impact','Reconnaissance'
+  ];
+
+  function renderTacticChips() {
+    $('tactic-grid').innerHTML = TACTICS.map(t =>
+      `<button class="tactic-chip" data-tactic="${t}" onclick="this.classList.toggle('on')">${t}</button>`
+    ).join('');
+  }
+
+  /* =====================================================
+     CREATE FORMS
+  ===================================================== */
+  function openCreate(mode) {
+    createMode = mode;
+    $('create-build').style.display = mode === 'build' ? 'block' : 'none';
+    $('create-import').style.display = mode === 'import' ? 'block' : 'none';
+    $('create-cards').style.display = 'none';
+    $('create-forms').style.display = 'block';
+    if (mode === 'build') renderTacticChips();
+  }
+
+  function cancelCreate() {
+    createMode = null;
+    $('create-forms').style.display = 'none';
+    $('create-cards').style.display = 'grid';
+  }
+
+  async function submitBuild() {
+    const name = $('build-name').value.trim();
+    const desc = $('build-desc').value.trim();
+    if (!name) { toast('Scenario name is required', 'warn'); return; }
+
+    const tactics = [];
+    document.querySelectorAll('.tactic-chip.on').forEach(c => tactics.push(c.dataset.tactic));
+
+    const ctx = $('build-context').value.trim();
+
+    try {
+      const btn = $('build-submit');
+      btn.disabled = true; btn.textContent = 'Generating...';
+
+      await fetch('/api/scenario-enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          needs_enrichment: true,
+          freetext: `${name}\n${desc}`,
+          tactics,
+          context: ctx
+        })
+      });
+
+      toast('Scenario generated! Refreshing...');
+      cancelCreate();
+      setTimeout(load, 1500);
+    } catch(e) {
+      toast('Generation failed: ' + e.message, 'error');
+    } finally {
+      const btn = $('build-submit');
+      btn.disabled = false; btn.innerHTML = '&#10024; Generate Scenario';
     }
   }
 
-  function tryLogin() {
-    const pw = $('gate-pw').value;
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      $('gate').classList.add('hidden');
-      load();
-    } else {
-      $('gate-err').textContent = 'Incorrect password.';
-      $('gate-pw').style.borderColor = 'rgba(255,68,68,.7)';
-      setTimeout(() => {
-        $('gate-err').textContent = '';
-        $('gate-pw').style.borderColor = '';
-      }, 2000);
-      $('gate-pw').select();
+  async function submitImport() {
+    const title = $('import-title').value.trim();
+    const desc = $('import-desc').value.trim();
+    if (!title) { toast('Case title is required', 'warn'); return; }
+
+    const actor = $('import-actor').value.trim();
+    const industry = $('import-industry').value;
+
+    try {
+      const btn = $('import-submit');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+
+      await fetch('/api/case-ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title, description: desc,
+          threat_actor: actor,
+          industry,
+          source: 'Customer Incident',
+          submitted_by: 'SE'
+        })
+      });
+
+      toast('Case submitted! AI is generating the scenario...');
+      cancelCreate();
+      setTimeout(load, 3000);
+    } catch(e) {
+      toast('Submission failed: ' + e.message, 'error');
+    } finally {
+      const btn = $('import-submit');
+      btn.disabled = false; btn.innerHTML = '&#128203; Submit Case';
     }
   }
 
@@ -1094,7 +1300,7 @@
   }
 
   /* =====================================================
-     CATALOG HEALTH
+     LIBRARY HEALTH
   ===================================================== */
   function toggleHealth() {
     const body = $('health-body');
@@ -1215,10 +1421,6 @@
      EVENTS
   ===================================================== */
   function wire() {
-    // Gate
-    $('gate-btn').addEventListener('click', tryLogin);
-    $('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-
     // Dismiss webhook notice
     $('wh-dismiss').addEventListener('click', () => $('wh-notice').classList.add('hidden'));
     fetch(ADMIN_WH, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
@@ -1246,7 +1448,10 @@
 
     // Escape key
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeEdit();
+      if (e.key === 'Escape') {
+        if (createMode) cancelCreate();
+        else closeEdit();
+      }
     });
   }
 
@@ -1255,7 +1460,7 @@
   ===================================================== */
   document.addEventListener('DOMContentLoaded', () => {
     wire();
-    checkAuth();
+    load();
   });
 </script>
 </body>
