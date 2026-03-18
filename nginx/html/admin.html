@@ -148,12 +148,13 @@
       color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
     }
     .hdr-sep { flex: 1; }
-    .hdr-badge {
-      font-family: var(--ft); font-weight: 700; font-size: 9px;
-      letter-spacing: .28em; text-transform: uppercase;
-      padding: 3px 9px; border-radius: 3px;
-      background: rgba(var(--sev-crit-rgb),.1);
-      color: var(--sev-crit); border: 1px solid rgba(var(--sev-crit-rgb),.3);
+    .hdr-pill {
+      position: fixed; top: 8px; right: 16px; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(var(--bg-deep-rgb),.85);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      padding: 4px 10px; border-radius: 6px;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.08);
     }
     .hdr-link {
       display: flex; align-items: center; gap: 5px;
@@ -220,12 +221,12 @@
     }
     .stat:hover { border-color: rgba(var(--accent-cyan-rgb),.22); }
     .stat-val {
-      font-family: var(--ft); font-weight: 800; font-size: 28px;
+      font-family: var(--fm); font-weight: 700; font-size: 28px;
       letter-spacing: -.02em; color: var(--text-primary); line-height: 1;
     }
     .stat-lbl {
-      font-family: var(--ft); font-weight: 600; font-size: 10px;
-      letter-spacing: .2em; text-transform: uppercase; color: var(--text-label);
+      font-family: var(--ft); font-weight: 600; font-size: 11px;
+      letter-spacing: .26em; text-transform: uppercase; color: var(--text-label);
     }
     .stat.s-approved .stat-val { color: var(--accent-green); }
     .stat.s-pending  .stat-val { color: var(--sev-med); }
@@ -258,8 +259,8 @@
     .chip {
       padding: 4px 10px; border-radius: 100px;
       background: transparent; border: 1px solid var(--border-dim);
-      color: var(--text-sec); font-family: var(--ft); font-weight: 600;
-      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-sec); font-family: var(--fb); font-weight: 500;
+      font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
       cursor: pointer; transition: all .14s; white-space: nowrap;
     }
     .chip:hover { border-color: rgba(var(--accent-cyan-rgb),.28); color: var(--text-primary); }
@@ -377,8 +378,8 @@
       background: rgba(var(--bg-panel-rgb),.6);
     }
     .th {
-      font-family: var(--ft); font-weight: 600; font-size: 9px;
-      letter-spacing: .24em; text-transform: uppercase;
+      font-family: var(--ft); font-weight: 600; font-size: 10px;
+      letter-spacing: .18em; text-transform: uppercase;
       color: var(--text-dim); padding: 0 8px;
     }
     .th:first-child { padding: 0; }
@@ -417,7 +418,7 @@
     /* scenario name cell */
     .row-name { display: flex; flex-direction: column; gap: 3px; }
     .row-title {
-      font-family: var(--ft); font-weight: 600; font-size: 12px;
+      font-family: var(--fb); font-weight: 600; font-size: 12px;
       color: var(--text-primary); white-space: nowrap;
       overflow: hidden; text-overflow: ellipsis;
     }
@@ -726,8 +727,10 @@
   <header id="hdr">
     <span class="logo-word">Sophos Adversary</span>
     <span class="logo-tag">admin_console</span>
-    <span class="hdr-badge">Admin</span>
     <div class="hdr-sep"></div>
+  </header>
+
+  <div class="hdr-pill" id="hdr-pill">
     <a href="/" class="hdr-link">
       <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
         <path d="M7 2L3 6l4 4"/>
@@ -737,14 +740,14 @@
     <div class="lpip"><div class="ldot"></div>Live</div>
     <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
     <div class="nav-wrap" id="nav-wrap">
-      <button class="hdr-link" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+      <button class="hdr-link" id="nav-btn" onclick="navToggle()">&#9776; Menu</button>
       <div class="nav-dd" id="nav-dd">
         <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
         <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
         <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- WEBHOOK NOTICE -->
   <div id="wh-notice">
