@@ -37,7 +37,7 @@ services:
       - AI_PROVIDER=${AI_PROVIDER:-}
       - AI_API_KEY=${AI_API_KEY:-}
       - AI_MODEL=${AI_MODEL:-}
-      - NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process
+      - NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process,https,http
       - GUAC_ADMIN_USER=${GUAC_ADMIN_USER:-guacadmin}
       - GUAC_ADMIN_PASSWORD=${GUAC_ADMIN_PASSWORD:-guacadmin}
       - VICTIM_USER=${VICTIM_USER:-demo}
@@ -46,6 +46,7 @@ services:
       - n8n-data:/home/node/.n8n
       - ./n8n/workflows:/home/node/.n8n/workflows
       - ./nginx/html:/data/scenarios
+      - ./:/data/repo
     networks:
       advsim-net:
         ipv4_address: 172.20.0.31
