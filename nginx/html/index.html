@@ -1125,11 +1125,11 @@
           <div class="nav-wrap" id="nav-wrap">
             <button class="arch-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
             <div class="nav-dd" id="nav-dd">
-              <button class="nav-it" onclick="openSettings()">Settings</button>
-              <button class="nav-it" onclick="labmgrClick()">Lab Manager</button>
-              <button class="nav-it" onclick="window.open('/admin.html','_blank')">Scenario Studio</button>
-              <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
-              <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+              <button class="nav-it" onclick="navToggle();openSettings()">Settings</button>
+              <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
+              <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
+              <button class="nav-it" onclick="navToggle();window.open('/architecture.html','_blank')">Architecture</button>
+              <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
             </div>
           </div>
         </div>
@@ -2816,7 +2816,7 @@ async function labmgrClick() {
   if (!url) {
     try { const r = await fetch('/api/settings'); if (r.ok) { const cfg = await r.json(); url = cfg.labopsUrl || ''; } } catch(e) {}
   }
-  if (url) { window.open(url, '_blank'); } else { openSettings(); }
+  if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
 }
 
 // Init Lab Manager dot on page load
