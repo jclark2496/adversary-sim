@@ -4,61 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Console — Sophos Adversary Simulation Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
   <style>
     /* ============================================================
-       VARIABLES — exact match to index.html
+       PAGE-SPECIFIC VARIABLES (base tokens come from shared.css)
     ============================================================ */
     :root {
-      --bg-deep:       #03071e;
-      --bg-panel:      #080f2e;
-      --bg-card:       #0a1540;
-      --bg-card-hov:   #0d1a50;
-      --accent-blue:   #2006F7;
-      --accent-cyan:   #00EDFF;
-      --accent-green:  #00F2B3;
-      --accent-purple: #5A00FF;
-      --accent-violet: #B529F7;
-      --text-primary:  #e8f0ff;
-      --text-sec:      rgba(232,240,255,0.62);
-      --text-dim:      rgba(232,240,255,0.32);
-      --border-dim:    rgba(0,237,255,0.12);
-      --border-acc:    rgba(0,237,255,0.22);
-      --sev-crit:      #B529F7;
-      --sev-high:      #2006F7;
-      --sev-med:       #009CFB;
-      --sev-low:       #6A889B;
-      --ft: 'Syne', sans-serif;
-      --fb: 'Syne', sans-serif;
-      --fm: 'JetBrains Mono', monospace;
-      --accent-cyan-rgb:   0,237,255;
-      --accent-green-rgb:  0,242,179;
-      --text-rgb:          232,240,255;
-      --bg-deep-rgb:       3,7,30;
-      --bg-panel-rgb:      8,15,46;
       --sev-crit-rgb:      181,41,247;
       --sev-high-rgb:      32,6,247;
       --sev-med-rgb:       0,156,251;
       --sev-low-rgb:       106,136,155;
       --accent-purple-rgb: 90,0,255;
-      --text-label:        #a8c0d6;
       --text-accent-blue:  #8ca8ff;
     }
 
     /* ============================================================
-       RESET
+       PAGE OVERRIDES (reset, fonts, base come from shared.css)
     ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%; min-height: 100%;
-      background: var(--bg-deep); color: var(--text-primary);
-      font-family: var(--fb); font-size: 14px;
-      -webkit-font-smoothing: antialiased;
     }
-    button { cursor: pointer; font-family: inherit; border: none; }
-    input, select, textarea { font-family: inherit; }
     a { color: inherit; text-decoration: none; }
 
     /* dot-grid bg */
@@ -68,9 +33,7 @@
       background-size: 28px 28px;
     }
 
-    /* scrollbar */
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: rgba(var(--accent-cyan-rgb),.18); border-radius: 2px; }
+    /* scrollbar provided by shared.css */
 
     @keyframes su { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
     @keyframes blink {

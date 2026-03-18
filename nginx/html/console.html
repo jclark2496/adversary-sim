@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attack Console — Sophos Adversary Simulation Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
   <style>
-    /* ── Tokens ────────────────────────────────────────────────────────────── */
+    /* ── Page-Specific Tokens (base tokens + reset come from shared.css) ── */
     :root {
       --bg-deep:       #0a0f1e;
       --bg-term:       #0d1117;
@@ -18,10 +16,6 @@
       --bg-elevated:   #131e30;
 
       --c-cyan:    #00EDFF;
-      --c-green:   #00FF41;
-      --c-success: #00F2B3;
-      --c-fail:    #FF4444;
-      --c-warn:    #FFB300;
       --c-collect: #FF8C00;
 
       --t-bright:  #EBF6FF;
@@ -34,25 +28,15 @@
       --b-accent:  rgba(0,237,255,.38);
       --b-fail:    rgba(255,68,68,.28);
 
-      --ft: 'Syne', sans-serif;
-      --fb: 'Syne', sans-serif;
-      --fm: 'JetBrains Mono', monospace;
-
       --hdr-h:      52px;
       --phdr-h:     44px;
       --stats-h:    26px;
       --div-w:      5px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html, body {
       height: 100%; overflow: hidden;
-      background: var(--bg-deep);
       color: var(--t-bright);
-      font-family: var(--fb);
-      font-size: 14px;
-      line-height: 1.5;
     }
 
     /* ── TOP HEADER ──────────────────────────────────────────────────────── */

@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sophos Adversary Simulation Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-/* ── Variables ─────────────────────────────────────────────────────────── */
+/* ── Page-Specific Variables (base tokens + reset come from shared.css) ── */
 :root {
   --bg:        #03071e;
   --bg-mid:    #080f2e;
-  --bg-card:   #0a1540;
   --bg-card2:  #0d1a50;
   --cyan:      #00edff;
   --orange:    #ff6b35;
@@ -27,14 +26,10 @@
   --purple-rgb:168,85,247;
   --amber-rgb: 245,158,11;
   --green-rgb: 0,242,179;
-  --ft: 'Syne', sans-serif;
-  --fb: 'Syne', sans-serif;
-  --fm: 'JetBrains Mono', monospace;
 }
 
-/* ── Reset & Base ──────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; font-family: var(--fb); font-size: 14px; }
+/* ── Page Overrides (reset, fonts, base come from shared.css) ────────── */
+html, body { height: 100%; overflow: hidden; }
 body {
   background: var(--bg);
   color: var(--text);
