@@ -429,6 +429,46 @@
       transition: opacity .24s, visibility .24s;
     }
     #editov.open { opacity: 1; visibility: visible; }
+
+    /* ── Confirm Modal ────────────────────────────────────── */
+    #confirm-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(var(--bg-deep-rgb),.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-acc);
+      border-radius: var(--radius);
+      padding: 24px 28px 20px;
+      max-width: 400px; width: 90%;
+      box-shadow: 0 12px 48px rgba(0,0,0,.6);
+    }
+    .confirm-msg {
+      font-family: var(--fb); font-size: 14px;
+      color: var(--text-primary); margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .confirm-actions {
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .confirm-cancel {
+      font-family: var(--fb); font-size: 12px; font-weight: 500;
+      padding: 7px 16px; border-radius: 5px;
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-sec); cursor: pointer; transition: all .15s;
+    }
+    .confirm-cancel:hover { border-color: rgba(var(--accent-cyan-rgb),.3); color: var(--text-primary); }
+    .confirm-ok {
+      font-family: var(--fb); font-size: 12px; font-weight: 600;
+      padding: 7px 16px; border-radius: 5px;
+      background: rgba(255,68,68,.12); border: 1px solid rgba(255,68,68,.4);
+      color: var(--c-fail); cursor: pointer; transition: all .15s;
+    }
+    .confirm-ok:hover { background: rgba(255,68,68,.22); border-color: var(--c-fail); }
     #editd {
       position: fixed; top: 0; right: 0; bottom: 0; width: 380px; z-index: 201;
       background: rgba(var(--bg-panel-rgb),.98);
@@ -735,8 +775,16 @@
   </header>
 
   <div class="shared-hdr-right">
-    <a href="index.html" class="shared-hdr-link">&larr; SE Console</a>
-    <a href="architecture.html" class="shared-hdr-link">Architecture</a>
+    <div class="nav-wrap" id="nav-wrap">
+      <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
+      <div class="nav-dd" id="nav-dd">
+        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
+        <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
+        <button class="nav-it" onclick="navToggle();window.open('/architecture.html','_blank')">Architecture</button>
+        <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
+        <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+      </div>
+    </div>
   </div>
 
   <!-- WEBHOOK NOTICE -->
@@ -785,10 +833,6 @@
                 <option value="ndr">NDR</option>
                 <option value="firewall">Firewall</option>
               </select>
-            </div>
-            <div class="cf-group" style="flex:1">
-              <div class="cf-label">Tools / Threat Actor</div>
-              <input id="design-tools" type="text" class="ctrl" placeholder="e.g. Mimikatz, CobaltStrike">
             </div>
           </div>
           <div class="cf-group">
@@ -920,6 +964,17 @@
 
 <!-- EDIT PANEL -->
 <div id="editov"></div>
+
+<!-- Confirm Modal -->
+<div id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="confirmResolve(false)">Cancel</button>
+      <button class="confirm-ok" onclick="confirmResolve(true)">Delete</button>
+    </div>
+  </div>
+</div>
 <div id="editd">
   <div class="edit-hdr">
     <div class="edit-hdr-l">
@@ -946,6 +1001,33 @@
 <div id="toast-area"></div>
 
 <script>
+  /* ── Confirm Modal ────────────────────────────────── */
+  let _confirmCb = null;
+  function confirmResolve(yes) {
+    document.getElementById('confirm-overlay').classList.remove('open');
+    if (_confirmCb) _confirmCb(yes);
+    _confirmCb = null;
+  }
+  function showConfirm(msg, cb) {
+    document.getElementById('confirm-msg').textContent = msg;
+    _confirmCb = cb;
+    document.getElementById('confirm-overlay').classList.add('open');
+  }
+
+  /* ── Nav Menu ──────────────────────────────────────── */
+  function navToggle() { document.getElementById('nav-dd').classList.toggle('open'); }
+  document.addEventListener('click', function(e) {
+    var w = document.getElementById('nav-wrap');
+    if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
+  });
+  async function labmgrClick() {
+    var url = localStorage.getItem('labopsUrl');
+    if (!url) {
+      try { var cfg = await (await fetch('/api/settings')).json(); if (cfg.labopsUrl) { url = cfg.labopsUrl; localStorage.setItem('labopsUrl', url); } } catch(e) {}
+    }
+    if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
+  }
+
   /* =====================================================
      CONSTANTS
   ===================================================== */
@@ -1182,7 +1264,6 @@
     const name = $('design-name').value.trim() || 'Custom Scenario';
     const desc = $('design-desc').value.trim();
     const product = $('design-product').value;
-    const tools = $('design-tools').value.trim();
     const techs = designTechs.map(t => t.id + ' ' + t.name).join(', ');
 
     const btn = $('ai-assist-btn');
@@ -1200,7 +1281,6 @@ Name: ${name}
 Description: ${desc}
 Product: ${product}
 MITRE Techniques: ${techs}
-Tools: ${tools}
 Return the response with emphasis on expected_detections and talking_points fields.`
         })
       });
@@ -1268,8 +1348,7 @@ Return the response with emphasis on expected_detections and talking_points fiel
     // Auto-derive tactics from selected techniques
     const tactics = [...new Set(designTechs.map(t => t.tactic).filter(Boolean))];
 
-    const toolsRaw = $('design-tools').value.trim();
-    const tools = toolsRaw ? toolsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+    const tools = [];
 
     // Parse detections from textarea
     const detectionsRaw = ($('design-detections') ? $('design-detections').value : '').trim();
@@ -1562,12 +1641,15 @@ Return the response with emphasis on expected_detections and talking_points fiel
 
   function deleteOne(id) {
     const s = A.all.find(a => a.id === id);
-    if (!s || !confirm(`Delete "${s.title}"? This cannot be undone.`)) return;
-    A.all = A.all.filter(a => a.id !== id);
-    A.selected.delete(id);
-    persistAction('delete', [id]);
-    filt(); renderStats(); renderHealth();
-    toast(`Deleted: ${s.title}`);
+    if (!s) return;
+    showConfirm(`Delete "${s.title}"? This cannot be undone.`, ok => {
+      if (!ok) return;
+      A.all = A.all.filter(a => a.id !== id);
+      A.selected.delete(id);
+      persistAction('delete', [id]);
+      filt(); renderStats(); renderHealth();
+      toast(`Deleted: ${s.title}`);
+    });
   }
 
   /* =====================================================
@@ -1588,13 +1670,15 @@ Return the response with emphasis on expected_detections and talking_points fiel
 
   function bulkDelete() {
     const ids = [...A.selected];
-    if (!confirm(`Delete ${ids.length} scenarios? This cannot be undone.`)) return;
-    A.all = A.all.filter(s => !ids.includes(s.id));
-    A.selected.clear();
-    persistAction('delete', ids);
-    syncBulk();
-    filt(); renderStats(); renderHealth();
-    toast(`Deleted ${ids.length} scenarios`);
+    showConfirm(`Delete ${ids.length} scenario${ids.length === 1 ? '' : 's'}? This cannot be undone.`, ok => {
+      if (!ok) return;
+      A.all = A.all.filter(s => !ids.includes(s.id));
+      A.selected.clear();
+      persistAction('delete', ids);
+      syncBulk();
+      filt(); renderStats(); renderHealth();
+      toast(`Deleted ${ids.length} scenarios`);
+    });
   }
 
   /* =====================================================
@@ -1887,6 +1971,31 @@ Return the response with emphasis on expected_detections and talking_points fiel
       }
     });
   });
+
+// Update notification dot
+(async function checkForUpdates() {
+  try {
+    var cached = sessionStorage.getItem('updateAvail');
+    var cacheTime = sessionStorage.getItem('updateAvailTime');
+    if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < 600000) {
+      if (cached === 'true') {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+      return;
+    }
+    var r = await fetch('/api/update-check');
+    if (r.ok) {
+      var d = await r.json();
+      sessionStorage.setItem('updateAvail', d.updateAvailable ? 'true' : 'false');
+      sessionStorage.setItem('updateAvailTime', Date.now().toString());
+      if (d.updateAvailable) {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+    }
+  } catch(e) { /* silent */ }
+})();
 </script>
 </body>
 </html>

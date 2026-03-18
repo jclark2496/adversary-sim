@@ -154,8 +154,8 @@
     .phdr-meta {
       display:flex; align-items:center; gap:6px; flex:1; overflow:hidden;
     }
-    .m-item { font-size:10px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .m-sep  { color:rgba(var(--accent-cyan-rgb),0.16); font-size:10px; flex-shrink:0; }
+    .m-item { font-family:var(--fm); font-size:11px; color:var(--text-sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .m-sep  { color:rgba(var(--accent-cyan-rgb),0.2); font-size:10px; flex-shrink:0; }
 
     .ability-ctr {
       display:flex; align-items:baseline; gap:2px; flex-shrink:0;
@@ -364,33 +364,40 @@
 
     /* ── RDP connect bar ─────────────────────────────────────────────────── */
     #rdp-bar {
-      display:flex; align-items:center; gap:10px;
-      padding:7px 14px; flex-shrink:0;
+      display:flex; align-items:center; gap:12px;
+      padding:8px 14px; flex-shrink:0;
       background:rgba(255,68,68,.04);
       border-bottom:1px solid rgba(255,68,68,.12);
     }
-    .rdp-ip-label {
-      font-size:8px; color:var(--text-dim); letter-spacing:.12em;
+    .rdp-field {
+      display:flex; align-items:center; gap:6px; flex-shrink:0;
+    }
+    .rdp-field-label {
+      font-family:var(--ft); font-size:8px; font-weight:600;
+      color:var(--text-dim); letter-spacing:.12em;
       text-transform:uppercase; flex-shrink:0;
     }
     #rdp-ip-input {
       font-family:var(--fm); font-size:12px;
       color:var(--accent-cyan); background:rgba(0,237,255,.04);
       border:1px solid rgba(var(--accent-cyan-rgb),0.16); border-radius:3px;
-      padding:4px 8px; flex:1; min-width:0; outline:none;
+      padding:4px 8px; width:140px; outline:none;
       transition:border-color .15s;
     }
     #rdp-ip-input:focus { border-color:var(--accent-cyan); }
-    .rdp-cred {
-      display:flex; align-items:center; gap:5px;
-      font-size:9px; color:rgba(232,240,255,0.18); letter-spacing:.06em;
-      flex-shrink:0; white-space:nowrap;
+    .rdp-field-val {
+      font-family:var(--fm); font-size:12px; font-weight:500;
+      color:var(--text-primary); letter-spacing:.02em;
     }
-    .rdp-cred span { color:var(--text-sec); font-family:var(--fm); font-size:10px; }
+    .rdp-sep {
+      width:1px; height:18px; background:rgba(var(--accent-cyan-rgb),0.12);
+      flex-shrink:0;
+    }
     #rdp-status {
       font-size:9px; color:var(--text-dim); letter-spacing:.08em;
-      flex-shrink:0; max-width:180px; overflow:hidden;
+      max-width:180px; overflow:hidden;
       text-overflow:ellipsis; white-space:nowrap;
+      margin-left:auto;
     }
     #rdp-connect-btn {
       font-family:var(--fm); font-size:9px; font-weight:700;
@@ -565,36 +572,8 @@
     }
     .modal-confirm:hover { background:rgba(255,68,68,.22); border-color:var(--c-fail); }
 
-    /* ── NAV MENU ──────────────────────────────────────────────────────── */
-    .nav-wrap { position:relative; flex-shrink:0; }
-    .nav-btn {
-      font-family:var(--fm); font-size:9px; font-weight:700;
-      letter-spacing:.1em; padding:4px 10px;
-      background:transparent; border:1px solid rgba(var(--accent-cyan-rgb),0.16); border-radius:2px;
-      color:var(--text-sec); cursor:pointer; transition:all .15s; text-transform:uppercase;
-    }
-    .nav-btn:hover { background:rgba(0,237,255,.07); border-color:var(--border-acc); color:var(--accent-cyan); }
-    .nav-dd {
-      position:absolute; top:calc(100% + 6px); right:0; min-width:214px;
-      background:var(--bg-panel);
-      border:1px solid var(--border-acc); border-radius:4px;
-      box-shadow:0 8px 32px rgba(0,0,0,.55);
-      z-index:1001; display:none; overflow:hidden;
-    }
-    @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
-    .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
-    .nav-it {
-      display:flex; align-items:center; gap:9px; padding:9px 14px;
-      font-family:var(--fm); font-size:11px; color:var(--text-dim);
-      letter-spacing:.06em; width:100%; text-align:left;
-      background:none; border:none; cursor:pointer; transition:background .1s, color .1s;
-    }
-    .nav-it:hover { background:rgba(0,237,255,.07); color:var(--text-sec); }
-    .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
-    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer;background:none;border:none;font-family:var(--fm);transition:color .15s;padding:0;margin-right:8px;letter-spacing:.04em}
-    .labmgr-link:hover{color:var(--accent-cyan)}
-    .labmgr-link .lm-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(235,246,255,.2)}
-    .labmgr-link .lm-dot.green{background:#00FF41;box-shadow:0 0 4px rgba(0,255,65,.4)}
+    /* Nav menu styles now in shared.css */
+    /* labmgr styles removed — Lab Manager is now in the menu */
   </style>
 </head>
 <body>
@@ -604,11 +583,10 @@
   <div class="hdr-left">
     <div class="sophos-logo">
       <span class="logo-word">Sophos Adversary</span>
-      <span class="logo-tag">simulation_platform</span>
+      <span class="logo-tag">attack_console</span>
     </div>
     <div class="hdr-sep"></div>
     <div class="scenario-label">
-      <span class="scenario-eyebrow">ATTACK CONSOLE</span>
       <span id="scenario-name">Loading…</span>
     </div>
   </div>
@@ -626,19 +604,15 @@
       <span class="state-dot" id="state-dot"></span>
       <span id="op-state-txt">INITIALIZING</span>
     </div>
-    <div class="target-badge">
-      <span class="target-eyebrow">TARGET</span>
-      <span id="target-ip">—</span>
-    </div>
-    <button class="labmgr-link" id="labmgr-link" onclick="labmgrClick()" title="Lab Manager"><span class="lm-dot" id="labmgr-dot"></span>Lab Manager</button>
     <div class="nav-wrap" id="nav-wrap">
-      <button class="nav-btn" id="nav-btn" onclick="navToggle()">☰ Menu</button>
+      <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
       <div class="nav-dd" id="nav-dd">
-        <button class="nav-it" onclick="window.open('https://central.sophos.com','_blank')">Sophos Central</button>
-        <button class="nav-it" onclick="window.open('/architecture.html','_blank')">Architecture</button>
-        <button class="nav-it" onclick="window.open('/admin.html','_blank')">Admin Panel</button>
-        <div class="nav-sep"></div>
-        <button class="nav-it" id="nav-copy-opid" onclick="navCopyOpId()">Copy Operation ID</button>
+        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
+        <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
+        <button class="nav-it" onclick="navToggle();window.open('/architecture.html','_blank')">Architecture</button>
+        <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
+        <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
+        <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
       </div>
     </div>
   </div>
@@ -736,6 +710,8 @@
         <span class="m-item" id="m-vip">IP: —</span>
         <span class="m-sep">│</span>
         <span class="m-item" id="m-vuser">USER: —</span>
+        <span class="m-sep">│</span>
+        <span class="m-item" id="m-vpass">PASS: —</span>
       </div>
     </div>
 
@@ -743,13 +719,23 @@
 
       <!-- RDP connect bar -->
       <div id="rdp-bar">
-        <span class="rdp-ip-label">TARGET IP</span>
-        <input id="rdp-ip-input" type="text" spellcheck="false" placeholder="192.168.x.x"
-               onkeydown="if(event.key==='Enter')connectRDP()">
-        <span class="rdp-cred">USER <span id="rdp-user-lbl">—</span></span>
-        <span class="rdp-cred">PASS <span id="rdp-pass-lbl">—</span></span>
+        <div class="rdp-field">
+          <span class="rdp-field-label">Target</span>
+          <input id="rdp-ip-input" type="text" spellcheck="false" placeholder="192.168.x.x"
+                 onkeydown="if(event.key==='Enter')connectRDP()">
+        </div>
+        <div class="rdp-sep"></div>
+        <div class="rdp-field">
+          <span class="rdp-field-label">User</span>
+          <span class="rdp-field-val" id="rdp-user-lbl">demo</span>
+        </div>
+        <div class="rdp-sep"></div>
+        <div class="rdp-field">
+          <span class="rdp-field-label">Pass</span>
+          <span class="rdp-field-val" id="rdp-pass-lbl">loading…</span>
+        </div>
         <span id="rdp-status"></span>
-        <button id="rdp-connect-btn" onclick="connectRDP()">▶ CONNECT RDP</button>
+        <button id="rdp-connect-btn" onclick="connectRDP()">&#x21BB; RECONNECT</button>
       </div>
 
       <!-- Guacamole iframe fills remaining height -->
@@ -791,7 +777,7 @@ const OP_ID        = p.get('operation_id')  || '';
 const AGENT_PAW    = p.get('agent_paw')     || '';
 const VICTIM_IP    = p.get('victim_ip')     || '';
 const VICTIM_USER  = p.get('victim_user')   || 'demo';
-const VICTIM_PASS  = p.get('victim_pass')   || '';
+let   VICTIM_PASS  = p.get('victim_pass')   || 'Demo1234!';
 const SCENARIO     = p.get('scenario_name') || 'Attack Console';
 
 const CALDERA_BASE = '/caldera';   // proxied through nginx — no CORS issues
@@ -815,11 +801,11 @@ let stopModalOpen        = false;
 document.addEventListener('DOMContentLoaded', () => {
   // Static fills
   document.getElementById('scenario-name').textContent = decodeURIComponent(SCENARIO);
-  document.getElementById('target-ip').textContent     = VICTIM_IP || 'N/A';
   document.getElementById('m-vip').textContent         = `IP: ${VICTIM_IP || '—'}`;
   document.getElementById('m-vuser').textContent       = `USER: ${VICTIM_USER}`;
+  document.getElementById('m-vpass').textContent       = `PASS: ${VICTIM_PASS}`;
   // Fill connect bar
-  document.getElementById('rdp-ip-input').value      = VICTIM_IP;
+  document.getElementById('rdp-ip-input').value       = VICTIM_IP;
   document.getElementById('rdp-user-lbl').textContent = VICTIM_USER;
   document.getElementById('rdp-pass-lbl').textContent = VICTIM_PASS;
   // Auto-connect if victim IP was provided
@@ -1094,6 +1080,15 @@ const GUAC_DS       = 'postgresql';
       const cfg = await r.json();
       if (cfg.guacAdmin) GUAC_ADMIN = cfg.guacAdmin;
       if (cfg.guacAdminPw) GUAC_ADMIN_PW = cfg.guacAdminPw;
+      if (cfg.victimPass) {
+        VICTIM_PASS = cfg.victimPass;
+        document.getElementById('rdp-pass-lbl').textContent = VICTIM_PASS;
+        document.getElementById('m-vpass').textContent = 'PASS: ' + VICTIM_PASS;
+      }
+      if (cfg.victimUser) {
+        document.getElementById('rdp-user-lbl').textContent = cfg.victimUser;
+        document.getElementById('m-vuser').textContent = 'USER: ' + cfg.victimUser;
+      }
     }
   } catch(e) { /* use defaults */ }
 })();
@@ -1447,6 +1442,31 @@ async function labmgrClick() {
   fetch('/api/settings').then(function(r) { return r.ok ? r.json() : {}; }).then(function(cfg) {
     if (cfg.labopsUrl) { localStorage.setItem('labopsUrl', cfg.labopsUrl); labmgrUpdateDot(cfg.labopsUrl); }
   }).catch(function() {});
+})();
+
+// Update notification dot
+(async function checkForUpdates() {
+  try {
+    var cached = sessionStorage.getItem('updateAvail');
+    var cacheTime = sessionStorage.getItem('updateAvailTime');
+    if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < 600000) {
+      if (cached === 'true') {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+      return;
+    }
+    var r = await fetch('/api/update-check');
+    if (r.ok) {
+      var d = await r.json();
+      sessionStorage.setItem('updateAvail', d.updateAvailable ? 'true' : 'false');
+      sessionStorage.setItem('updateAvailTime', Date.now().toString());
+      if (d.updateAvailable) {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+    }
+  } catch(e) { /* silent */ }
 })();
 </script>
 </body>

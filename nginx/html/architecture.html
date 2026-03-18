@@ -40,20 +40,65 @@
       border-bottom: 1px solid var(--border-dim);
     }
 
+    /* ── Collapsible Sections ──────────────────────────────── */
+    .section-hdr.collapsible {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-hdr.collapsible::after {
+      content: '\25B2';
+      font-size: 9px;
+      color: var(--text-dim);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .section-hdr.collapsible.collapsed::after {
+      transform: rotate(180deg);
+    }
+
+    .section-body {
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      max-height: 5000px;
+      opacity: 1;
+    }
+
+    .section-body.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+
     /* ── Architecture Cards ─────────────────────────────────── */
     .arch-row-wrap {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       gap: 0;
     }
 
-    .arch-card-wrap { flex: 1; min-width: 0; }
+    .arch-card-wrap {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+    }
 
     .arch-card {
       background: var(--bg-card);
       border: 1px solid var(--border-dim);
       border-radius: var(--radius);
       padding: 24px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .arch-card ul {
+      flex: 1;
     }
 
     .arch-card-title {
@@ -96,6 +141,55 @@
       color: rgba(var(--accent-cyan-rgb), 0.35);
       font-size: 18px;
       font-family: var(--fm);
+    }
+
+    /* ── AI Layer Card ─────────────────────────────────────── */
+    .arch-ai-row {
+      margin-top: 16px;
+    }
+
+    .arch-ai-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(var(--accent-cyan-rgb), 0.15);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .arch-ai-card .arch-card-title {
+      margin-bottom: 2px;
+    }
+
+    .arch-ai-card .arch-card-sub {
+      margin-bottom: 12px;
+    }
+
+    .ai-info { flex: 0 0 200px; }
+
+    .ai-providers {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1;
+      align-items: center;
+    }
+
+    .ai-chip {
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--text-sec);
+      background: rgba(var(--accent-cyan-rgb), 0.05);
+      border: 1px solid rgba(var(--accent-cyan-rgb), 0.12);
+      border-radius: 4px;
+      padding: 5px 12px;
+      white-space: nowrap;
+    }
+
+    .ai-chip.local {
+      border-color: rgba(0,242,179,0.2);
+      color: var(--accent-green);
     }
 
     /* ── Tables ─────────────────────────────────────────────── */
@@ -176,41 +270,60 @@
       line-height: 1.45;
     }
 
-    /* ── Scenario Groups ────────────────────────────────────── */
-    .scenario-group { margin-bottom: 32px; }
+    /* ── Scenario Tabs ─────────────────────────────────────── */
+    .scenario-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
 
-    .group-label {
+    .scenario-tab {
       font-family: var(--ft);
       font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      padding: 5px 12px;
+      padding: 7px 16px;
       border-radius: 4px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      transition: all 0.15s;
     }
 
-    .group-label .dot {
+    .scenario-tab .dot {
       width: 7px; height: 7px;
       border-radius: 50%;
       display: inline-block;
     }
 
-    .group-endpoint { color: #2196F3; background: rgba(33,150,243,0.08); border: 1px solid rgba(33,150,243,0.18); }
-    .group-endpoint .dot { background: #2196F3; }
+    .scenario-tab.tab-endpoint { color: rgba(33,150,243,0.6); }
+    .scenario-tab.tab-endpoint .dot { background: rgba(33,150,243,0.5); }
+    .scenario-tab.tab-endpoint.active,
+    .scenario-tab.tab-endpoint:hover { color: #2196F3; background: rgba(33,150,243,0.08); border-color: rgba(33,150,243,0.18); }
+    .scenario-tab.tab-endpoint.active .dot { background: #2196F3; }
 
-    .group-ndr { color: #4CAF50; background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.18); }
-    .group-ndr .dot { background: #4CAF50; }
+    .scenario-tab.tab-ndr { color: rgba(76,175,80,0.6); }
+    .scenario-tab.tab-ndr .dot { background: rgba(76,175,80,0.5); }
+    .scenario-tab.tab-ndr.active,
+    .scenario-tab.tab-ndr:hover { color: #4CAF50; background: rgba(76,175,80,0.08); border-color: rgba(76,175,80,0.18); }
+    .scenario-tab.tab-ndr.active .dot { background: #4CAF50; }
 
-    .group-firewall { color: #FF9800; background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.18); }
-    .group-firewall .dot { background: #FF9800; }
+    .scenario-tab.tab-firewall { color: rgba(255,152,0,0.6); }
+    .scenario-tab.tab-firewall .dot { background: rgba(255,152,0,0.5); }
+    .scenario-tab.tab-firewall.active,
+    .scenario-tab.tab-firewall:hover { color: #FF9800; background: rgba(255,152,0,0.08); border-color: rgba(255,152,0,0.18); }
+    .scenario-tab.tab-firewall.active .dot { background: #FF9800; }
 
-    .scenario-group.endpoint table { border-left: 2px solid rgba(33,150,243,0.3); }
-    .scenario-group.ndr table { border-left: 2px solid rgba(76,175,80,0.3); }
-    .scenario-group.firewall table { border-left: 2px solid rgba(255,152,0,0.3); }
+    .scenario-panel { display: none; }
+    .scenario-panel.active { display: block; }
+
+    .scenario-panel.endpoint table { border-left: 2px solid rgba(33,150,243,0.3); }
+    .scenario-panel.ndr table { border-left: 2px solid rgba(76,175,80,0.3); }
+    .scenario-panel.firewall table { border-left: 2px solid rgba(255,152,0,0.3); }
 
     /* ── Runbook ────────────────────────────────────────────── */
     .runbook-list {
@@ -285,6 +398,8 @@
       letter-spacing: 0.06em;
     }
 
+    /* Nav menu styles now in shared.css */
+
     /* ── Fade-in Animation ──────────────────────────────────── */
     .section {
       opacity: 0;
@@ -298,6 +413,7 @@
     .section:nth-child(4) { animation-delay: 0.20s; }
     .section:nth-child(5) { animation-delay: 0.25s; }
     .section:nth-child(6) { animation-delay: 0.30s; }
+    .section:nth-child(7) { animation-delay: 0.35s; }
 
     @keyframes fadeUp {
       to { opacity: 1; transform: translateY(0); }
@@ -309,6 +425,8 @@
       .arch-connector { transform: rotate(90deg); width: auto; height: 24px; }
       .flow-row { grid-template-columns: repeat(3, 1fr); }
       .ref-grid { grid-template-columns: 1fr; }
+      .arch-ai-card { flex-direction: column; }
+      .ai-info { flex: none; }
     }
 
     @media (max-width: 600px) {
@@ -326,10 +444,17 @@
     <span class="shared-tag">simulation_platform</span>
   </header>
 
-  <div class="shared-hdr-right">
-    <a href="index.html" class="shared-hdr-link">&larr; SE Console</a>
-    <a href="admin.html" class="shared-hdr-link">Scenario Studio</a>
-    <a href="https://central.sophos.com" target="_blank" class="shared-hdr-link">Sophos Central</a>
+  <div id="hdr-controls" style="position:fixed;top:10px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
+    <div class="nav-wrap" id="nav-wrap">
+      <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
+      <div class="nav-dd" id="nav-dd">
+        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
+        <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
+        <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
+        <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
+        <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+      </div>
+    </div>
   </div>
 
   <!-- ── Content ─────────────────────────────────────────── -->
@@ -349,16 +474,20 @@
               <li>n8n</li>
               <li>Guacamole</li>
               <li>Kali</li>
+              <li>Atomic Red Team</li>
             </ul>
           </div>
         </div>
         <div class="arch-connector">&rarr;</div>
         <div class="arch-card-wrap">
           <div class="arch-card">
-            <div class="arch-card-title">Victim VMs</div>
-            <div class="arch-card-sub">Attack surface (Proxmox)</div>
+            <div class="arch-card-title">LabOps</div>
+            <div class="arch-card-sub">Infrastructure &amp; attack surface</div>
             <ul>
-              <li>Windows 11</li>
+              <li>Proxmox VE</li>
+              <li>Terraform</li>
+              <li>Ansible</li>
+              <li>Windows Victims</li>
               <li>sandcat.exe</li>
               <li>Sophos Agent</li>
             </ul>
@@ -375,7 +504,24 @@
               <li>XDR</li>
               <li>NDR</li>
               <li>Firewall</li>
+              <li>MDR</li>
             </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI / LLM Layer -->
+      <div class="arch-ai-row">
+        <div class="arch-ai-card">
+          <div class="ai-info">
+            <div class="arch-card-title">AI / LLM Layer</div>
+            <div class="arch-card-sub">Scenario generation &amp; enrichment</div>
+          </div>
+          <div class="ai-providers">
+            <span class="ai-chip local">Ollama (local)</span>
+            <span class="ai-chip">Anthropic Claude</span>
+            <span class="ai-chip">OpenAI</span>
+            <span class="ai-chip">Google Gemini</span>
           </div>
         </div>
       </div>
@@ -383,70 +529,72 @@
 
     <!-- Section 2: Services & Ports -->
     <div class="section">
-      <h2 class="section-hdr">Services &amp; Ports</h2>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Container</th>
-              <th>Port</th>
-              <th>IP</th>
-              <th>Purpose</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name-cell">SE Console</td>
-              <td>advsim-nginx</td>
-              <td>:8081</td>
-              <td>172.20.0.51</td>
-              <td>Dashboard + reverse proxy</td>
-            </tr>
-            <tr>
-              <td class="name-cell">CALDERA</td>
-              <td>advsim-caldera</td>
-              <td>:8888</td>
-              <td>172.20.0.10</td>
-              <td>C2 / adversary emulation</td>
-            </tr>
-            <tr>
-              <td class="name-cell">n8n</td>
-              <td>advsim-n8n</td>
-              <td>:5679</td>
-              <td>172.20.0.31</td>
-              <td>AI scenario workflows</td>
-            </tr>
-            <tr>
-              <td class="name-cell">Guacamole</td>
-              <td>advsim-guacamole</td>
-              <td>:8085</td>
-              <td>172.20.0.81</td>
-              <td>Browser-based RDP (standalone)</td>
-            </tr>
-            <tr>
-              <td class="name-cell">guacd</td>
-              <td>advsim-guacd</td>
-              <td>&mdash;</td>
-              <td>172.20.0.80</td>
-              <td>Protocol daemon</td>
-            </tr>
-            <tr>
-              <td class="name-cell">Kali</td>
-              <td>advsim-kali</td>
-              <td>:2222 (SSH)</td>
-              <td>172.20.0.70</td>
-              <td>Attacker tools (optional)</td>
-            </tr>
-            <tr>
-              <td class="name-cell">Atomic</td>
-              <td>advsim-atomic</td>
-              <td>&mdash;</td>
-              <td>172.20.0.40</td>
-              <td>ART runner (optional)</td>
-            </tr>
-          </tbody>
-        </table>
+      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Services &amp; Ports</h2>
+      <div class="section-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Container</th>
+                <th>Port</th>
+                <th>IP</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="name-cell">SE Console</td>
+                <td>advsim-nginx</td>
+                <td>:8081</td>
+                <td>172.20.0.51</td>
+                <td>Dashboard + reverse proxy</td>
+              </tr>
+              <tr>
+                <td class="name-cell">CALDERA</td>
+                <td>advsim-caldera</td>
+                <td>:8888</td>
+                <td>172.20.0.10</td>
+                <td>C2 / adversary emulation</td>
+              </tr>
+              <tr>
+                <td class="name-cell">n8n</td>
+                <td>advsim-n8n</td>
+                <td>:5679</td>
+                <td>172.20.0.31</td>
+                <td>AI scenario workflows</td>
+              </tr>
+              <tr>
+                <td class="name-cell">Guacamole</td>
+                <td>advsim-guacamole</td>
+                <td>:8085</td>
+                <td>172.20.0.81</td>
+                <td>Browser-based RDP (standalone)</td>
+              </tr>
+              <tr>
+                <td class="name-cell">guacd</td>
+                <td>advsim-guacd</td>
+                <td>&mdash;</td>
+                <td>172.20.0.80</td>
+                <td>Protocol daemon</td>
+              </tr>
+              <tr>
+                <td class="name-cell">Kali</td>
+                <td>advsim-kali</td>
+                <td>:2222 (SSH)</td>
+                <td>172.20.0.70</td>
+                <td>Attacker tools (optional)</td>
+              </tr>
+              <tr>
+                <td class="name-cell">Atomic Red Team</td>
+                <td>advsim-atomic</td>
+                <td>&mdash;</td>
+                <td>172.20.0.40</td>
+                <td>ART runner (optional)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -489,122 +637,132 @@
 
     <!-- Section 4: Scenario Library -->
     <div class="section">
-      <h2 class="section-hdr">Scenario Library &mdash; 24 Scenarios</h2>
+      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Scenario Library &mdash; 24 Scenarios</h2>
+      <div class="section-body">
 
-      <!-- Endpoint -->
-      <div class="scenario-group endpoint">
-        <div class="group-label group-endpoint"><span class="dot"></span> Endpoint &mdash; 11 Scenarios</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>SCN-001</td><td class="name-cell">Credential Dumping via LSASS</td><td>T1003.001, T1003.002</td><td>~3 min</td></tr>
-              <tr><td>SCN-002</td><td class="name-cell">Discovery &amp; Enumeration Chain</td><td>T1082, T1016, T1057, T1087</td><td>~2 min</td></tr>
-              <tr><td>SCN-003</td><td class="name-cell">Phishing &rarr; Payload &rarr; Persistence</td><td>T1204, T1053, T1547</td><td>~3 min</td></tr>
-              <tr><td>SCN-005</td><td class="name-cell">Pass the Hash Lateral Movement</td><td>T1135, T1003, T1550</td><td>~3 min</td></tr>
-              <tr><td>SCN-006</td><td class="name-cell">PowerShell &amp; AMSI Bypass</td><td>T1059, T1562</td><td>~2 min</td></tr>
-              <tr><td>SCN-008</td><td class="name-cell">Ransomware Simulation</td><td>T1562, T1490, T1486</td><td>~4 min</td></tr>
-              <tr><td>SCN-016</td><td class="name-cell">Clear Windows Event Logs</td><td>T1070.001</td><td>~30 sec</td></tr>
-              <tr><td>SCN-017</td><td class="name-cell">Encoded PowerShell</td><td>T1059, T1027</td><td>~30 sec</td></tr>
-              <tr><td>SCN-018</td><td class="name-cell">LOLBin Download (certutil)</td><td>T1105</td><td>~30 sec</td></tr>
-              <tr><td>SCN-019</td><td class="name-cell">WMI Process Creation</td><td>T1047</td><td>~30 sec</td></tr>
-              <tr><td>SCN-020</td><td class="name-cell">Malicious Service Creation</td><td>T1543.003</td><td>~30 sec</td></tr>
-            </tbody>
-          </table>
+        <div class="scenario-tabs">
+          <button class="scenario-tab tab-endpoint active" onclick="showScenarioTab('endpoint',this)"><span class="dot"></span> Endpoint &mdash; 11</button>
+          <button class="scenario-tab tab-ndr" onclick="showScenarioTab('ndr',this)"><span class="dot"></span> NDR &mdash; 6</button>
+          <button class="scenario-tab tab-firewall" onclick="showScenarioTab('firewall',this)"><span class="dot"></span> Firewall &mdash; 7</button>
         </div>
-      </div>
 
-      <!-- NDR -->
-      <div class="scenario-group ndr">
-        <div class="group-label group-ndr"><span class="dot"></span> NDR &mdash; 6 Scenarios</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>SCN-010</td><td class="name-cell">Brute Force Simulation</td><td>T1110</td><td>~30 sec</td></tr>
-              <tr><td>SCN-011</td><td class="name-cell">UDP Data Exfiltration</td><td>T1048.003</td><td>~15 sec</td></tr>
-              <tr><td>SCN-012</td><td class="name-cell">Web Application Attacks</td><td>T1190</td><td>~30 sec</td></tr>
-              <tr><td>SCN-013</td><td class="name-cell">Bad User-Agent (Log4Shell)</td><td>T1071.001</td><td>~5 sec</td></tr>
-              <tr><td>SCN-014</td><td class="name-cell">Suspicious Exploit URL</td><td>T1190</td><td>~5 sec</td></tr>
-              <tr><td>SCN-015</td><td class="name-cell">Network Port Scan</td><td>T1046</td><td>~60 sec</td></tr>
-            </tbody>
-          </table>
+        <!-- Endpoint -->
+        <div class="scenario-panel endpoint active" id="panel-endpoint">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>SCN-001</td><td class="name-cell">Credential Dumping via LSASS</td><td>T1003.001, T1003.002</td><td>~3 min</td></tr>
+                <tr><td>SCN-002</td><td class="name-cell">Discovery &amp; Enumeration Chain</td><td>T1082, T1016, T1057, T1087</td><td>~2 min</td></tr>
+                <tr><td>SCN-003</td><td class="name-cell">Phishing &rarr; Payload &rarr; Persistence</td><td>T1204, T1053, T1547</td><td>~3 min</td></tr>
+                <tr><td>SCN-005</td><td class="name-cell">Pass the Hash Lateral Movement</td><td>T1135, T1003, T1550</td><td>~3 min</td></tr>
+                <tr><td>SCN-006</td><td class="name-cell">PowerShell &amp; AMSI Bypass</td><td>T1059, T1562</td><td>~2 min</td></tr>
+                <tr><td>SCN-008</td><td class="name-cell">Ransomware Simulation</td><td>T1562, T1490, T1486</td><td>~4 min</td></tr>
+                <tr><td>SCN-016</td><td class="name-cell">Clear Windows Event Logs</td><td>T1070.001</td><td>~30 sec</td></tr>
+                <tr><td>SCN-017</td><td class="name-cell">Encoded PowerShell</td><td>T1059, T1027</td><td>~30 sec</td></tr>
+                <tr><td>SCN-018</td><td class="name-cell">LOLBin Download (certutil)</td><td>T1105</td><td>~30 sec</td></tr>
+                <tr><td>SCN-019</td><td class="name-cell">WMI Process Creation</td><td>T1047</td><td>~30 sec</td></tr>
+                <tr><td>SCN-020</td><td class="name-cell">Malicious Service Creation</td><td>T1543.003</td><td>~30 sec</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <!-- Firewall -->
-      <div class="scenario-group firewall">
-        <div class="group-label group-firewall"><span class="dot"></span> Firewall &mdash; 7 Scenarios</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>SCN-021</td><td class="name-cell">EICAR Test File Download</td><td>T1105</td><td>~10 sec</td></tr>
-              <tr><td>SCN-022</td><td class="name-cell">IPS Signature Detection</td><td>T1190</td><td>~10 sec</td></tr>
-              <tr><td>SCN-023</td><td class="name-cell">C2 Traffic Detection</td><td>T1071.001</td><td>~30 sec</td></tr>
-              <tr><td>SCN-024</td><td class="name-cell">Phishing Site Block</td><td>T1566</td><td>~10 sec</td></tr>
-              <tr><td>SCN-025</td><td class="name-cell">Malware Site Block</td><td>T1204.001</td><td>~15 sec</td></tr>
-              <tr><td>SCN-026</td><td class="name-cell">DNS Tunneling</td><td>T1071.004</td><td>~15 sec</td></tr>
-              <tr><td>SCN-027</td><td class="name-cell">Policy Violation (SSH/RDP)</td><td>T1021</td><td>~15 sec</td></tr>
-            </tbody>
-          </table>
+        <!-- NDR -->
+        <div class="scenario-panel ndr" id="panel-ndr">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>SCN-010</td><td class="name-cell">Brute Force Simulation</td><td>T1110</td><td>~30 sec</td></tr>
+                <tr><td>SCN-011</td><td class="name-cell">UDP Data Exfiltration</td><td>T1048.003</td><td>~15 sec</td></tr>
+                <tr><td>SCN-012</td><td class="name-cell">Web Application Attacks</td><td>T1190</td><td>~30 sec</td></tr>
+                <tr><td>SCN-013</td><td class="name-cell">Bad User-Agent (Log4Shell)</td><td>T1071.001</td><td>~5 sec</td></tr>
+                <tr><td>SCN-014</td><td class="name-cell">Suspicious Exploit URL</td><td>T1190</td><td>~5 sec</td></tr>
+                <tr><td>SCN-015</td><td class="name-cell">Network Port Scan</td><td>T1046</td><td>~60 sec</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <!-- Firewall -->
+        <div class="scenario-panel firewall" id="panel-firewall">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>MITRE</th><th>Duration</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>SCN-021</td><td class="name-cell">EICAR Test File Download</td><td>T1105</td><td>~10 sec</td></tr>
+                <tr><td>SCN-022</td><td class="name-cell">IPS Signature Detection</td><td>T1190</td><td>~10 sec</td></tr>
+                <tr><td>SCN-023</td><td class="name-cell">C2 Traffic Detection</td><td>T1071.001</td><td>~30 sec</td></tr>
+                <tr><td>SCN-024</td><td class="name-cell">Phishing Site Block</td><td>T1566</td><td>~10 sec</td></tr>
+                <tr><td>SCN-025</td><td class="name-cell">Malware Site Block</td><td>T1204.001</td><td>~15 sec</td></tr>
+                <tr><td>SCN-026</td><td class="name-cell">DNS Tunneling</td><td>T1071.004</td><td>~15 sec</td></tr>
+                <tr><td>SCN-027</td><td class="name-cell">Policy Violation (SSH/RDP)</td><td>T1021</td><td>~15 sec</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
 
     <!-- Section 5: Demo Runbook -->
     <div class="section">
-      <h2 class="section-hdr">Demo Runbook</h2>
-      <ol class="runbook-list">
-        <li><strong>Open SE Console</strong> <span class="arrow">&rarr;</span> select scenario, enter victim IP, click LAUNCH</li>
-        <li><strong>Attack Console opens</strong> <span class="arrow">&rarr;</span> left panel shows CALDERA feed, right panel shows victim RDP</li>
-        <li><strong>Narrate the attack</strong> <span class="arrow">&rarr;</span> walk through each technique using the talking points</li>
-        <li><strong>Pivot to Sophos</strong> <span class="arrow">&rarr;</span> show real-time detections in Sophos Central / XDR</li>
-        <li><strong>Close with proof</strong> <span class="arrow">&rarr;</span> "This is exactly what your SOC team would see. How long would it take your team to respond?"</li>
-      </ol>
+      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Demo Runbook</h2>
+      <div class="section-body">
+        <ol class="runbook-list">
+          <li><strong>Open SE Console</strong> <span class="arrow">&rarr;</span> select scenario, enter victim IP, click LAUNCH</li>
+          <li><strong>Attack Console opens</strong> <span class="arrow">&rarr;</span> left panel shows CALDERA feed, right panel shows victim RDP</li>
+          <li><strong>Narrate the attack</strong> <span class="arrow">&rarr;</span> walk through each technique using the talking points</li>
+          <li><strong>Pivot to Sophos</strong> <span class="arrow">&rarr;</span> show real-time detections in Sophos Central / XDR</li>
+          <li><strong>Close with proof</strong> <span class="arrow">&rarr;</span> "This is exactly what your SOC team would see. How long would it take your team to respond?"</li>
+        </ol>
+      </div>
     </div>
 
     <!-- Section 6: Quick Reference -->
     <div class="section">
-      <h2 class="section-hdr">Quick Reference</h2>
-      <div class="ref-grid">
-        <div>
-          <div class="ref-block-title">Credentials</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr><th>Service</th><th>Login</th></tr>
-              </thead>
-              <tbody>
-                <tr><td class="name-cell">CALDERA</td><td>red / admin</td></tr>
-                <tr><td class="name-cell">n8n</td><td>Set during first login</td></tr>
-                <tr><td class="name-cell">Guacamole</td><td>guacadmin / guacadmin</td></tr>
-                <tr><td class="name-cell">Kali SSH</td><td>root / kali</td></tr>
-                <tr><td class="name-cell">Admin Console</td><td>SEdemo2026</td></tr>
-              </tbody>
-            </table>
+      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Quick Reference</h2>
+      <div class="section-body">
+        <div class="ref-grid">
+          <div>
+            <div class="ref-block-title">Credentials</div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr><th>Service</th><th>Login</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="name-cell">CALDERA</td><td>red / admin</td></tr>
+                  <tr><td class="name-cell">n8n</td><td>Set during first login</td></tr>
+                  <tr><td class="name-cell">Guacamole</td><td>guacadmin / guacadmin</td></tr>
+                  <tr><td class="name-cell">Kali SSH</td><td>root / kali</td></tr>
+                  <tr><td class="name-cell">Admin Console</td><td>SEdemo2026</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        <div>
-          <div class="ref-block-title">Key URLs</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr><th>Page</th><th>URL</th></tr>
-              </thead>
-              <tbody>
-                <tr><td class="name-cell">SE Console</td><td>http://localhost:8081</td></tr>
-                <tr><td class="name-cell">Attack Console</td><td>http://localhost:8081/console.html</td></tr>
-                <tr><td class="name-cell">Scenario Studio</td><td>http://localhost:8081/admin.html</td></tr>
-                <tr><td class="name-cell">CALDERA</td><td>http://localhost:8888</td></tr>
-              </tbody>
-            </table>
+          <div>
+            <div class="ref-block-title">Key URLs</div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr><th>Page</th><th>URL</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="name-cell">SE Console</td><td>http://localhost:8081</td></tr>
+                  <tr><td class="name-cell">Attack Console</td><td>http://localhost:8081/console.html</td></tr>
+                  <tr><td class="name-cell">Scenario Studio</td><td>http://localhost:8081/admin.html</td></tr>
+                  <tr><td class="name-cell">CALDERA</td><td>http://localhost:8888</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -613,10 +771,74 @@
     <!-- Footer -->
     <footer class="page-footer">
       <div class="brand-line">Sophos Adversary Simulation Platform &mdash; Built for Sophos Sales Engineers</div>
-      <div>Last updated: 2026-03-17</div>
+      <div>Last updated: 2026-03-18</div>
     </footer>
 
   </div>
 </div>
+
+<script>
+  /* ── Hamburger Menu ──────────────────────────────────────── */
+  function navToggle() {
+    document.getElementById('nav-dd').classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('nav-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('nav-dd').classList.remove('open');
+    }
+  });
+
+  /* ── Lab Manager ──────────────────────────────────────────── */
+  async function labmgrClick() {
+    var url = localStorage.getItem('labopsUrl');
+    if (!url) {
+      try { var cfg = await (await fetch('/api/settings')).json(); if (cfg.labopsUrl) { url = cfg.labopsUrl; localStorage.setItem('labopsUrl', url); } } catch(e) {}
+    }
+    if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
+  }
+
+  /* ── Collapsible Sections ────────────────────────────────── */
+  function toggleSection(hdr) {
+    hdr.classList.toggle('collapsed');
+    var body = hdr.nextElementSibling;
+    if (body && body.classList.contains('section-body')) {
+      body.classList.toggle('collapsed');
+    }
+  }
+
+  /* ── Scenario Tabs ──────────────────────────────────────── */
+  function showScenarioTab(group, btn) {
+    document.querySelectorAll('.scenario-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.scenario-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + group).classList.add('active');
+  }
+
+// Update notification dot
+(async function checkForUpdates() {
+  try {
+    var cached = sessionStorage.getItem('updateAvail');
+    var cacheTime = sessionStorage.getItem('updateAvailTime');
+    if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < 600000) {
+      if (cached === 'true') {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+      return;
+    }
+    var r = await fetch('/api/update-check');
+    if (r.ok) {
+      var d = await r.json();
+      sessionStorage.setItem('updateAvail', d.updateAvailable ? 'true' : 'false');
+      sessionStorage.setItem('updateAvailTime', Date.now().toString());
+      if (d.updateAvailable) {
+        var dot = document.getElementById('update-dot');
+        if (dot) dot.classList.add('visible');
+      }
+    }
+  } catch(e) { /* silent */ }
+})();
+</script>
 </body>
 </html>
