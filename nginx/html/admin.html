@@ -766,10 +766,6 @@
             <div class="wiz-chips" id="design-tech-chips"></div>
             <div class="tech-coverage" id="design-tech-coverage"></div>
           </div>
-          <div class="cf-group">
-            <div class="cf-label">MITRE Tactics</div>
-            <div class="tactic-grid" id="design-tactic-grid"></div>
-          </div>
           <div class="cf-divider"></div>
           <div class="cf-group">
             <div class="cf-label-row">
@@ -979,21 +975,23 @@
     } catch { /* offline — autocomplete disabled */ }
   }
 
-  const TECH_DEFAULTS = ['T1566.001','T1059.001','T1003.001','T1057','T1082','T1486','T1547.001','T1105'];
   function techSearch(q) {
     if (!MITRE_DATA.length) return [];
     q = (q || '').trim();
-    if (!q) return TECH_DEFAULTS.map(id => MITRE_DATA.find(t => t.id === id)).filter(Boolean);
+    if (!q) return MITRE_DATA.filter(t => t.in_lab).slice(0, 15);
     const lq = q.toLowerCase();
     const seen = new Set();
     const out = [];
     const add = t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(t); } };
+    MITRE_DATA.filter(t => t.in_lab && t.id.toLowerCase() === lq).forEach(add);
     MITRE_DATA.filter(t => t.id.toLowerCase() === lq).forEach(add);
+    MITRE_DATA.filter(t => t.in_lab && t.id.toLowerCase().startsWith(lq)).forEach(add);
     MITRE_DATA.filter(t => t.id.toLowerCase().startsWith(lq)).forEach(add);
+    MITRE_DATA.filter(t => t.in_lab && t.name.toLowerCase().includes(lq)).forEach(add);
     MITRE_DATA.filter(t => t.name.toLowerCase().startsWith(lq)).forEach(add);
     MITRE_DATA.filter(t => t.name.toLowerCase().includes(lq)).forEach(add);
     MITRE_DATA.filter(t => t.description && t.description.toLowerCase().includes(lq)).forEach(add);
-    return out.slice(0, 8);
+    return out.slice(0, 12);
   }
 
   /* =====================================================
@@ -1158,8 +1156,8 @@ Return the response with emphasis on expected_detections and talking_points fiel
     const name = $('design-name').value.trim();
     if (!name) { toast('Scenario name is required', 'warn'); return; }
 
-    const tactics = [];
-    document.querySelectorAll('#design-tactic-grid .tactic-chip.on').forEach(c => tactics.push(c.dataset.tactic));
+    // Auto-derive tactics from selected techniques
+    const tactics = [...new Set(designTechs.map(t => t.tactic).filter(Boolean))];
 
     const toolsRaw = $('design-tools').value.trim();
     const tools = toolsRaw ? toolsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
