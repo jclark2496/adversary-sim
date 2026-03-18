@@ -200,7 +200,7 @@
     "name": "Remote Services",
     "tactic": "lateral-movement",
     "description": "Adversaries may use [Valid Accounts](https://attack.mitre.org/techniques/T1078) to log into a service that accepts remote connections, such as telnet, SSH, and VNC.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1021.001",
@@ -571,14 +571,14 @@
     "name": "Network Service Discovery",
     "tactic": "discovery",
     "description": "Adversaries may attempt to get a listing of services running on remote hosts and local network infrastructure devices, including those that may be vulnerable to remote software exploitation.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1047",
     "name": "Windows Management Instrumentation",
     "tactic": "execution",
     "description": "Adversaries may abuse Windows Management Instrumentation (WMI) to execute malicious commands and payloads.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1048",
@@ -606,7 +606,7 @@
     "name": "Exfiltration Over Unencrypted Non-C2 Protocol",
     "tactic": "exfiltration",
     "description": "Adversaries may steal data by exfiltrating it over an un-encrypted network protocol other than that of the existing command and control channel.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1049",
@@ -949,7 +949,7 @@
     "name": "Clear Windows Event Logs",
     "tactic": "defense-evasion",
     "description": "Adversaries may clear Windows Event Logs to hide the activity of an intrusion.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1070.002",
@@ -1026,7 +1026,7 @@
     "name": "Web Protocols",
     "tactic": "command-and-control",
     "description": "Adversaries may communicate using application layer protocols associated with web traffic to avoid detection/network filtering by blending in with existing traffic.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1071.002",
@@ -1047,7 +1047,7 @@
     "name": "DNS",
     "tactic": "command-and-control",
     "description": "Adversaries may communicate using the Domain Name System (DNS) application layer protocol to avoid detection/network filtering by blending in with existing traffic.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1071.005",
@@ -1327,7 +1327,7 @@
     "name": "Ingress Tool Transfer",
     "tactic": "command-and-control",
     "description": "Adversaries may transfer tools or other files from an external system into a compromised environment.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1106",
@@ -1341,7 +1341,7 @@
     "name": "Brute Force",
     "tactic": "credential-access",
     "description": "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained.(Citation: TrendMicro Pawn Storm Dec 2020) Without knowledge of the password for an account or set of accounts, an adversary may systematically guess the password using a repetitive or iterative mechanism.(Citation: Dragos Crashoverride 2018) Brute forcing passwords can take place via interaction with a service that will check the validity of those credentials or offline against previously acquired credential data, such as password hashes.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1110.001",
@@ -1705,7 +1705,7 @@
     "name": "Exploit Public-Facing Application",
     "tactic": "initial-access",
     "description": "Adversaries may attempt to exploit a weakness in an Internet-facing host or system to initially access a network.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1195",
@@ -1789,7 +1789,7 @@
     "name": "Malicious Link",
     "tactic": "execution",
     "description": "An adversary may rely upon a user clicking a malicious link in order to gain execution.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1204.002",
@@ -2559,7 +2559,7 @@
     "name": "Windows Service",
     "tactic": "persistence",
     "description": "Adversaries may create or modify Windows services to repeatedly execute malicious payloads as part of persistence.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1543.004",
@@ -3539,7 +3539,7 @@
     "name": "Phishing",
     "tactic": "initial-access",
     "description": "Adversaries may send phishing messages to gain access to victim systems.",
-    "in_lab": false
+    "in_lab": true
   },
   {
     "id": "T1566.001",
