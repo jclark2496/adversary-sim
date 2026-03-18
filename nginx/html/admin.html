@@ -173,6 +173,17 @@
     }
     .cf-submit:disabled { opacity: .4; cursor: not-allowed; }
 
+    .cf-note {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      padding: 10px 12px;
+      background: rgba(var(--accent-cyan-rgb), 0.04);
+      border: 1px solid rgba(var(--accent-cyan-rgb), 0.1);
+      border-radius: var(--radius);
+      margin-top: 4px;
+    }
+
     /* ============================================================
        WEBHOOK NOTICE
     ============================================================ */
@@ -613,73 +624,72 @@
     <div class="create-section fade-section">
       <div class="create-cards" id="create-cards">
         <div class="create-card">
-          <span class="cc-icon">&#10024;</span>
-          <div class="cc-title">Build from Description</div>
-          <div class="cc-desc">Describe an attack and AI generates a complete scenario with MITRE mappings and detections.</div>
-          <button class="cc-btn" onclick="openCreate('build')">Get Started &rarr;</button>
+          <span class="cc-icon">&#128295;</span>
+          <div class="cc-title">Design Scenario</div>
+          <div class="cc-desc">Build your scenario step by step — pick MITRE techniques, tools, and product category.</div>
+          <button class="cc-btn" onclick="openCreate('design')">Get Started &rarr;</button>
         </div>
         <div class="create-card">
-          <span class="cc-icon">&#128203;</span>
-          <div class="cc-title">Import MDR Case</div>
-          <div class="cc-desc">Paste a real MDR incident and convert it into a demo scenario with MITRE techniques and talking points.</div>
-          <button class="cc-btn" onclick="openCreate('import')">Get Started &rarr;</button>
+          <span class="cc-icon">&#10024;</span>
+          <div class="cc-title">AI Generate</div>
+          <div class="cc-desc">Describe an attack in plain English and the AI builds a complete, launchable scenario.</div>
+          <button class="cc-btn" onclick="openCreate('ai')">Get Started &rarr;</button>
         </div>
       </div>
 
       <div class="create-forms" id="create-forms">
-        <!-- BUILD FORM -->
-        <div class="create-form" id="create-build" style="display:none">
-          <div class="cf-title">&#10024; Build from Description</div>
+        <!-- DESIGN FORM -->
+        <div class="create-form" id="create-design" style="display:none">
+          <div class="cf-title">&#128295; Design Scenario</div>
           <div class="cf-group">
-            <div class="cf-label">Scenario Name</div>
-            <input id="build-name" type="text" class="cf-ctrl" placeholder="e.g. Ransomware via Phishing Email" autocomplete="off">
+            <div class="cf-label">Scenario Name *</div>
+            <input id="design-name" type="text" class="cf-ctrl" placeholder="e.g. Supply Chain Attack via npm" autocomplete="off">
           </div>
           <div class="cf-group">
             <div class="cf-label">Description</div>
-            <textarea id="build-desc" class="cf-ctrl" placeholder="Describe the attack scenario you want to build..."></textarea>
+            <textarea id="design-desc" class="cf-ctrl" rows="3" placeholder="What this scenario demonstrates..."></textarea>
+          </div>
+          <div class="cf-group">
+            <div class="cf-label">Product Category</div>
+            <select id="design-product" class="cf-ctrl">
+              <option value="endpoint">Endpoint</option>
+              <option value="ndr">NDR</option>
+              <option value="firewall">Firewall</option>
+            </select>
           </div>
           <div class="cf-group">
             <div class="cf-label">MITRE Tactics</div>
-            <div class="tactic-grid" id="tactic-grid"></div>
+            <div class="tactic-grid" id="design-tactic-grid"></div>
           </div>
           <div class="cf-group">
-            <div class="cf-label">Additional Context <span style="font-weight:400;letter-spacing:normal;text-transform:none;color:var(--text-dim)">(optional)</span></div>
-            <textarea id="build-context" class="cf-ctrl" placeholder="Any extra context, constraints, or requirements..."></textarea>
+            <div class="cf-label">Tools / Threat Actor</div>
+            <input id="design-tools" type="text" class="cf-ctrl" placeholder="e.g. Mimikatz, CobaltStrike, LockBit" autocomplete="off">
           </div>
           <div class="cf-actions">
             <button class="cf-cancel" onclick="cancelCreate()">Cancel</button>
-            <button class="cf-submit" id="build-submit" onclick="submitBuild()">&#10024; Generate Scenario</button>
+            <button class="cf-submit" id="design-submit" onclick="submitDesign()">&#128295; Create Scenario</button>
           </div>
         </div>
 
-        <!-- IMPORT FORM -->
-        <div class="create-form" id="create-import" style="display:none">
-          <div class="cf-title">&#128203; Import MDR Case</div>
+        <!-- AI FORM -->
+        <div class="create-form" id="create-ai" style="display:none">
+          <div class="cf-title">&#10024; AI Generate</div>
           <div class="cf-group">
-            <div class="cf-label">Case Title</div>
-            <input id="import-title" type="text" class="cf-ctrl" placeholder="e.g. BlackCat Ransomware — Healthcare Org" autocomplete="off">
+            <div class="cf-label">Describe Your Scenario</div>
+            <textarea id="ai-desc" class="cf-ctrl" rows="5" placeholder="Describe the attack scenario you want...&#10;&#10;Example: 'A ransomware attack that starts with a phishing email, uses Mimikatz for credential dumping, moves laterally via PsExec, and encrypts files on the target.'"></textarea>
           </div>
           <div class="cf-group">
-            <div class="cf-label">Description</div>
-            <textarea id="import-desc" class="cf-ctrl" placeholder="What happened? Include TTPs, timeline, and indicators..."></textarea>
-          </div>
-          <div class="cf-group">
-            <div class="cf-label">Threat Actor</div>
-            <input id="import-actor" type="text" class="cf-ctrl" placeholder="e.g. BlackCat / ALPHV" autocomplete="off">
-          </div>
-          <div class="cf-group">
-            <div class="cf-label">Target Industry</div>
-            <select id="import-industry" class="cf-ctrl">
-              <option value="universal">Universal</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="financial">Financial</option>
-              <option value="manufacturing">Manufacturing</option>
-              <option value="retail">Retail</option>
+            <div class="cf-label">Product Category</div>
+            <select id="ai-product" class="cf-ctrl">
+              <option value="endpoint">Endpoint</option>
+              <option value="ndr">NDR</option>
+              <option value="firewall">Firewall</option>
             </select>
           </div>
+          <div class="cf-note">The AI will generate MITRE mappings, expected detections, talking points, and CALDERA abilities automatically. The scenario will be immediately launchable.</div>
           <div class="cf-actions">
             <button class="cf-cancel" onclick="cancelCreate()">Cancel</button>
-            <button class="cf-submit" id="import-submit" onclick="submitImport()">&#128203; Submit Case</button>
+            <button class="cf-submit" id="ai-submit" onclick="submitAI()">&#10024; Generate Scenario</button>
           </div>
         </div>
       </div>
@@ -827,7 +837,7 @@
     groups: { endpoint: true, ndr: true, firewall: true, other: false }
   };
 
-  let createMode = null; // 'build' | 'import' | null
+  let createMode = null; // 'design' | 'ai' | null
 
   /* =====================================================
      MITRE TACTICS
@@ -839,9 +849,12 @@
   ];
 
   function renderTacticChips() {
-    $('tactic-grid').innerHTML = TACTICS.map(t =>
-      `<button class="tactic-chip" data-tactic="${t}" onclick="this.classList.toggle('on')">${t}</button>`
-    ).join('');
+    const grids = document.querySelectorAll('.tactic-grid');
+    grids.forEach(grid => {
+      grid.innerHTML = TACTICS.map(t =>
+        `<button type="button" class="tactic-chip" data-tactic="${t}" onclick="this.classList.toggle('on')">${t}</button>`
+      ).join('');
+    });
   }
 
   /* =====================================================
@@ -849,11 +862,11 @@
   ===================================================== */
   function openCreate(mode) {
     createMode = mode;
-    $('create-build').style.display = mode === 'build' ? 'block' : 'none';
-    $('create-import').style.display = mode === 'import' ? 'block' : 'none';
+    $('create-design').style.display = mode === 'design' ? 'block' : 'none';
+    $('create-ai').style.display = mode === 'ai' ? 'block' : 'none';
     $('create-cards').style.display = 'none';
     $('create-forms').style.display = 'block';
-    if (mode === 'build') renderTacticChips();
+    if (mode === 'design') renderTacticChips();
   }
 
   function cancelCreate() {
@@ -862,74 +875,76 @@
     $('create-cards').style.display = 'grid';
   }
 
-  async function submitBuild() {
-    const name = $('build-name').value.trim();
-    const desc = $('build-desc').value.trim();
+  async function submitDesign() {
+    const name = $('design-name').value.trim();
     if (!name) { toast('Scenario name is required', 'warn'); return; }
 
     const tactics = [];
-    document.querySelectorAll('.tactic-chip.on').forEach(c => tactics.push(c.dataset.tactic));
+    document.querySelectorAll('#design-tactic-grid .tactic-chip.on').forEach(c => tactics.push(c.dataset.tactic));
 
-    const ctx = $('build-context').value.trim();
+    const toolsRaw = $('design-tools').value.trim();
+    const tools = toolsRaw ? toolsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    const btn = $('design-submit');
+    btn.disabled = true; btn.textContent = 'Creating...';
 
     try {
-      const btn = $('build-submit');
-      btn.disabled = true; btn.textContent = 'Generating...';
-
-      await fetch('/api/scenario-enrich', {
+      const r = await fetch('/api/scenario-build', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          needs_enrichment: true,
-          freetext: `${name}\n${desc}`,
+          mode: 'manual',
+          name,
+          description: $('design-desc').value.trim(),
+          product: $('design-product').value,
           tactics,
-          context: ctx
+          tools
         })
       });
-
-      toast('Scenario generated! Refreshing...');
-      cancelCreate();
-      setTimeout(load, 1500);
+      const d = await r.json();
+      if (d.success) {
+        toast('Scenario created: ' + d.title);
+        cancelCreate();
+        setTimeout(load, 1000);
+      } else {
+        toast('Failed: ' + (d.error || 'Unknown error'), 'error');
+      }
     } catch(e) {
-      toast('Generation failed: ' + e.message, 'error');
+      toast('Request failed: ' + e.message, 'error');
     } finally {
-      const btn = $('build-submit');
-      btn.disabled = false; btn.innerHTML = '&#10024; Generate Scenario';
+      btn.disabled = false; btn.textContent = '\u{1F527} Create Scenario';
     }
   }
 
-  async function submitImport() {
-    const title = $('import-title').value.trim();
-    const desc = $('import-desc').value.trim();
-    if (!title) { toast('Case title is required', 'warn'); return; }
+  async function submitAI() {
+    const desc = $('ai-desc').value.trim();
+    if (!desc) { toast('Please describe the scenario you want', 'warn'); return; }
 
-    const actor = $('import-actor').value.trim();
-    const industry = $('import-industry').value;
+    const btn = $('ai-submit');
+    btn.disabled = true; btn.textContent = 'AI is building your scenario...';
 
     try {
-      const btn = $('import-submit');
-      btn.disabled = true; btn.textContent = 'Submitting...';
-
-      await fetch('/api/case-ingest', {
+      const r = await fetch('/api/scenario-build', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title, description: desc,
-          threat_actor: actor,
-          industry,
-          source: 'Customer Incident',
-          submitted_by: 'SE'
+          mode: 'ai',
+          description: desc,
+          product: $('ai-product').value
         })
       });
-
-      toast('Case submitted! AI is generating the scenario...');
-      cancelCreate();
-      setTimeout(load, 3000);
+      const d = await r.json();
+      if (d.success) {
+        toast(`Scenario created: ${d.title}${d.launchable ? ' (launchable!)' : ''}`);
+        cancelCreate();
+        setTimeout(load, 1500);
+      } else {
+        toast('AI generation failed: ' + (d.error || 'Unknown error'), 'error');
+      }
     } catch(e) {
-      toast('Submission failed: ' + e.message, 'error');
+      toast('Request failed: ' + e.message, 'error');
     } finally {
-      const btn = $('import-submit');
-      btn.disabled = false; btn.innerHTML = '&#128203; Submit Case';
+      btn.disabled = false; btn.textContent = '\u2728 Generate Scenario';
     }
   }
 
@@ -1460,6 +1475,7 @@
   ===================================================== */
   document.addEventListener('DOMContentLoaded', () => {
     wire();
+    renderTacticChips();
     load();
   });
 </script>

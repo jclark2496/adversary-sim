@@ -1,0 +1,285 @@
+{
+  "id": "scenarioBuilder01",
+  "name": "Scenario Builder — AI + Manual",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scenario-build",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "builder-webhook",
+      "name": "Webhook - Builder Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 200],
+      "webhookId": "scenario-builder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst mode = body.mode || 'ai'; // 'ai' or 'manual'\nconst description = body.description || '';\nconst name = body.name || '';\nconst product = body.product || 'endpoint';\nconst tactics = body.tactics || [];\nconst techniques = body.techniques || [];\nconst tools = body.tools || [];\nconst threat_actor = body.threat_actor || '';\n\nreturn [{ json: { mode, description, name, product, tactics, techniques, tools, threat_actor, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "builder-parse-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-mode-ai",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "ai",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "builder-route-mode",
+      "name": "Route by Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Parse Input').item.json;\n\n// Get the CALDERA library for grounding (if available)\nlet libraryContext = '';\ntry {\n  const fs = require('fs');\n  const lib = JSON.parse(fs.readFileSync('/data/scenarios/caldera-library.json', 'utf-8'));\n  libraryContext = '\\n\\nExisting CALDERA adversaries you can reference: ' + \n    (lib.adversaries || []).map(a => a.adversary_id + ': ' + a.name).join(', ');\n} catch(e) {}\n\nconst prompt = `You are a cybersecurity expert building attack simulation scenarios for Sophos Sales Engineers. Generate a complete, launchable attack scenario.\n\nIMPORTANT RULES:\n1. All PowerShell commands must be SAFE SIMULATIONS — use Write-Output to narrate what would happen, don't actually destroy data or exfiltrate real files\n2. The PowerShell must work on Windows 11 with PowerShell 5.1+\n3. Use real MITRE ATT&CK technique IDs (e.g., T1003.001, T1059.001)\n4. The scenario must demonstrate techniques that Sophos ${input.product === 'endpoint' ? 'Endpoint/XDR' : input.product === 'ndr' ? 'NDR' : 'Firewall'} would detect\n\nUSER REQUEST:\n${input.description}\n${input.name ? 'Scenario name: ' + input.name : ''}\n${input.tactics.length ? 'Tactics: ' + input.tactics.join(', ') : ''}\n${input.tools.length ? 'Tools: ' + input.tools.join(', ') : ''}\n${input.threat_actor ? 'Threat actor: ' + input.threat_actor : ''}\nProduct category: ${input.product}\n${libraryContext}\n\nReturn ONLY valid JSON with this exact structure (no markdown, no backticks, just the JSON):\n{\n  \"scenario\": {\n    \"title\": \"Short descriptive title\",\n    \"description\": \"2-3 sentence customer-facing description\",\n    \"product\": \"${input.product}\",\n    \"mitre_tactics\": [\"Tactic Name\"],\n    \"mitre_techniques\": [{\"id\": \"T1xxx.xxx\", \"name\": \"Full technique name\"}],\n    \"tools\": [\"tool1\", \"tool2\"],\n    \"expected_detections\": [{\"detection\": \"What Sophos detects\", \"severity\": \"critical|high|medium\"}],\n    \"talking_points\": {\n      \"universal\": [\"Talking point 1 for customer conversations\", \"Talking point 2\"]\n    },\n    \"se_runbook\": {\n      \"setup\": \"What the SE needs before running this\",\n      \"steps\": [\"Step 1\", \"Step 2\", \"Step 3\"],\n      \"talking_points_timing\": \"When to deliver talking points during the demo\"\n    }\n  },\n  \"ability\": {\n    \"tactic\": \"mitre-tactic-lowercase-hyphenated\",\n    \"technique_id\": \"T1xxx.xxx\",\n    \"technique_name\": \"Full technique name\",\n    \"powershell\": \"Write-Output \\\\\"=== SCENARIO NAME ===\\\\\";\\\\nWrite-Output \\\\\"[*] Step 1...\\\\\";\\\\n# PowerShell simulation code here\\\\nWrite-Output \\\\\"=== END ===\"\n  },\n  \"adversary\": {\n    \"name\": \"Scenario title for CALDERA\",\n    \"description\": \"Brief description\"\n  }\n}\n\nPOWERSHELL GUIDELINES:\n- Start with Write-Output \"=== SCENARIO TITLE (technique ID) ===\"\n- Use [*] for actions, [+] for success, [-] for failures\n- Narrate each step with Write-Output\n- Use real Windows commands where safe (whoami, ipconfig, Get-Process, etc.)\n- For dangerous operations, use [SIMULATED] prefix\n- End with Write-Output \"=== END SCENARIO ===\"\n- Separate commands with semicolons for single-line execution\n- Keep it 10-30 lines`;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "builder-ai-prompt",
+      "name": "Build AI Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\nconst http = require('http');\nconst prompt = $input.first().json.prompt;\nlet provider = 'ollama', apiKey = '', model = '';\ntry {\n  const cfg = JSON.parse(fs.readFileSync('/data/scenarios/ai-config.json', 'utf-8'));\n  provider = cfg.provider || 'ollama';\n  apiKey = cfg.apiKey || '';\n  model = cfg.model || '';\n} catch(e) {\n  provider = $env.AI_PROVIDER || 'ollama';\n  apiKey = $env.AI_API_KEY || '';\n  model = $env.AI_MODEL || '';\n}\nconst defaults = { anthropic: 'claude-sonnet-4-20250514', openai: 'gpt-4o', gemini: 'gemini-2.5-flash', ollama: $env.OLLAMA_MODEL || 'llama3.2:3b' };\nconst useModel = model || defaults[provider] || defaults.ollama;\nlet url, headers, body;\nswitch (provider) {\n  case 'anthropic':\n    url = 'https://api.anthropic.com/v1/messages';\n    headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' };\n    body = JSON.stringify({ model: useModel, max_tokens: 4096, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'openai':\n    url = 'https://api.openai.com/v1/chat/completions';\n    headers = { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, messages: [{ role: 'user', content: prompt }] });\n    break;\n  case 'gemini':\n    url = 'https://generativelanguage.googleapis.com/v1beta/models/' + useModel + ':generateContent?key=' + apiKey;\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });\n    break;\n  default:\n    url = ($env.OLLAMA_HOST || 'http://host.docker.internal:11434') + '/api/generate';\n    headers = { 'Content-Type': 'application/json' };\n    body = JSON.stringify({ model: useModel, prompt, stream: false });\n}\n\nconst parsed = new URL(url);\nconst transport = parsed.protocol === 'https:' ? https : http;\nconst data = await new Promise((resolve, reject) => {\n  const req = transport.request(url, { method: 'POST', headers, timeout: 120000 }, (res) => {\n    let chunks = '';\n    res.on('data', d => chunks += d);\n    res.on('end', () => {\n      if (res.statusCode >= 400) reject(new Error('AI provider error (' + provider + '): ' + res.statusCode + ' ' + chunks));\n      else resolve(chunks);\n    });\n  });\n  req.on('error', reject);\n  req.on('timeout', () => { req.destroy(); reject(new Error('AI request timed out')); });\n  if (body) req.write(body);\n  req.end();\n});\n\nconst response = JSON.parse(data);\nreturn [{ json: { provider, response } }];"
+      },
+      "id": "builder-call-ai",
+      "name": "Call AI Provider",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { provider, response } = $input.first().json;\nlet text;\nswitch (provider) {\n  case 'anthropic': text = response.content && response.content[0] ? response.content[0].text : ''; break;\n  case 'openai': text = response.choices && response.choices[0] ? response.choices[0].message.content : ''; break;\n  case 'gemini': text = response.candidates && response.candidates[0] ? response.candidates[0].content.parts[0].text : ''; break;\n  default: text = response.response || '';\n}\nreturn [{ json: { response: text } }];"
+      },
+      "id": "builder-normalize-response",
+      "name": "Normalize Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.response || '';\nconst cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\nconst input = $('Parse Input').item.json;\n\nlet parsed;\ntry { parsed = JSON.parse(cleaned); } catch(e) {\n  return [{ json: { success: false, error: 'Failed to parse AI response: ' + e.message, raw: raw.substring(0, 500) } }];\n}\n\nconst scenario = parsed.scenario || {};\nconst ability = parsed.ability || {};\nconst adversary = parsed.adversary || {};\n\n// Generate unique IDs\nconst ts = Date.now().toString().slice(-6);\nconst scenarioId = 'SCN-AI-' + ts;\nconst abilityId = 'custom-a1-' + ts;\nconst adversaryId = 'custom-' + ts;\n\n// Build CALDERA ability payload\nconst calderaAbility = {\n  ability_id: abilityId,\n  name: scenarioId + ' | ' + (scenario.title || 'Custom Scenario'),\n  description: scenario.description || '',\n  tactic: ability.tactic || 'execution',\n  technique_id: ability.technique_id || '',\n  technique_name: ability.technique_name || '',\n  executors: [{\n    name: 'psh',\n    platform: 'windows',\n    command: (ability.powershell || 'Write-Output \"No command generated\"').replace(/\\\\n/g, '\\n'),\n    cleanup: []\n  }]\n};\n\n// Build CALDERA adversary payload\nconst calderaAdversary = {\n  adversary_id: adversaryId,\n  name: scenarioId + ' | ' + (adversary.name || scenario.title || 'Custom'),\n  description: adversary.description || scenario.description || '',\n  atomic_ordering: [abilityId],\n  tags: ['custom', 'ai-generated', input.product]\n};\n\n// Build scenario entry\nconst scenarioEntry = {\n  id: scenarioId,\n  product: input.product,\n  title: scenario.title || 'Custom Scenario',\n  description: scenario.description || '',\n  mitre_tactics: scenario.mitre_tactics || [],\n  mitre_techniques: scenario.mitre_techniques || [],\n  tools: scenario.tools || [],\n  atomic_tests: [],\n  caldera_ability: adversaryId,\n  caldera_adversary_id: adversaryId,\n  caldera_group: 'red',\n  audience: 'Technical',\n  platform: 'windows',\n  execution_engine: 'caldera',\n  expected_detections: scenario.expected_detections || [],\n  talking_points: scenario.talking_points || { universal: [] },\n  se_runbook: scenario.se_runbook || {},\n  status: 'approved',\n  launchable: true,\n  source: 'ai-enriched',\n  submitted_by: 'Scenario Studio',\n  submitted_at: input.timestamp,\n  expires_at: null,\n  session_id: null\n};\n\nreturn [{ json: { calderaAbility, calderaAdversary, scenarioEntry } }];"
+      },
+      "id": "builder-parse-build",
+      "name": "Parse and Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execSync } = require('child_process');\nconst data = $input.first().json;\n\nconst CALDERA_URL = 'http://172.20.0.10:8888';\nconst API_KEY = 'MDRLABRED';\n\n// Helper to call CALDERA API\nfunction calderaPost(path, payload) {\n  const fs = require('fs');\n  const script = JSON.stringify(payload);\n  fs.writeFileSync('/tmp/_caldera_payload.json', script);\n  try {\n    const result = execSync(\n      `curl -s -X POST \"${CALDERA_URL}/api/v2${path}\" -H \"KEY: ${API_KEY}\" -H \"Content-Type: application/json\" -d @/tmp/_caldera_payload.json`,\n      { encoding: 'utf-8', timeout: 15000 }\n    );\n    return JSON.parse(result);\n  } catch(e) {\n    return { error: e.message };\n  }\n}\n\n// Create ability\nconst abilityResult = calderaPost('/abilities', data.calderaAbility);\nconst abilityOk = !abilityResult.error;\n\n// Create adversary\nconst adversaryResult = calderaPost('/adversaries', data.calderaAdversary);\nconst adversaryOk = !adversaryResult.error;\n\nreturn [{ json: { \n  ...data, \n  caldera_loaded: abilityOk && adversaryOk,\n  ability_result: abilityOk ? 'created' : abilityResult.error,\n  adversary_result: adversaryOk ? 'created' : adversaryResult.error\n} }];"
+      },
+      "id": "builder-load-caldera",
+      "name": "Load into CALDERA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { db = { version: '1.1', last_updated: '', scenarios: [] }; }\nconst s = $input.first().json.scenarioEntry;\nconst idx = db.scenarios.findIndex(x => x.id === s.id);\nif (idx >= 0) { db.scenarios[idx] = s; } else { db.scenarios.push(s); }\ndb.last_updated = new Date().toISOString().split('T')[0];\nfs.writeFileSync(filePath, JSON.stringify(db, null, 2), 'utf8');\nreturn [{ json: { \n  success: true, \n  scenario_id: s.id, \n  title: s.title,\n  launchable: s.launchable,\n  caldera_loaded: $input.first().json.caldera_loaded,\n  total_scenarios: db.scenarios.length \n} }];"
+      },
+      "id": "builder-write-scenarios",
+      "name": "Write to scenarios.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Parse Input').item.json;\nconst ts = Date.now().toString().slice(-6);\nconst scenarioId = 'SCN-MAN-' + ts;\n\nconst scenarioEntry = {\n  id: scenarioId,\n  product: input.product,\n  title: input.name || 'Custom Scenario',\n  description: input.description || '',\n  mitre_tactics: input.tactics,\n  mitre_techniques: input.techniques.map(t => ({ id: t, name: t })),\n  tools: input.tools,\n  atomic_tests: [],\n  caldera_ability: '',\n  caldera_adversary_id: '',\n  caldera_group: 'red',\n  audience: 'Technical',\n  platform: 'windows',\n  execution_engine: 'caldera',\n  expected_detections: [],\n  talking_points: { universal: [] },\n  se_runbook: {},\n  status: 'approved',\n  launchable: false,\n  source: 'hand-authored',\n  submitted_by: 'Scenario Studio',\n  submitted_at: input.timestamp,\n  expires_at: null,\n  session_id: null\n};\n\n// Write to scenarios.json\nconst fs = require('fs');\nconst filePath = '/data/scenarios/scenarios.json';\nlet db;\ntry { db = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { db = { version: '1.1', last_updated: '', scenarios: [] }; }\ndb.scenarios.push(scenarioEntry);\ndb.last_updated = new Date().toISOString().split('T')[0];\nfs.writeFileSync(filePath, JSON.stringify(db, null, 2), 'utf8');\n\nreturn [{ json: { success: true, scenario_id: scenarioId, title: scenarioEntry.title, launchable: false, note: 'Manual scenario created. Link a CALDERA adversary ID to make it launchable.', total_scenarios: db.scenarios.length } }];"
+      },
+      "id": "builder-manual-scenario",
+      "name": "Build Manual Scenario",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.first().json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "builder-respond",
+      "name": "Respond to Front-End",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1980, 200]
+    }
+  ],
+  "connections": {
+    "Webhook - Builder Input": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Route by Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Mode": {
+      "main": [
+        [
+          {
+            "node": "Build AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Manual Scenario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "Call AI Provider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AI Provider": {
+      "main": [
+        [
+          {
+            "node": "Normalize Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Response": {
+      "main": [
+        [
+          {
+            "node": "Parse and Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Build": {
+      "main": [
+        [
+          {
+            "node": "Load into CALDERA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load into CALDERA": {
+      "main": [
+        [
+          {
+            "node": "Write to scenarios.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write to scenarios.json": {
+      "main": [
+        [
+          {
+            "node": "Respond to Front-End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Manual Scenario": {
+      "main": [
+        [
+          {
+            "node": "Respond to Front-End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "labops"
+    }
+  ],
+  "pinData": {},
+  "staticData": null,
+  "meta": null
+}
