@@ -160,7 +160,7 @@
         popover: {
           title: 'LIVE VICTIM DESKTOP',
           description: 'Watch the attack happen on the victim in real time. Narrate what you see to the customer.',
-          side: 'left', align: 'start'
+          side: 'top', align: 'start'
         }
       },
       {
@@ -168,7 +168,7 @@
         popover: {
           title: 'SOPHOS XDR PIVOT',
           description: 'When the attack completes, open Sophos XDR or Sophos Central to show the customer their real detections side-by-side.',
-          side: 'left', align: 'start',
+          side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
           nextBtnText: 'Done'
         }
@@ -276,7 +276,23 @@
         popover: {
           title: 'ATOMIC RED TEAM',
           description: 'Switch to the Atomic Red Team container to run Atomic tests directly via SSH.',
-          side: 'bottom', align: 'start',
+          side: 'bottom', align: 'start'
+        }
+      },
+      {
+        element: '#tab-caldera',
+        popover: {
+          title: 'CALDERA CONSOLE',
+          description: 'Direct access to the CALDERA web interface \u2014 manage operations, agents, abilities, and adversary profiles.',
+          side: 'bottom', align: 'start'
+        }
+      },
+      {
+        element: '#panel-r',
+        popover: {
+          title: 'WINDOWS HOST',
+          description: 'RDP session to your victim VM. Use this alongside manual red team tools to watch techniques land in real time.',
+          side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
           nextBtnText: 'Done'
         }
@@ -318,15 +334,20 @@
         popover: {
           title: 'LAB MANAGER',
           description: 'Enter your LabOps URL to enable VM management directly from the SE Console nav.',
-          side: 'bottom', align: 'start',
-          showButtons: ['previous', 'next'],
-          nextBtnText: 'Done'
+          side: 'bottom', align: 'start'
         }
       });
-    } else {
-      steps[steps.length - 1].popover.showButtons = ['previous', 'next'];
-      steps[steps.length - 1].popover.nextBtnText = 'Done';
     }
+    steps.push({
+      element: '#upd-local-ver',
+      popover: {
+        title: 'PLATFORM UPDATE',
+        description: 'Check the current version and pull updates directly from this page. No reinstall needed.',
+        side: 'top', align: 'start',
+        showButtons: ['previous', 'next'],
+        nextBtnText: 'Done'
+      }
+    });
     return steps;
   }
 
@@ -356,6 +377,14 @@
         popover: {
           title: 'SERVICE REFERENCE',
           description: 'Quick lookup for ports, container names, and credentials. Bookmark this page.',
+          side: 'bottom', align: 'start'
+        }
+      },
+      {
+        element: '#arch-flow',
+        popover: {
+          title: 'ATTACK FLOW',
+          description: 'The end-to-end kill chain: SE Console \u2192 CALDERA operation \u2192 sandcat agent \u2192 techniques execute on victim \u2192 Sophos detects \u2192 SE pivots to XDR.',
           side: 'bottom', align: 'start'
         }
       },
