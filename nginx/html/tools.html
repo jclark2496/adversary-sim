@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tools Console — Sophos Adversary Simulation Platform</title>
   <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.iife.js"></script>
   <style>
     /* ── Page Tokens ── */
     :root {
@@ -231,6 +233,8 @@
       </div>
     </div>
     <div class="hdr-right">
+      <button class="nav-it" onclick="window.location.href='/index.html?tour=1'" style="font-size:11px;padding:4px 10px;border:1px solid rgba(0,229,255,.3);border-radius:4px;color:#64748b;background:transparent;cursor:pointer;margin-right:8px;">&#9658; Tour</button>
+      <button class="tour-help-btn" id="tour-help-btn" title="Page help" style="margin-right:8px;">?</button>
       <button class="done-btn" onclick="window.close()||location.assign('/index.html')">DONE</button>
     </div>
   </header>
@@ -613,5 +617,7 @@ function initDivider() {
   initDivider();
 })();
 </script>
+<script src="/tour.js"></script>
+<script>initTour('tools');</script>
 </body>
 </html>
