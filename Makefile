@@ -78,7 +78,7 @@ up:
 	fi; \
 	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
 		echo "  (LabOps mode — using LabOps Guacamole, own n8n)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml $$TOOLS_FLAG up -d; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.override.yml $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
@@ -465,7 +465,7 @@ _up:
 	fi; \
 	if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
 		echo "  (LabOps mode — using LabOps Guacamole, own n8n)"; \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml $$TOOLS_FLAG up -d; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.override.yml $$TOOLS_FLAG up -d; \
 	else \
 		echo "  (Standalone mode — including n8n + Guacamole)"; \
 		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml $$TOOLS_FLAG up -d; \
