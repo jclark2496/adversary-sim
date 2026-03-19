@@ -1063,12 +1063,9 @@
     var w = document.getElementById('nav-wrap');
     if (w && !w.contains(e.target)) document.getElementById('nav-dd').classList.remove('open');
   });
-  async function labmgrClick() {
-    var url = localStorage.getItem('labopsUrl');
-    if (!url) {
-      try { var cfg = await (await fetch('/api/settings')).json(); if (cfg.labopsUrl) { url = cfg.labopsUrl; localStorage.setItem('labopsUrl', url); } } catch(e) {}
-    }
-    if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
+  function labmgrClick() {
+    const url = localStorage.getItem('labopsUrl') || '';
+    if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
   }
 
   /* =====================================================

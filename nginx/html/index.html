@@ -2638,11 +2638,8 @@ function labmgrUpdateDot(url) {
   if (url) { dot.classList.add('green'); } else { dot.classList.remove('green'); }
 }
 
-async function labmgrClick() {
-  let url = localStorage.getItem('labopsUrl') || '';
-  if (!url) {
-    try { const r = await fetch('/api/settings'); if (r.ok) { const cfg = await r.json(); url = cfg.labopsUrl || ''; } } catch(e) {}
-  }
+function labmgrClick() {
+  const url = localStorage.getItem('labopsUrl') || '';
   if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
 }
 

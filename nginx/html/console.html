@@ -1417,11 +1417,10 @@ function labmgrUpdateDot(url) {
   var dot = document.getElementById('labmgr-dot');
   if (url) { dot.classList.add('green'); } else { dot.classList.remove('green'); }
 }
-async function labmgrClick() {
-  var url = localStorage.getItem('labopsUrl') || '';
-  if (!url) { try { var r = await fetch('/api/settings'); if (r.ok) { var cfg = await r.json(); url = cfg.labopsUrl || ''; } } catch(e) {} }
-  if (url) { window.open(url, '_blank'); } else { alert('Lab Manager URL not configured. Set it in Settings on the SE Console.'); }
-}
+function labmgrClick() {
+    const url = localStorage.getItem('labopsUrl') || '';
+    if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
+  }
 (function() {
   var cached = localStorage.getItem('labopsUrl');
   if (cached) { labmgrUpdateDot(cached); return; }
