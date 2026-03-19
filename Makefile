@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _import-workflows sandcat profiles mitre-update
+install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _setup-n8n-owner _import-workflows sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -486,6 +486,36 @@ _wait-healthy:
 		printf "."; \
 		sleep 5; \
 	done
+
+.PHONY: _setup-n8n-owner
+_setup-n8n-owner:
+	@echo "▶ Configuring n8n owner account..."
+	@N8N_PORT=$$(grep '^N8N_PORT=' .env 2>/dev/null | cut -d'=' -f2-); \
+	N8N_PORT=$${N8N_PORT:-5679}; \
+	N8N_PW=$$(grep '^N8N_PASSWORD=' .env 2>/dev/null | cut -d'=' -f2-); \
+	N8N_PW=$${N8N_PW:-Demo1234!}; \
+	echo "  Waiting for n8n HTTP..."; \
+	for i in $$(seq 1 24); do \
+		if curl -sf "http://localhost:$$N8N_PORT/healthz" > /dev/null 2>&1; then \
+			break; \
+		fi; \
+		if [ $$i -eq 24 ]; then \
+			echo "⚠️  n8n not reachable — skipping owner setup"; \
+			exit 0; \
+		fi; \
+		printf "."; \
+		sleep 5; \
+	done; \
+	HTTP_CODE=$$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+		"http://localhost:$$N8N_PORT/api/v1/owner/setup" \
+		-H "Content-Type: application/json" \
+		-d "{\"email\":\"admin@lab.local\",\"firstName\":\"SE\",\"lastName\":\"Admin\",\"password\":\"$$N8N_PW\"}" \
+		2>/dev/null); \
+	if [ "$$HTTP_CODE" = "200" ]; then \
+		echo "✅ n8n owner account created (admin@lab.local / $$N8N_PW)"; \
+	else \
+		echo "✅ n8n already configured"; \
+	fi
 
 .PHONY: _import-workflows
 _import-workflows:
