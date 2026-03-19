@@ -599,7 +599,7 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
 
 ### Shared Design System (shared.css)
 
-- `nginx/html/shared.css`: unified design system (fonts, colors, components) imported by all pages (index.html, console.html, admin.html, architecture.html)
+- `nginx/html/shared.css`: unified design system (fonts, colors, components) imported by all pages (index.html, console.html, admin.html, architecture.html, settings.html). Includes Orbitron font + `.wm-*` wordmark classes (brand unification 2026-03-18). Legacy `.shared-brand` / `.shared-tag` removed.
 
 ### The caldera_ability Field Convention
 
@@ -789,4 +789,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-18 — Scenario Studio replaces Admin Console (Design + AI Generate paths, no password gate); Scenario Builder n8n workflow; shared.css design system; architecture.html now single scrollable page; SE Console with grouped scenario list, favorites, compact rows; Kali + Atomic Red Team now optional (Docker Compose profiles, `make tools`)*
+*Last updated: 2026-03-18 — Brand unification: Orbitron wordmark (SOPHOS ADVERSARY // page_name, cyan accent) applied to all 5 adversary pages (synced from mdr-demo-lab); shared.css .wm-* classes added, legacy .shared-brand/.shared-tag removed. Scenario Studio replaces Admin Console; Scenario Builder n8n workflow; architecture.html now single scrollable page; Kali + Atomic Red Team now optional (Docker Compose profiles, `make tools`)*
