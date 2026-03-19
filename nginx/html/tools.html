@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools Console — Sophos Adversary Simulation Platform</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ── Page Tokens ── */
+    :root {
+      --c-kali:    #00F2B3;
+      --c-atomic:  #FFB300;
+      --c-caldera: #B529F7;
+      --hdr-h:     52px;
+      --phdr-h:    44px;
+      --div-w:     5px;
+    }
+
+    html, body { height: 100%; overflow: hidden; color: var(--text-primary); }
+
+    /* ── Header ── */
+    #hdr {
+      height: var(--hdr-h);
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-acc);
+      display: flex; align-items: center;
+      padding: 0 18px; gap: 0;
+      position: relative; z-index: 100;
+      flex-shrink: 0;
+    }
+    .hdr-left { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+    .hdr-sep {
+      width: 1px; height: 22px;
+      background: rgba(var(--accent-cyan-rgb), .18);
+      margin: 0 16px;
+    }
+
+    /* ── Tab Bar ── */
+    .tab-bar { display: flex; align-items: center; gap: 4px; }
+    .tool-tab {
+      font-family: var(--fm); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; padding: 6px 16px;
+      background: transparent; border: 1px solid transparent;
+      border-radius: 4px; cursor: pointer;
+      color: var(--text-dim);
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .tool-tab:hover { color: var(--text-primary); background: rgba(255,255,255,.04); }
+    .tool-tab.active-kali    { color: var(--c-kali);    border-color: rgba(0,242,179,.35);   background: rgba(0,242,179,.08); }
+    .tool-tab.active-atomic  { color: var(--c-atomic);  border-color: rgba(255,179,0,.35);   background: rgba(255,179,0,.08); }
+    .tool-tab.active-caldera { color: var(--c-caldera); border-color: rgba(181,41,247,.35);  background: rgba(181,41,247,.08); }
+
+    /* ── DONE button ── */
+    .hdr-right { margin-left: auto; }
+    .done-btn {
+      font-family: var(--fm); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; padding: 6px 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 4px; cursor: pointer;
+      color: var(--text-dim);
+    }
+    .done-btn:hover { color: var(--text-primary); border-color: rgba(255,255,255,.25); }
+
+    /* ── App Shell ── */
+    #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+    #main {
+      flex: 1; display: flex; overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── Left Panel ── */
+    #panel-l {
+      flex: 0 0 55%; min-width: 300px;
+      display: flex; flex-direction: column;
+      background: var(--bg-deep); overflow: hidden;
+    }
+    .phdr {
+      height: var(--phdr-h); flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 10px;
+      background: var(--bg-panel);
+    }
+    .phdr-kali    { border-bottom: 2px solid var(--c-kali); }
+    .phdr-atomic  { border-bottom: 2px solid var(--c-atomic); }
+    .phdr-caldera { border-bottom: 2px solid var(--c-caldera); }
+    .phdr-title {
+      font-family: var(--fm); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em;
+    }
+    .phdr-title.kali    { color: var(--c-kali); }
+    .phdr-title.atomic  { color: var(--c-atomic); }
+    .phdr-title.caldera { color: var(--c-caldera); }
+
+    /* ── Tool Content Area ── */
+    #tool-body {
+      flex: 1; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    #tool-body iframe {
+      width: 100%; height: 100%; border: none;
+      display: block;
+    }
+
+    /* ── Error State ── */
+    .tool-error {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 12px;
+      font-family: var(--fm);
+    }
+    .tool-error-glyph { font-size: 32px; color: var(--text-dim); }
+    .tool-error-title { font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: .05em; }
+    .tool-error-sub   { font-size: 12px; color: var(--text-dim); text-align: center; line-height: 1.6; }
+    .tool-error-sub code {
+      font-family: var(--fm); font-size: 11px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 3px; padding: 1px 6px;
+      color: var(--accent-cyan);
+    }
+
+    /* ── Loading Spinner ── */
+    .tool-loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 14px; font-family: var(--fm);
+    }
+    .tool-spinner {
+      width: 32px; height: 32px;
+      border: 2px solid rgba(255,255,255,.08);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .tool-spin-txt { font-size: 12px; color: var(--text-dim); letter-spacing: .08em; }
+
+    /* ── Divider ── */
+    #divider {
+      width: var(--div-w); flex-shrink: 0;
+      background: rgba(var(--accent-cyan-rgb), .08);
+      cursor: col-resize; position: relative;
+      transition: background .15s;
+    }
+    #divider:hover, #divider.dragging {
+      background: rgba(var(--accent-cyan-rgb), .25);
+    }
+
+    /* ── Right Panel (Victim RDP) ── */
+    .phdr-creds {
+      margin-left: auto; display: flex; align-items: center; gap: 10px;
+      font-family: var(--fm); font-size: 13px; font-weight: 700; color: #C87FFF;
+      letter-spacing: .06em;
+    }
+    .phdr-creds .cred-sep { color: rgba(255,255,255,.35); }
+
+    #panel-r { flex: 1; min-width: 300px; display: flex; flex-direction: column; }
+    .phdr-victim { border-bottom: 2px solid var(--text-dim); }
+
+    #rdp-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px; flex-shrink: 0;
+      background: var(--bg-panel);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .rdp-field { display: flex; align-items: center; gap: 6px; }
+    .rdp-field-label {
+      font-family: var(--fm); font-size: 10px; font-weight: 700;
+      letter-spacing: .1em; color: var(--text-dim);
+    }
+    .rdp-field-val { font-family: var(--fm); font-size: 12px; color: var(--text-primary); }
+    #rdp-ip-input {
+      font-family: var(--fm); font-size: 12px;
+      background: var(--bg-deep); color: var(--text-primary);
+      border: 1px solid rgba(var(--accent-cyan-rgb), .2);
+      border-radius: 4px; padding: 4px 10px; width: 140px;
+    }
+    #rdp-ip-input:focus { outline: none; border-color: rgba(var(--accent-cyan-rgb), .5); }
+    .rdp-sep { width: 1px; height: 18px; background: rgba(255,255,255,.1); }
+    #rdp-status { font-family: var(--fm); font-size: 11px; color: var(--text-dim); flex: 1; }
+    #rdp-connect-btn {
+      font-family: var(--fm); font-size: 11px; font-weight: 700;
+      letter-spacing: .08em; padding: 5px 14px;
+      background: rgba(var(--accent-cyan-rgb), .1);
+      border: 1px solid rgba(var(--accent-cyan-rgb), .3);
+      border-radius: 4px; cursor: pointer; color: var(--accent-cyan);
+    }
+    #rdp-connect-btn:hover { background: rgba(var(--accent-cyan-rgb), .18); }
+    #rdp-connect-btn:disabled { opacity: .5; cursor: default; }
+
+    #guac-wrap { flex: 1; position: relative; display: flex; flex-direction: column; }
+    #guac-frame { width: 100%; height: 100%; border: none; display: block; }
+    #guac-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-deep);
+    }
+    .err-state { display: flex; flex-direction: column; align-items: center; gap: 10px; font-family: var(--fm); }
+    .err-glyph { font-size: 28px; color: var(--text-dim); }
+    .err-title { font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: .06em; }
+    .err-sub   { font-size: 12px; color: var(--text-dim); text-align: center; line-height: 1.7; }
+    .guac-spin-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; font-family: var(--fm); }
+    .guac-spinner {
+      width: 28px; height: 28px;
+      border: 2px solid rgba(255,255,255,.08);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    .guac-spin-txt { font-size: 12px; color: var(--text-dim); letter-spacing: .05em; }
+    .guac-spin-sub { font-size: 11px; color: rgba(255,255,255,.3); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Header ── -->
+  <header id="hdr">
+    <div class="hdr-left">
+      <div class="shared-wordmark">
+        <span class="wm-primary">SOPHOS</span>
+        <span class="wm-accent wm-accent-cyan">ADVERSARY</span>
+        <span class="wm-slash">//</span>
+        <span class="wm-page wm-page-cyan">red_tools</span>
+      </div>
+      <div class="hdr-sep"></div>
+      <div class="tab-bar">
+        <button class="tool-tab" id="tab-kali"    onclick="switchTab('kali')">● KALI</button>
+        <button class="tool-tab" id="tab-atomic"  onclick="switchTab('atomic')">● ATOMIC</button>
+        <button class="tool-tab" id="tab-caldera" onclick="switchTab('caldera')">◈ CALDERA</button>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="done-btn" onclick="window.close()||location.assign('/index.html')">DONE</button>
+    </div>
+  </header>
+
+  <!-- ── Main split panel ── -->
+  <main id="main">
+
+    <!-- LEFT: Tool panel -->
+    <section id="panel-l">
+      <div class="phdr" id="tool-phdr">
+        <span class="phdr-title" id="tool-phdr-title"></span>
+      </div>
+      <div id="tool-body">
+        <!-- Tool content injected here by switchTab() -->
+      </div>
+    </section>
+
+    <!-- Draggable divider -->
+    <div id="divider"></div>
+
+    <!-- RIGHT: Victim RDP -->
+    <section id="panel-r">
+      <div class="phdr phdr-victim">
+        <span class="phdr-title" style="color:var(--text-dim)">⊗ VICTIM VIEW — RDP SESSION</span>
+      </div>
+      <div id="rdp-bar">
+        <div class="rdp-field">
+          <span class="rdp-field-label">Target</span>
+          <input id="rdp-ip-input" type="text" spellcheck="false" placeholder="192.168.x.x"
+                 onkeydown="if(event.key==='Enter')connectRDP()">
+        </div>
+        <div class="rdp-sep"></div>
+        <div class="rdp-field">
+          <span class="rdp-field-label">User</span>
+          <span class="rdp-field-val" id="rdp-user-lbl">demo</span>
+        </div>
+        <div class="rdp-sep"></div>
+        <div class="rdp-field">
+          <span class="rdp-field-label">Pass</span>
+          <span class="rdp-field-val" id="rdp-pass-lbl">loading…</span>
+        </div>
+        <span id="rdp-status"></span>
+        <button id="rdp-connect-btn" onclick="connectRDP()">↺ CONNECT RDP</button>
+      </div>
+      <div id="guac-wrap">
+        <iframe id="guac-frame" src="about:blank" allow="fullscreen"></iframe>
+        <div id="guac-overlay">
+          <div class="err-state">
+            <div class="err-glyph">⊟</div>
+            <div class="err-title">VICTIM DESKTOP</div>
+            <div class="err-sub">Enter the victim IP above and click<br>↺ CONNECT RDP to start the session.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────
+const GUAC_PROXY = '/guacamole';
+const GUAC_DS    = 'postgresql';
+
+const TOOL_CONFIGS = {
+  kali: {
+    host: '172.20.0.70', port: '22', user: 'root', pass: 'kali',
+    label: '● KALI LINUX — SSH SESSION',
+    phdrClass: 'phdr-kali', titleClass: 'kali',
+    errorMsg: 'Kali container not running. Run <code>make tools</code> to start it.'
+  },
+  atomic: {
+    host: '172.20.0.40', port: '22', user: 'root', pass: 'atomic',
+    label: '● ATOMIC RED TEAM — SSH SESSION',
+    phdrClass: 'phdr-atomic', titleClass: 'atomic',
+    errorMsg: 'Atomic container not running. Run <code>make tools</code> to start it.'
+  },
+  caldera: {
+    label: '◈ CALDERA — LIVE INTERFACE',
+    phdrClass: 'phdr-caldera', titleClass: 'caldera'
+  }
+};
+
+let currentTool = null;
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tool) {
+  if (!TOOL_CONFIGS[tool]) tool = 'kali';
+  currentTool = tool;
+  const cfg = TOOL_CONFIGS[tool];
+
+  // Update header panel
+  const phdr = document.getElementById('tool-phdr');
+  phdr.className = `phdr ${cfg.phdrClass}`;
+  const title = document.getElementById('tool-phdr-title');
+  title.className = `phdr-title ${cfg.titleClass}`;
+  title.innerHTML = cfg.label;
+
+  // Remove old creds display, add for CALDERA only
+  const oldCreds = document.getElementById('tool-phdr-creds');
+  if (oldCreds) oldCreds.remove();
+  if (tool === 'caldera') {
+    const creds = document.createElement('span');
+    creds.id = 'tool-phdr-creds';
+    creds.className = 'phdr-creds';
+    creds.innerHTML = 'red&nbsp;/&nbsp;admin <span class="cred-sep">·</span> admin&nbsp;/&nbsp;admin';
+    phdr.appendChild(creds);
+  }
+
+  // Update tab active state
+  ['kali','atomic','caldera'].forEach(t => {
+    const btn = document.getElementById(`tab-${t}`);
+    btn.className = `tool-tab${t === tool ? ` active-${t}` : ''}`;
+  });
+
+  // Clear old tool content
+  const body = document.getElementById('tool-body');
+  body.innerHTML = '';
+
+  // Load new tool content
+  if (tool === 'caldera') {
+    loadCaldera(body);
+  } else {
+    loadSSH(tool, cfg, body);
+  }
+}
+
+// ── CALDERA tab ──────────────────────────────────────────────────────────────
+function loadCaldera(body) {
+  const iframe = document.createElement('iframe');
+  iframe.src = `http://${window.location.hostname}:8888`;
+  iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+  iframe.allow = 'fullscreen';
+  body.appendChild(iframe);
+}
+
+// ── SSH tab (Kali / Atomic) ──────────────────────────────────────────────────
+async function loadSSH(tool, cfg, body) {
+  // Show spinner
+  body.innerHTML = `
+    <div class="tool-loading">
+      <div class="tool-spinner"></div>
+      <div class="tool-spin-txt">Connecting to ${cfg.label.replace(/^[●◈]\s*/,'').split('—')[0].trim()}…</div>
+    </div>`;
+
+  try {
+    // 1. Get Guacamole credentials (try /api/config, fall back to defaults)
+    let guacAdmin = 'guacadmin', guacAdminPw = 'guacadmin';
+    try {
+      const r = await fetch('/api/config');
+      if (r.ok) {
+        const c = await r.json();
+        if (c.guacAdmin)   guacAdmin   = c.guacAdmin;
+        if (c.guacAdminPw) guacAdminPw = c.guacAdminPw;
+      }
+    } catch(e) { /* use defaults */ }
+
+    // 2. Authenticate with Guacamole
+    const tokR = await fetch(`${GUAC_PROXY}/api/tokens`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ username: guacAdmin, password: guacAdminPw })
+    });
+    if (!tokR.ok) throw new Error(`Guacamole auth failed (${tokR.status}) — is mdr-guacamole running?`);
+    const tokD = await tokR.json();
+    const token = tokD.authToken;
+
+    // 3. Create SSH connection
+    const connR = await fetch(
+      `${GUAC_PROXY}/api/session/data/${GUAC_DS}/connections?token=${token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${tool}-${Date.now()}`,
+          protocol: 'ssh',
+          parameters: {
+            hostname: cfg.host,
+            port:     cfg.port,
+            username: cfg.user,
+            password: cfg.pass,
+            'color-scheme':           'green-black',
+            'font-size':              '12',
+            'server-alive-interval':  '60'
+          },
+          attributes: {
+            'max-connections':          '2',
+            'max-connections-per-user': '2'
+          }
+        })
+      }
+    );
+    if (!connR.ok) throw new Error(`SSH connection failed (${connR.status}) — ${cfg.errorMsg}`);
+    const conn = await connR.json();
+
+    // 4. Build iframe URL
+    // SSH format: hash (#/client/...) BEFORE query string (?token=...)
+    // Do NOT encodeURIComponent the clientId — matches openSSH() in index.html
+    const clientId = btoa(conn.identifier + '\0c\0' + GUAC_DS);
+    const sshURL   = `${GUAC_PROXY}/#/client/${clientId}?token=${token}`;
+
+    // 5. Inject iframe
+    body.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.src = sshURL;
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+    iframe.allow = 'fullscreen';
+    body.appendChild(iframe);
+
+  } catch(e) {
+    body.innerHTML = `
+      <div class="tool-error">
+        <div class="tool-error-glyph">⊟</div>
+        <div class="tool-error-title">CONNECTION FAILED</div>
+        <div class="tool-error-sub">${e.message.replace(/</g,'&lt;')}</div>
+        <div class="tool-error-sub">${TOOL_CONFIGS[tool].errorMsg}</div>
+        <button class="tool-tab active-${tool}" style="margin-top:12px" onclick="switchTab('${tool}')">↺ Retry</button>
+      </div>`;
+  }
+}
+
+// ── RDP Credentials ──────────────────────────────────────────────────────────
+let GUAC_ADMIN    = 'guacadmin';
+let GUAC_ADMIN_PW = 'guacadmin';
+let VICTIM_USER   = 'demo';
+let VICTIM_PASS   = 'Demo1234!';
+
+(async () => {
+  try {
+    const r = await fetch('/api/config');
+    if (r.ok) {
+      const cfg = await r.json();
+      if (cfg.guacAdmin)   GUAC_ADMIN    = cfg.guacAdmin;
+      if (cfg.guacAdminPw) GUAC_ADMIN_PW = cfg.guacAdminPw;
+      if (cfg.victimUser) {
+        VICTIM_USER = cfg.victimUser;
+        document.getElementById('rdp-user-lbl').textContent = VICTIM_USER;
+      }
+      if (cfg.victimPass) {
+        VICTIM_PASS = cfg.victimPass;
+        document.getElementById('rdp-pass-lbl').textContent = VICTIM_PASS;
+      }
+    }
+  } catch(e) { /* use defaults */ }
+  document.getElementById('rdp-pass-lbl').textContent = VICTIM_PASS;
+})();
+
+let guacRdpToken  = null;
+let guacRdpConnId = null;
+
+function setRdpStatus(msg, isErr) {
+  const el = document.getElementById('rdp-status');
+  if (el) { el.textContent = msg; el.style.color = isErr ? '#FF4444' : 'var(--text-dim)'; }
+}
+
+async function connectRDP() {
+  const ipEl = document.getElementById('rdp-ip-input');
+  const btn  = document.getElementById('rdp-connect-btn');
+  const ip   = (ipEl ? ipEl.value : '').trim();
+  if (!ip) { setRdpStatus('Enter a target IP first', true); return; }
+
+  btn.disabled = true;
+  const overlay = document.getElementById('guac-overlay');
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
+    <div class="guac-spin-wrap">
+      <div class="guac-spinner"></div>
+      <div class="guac-spin-txt" id="guac-spin-txt">Authenticating with Guacamole…</div>
+      <div class="guac-spin-sub">${ip}</div>
+    </div>`;
+
+  try {
+    // 1. Authenticate
+    const fd = new URLSearchParams({ username: GUAC_ADMIN, password: GUAC_ADMIN_PW });
+    const authR = await fetch(`${GUAC_PROXY}/api/tokens`, { method: 'POST', body: fd });
+    if (!authR.ok) throw new Error(`Guacamole auth failed (${authR.status})`);
+    const auth = await authR.json();
+    guacRdpToken = auth.authToken;
+
+    document.getElementById('guac-spin-txt').textContent = 'Creating RDP connection…';
+    setRdpStatus('Creating connection…');
+
+    // 2. Create RDP connection
+    const connR = await fetch(
+      `${GUAC_PROXY}/api/session/data/${GUAC_DS}/connections?token=${guacRdpToken}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:       `victim-${ip}-${Date.now()}`,
+          protocol:   'rdp',
+          parameters: {
+            hostname:                ip,
+            port:                    '3389',
+            username:                VICTIM_USER,
+            password:                VICTIM_PASS,
+            'ignore-cert':           'true',
+            security:                'any',
+            'resize-method':         'reconnect',
+            'enable-font-smoothing': 'true'
+          },
+          attributes: {
+            'max-connections':          '2',
+            'max-connections-per-user': '2'
+          }
+        })
+      }
+    );
+    if (!connR.ok) throw new Error(`Failed to create RDP connection (${connR.status})`);
+    const conn = await connR.json();
+    guacRdpConnId = conn.identifier;
+
+    document.getElementById('guac-spin-txt').textContent = 'Launching RDP session…';
+    setRdpStatus(`Connecting to ${ip}…`);
+
+    // 3. Build RDP client URL
+    // RDP format: ?token= BEFORE #/client/ (opposite of SSH)
+    const clientId = btoa(`${guacRdpConnId}\0c\0${GUAC_DS}`);
+    const rdpURL   = `${GUAC_PROXY}/?token=${guacRdpToken}#/client/${encodeURIComponent(clientId)}`;
+
+    const frame = document.getElementById('guac-frame');
+    frame.src = rdpURL;
+    frame.onload = () => setTimeout(() => { overlay.style.display = 'none'; }, 600);
+
+    setRdpStatus(`● ${ip}`);
+    btn.textContent = '↺ RECONNECT';
+    btn.disabled    = false;
+
+  } catch(e) {
+    setRdpStatus(e.message, true);
+    overlay.innerHTML = `
+      <div class="err-state">
+        <div class="err-glyph">⊗</div>
+        <div class="err-title">RDP FAILED</div>
+        <div class="err-sub">${e.message.replace(/</g,'&lt;')}</div>
+      </div>`;
+    btn.disabled = false;
+  }
+}
+
+// ── Draggable Divider ────────────────────────────────────────────────────────
+function initDivider() {
+  const divider = document.getElementById('divider');
+  const panelL  = document.getElementById('panel-l');
+  const main    = document.getElementById('main');
+  let dragging = false, startX = 0, startW = 0;
+
+  divider.addEventListener('pointerdown', e => {
+    dragging = true;
+    startX   = e.clientX;
+    startW   = panelL.getBoundingClientRect().width;
+    divider.classList.add('dragging');
+    divider.setPointerCapture(e.pointerId);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor     = 'col-resize';
+  });
+
+  divider.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx   = e.clientX - startX;
+    const maxW = main.getBoundingClientRect().width - 300 - 5;
+    const w    = Math.max(300, Math.min(startW + dx, maxW));
+    panelL.style.flex  = 'none';
+    panelL.style.width = `${w}px`;
+  });
+
+  ['pointerup','pointercancel'].forEach(ev => divider.addEventListener(ev, () => {
+    dragging = false;
+    divider.classList.remove('dragging');
+    document.body.style.userSelect = '';
+    document.body.style.cursor     = '';
+  }));
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(function init() {
+  const params = new URLSearchParams(location.search);
+  const tool = params.get('tool') || 'kali';
+  switchTab(['kali','atomic','caldera'].includes(tool) ? tool : 'kali');
+  initDivider();
+})();
+</script>
+</body>
+</html>
