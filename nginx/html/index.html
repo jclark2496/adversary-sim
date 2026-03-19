@@ -1890,14 +1890,32 @@
     const group = S.sel.caldera_group || 'red';
 
     try {
-      // 1. Find an active agent in the target group
+      // 1. Get all agents and find the most recently seen one in the target group
       const agR = await fetch(`${CALDERA_PROXY}/api/v2/agents`, {
         headers: { 'KEY': CALDERA_KEY }
       });
       if (!agR.ok) throw new Error(`CALDERA agents API returned ${agR.status}`);
       const agents = await agR.json();
-      const agent  = agents.find(a => a.group === group && a.trusted);
-      if (!agent) throw new Error(`No active agent found in group "${group}". Deploy a sandcat agent first.`);
+      const groupAgents = agents.filter(a => a.group === group && a.trusted);
+      if (!groupAgents.length) throw new Error(`No active agent found in group "${group}". Deploy a sandcat agent first.`);
+
+      // Pick the most recently seen agent as the active one
+      groupAgents.sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen));
+      const agent = groupAgents[0];
+
+      // 1.5 Untrust all other agents in the group to prevent discard storms
+      const stale = groupAgents.slice(1);
+      if (stale.length) {
+        btn.textContent = `Clearing ${stale.length} stale agent${stale.length > 1 ? 's' : ''}...`;
+        await Promise.all(stale.map(a =>
+          fetch(`${CALDERA_PROXY}/api/v2/agents/${a.paw}`, {
+            method: 'PATCH',
+            headers: { 'KEY': CALDERA_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trusted: false })
+          })
+        ));
+        btn.textContent = 'Launching...';
+      }
 
       // 2. Create the operation
       const opR = await fetch(`${CALDERA_PROXY}/api/v2/operations`, {
