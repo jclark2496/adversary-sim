@@ -1067,6 +1067,12 @@
     const url = localStorage.getItem('labopsUrl') || '';
     if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
   }
+  (function() {
+    if (localStorage.getItem('labopsUrl')) return;
+    fetch('/api/settings').then(r => r.ok ? r.json() : {}).then(cfg => {
+      if (cfg.labopsUrl) localStorage.setItem('labopsUrl', cfg.labopsUrl);
+    }).catch(() => {});
+  })();
 
   /* =====================================================
      CONSTANTS
