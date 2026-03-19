@@ -18,7 +18,7 @@
   };
 
   var NEXT_PAGE = {
-    index:        { page: 'console',      label: 'Attack Console',  url: '/console.html' },
+    index:        { page: 'admin',        label: 'Scenario Studio', url: '/admin.html' },
     console:      { page: 'admin',        label: 'Scenario Studio', url: '/admin.html' },
     admin:        { page: 'tools',        label: 'Red Tools',       url: '/tools.html' },
     tools:        { page: 'settings',     label: 'Settings',        url: '/settings.html' },
@@ -60,6 +60,11 @@
           title: 'SCENARIO LIBRARY',
           description: 'Scenarios are grouped by Sophos product \u2014 Endpoint, NDR, Firewall. Click any row to load its details. Star it to save as a favourite.',
           side: 'right', align: 'start'
+        },
+        onHighlightStarted: function () {
+          // Auto-select the first scenario so #rp is populated for the next step
+          var first = document.querySelector('.srow');
+          if (first) first.click();
         }
       },
       {
@@ -485,7 +490,7 @@
       showProgress: true,
       allowClose: true,
       stagePadding: 6,
-      overlayOpacity: 0.45,
+      overlayOpacity: 0.3,
       steps: steps,
       onDestroyStarted: function () {
         _completedNaturally = !drv.hasNextStep();
