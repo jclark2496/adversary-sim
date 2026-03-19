@@ -449,3 +449,161 @@ select.ctrl option {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* ── Guided Tour ─────────────────────────────────────────────────────────── */
+
+/* ? help button — appears in every page header */
+.tour-help-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #00e5ff;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--fm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.tour-help-btn:hover {
+  border-color: #00e5ff;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+}
+
+/* Continue Tour? banner — fixed at top of page */
+#tour-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  font-size: 12px;
+  color: #e2e8f0;
+  font-family: var(--fm);
+}
+#tour-banner button {
+  font-size: 11px;
+  font-family: var(--fm);
+  background: transparent;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #00e5ff;
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+#tour-banner button:last-child {
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+/* Cross-page next-up prompt — fixed bottom-right */
+#tour-xpage {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  background: #111827;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: #e2e8f0;
+  font-family: var(--fm);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.15);
+  max-width: 300px;
+  line-height: 1.5;
+}
+.tour-xpage-btns {
+  display: flex;
+  gap: 8px;
+}
+#tour-xpage button {
+  font-size: 11px;
+  font-family: var(--fm);
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+#tour-xpage #tour-xpage-go,
+#tour-xpage #tour-xpage-done {
+  border: 1px solid #00e5ff;
+  color: #00e5ff;
+}
+#tour-xpage #tour-xpage-skip {
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: #64748b;
+}
+
+/* ── Driver.js theme overrides ──────────────────────────────────────────── */
+.driver-popover {
+  background: #111827 !important;
+  border: 1px solid rgba(0, 229, 255, 0.4) !important;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.15) !important;
+  border-radius: 10px !important;
+  max-width: 280px !important;
+  font-family: var(--fm) !important;
+}
+.driver-popover-title {
+  color: #00e5ff !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+.driver-popover-description {
+  color: #e2e8f0 !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+}
+.driver-popover-progress-text {
+  color: #64748b !important;
+  font-size: 10px !important;
+}
+.driver-popover-next-btn {
+  background: transparent !important;
+  border: 1px solid #00e5ff !important;
+  color: #00e5ff !important;
+  border-radius: 4px !important;
+  padding: 4px 12px !important;
+  font-size: 11px !important;
+  font-family: var(--fm) !important;
+  text-shadow: none !important;
+}
+.driver-popover-next-btn:hover {
+  background: rgba(0, 229, 255, 0.08) !important;
+}
+.driver-popover-prev-btn,
+.driver-popover-close-btn {
+  color: #64748b !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 11px !important;
+  font-family: var(--fm) !important;
+  text-shadow: none !important;
+}
+.driver-overlay {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+.driver-highlighted-element {
+  border: 2px solid rgba(0, 229, 255, 0.6) !important;
+  box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.12), 0 0 20px rgba(0, 229, 255, 0.2) !important;
+  border-radius: 6px !important;
+}
