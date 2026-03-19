@@ -297,13 +297,13 @@ const GUAC_DS    = 'postgresql';
 
 const TOOL_CONFIGS = {
   kali: {
-    host: '172.20.0.70', port: '22', user: 'root', pass: 'kali',
+    host: 'advsim-kali', port: '22', user: 'root', pass: 'kali',
     label: '● KALI LINUX — SSH SESSION',
     phdrClass: 'phdr-kali', titleClass: 'kali',
     errorMsg: 'Kali container not running. Run <code>make tools</code> to start it.'
   },
   atomic: {
-    host: '172.20.0.40', port: '22', user: 'root', pass: 'atomic',
+    host: 'advsim-atomic', port: '22', user: 'root', pass: 'atomic',
     label: '● ATOMIC RED TEAM — SSH SESSION',
     phdrClass: 'phdr-atomic', titleClass: 'atomic',
     errorMsg: 'Atomic container not running. Run <code>make tools</code> to start it.'
@@ -394,7 +394,7 @@ async function loadSSH(tool, cfg, body) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ username: guacAdmin, password: guacAdminPw })
     });
-    if (!tokR.ok) throw new Error(`Guacamole auth failed (${tokR.status}) — is mdr-guacamole running?`);
+    if (!tokR.ok) throw new Error(`Guacamole auth failed (${tokR.status}) — is Guacamole running?`);
     const tokD = await tokR.json();
     const token = tokD.authToken;
 
