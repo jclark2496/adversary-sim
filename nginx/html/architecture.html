@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architecture — Sophos Adversary Simulation Platform</title>
   <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.iife.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { overflow-y: auto; }
@@ -449,9 +451,11 @@
   </header>
 
   <div id="hdr-controls" style="position:fixed;top:10px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
+        <button class="tour-help-btn" id="tour-help-btn" title="Page help">?</button>
     <div class="nav-wrap" id="nav-wrap">
       <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
       <div class="nav-dd" id="nav-dd">
+              <button class="nav-it" onclick="window.location.href='/index.html?tour=1'">&#9658; Start Tour</button>
         <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
@@ -468,7 +472,7 @@
 
     <!-- Section 1: Platform Architecture -->
     <div class="section">
-      <h2 class="section-hdr">Platform Architecture</h2>
+      <h2 class="section-hdr" id="arch-platform">Platform Architecture</h2>
       <div class="arch-row-wrap">
         <div class="arch-card-wrap">
           <div class="arch-card">
@@ -535,7 +539,7 @@
 
     <!-- Section 2: Services & Ports -->
     <div class="section">
-      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Services &amp; Ports</h2>
+      <h2 class="section-hdr collapsible" id="arch-services" onclick="toggleSection(this)">Services &amp; Ports</h2>
       <div class="section-body">
         <div class="tbl-wrap">
           <table>
@@ -643,7 +647,7 @@
 
     <!-- Section 4: Scenario Library -->
     <div class="section">
-      <h2 class="section-hdr collapsible" onclick="toggleSection(this)">Scenario Library &mdash; 24 Scenarios</h2>
+      <h2 class="section-hdr collapsible" id="arch-scenarios" onclick="toggleSection(this)">Scenario Library &mdash; 24 Scenarios</h2>
       <div class="section-body">
 
         <div class="scenario-tabs">
@@ -847,5 +851,7 @@
   } catch(e) { /* silent */ }
 })();
 </script>
+<script src="/tour.js"></script>
+<script>initTour('architecture');</script>
 </body>
 </html>
