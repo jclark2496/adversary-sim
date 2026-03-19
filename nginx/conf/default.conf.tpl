@@ -48,6 +48,16 @@ server {
         try_files /scenarios.json =404;
     }
 
+    # Sandcat bootstrap - inject Docker host IP at serve time so victims
+    # don't need to set CALDERA_SERVER manually
+    location = /s.ps1 {
+        sub_filter_types *;
+        sub_filter 'CALDERA_HOST' '$host';
+        sub_filter_once on;
+        add_header Content-Type 'text/plain; charset=utf-8';
+        add_header Cache-Control 'no-cache';
+    }
+
     # Block direct access to sensitive config files
     location = /ai-config.json { deny all; }
 
