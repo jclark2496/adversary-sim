@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings — Sophos Adversary Simulation Platform</title>
   <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.iife.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { overflow-y: auto; }
@@ -414,9 +416,11 @@
 
   <!-- ── Nav ─────────────────────────────────────────────────── -->
   <div id="hdr-controls" style="position:fixed;top:10px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
+        <button class="tour-help-btn" id="tour-help-btn" title="Page help">?</button>
     <div class="nav-wrap" id="nav-wrap">
       <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
       <div class="nav-dd" id="nav-dd">
+              <button class="nav-it" onclick="window.location.href='/index.html?tour=1'">&#9658; Start Tour</button>
         <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
@@ -830,5 +834,7 @@
   /* ── Boot ─────────────────────────────────────────────────── */
   window.addEventListener('load', initSettings);
 </script>
+<script src="/tour.js"></script>
+<script>initTour('settings');</script>
 </body>
 </html>
