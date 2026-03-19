@@ -378,13 +378,13 @@ _detect-labops:
 		echo "  → Using own n8n (advsim-n8n) for scenario workflows"; \
 		echo "  → Skipping Guacamole (using LabOps instance)"; \
 		printf 'networks:\n  advsim-net:\n    external: true\n    name: labops-net\n' > docker-compose.override.yml; \
-		sed 's/N8N_PROXY_IP/172.20.0.31/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
-		echo "  → nginx /api/ proxying to advsim-n8n (172.20.0.31)"; \
+		sed 's/GUAC_HOST/labops-guacamole/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
+		echo "  → nginx proxying Guacamole to labops-guacamole"; \
 	else \
 		echo "✅ Standalone mode — using advsim-net network"; \
 		rm -f docker-compose.override.yml; \
-		sed 's/N8N_PROXY_IP/172.20.0.31/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
-		echo "  → nginx /api/ proxying to advsim-n8n (172.20.0.31)"; \
+		sed 's/GUAC_HOST/advsim-guacamole/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
+		echo "  → nginx proxying Guacamole to advsim-guacamole"; \
 	fi
 
 .PHONY: _generate-caldera-keys

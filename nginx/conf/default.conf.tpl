@@ -12,27 +12,26 @@ server {
 
     # Proxy to CALDERA (avoids browser CORS restrictions)
     location /caldera/ {
-        proxy_pass http://172.20.0.10:8888/;
+        proxy_pass http://advsim-caldera:8888/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    # Proxy to n8n webhook endpoints
-    # In standalone mode: advsim-n8n at 172.20.0.31
-    # In labops mode:     labops-n8n at 172.20.0.30
+    # Proxy to n8n webhook endpoints (always advsim-n8n in both modes)
     location /api/ {
-        proxy_pass http://N8N_PROXY_IP:5678/webhook/;
+        proxy_pass http://advsim-n8n:5678/webhook/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     # Proxy to Apache Guacamole (RDP-in-browser)
-    # Works for both standalone (advsim-guacamole) and labops (labops-guacamole)
-    # because both sit at 172.20.0.81 on the shared network
+    # GUAC_HOST is replaced at install time:
+    #   standalone: advsim-guacamole
+    #   labops:     labops-guacamole
     location /guacamole/ {
-        proxy_pass http://172.20.0.81:8080/guacamole/;
+        proxy_pass http://GUAC_HOST:8080/guacamole/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
