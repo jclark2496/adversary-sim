@@ -404,8 +404,12 @@
 
   <!-- ── Header ──────────────────────────────────────────────── -->
   <header class="shared-header">
-    <span class="shared-brand">Sophos Adversary</span>
-    <span class="shared-tag">simulation_platform</span>
+    <div class="shared-wordmark">
+      <span class="wm-primary">SOPHOS</span>
+      <span class="wm-accent wm-accent-cyan">ADVERSARY</span>
+      <span class="wm-slash">//</span>
+      <span class="wm-page wm-page-cyan">settings</span>
+    </div>
   </header>
 
   <!-- ── Nav ─────────────────────────────────────────────────── -->
@@ -558,7 +562,9 @@
       if (r.ok) {
         const cfg = await r.json();
         stgProv = cfg.provider || '';
-        document.getElementById('stg-key').value = cfg.apiKeyMasked || '';
+        const keyInput = document.getElementById('stg-key');
+        keyInput.value = '';
+        keyInput.placeholder = cfg.apiKeyMasked ? cfg.apiKeyMasked + ' (leave blank to keep)' : 'Enter API key...';
         document.getElementById('stg-model').value = cfg.model || '';
         document.getElementById('stg-labops-url').value = cfg.labopsUrl || '';
         stgLabopsUpdateIndicator(cfg.labopsUrl || '');

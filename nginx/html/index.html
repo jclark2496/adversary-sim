@@ -70,47 +70,12 @@
       background: rgba(var(--bg-panel-rgb),.97);
     }
 
-    /* brand */
-    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; flex-wrap: wrap; }
     #hdr-controls {
       position: fixed; top: 10px; right: 16px; z-index: 100;
       display: flex; align-items: center; gap: 8px;
     }
-    .arch-btn {
-      font-family: var(--fm); font-size: 11px;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--text-sec); background: transparent;
-      border: 1px solid var(--border-dim); border-radius: 5px;
-      padding: 5px 12px; cursor: pointer;
-      transition: all .15s;
-      white-space: nowrap;
-    }
-    .arch-btn:hover {
-      color: var(--text-primary);
-      border-color: rgba(var(--accent-cyan-rgb),.3);
-      background: rgba(var(--accent-cyan-rgb),.05);
-    }
+    /* Menu button styles now in shared.css (.nav-btn) */
     .tog-icon { display: none; }
-    /* wordmark */
-    .logo-word {
-      font-family: var(--fm);
-      font-size: 15px; font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.02em; white-space: nowrap;
-    }
-    .logo-tag {
-      font-family: var(--fm);
-      font-size: 11px; font-weight: 400;
-      color: var(--accent-cyan);
-      background: rgba(var(--accent-cyan-rgb),0.08);
-      border: 1px solid rgba(var(--accent-cyan-rgb),0.22);
-      border-radius: 5px; padding: 3px 10px 3px 22px;
-      position: relative; letter-spacing: 0.03em; white-space: nowrap;
-    }
-    .logo-tag::before {
-      content: '>'; position: absolute; left: 8px;
-      color: rgba(var(--accent-cyan-rgb),0.45); font-size: 10px;
-    }
     .lpip {
       display: flex; align-items: center; gap: 6px;
       font-family: var(--ft); font-weight: 600; font-size: 10px;
@@ -954,31 +919,7 @@
     }
     .new-highlight { animation: new-hi 1.2s ease-in-out 2; }
 
-    /* ── NAV MENU ─────────────────────────────────────────────────────── */
-    .nav-wrap { position:relative; flex-shrink:0; }
-    .nav-dd {
-      position:absolute; top:calc(100% + 4px); right:0; min-width:160px;
-      background:var(--bg-card);
-      border:1px solid var(--border-dim); border-radius:5px;
-      box-shadow:0 4px 16px rgba(0,0,0,.4);
-      z-index:1001; display:none; overflow:hidden; padding:3px 0;
-    }
-    @keyframes nav-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
-    .nav-dd.open { display:block; animation:nav-in .12s ease-out; }
-    .nav-it {
-      display:block; padding:6px 14px;
-      font-size:12px; color:var(--text-sec); letter-spacing:.02em;
-      width:100%; text-align:left; background:none; border:none;
-      cursor:pointer; transition:background .1s, color .1s; font-family:var(--fb);
-    }
-    .nav-it:hover { background:rgba(var(--accent-cyan-rgb),.06); color:var(--text-primary); }
-    .nav-sep { height:1px; background:var(--border-dim); margin:3px 0; }
-
-    /* ── SETTINGS BUTTON ─────────────────────────────────────────────── */
-    .labmgr-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:rgba(var(--text-rgb),.7);cursor:pointer;background:none;border:none;font-family:var(--fb);transition:color .15s;padding:0;margin-right:6px}
-    .labmgr-link:hover{color:#00EDFF}
-    .labmgr-link .lm-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(235,246,255,.2)}
-    .labmgr-link .lm-dot.green{background:#00FF41;box-shadow:0 0 4px rgba(0,255,65,.4)}
+    /* Nav menu styles now in shared.css */
 
     /* ── Redesigned Layout ─────────────────────────────── */
     .main-nav { display:flex; align-items:center; gap:2px; margin-left:16px; }
@@ -1069,23 +1010,26 @@
   <aside id="lp">
     <div class="ph">
       <!-- Brand + Nav -->
-      <div class="brand">
-        <span class="logo-word">Sophos Adversary</span>
-        <span class="logo-tag">simulation_platform</span>
+      <div class="shared-wordmark">
+        <span class="wm-primary">SOPHOS</span>
+        <span class="wm-accent wm-accent-cyan">ADVERSARY</span>
+        <span class="wm-slash">//</span>
+        <span class="wm-page wm-page-cyan">se_console</span>
         <nav class="main-nav">
           <button class="nav-tab" data-view="submit" onclick="switchView('submit')">Submit Case</button>
           <div class="nav-dropdown" id="tools-dropdown">
             <button class="nav-tab" onclick="toggleToolsDropdown()">Tools ▾</button>
             <div class="dropdown-items">
-              <button class="dropdown-item" onclick="openSSH('kali')">Kali Terminal</button>
-              <button class="dropdown-item" onclick="openSSH('atomic')">Atomic Red Team</button>
+              <button class="dropdown-item" onclick="window.open('/tools.html?tool=kali','_blank')">Kali Terminal</button>
+              <button class="dropdown-item" onclick="window.open('/tools.html?tool=atomic','_blank')">Atomic Red Team</button>
+              <button class="dropdown-item" onclick="window.open('/tools.html?tool=caldera','_blank')">CALDERA</button>
               <button class="dropdown-item" onclick="openEnrichCard()">Enrich with AI</button>
             </div>
           </div>
         </nav>
         <div id="hdr-controls">
           <div class="nav-wrap" id="nav-wrap">
-            <button class="arch-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
+            <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
             <div class="nav-dd" id="nav-dd">
               <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
               <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
@@ -1983,7 +1927,7 @@
     if (r.operation_id) ps.set('operation_id',  r.operation_id);
     if (r.agent_paw)    ps.set('agent_paw',     r.agent_paw);
     if (S.tgt)          ps.set('victim_ip',     S.tgt);
-    if (S.sel)          ps.set('scenario_name', S.sel.name || S.sel.id);
+    if (S.sel)          ps.set('scenario_name', S.sel.title || S.sel.id);
     window.open(`/console.html?${ps}`, '_blank');
   }
 
@@ -2688,6 +2632,7 @@ function navFb(id, txt) {
 
 function labmgrUpdateDot(url) {
   const dot = document.getElementById('labmgr-dot');
+  if (!dot) return;
   if (url) { dot.classList.add('green'); } else { dot.classList.remove('green'); }
 }
 
