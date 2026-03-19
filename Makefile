@@ -380,6 +380,10 @@ _detect-labops:
 		printf 'networks:\n  advsim-net:\n    external: true\n    name: labops-net\n' > docker-compose.override.yml; \
 		sed 's/GUAC_HOST/labops-guacamole/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
 		echo "  → nginx proxying Guacamole to labops-guacamole"; \
+		if [ -f nginx/html/ai-config.json ]; then \
+			python3 -c "import json; c=json.load(open('nginx/html/ai-config.json')); c['labopsUrl']='http://localhost:8080'; open('nginx/html/ai-config.json','w').write(json.dumps(c))"; \
+			echo "  → labopsUrl set to http://localhost:8080 in ai-config.json"; \
+		fi; \
 	else \
 		echo "✅ Standalone mode — using advsim-net network"; \
 		rm -f docker-compose.override.yml; \
