@@ -329,7 +329,7 @@ On first launch after `make install`, n8n requires a one-time owner account setu
 1. Open n8n at `http://localhost:5679`
 2. Create an owner account:
    - **Email:** any email (e.g., `admin@lab.local`)
-   - **Password:** `SEdemo2026` (recommended — matches other service defaults)
+   - **Password:** `Demo1234!` (matches VM demo user password)
    - **First/Last name:** anything
 3. Workflows are auto-imported and activated during `make install` — you should see them in the workflow list
 
