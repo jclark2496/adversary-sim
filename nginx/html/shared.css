@@ -599,9 +599,6 @@ select.ctrl option {
   font-family: var(--fm) !important;
   text-shadow: none !important;
 }
-.driver-overlay {
-  background: rgba(0, 0, 0, 0.75) !important;
-}
 .driver-highlighted-element {
   border: 2px solid rgba(0, 229, 255, 0.6) !important;
   box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.12), 0 0 20px rgba(0, 229, 255, 0.2) !important;

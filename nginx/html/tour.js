@@ -485,6 +485,7 @@
       showProgress: true,
       allowClose: true,
       stagePadding: 6,
+      overlayOpacity: 0.45,
       steps: steps,
       onDestroyStarted: function () {
         _completedNaturally = !drv.hasNextStep();
