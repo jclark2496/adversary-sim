@@ -48,8 +48,7 @@ services:
       - ./nginx/html:/data/scenarios
       - ./:/data/repo
     networks:
-      advsim-net:
-        ipv4_address: 172.20.0.31
+      - advsim-net
 
 networks:
   advsim-net:
