@@ -565,9 +565,9 @@ tools:
 	@echo "▶ Installing Manual Attack Tools (Kali + Atomic Red Team)..."
 	@echo "tools" > .tools-mode
 	@if [ -f .labops-mode ] && grep -q "labops" .labops-mode 2>/dev/null; then \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.override.yml --profile tools up -d kali atomic; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.override.yml --profile tools up -d kali atomic-runner; \
 	else \
-		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml --profile tools up -d kali atomic; \
+		$(COMPOSE) -f docker-compose.yml -f docker-compose.n8n.yml -f docker-compose.guacamole.yml --profile tools up -d kali atomic-runner; \
 	fi
 	@echo ""
 	@echo "✅ Manual Attack Tools installed"
