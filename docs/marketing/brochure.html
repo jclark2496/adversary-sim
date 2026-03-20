@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sophos Adversary Simulation Platform — Solution Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@page { size: 297mm 210mm; margin: 0; }
+
+html, body {
+  width: 297mm;
+  background: #06101e;
+  font-family: 'Syne', sans-serif;
+  color: #eaf1f8;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+:root {
+  --bg:    #06101e;
+  --bg2:   #0a1828;
+  --panel: #0d1f32;
+  --panel2:#091624;
+  --cyan:  #00d8f5;
+  --green: #00eba8;
+  --gold:  #f0b800;
+  --red:   #f04060;
+  --text:  #eaf1f8;
+  --sub:   #9bbdd4;   /* secondary body — readable, not dim */
+  --dim:   #52738c;   /* labels only — never body copy */
+  --fh: 'Orbitron', sans-serif;
+  --fb: 'Syne', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+
+.page {
+  width: 297mm; height: 210mm;
+  overflow: hidden; position: relative;
+  background: var(--bg);
+  page-break-after: always; page-break-inside: avoid;
+  display: flex; flex-direction: column;
+}
+.page:last-child { page-break-after: avoid; }
+
+/* ── Footer (every page) ────────────────────────────────────────────── */
+.pg-footer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 6.5mm;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 9mm;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: var(--fm); font-size: 6.5px;
+  color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+/* ── Tags ───────────────────────────────────────────────────────────── */
+.tag {
+  font-family: var(--fm); font-size: 7.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 2px;
+  border: 1px solid; display: inline-block; line-height: 1.6;
+}
+.tag-c { color: var(--cyan);  border-color: rgba(0,216,245,0.45); background: rgba(0,216,245,0.07); }
+.tag-g { color: var(--green); border-color: rgba(0,235,168,0.45); background: rgba(0,235,168,0.07); }
+.tag-d { color: var(--gold);  border-color: rgba(240,184,0,0.45); background: rgba(240,184,0,0.07); }
+
+/* ── Shared ─────────────────────────────────────────────────────────── */
+.section-lbl {
+  font-family: var(--fm); font-size: 7.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--dim);
+}
+
+code {
+  font-family: var(--fm); font-size: 0.9em;
+  background: rgba(255,255,255,0.09); padding: 1px 5px; border-radius: 2px;
+  color: var(--sub);
+}
+
+/* ── Dots ───────────────────────────────────────────────────────────── */
+.dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.dot-c  { background: var(--cyan); }
+.dot-g  { background: var(--green); }
+.dot-d  { background: var(--gold); }
+.dot-r  { background: var(--red); }
+.dot-p  { background: #b388ff; }
+.dot-b  { background: #64b5f6; }
+.dot-sl { background: #7896a8; }
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 1 — COVER
+   ══════════════════════════════════════════════════════════ */
+#cover {
+  background:
+    radial-gradient(ellipse 55% 70% at 80% 48%, rgba(0,216,245,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 50% at 10% 80%, rgba(0,235,168,0.05) 0%, transparent 55%),
+    var(--bg);
+}
+#cover::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,216,245,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,216,245,0.04) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 65% 65% at 74% 50%, black 15%, transparent 78%);
+}
+#cover::after {
+  content: 'ADVERSARY';
+  position: absolute; right: -8mm; top: 50%; transform: translateY(-50%);
+  font-family: var(--fh); font-size: 96px; font-weight: 900;
+  letter-spacing: -0.02em; color: rgba(0,216,245,0.028);
+  white-space: nowrap; pointer-events: none; line-height: 1;
+}
+
+.cover-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; padding: 10mm 14mm 7mm;
+  position: relative; z-index: 1;
+}
+.cover-eyebrow {
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.24em; text-transform: uppercase; color: var(--cyan);
+  margin-bottom: 15px;
+  display: flex; align-items: center; gap: 9px;
+}
+.cover-eyebrow::before {
+  content: ''; display: block; width: 28px; height: 1.5px; background: var(--cyan);
+}
+.cover-title {
+  font-family: var(--fh); font-size: 48px; font-weight: 900;
+  line-height: 1.05; letter-spacing: -0.015em; color: #fff;
+  margin-bottom: 20px; max-width: 150mm;
+}
+.cover-title .hl { color: var(--cyan); }
+.cover-sub {
+  font-family: var(--fb); font-size: 12.5px; color: var(--sub);
+  line-height: 1.65; max-width: 114mm; margin-bottom: 30px;
+}
+.cover-meta-row { display: flex; align-items: center; gap: 14px; }
+.cover-by { font-family: var(--fm); font-size: 8px; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; }
+.cover-by strong { color: var(--sub); }
+.cover-tags { display: flex; gap: 7px; }
+
+.cover-hero {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 118mm;
+  overflow: hidden;
+}
+.cover-hero::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 34mm;
+  background: linear-gradient(to right, var(--bg), transparent); z-index: 2;
+}
+.cover-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
+.cover-hero-ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px;
+  font-family: var(--fm); font-size: 8px; color: var(--dim);
+  letter-spacing: 0.14em; text-transform: uppercase; text-align: center; padding: 24px;
+}
+.cover-hero-ph svg { opacity: 0.15; margin-bottom: 6px; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 2 — TWO COMPONENTS
+   ══════════════════════════════════════════════════════════ */
+#components {
+  padding: 7mm 9mm 6.5mm;
+  gap: 4.5mm;
+}
+.comp-top {
+  text-align: center; padding: 0 0 3mm; flex-shrink: 0;
+}
+.comp-top-title {
+  font-family: var(--fh); font-size: 17px; font-weight: 700;
+  color: #fff; letter-spacing: 0.04em;
+}
+.comp-top-title .hl { color: var(--cyan); }
+
+.comp-cols { display: flex; gap: 5mm; flex: 1; min-height: 0; }
+
+.comp-col {
+  flex: 1; border-radius: 6px; padding: 6mm 6mm 5mm;
+  display: flex; flex-direction: column; gap: 0;
+}
+.comp-col-c { background: rgba(0,216,245,0.035); border: 1px solid rgba(0,216,245,0.22); }
+.comp-col-g { background: rgba(0,235,168,0.035); border: 1px solid rgba(0,235,168,0.22); }
+
+/* Product name header */
+.comp-brand { margin-bottom: 5mm; flex-shrink: 0; }
+.comp-brand .b-sophos {
+  font-family: var(--fh); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.45); text-transform: uppercase;
+  margin-bottom: 2px; display: block;
+}
+.comp-brand .b-product {
+  font-family: var(--fh); font-size: 16px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  line-height: 1.1; display: block;
+}
+.comp-brand .b-type {
+  font-family: var(--fh); font-size: 8px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  margin-top: 1px; display: block;
+}
+.comp-col-c .b-product { color: var(--cyan); }
+.comp-col-c .b-type    { color: rgba(0,216,245,0.55); }
+.comp-col-g .b-product { color: var(--green); }
+.comp-col-g .b-type    { color: rgba(0,235,168,0.55); }
+
+/* Stat chips row — replaces screenshot */
+.comp-stats {
+  display: flex; gap: 0; border-radius: 5px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08); margin-bottom: 5mm; flex-shrink: 0;
+}
+.comp-stat {
+  flex: 1; text-align: center; padding: 6px 4px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.2);
+}
+.comp-stat:last-child { border-right: none; }
+.cs-num {
+  font-family: var(--fh); font-size: 18px; font-weight: 700; line-height: 1;
+}
+.cs-lbl {
+  font-family: var(--fm); font-size: 6.5px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--sub); margin-top: 3px;
+}
+.comp-col-c .cs-num { color: var(--cyan); }
+.comp-col-g .cs-num { color: var(--green); }
+
+/* Bullets */
+.comp-divider {
+  height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 0; flex-shrink: 0;
+}
+.comp-bullets { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 0; padding-top: 0; }
+.comp-bullets li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 4.5mm 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.comp-bullets li:last-child { border-bottom: none; }
+.cb-arrow { font-family: var(--fm); font-size: 9px; flex-shrink: 0; margin-top: 2px; }
+.comp-col-c .cb-arrow { color: var(--cyan); }
+.comp-col-g .cb-arrow { color: var(--green); }
+.cb-body { flex: 1; }
+.cb-title { font-family: var(--fb); font-size: 10.5px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.cb-desc  { font-family: var(--fb); font-size: 9.5px; color: var(--sub); line-height: 1.45; }
+
+/* Footer bar */
+.comp-footer {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 4mm; padding-top: 4mm;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: var(--fm); font-size: 8px; color: var(--dim);
+  letter-spacing: 0.07em; flex-shrink: 0;
+}
+.cfb { font-family: var(--fm); font-size: 7px; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 2px; display: inline-flex; align-items: center; gap: 4px; }
+.cfb-c { background: rgba(0,216,245,0.08); border: 1px solid rgba(0,216,245,0.3); color: var(--cyan); }
+.cfb-g { background: rgba(0,235,168,0.08); border: 1px solid rgba(0,235,168,0.3); color: var(--green); }
+.cfb-d { background: rgba(240,184,0,0.08); border: 1px solid rgba(240,184,0,0.3); color: var(--gold); }
+.cf-eq { color: rgba(255,255,255,0.22); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 3 — ADVERSARY SIMULATION
+   ══════════════════════════════════════════════════════════ */
+#advsim { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 4.5mm; }
+
+/* Page header shared */
+.ph {
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.ph-l {
+  font-family: var(--fh); font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; line-height: 1;
+  display: flex; align-items: baseline;
+}
+.ph-sophos { font-size: 16px; color: #fff; }
+.ph-c { font-size: 16px; color: var(--cyan); }
+.ph-g { font-size: 16px; color: var(--green); }
+.ph-slash { font-size: 13px; color: var(--dim); margin: 0 7px; font-weight: 400; }
+.ph-page-c { font-size: 10px; color: var(--cyan); opacity: 0.6; letter-spacing: 0.14em; }
+.ph-page-g { font-size: 10px; color: var(--green); opacity: 0.6; letter-spacing: 0.14em; }
+.ph-page-d { font-size: 10px; color: var(--gold); opacity: 0.7; letter-spacing: 0.14em; }
+
+.advsim-body { display: flex; gap: 6mm; flex: 1; min-height: 0; }
+
+/* Left: attack flow */
+.advsim-left { width: 84mm; flex-shrink: 0; display: flex; flex-direction: column; }
+
+.flow-steps { flex: 1; display: flex; flex-direction: column; }
+.flow-step {
+  flex: 1; display: flex; align-items: flex-start; gap: 10px;
+  position: relative; min-height: 0;
+}
+.flow-step:not(:last-child)::after {
+  content: ''; position: absolute;
+  left: 11px; top: 23px; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, rgba(0,216,245,0.5), rgba(0,216,245,0.04));
+}
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid rgba(0,216,245,0.6);
+  background: rgba(0,216,245,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fm); font-size: 9px; font-weight: 600;
+  color: var(--cyan); flex-shrink: 0; position: relative; z-index: 1;
+}
+.step-body { padding-top: 2px; flex: 1; }
+.step-title { font-family: var(--fb); font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.step-desc  { font-family: var(--fb); font-size: 9.5px; color: var(--sub); line-height: 1.45; }
+
+.stats-bar {
+  display: flex; margin-top: 4.5mm; border-radius: 5px; overflow: hidden;
+  border: 1px solid rgba(0,216,245,0.25); flex-shrink: 0;
+}
+.stat-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 7px 3px; background: rgba(0,216,245,0.06);
+  border-right: 1px solid rgba(0,216,245,0.15);
+}
+.stat-item:last-child { border-right: none; }
+.stat-n { font-family: var(--fh); font-size: 16px; font-weight: 700; color: var(--cyan); line-height: 1; }
+.stat-l { font-family: var(--fm); font-size: 6.5px; color: var(--sub); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; text-align: center; }
+
+/* Right */
+.advsim-right { flex: 1; display: flex; flex-direction: column; gap: 4mm; min-width: 0; }
+
+/* Arch panel */
+.arch-panel {
+  background: var(--panel2);
+  border: 1px solid rgba(0,216,245,0.18);
+  border-left: 3px solid rgba(0,216,245,0.5);
+  border-radius: 6px; padding: 4.5mm 5mm 4mm; flex-shrink: 0;
+}
+.arch-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 3.5mm; }
+
+.arch-row { display: flex; align-items: center; gap: 5px; }
+.arch-row + .arch-row { margin-top: 5px; }
+.arch-arrow { font-family: var(--fm); font-size: 11px; color: rgba(0,216,245,0.35); flex-shrink: 0; }
+
+.abox {
+  border-radius: 4px; padding: 4px 7px 5px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.abox-c { border: 1px solid rgba(0,216,245,0.2); }
+.abox-g { border: 1px solid rgba(0,235,168,0.22); background: rgba(0,235,168,0.03); }
+.abox-d { border: 1px solid rgba(240,184,0,0.22); background: rgba(240,184,0,0.03); }
+
+.abox-lbl { font-family: var(--fm); font-size: 6.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+.abox-c .abox-lbl { color: rgba(0,216,245,0.65); }
+.abox-g .abox-lbl { color: rgba(0,235,168,0.65); }
+.abox-d .abox-lbl { color: rgba(240,184,0,0.65); }
+
+.asvcs { display: flex; gap: 3px; flex-wrap: wrap; }
+.asvc {
+  display: flex; align-items: center; gap: 3px;
+  font-family: var(--fm); font-size: 8px;
+  background: rgba(0,0,0,0.28); border-radius: 3px; padding: 2px 6px;
+  color: var(--text); white-space: nowrap;
+}
+.asvc-c { border: 1px solid rgba(0,216,245,0.16); }
+.asvc-g { border: 1px solid rgba(0,235,168,0.16); }
+.asvc-d { border: 1px solid rgba(240,184,0,0.18); }
+
+/* Talking points */
+.talking-panel {
+  background: var(--panel2);
+  border: 1px solid rgba(0,216,245,0.18);
+  border-left: 3px solid rgba(0,216,245,0.5);
+  border-radius: 6px; padding: 4.5mm 5mm; flex: 1;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.talking-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 3mm; }
+.talking-icon-box {
+  width: 24px; height: 24px; border-radius: 4px;
+  background: rgba(0,216,245,0.1); border: 1px solid rgba(0,216,245,0.3);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--cyan);
+}
+.talking-icon-box svg { width: 14px; height: 14px; }
+.talking-title { font-family: var(--fb); font-size: 12px; font-weight: 700; color: #fff; }
+.talking-sub { font-family: var(--fb); font-size: 10px; color: var(--sub); line-height: 1.6; margin-bottom: 4mm; }
+.verticals { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.runbook-screen {
+  margin-top: 3mm; flex: 1; min-height: 0; overflow: hidden;
+  border-radius: 5px; border: 1px solid rgba(0,216,245,0.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.runbook-screen img {
+  width: 100%; height: 100%; display: block;
+  object-fit: cover; object-position: top;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 4 — LABOPS
+   ══════════════════════════════════════════════════════════ */
+#labops-page { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 4.5mm; }
+
+.labops-body { display: flex; gap: 6mm; flex: 1; min-height: 0; }
+
+/* Left: feature grid */
+.labops-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4mm; }
+
+.feat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 3.5mm;
+  flex: 1;
+}
+
+.feat-card {
+  background: var(--panel2);
+  border: 1px solid rgba(0,235,168,0.14);
+  border-radius: 5px; padding: 4.5mm;
+  display: flex; flex-direction: column;
+}
+
+.feat-icon-box {
+  width: 26px; height: 26px; border-radius: 4px; flex-shrink: 0;
+  background: rgba(0,235,168,0.09); border: 1px solid rgba(0,235,168,0.28);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green); margin-bottom: 5px;
+}
+.feat-icon-box svg { width: 14px; height: 14px; }
+.feat-title { font-family: var(--fb); font-size: 10.5px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+.feat-desc  { font-family: var(--fb); font-size: 9.5px; color: var(--sub); line-height: 1.5; flex: 1; }
+.feat-chip {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+  font-family: var(--fm); font-size: 7px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--green);
+  background: rgba(0,235,168,0.07); border: 1px solid rgba(0,235,168,0.22);
+  border-radius: 2px; padding: 2px 7px; align-self: flex-start;
+}
+
+/* Right: arch */
+.labops-right { width: 94mm; flex-shrink: 0; display: flex; flex-direction: column; gap: 4mm; }
+
+.labops-arch {
+  background: var(--panel2);
+  border: 1px solid rgba(0,235,168,0.18);
+  border-left: 3px solid rgba(0,235,168,0.5);
+  border-radius: 6px; padding: 5mm 5.5mm;
+  flex: 1; display: flex; flex-direction: column;
+}
+.arch-g-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 4.5mm; }
+
+.gbox {
+  border-radius: 4px; padding: 5px 8px 6px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.gbox-g { border: 1px solid rgba(0,235,168,0.22); }
+.gbox-d { border: 1px solid rgba(240,184,0,0.2); background: rgba(240,184,0,0.025); }
+.gbox-w { border: 1px solid rgba(255,255,255,0.1); }
+
+.gbox-lbl { font-family: var(--fm); font-size: 6.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+.gbox-g .gbox-lbl { color: rgba(0,235,168,0.65); }
+.gbox-d .gbox-lbl { color: rgba(240,184,0,0.65); }
+.gbox-w .gbox-lbl { color: rgba(255,255,255,0.35); }
+
+.gsvcs { display: flex; gap: 4px; flex-wrap: wrap; }
+.gsvc {
+  display: flex; align-items: center; gap: 4px;
+  font-family: var(--fm); font-size: 8.5px;
+  background: rgba(0,0,0,0.25); border-radius: 3px; padding: 3px 7px;
+  color: var(--text); white-space: nowrap;
+}
+.gsvc-g  { border: 1px solid rgba(0,235,168,0.18); }
+.gsvc-d  { border: 1px solid rgba(240,184,0,0.18); }
+.gsvc-w  { border: 1px solid rgba(255,255,255,0.1); }
+.gsvc-b  { border: 1px solid rgba(100,181,246,0.22); }
+.gsvc-sl { border: 1px solid rgba(120,150,168,0.22); }
+.gsvc-p  { border: 1px solid rgba(179,136,255,0.22); }
+
+.gbox-arrow-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 0;
+}
+.gbox-arrow { font-family: var(--fm); font-size: 11px; color: rgba(0,235,168,0.35); }
+.gbox-arrow-lbl { font-family: var(--fm); font-size: 7px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* LabOps stat callout */
+.labops-stats {
+  display: flex; gap: 0; border-radius: 5px; overflow: hidden;
+  border: 1px solid rgba(0,235,168,0.2); flex-shrink: 0;
+}
+.ls-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 3px; background: rgba(0,235,168,0.05);
+  border-right: 1px solid rgba(0,235,168,0.14);
+}
+.ls-item:last-child { border-right: none; }
+.ls-n { font-family: var(--fh); font-size: 18px; font-weight: 700; color: var(--green); line-height: 1; }
+.ls-l { font-family: var(--fm); font-size: 6.5px; color: var(--sub); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; text-align: center; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 5 — CLOSE + SPECS
+   ══════════════════════════════════════════════════════════ */
+#close { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 0; }
+
+/* Top: full-width quote banner */
+.close-quote-block {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 10mm;
+  padding: 5mm 0 5mm;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.close-quote {
+  font-family: var(--fh); font-size: 19.5px; font-weight: 700;
+  color: #fff; line-height: 1.27; letter-spacing: 0.01em; flex: 1;
+}
+.close-quote .hl { color: var(--cyan); }
+.close-quote-right { text-align: right; flex-shrink: 0; }
+.close-kicker { font-family: var(--fh); font-size: 10.5px; font-weight: 700; color: var(--green); letter-spacing: 0.04em; margin-bottom: 5px; }
+.close-by { font-family: var(--fm); font-size: 7.5px; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* Main body */
+.close-body { display: flex; gap: 6mm; flex: 1; min-height: 0; padding-top: 5mm; }
+
+/* Left: pitch */
+.close-left { width: 74mm; flex-shrink: 0; display: flex; flex-direction: column; }
+
+.close-body-text { font-family: var(--fb); font-size: 11px; color: var(--sub); line-height: 1.7; margin-bottom: 5mm; }
+
+.portfolio-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.portfolio-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5mm; }
+
+.close-contact {
+  background: var(--panel2); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px; padding: 4.5mm;
+  font-family: var(--fm); font-size: 9px; color: var(--sub); line-height: 1.85;
+  margin-top: auto;
+}
+.close-contact strong { color: var(--text); }
+
+/* Right: specs */
+.close-right { flex: 1; display: flex; flex-direction: column; gap: 3.5mm; min-width: 0; }
+
+.spec-cols { display: flex; gap: 4mm; flex: 1; min-height: 0; }
+
+.spec-col {
+  flex: 1; border-radius: 5px; padding: 4.5mm;
+  display: flex; flex-direction: column;
+}
+.spec-col-c { background: var(--panel2); border: 1px solid rgba(0,216,245,0.18); border-left: 3px solid rgba(0,216,245,0.4); }
+.spec-col-g { background: var(--panel2); border: 1px solid rgba(0,235,168,0.18); border-left: 3px solid rgba(0,235,168,0.4); }
+
+.spec-col-hdr { padding-bottom: 3.5mm; margin-bottom: 0; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.spec-brand { font-family: var(--fh); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; }
+.spec-brand .sbs { font-size: 8px; color: rgba(255,255,255,0.42); }
+.spec-brand .sbp-c { font-size: 11px; color: var(--cyan); }
+.spec-brand .sbp-g { font-size: 11px; color: var(--green); }
+
+.spec-table {
+  display: flex; flex-direction: column; flex: 1;
+  padding-top: 2mm;
+  justify-content: space-between;
+}
+.spec-row {
+  display: flex; align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-key {
+  font-family: var(--fm); font-size: 7.5px; color: var(--dim);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  width: 34mm; flex-shrink: 0;
+}
+.spec-val { font-family: var(--fm); font-size: 9px; color: var(--text); flex: 1; line-height: 1.4; }
+
+.spec-note {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px; padding: 3.5mm 4mm; flex-shrink: 0;
+}
+.spec-note-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.spec-note-text { font-family: var(--fm); font-size: 8.5px; color: var(--sub); line-height: 1.6; }
+.hc { color: var(--cyan); }
+.hg { color: var(--green); }
+.hd { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE 8 — HELP CENTER
+   ══════════════════════════════════════════════════════════ */
+#help-page { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 4.5mm; }
+
+.help-body {
+  flex: 1; display: flex; gap: 0; min-height: 0;
+  padding: 0;
+}
+
+/* Left */
+.help-left {
+  flex: 1; display: flex; flex-direction: column;
+  padding-right: 8mm;
+}
+.help-headline {
+  font-family: var(--fh); font-size: 22px; font-weight: 700;
+  color: #fff; line-height: 1.15; letter-spacing: -0.01em;
+  margin-bottom: 5mm;
+}
+.help-headline .hl { color: var(--cyan); }
+.help-sub {
+  font-family: var(--fb); font-size: 9.5px; color: var(--sub);
+  line-height: 1.65; margin-bottom: 5.5mm;
+}
+
+.help-features {
+  display: flex; flex-direction: column; gap: 3.5mm;
+}
+.hf-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 3.5mm 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.hf-item:first-child { border-top: 1px solid rgba(255,255,255,0.05); }
+.hf-icon {
+  width: 24px; height: 24px; border-radius: 4px; flex-shrink: 0;
+  background: rgba(0,216,245,0.08); border: 1px solid rgba(0,216,245,0.22);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan); margin-top: 1px;
+}
+.hf-icon svg { width: 13px; height: 13px; }
+.hf-body { flex: 1; }
+.hf-title { font-family: var(--fb); font-size: 10px; font-weight: 700; color: var(--cyan); margin-bottom: 2px; }
+.hf-desc  { font-family: var(--fb); font-size: 9px; color: var(--sub); line-height: 1.55; }
+
+.help-caveat {
+  margin-top: 4mm; display: flex; align-items: flex-start; gap: 7px;
+  font-family: var(--fm); font-size: 7.5px; color: var(--dim); line-height: 1.65;
+  font-style: italic;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px; padding: 3mm 4mm;
+}
+.help-caveat-icon { font-size: 10px; line-height: 1; flex-shrink: 0; }
+
+/* Right */
+.help-right {
+  width: 112mm; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 3mm;
+  padding-top: 2mm;
+}
+
+.help-screen-stack {
+  flex: 1; display: flex; flex-direction: column; gap: 3mm; min-height: 0;
+}
+
+.help-screen {
+  display: flex; flex-direction: column;
+  border-radius: 6px; overflow: hidden;
+  border: 1px solid rgba(0,216,245,0.18);
+  background: rgba(0,10,22,0.9);
+}
+.help-screen-main { flex: 1.7; }
+.help-screen-browse { flex: 1; }
+
+.help-screen-chrome {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 4px 9px;
+  flex-shrink: 0;
+}
+.hsc-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.hsc-dot-r { background: rgba(240,96,96,0.55); }
+.hsc-dot-y { background: rgba(240,184,0,0.45); }
+.hsc-dot-g { background: rgba(0,235,168,0.45); }
+.hsc-url {
+  font-family: var(--fm); font-size: 7px; color: var(--dim);
+  letter-spacing: 0.05em; margin-left: 4px; flex: 1;
+}
+
+.help-screen-img-wrap {
+  flex: 1; overflow: hidden; min-height: 0;
+}
+.help-screen-img {
+  width: 100%; height: 100%; object-fit: cover; object-position: top;
+  display: block;
+}
+
+/* Placeholder mockup for missing screenshots */
+.help-ph-mock {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px 10px;
+  background: #050f1c;
+}
+.hpm-search { display: flex; flex-direction: column; gap: 4px; }
+.hpm-bar { height: 22px; background: rgba(0,216,245,0.06); border: 1px solid rgba(0,216,245,0.2); border-radius: 4px; }
+.hpm-caveat { height: 9px; background: rgba(255,255,255,0.04); border-radius: 2px; width: 70%; }
+.hpm-card { background: rgba(0,216,245,0.04); border: 1px solid rgba(0,216,245,0.15); border-radius: 4px; padding: 8px; display: flex; flex-direction: column; gap: 5px; margin-top: 3px; }
+.hpm-card-q { height: 10px; background: rgba(0,216,245,0.15); border-radius: 2px; width: 85%; }
+.hpm-card-a { height: 7px; background: rgba(255,255,255,0.07); border-radius: 2px; width: 90%; }
+.hpm-card-a2 { width: 75%; }
+.hpm-card-a3 { width: 60%; }
+.help-ph-chips { flex-direction: column; gap: 5px; justify-content: center; }
+.hpm-chip-row { display: flex; gap: 5px; }
+.hpm-chip { height: 16px; flex: 1; background: rgba(0,216,245,0.05); border: 1px solid rgba(0,216,245,0.15); border-radius: 10px; }
+.hpm-chip-w  { flex: 1.4; }
+.hpm-chip-w2 { flex: 0.7; }
+
+.help-screen-ph {
+  width: 100%; height: 100%; display: flex;
+}
+
+.help-screen-lbl {
+  font-family: var(--fm); font-size: 7px; color: var(--dim);
+  letter-spacing: 0.12em; text-align: center;
+  text-transform: uppercase; flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 1 — COVER
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="cover">
+
+  <div class="cover-hero">
+    <img src="screenshots/console-hero.png" alt="Attack Console"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <div class="cover-hero-ph" style="display:none;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="4" y="8" width="44" height="28" rx="2"/>
+        <path d="M19 42h14M26 36v6"/>
+        <path d="M17 23l5 5 11-10" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>console-hero.png</span>
+      <span style="font-size:6.5px;opacity:.45;margin-top:3px;">Attack Console — CALDERA feed + victim RDP</span>
+    </div>
+  </div>
+
+  <div class="cover-content">
+    <div class="cover-eyebrow">Adversary Simulation Platform</div>
+
+    <div class="cover-title">
+      Real attacks.<br>
+      <span class="hl">Real detections.</span><br>
+      Every time.
+    </div>
+
+    <div class="cover-sub">
+      Automated attack scenarios, AI-generated playbooks, interactive red tools, and a fully managed Windows lab — in one integrated platform. From a customer story to a live attack to a Sophos detection in four minutes.
+    </div>
+
+    <div class="cover-meta-row">
+      <div class="cover-by">Prepared by <strong>Jason Clark</strong></div>
+      <div class="cover-tags">
+        <span class="tag tag-c">adversary-sim</span>
+        <span class="tag tag-g">labops</span>
+        <span class="tag tag-d">se-demo-lab</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Internal use only · March 2026</span>
+    <span>1 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 2 — TWO COMPONENTS
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="components">
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-d">platform_overview</span>
+    </div>
+    <span class="tag tag-d">se-demo-lab</span>
+  </div>
+
+  <div class="comp-top">
+    <div class="comp-top-title">Two Integrated Components</div>
+  </div>
+
+  <div class="comp-cols">
+
+    <!-- adversary-sim -->
+    <div class="comp-col comp-col-c">
+
+      <div class="comp-brand">
+        <span class="b-product">Adversary Simulation</span>
+        <span class="b-type">Platform · adversary-sim</span>
+      </div>
+
+      <!-- Key stats: replaces empty screenshot slot -->
+      <div class="comp-stats">
+        <div class="comp-stat">
+          <div class="cs-num">24</div>
+          <div class="cs-lbl">Scenarios</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">60+</div>
+          <div class="cs-lbl">MITRE TTPs</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">4</div>
+          <div class="cs-lbl">Verticals</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">4</div>
+          <div class="cs-lbl">AI Providers</div>
+        </div>
+      </div>
+
+      <div class="comp-divider"></div>
+
+      <ul class="comp-bullets">
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">24 production attack scenarios</div>
+            <div class="cb-desc">Endpoint, NDR, and Firewall coverage — each MITRE-mapped with expected detections and SE talking points</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">AI scenario generation</div>
+            <div class="cb-desc">Describe an attack in plain English — the platform builds the full playbook including CALDERA abilities</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Live split-screen attack console</div>
+            <div class="cb-desc">CALDERA operation feed alongside the victim Windows desktop via Guacamole RDP — side by side</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Browser-based red tools</div>
+            <div class="cb-desc">Kali Linux, Atomic Red Team, and CALDERA — all accessible without installing a single client</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">SE talking points &amp; scenario runbook</div>
+            <div class="cb-desc">Structured pre/during/post scripts with MITRE mapping and four industry verticals per scenario</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Scenario Studio — build or generate new attacks</div>
+            <div class="cb-desc">Design scenarios manually with the MITRE technique picker, or type a plain-English description and let AI build the full playbook including CALDERA abilities</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- labops -->
+    <div class="comp-col comp-col-g">
+
+      <div class="comp-brand">
+        <span class="b-product">Lab_OPS</span>
+        <span class="b-type">Platform · labops</span>
+      </div>
+
+      <div class="comp-stats">
+        <div class="comp-stat">
+          <div class="cs-num">3</div>
+          <div class="cs-lbl">VM Types</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">2–4m</div>
+          <div class="cs-lbl">Provision</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">6</div>
+          <div class="cs-lbl">Services</div>
+        </div>
+        <div class="comp-stat">
+          <div class="cs-num">1</div>
+          <div class="cs-lbl">Command</div>
+        </div>
+      </div>
+
+      <div class="comp-divider"></div>
+
+      <ul class="comp-bullets">
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">One-click VM provisioning</div>
+            <div class="cb-desc">Clone Windows 11, Win 11 Unmanaged, or Windows Server from Proxmox templates in 2–4 minutes</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Start, stop, and destroy VMs</div>
+            <div class="cb-desc">Full VM lifecycle from the browser — no Proxmox knowledge, no command line, no hypervisor expertise</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Browser-based RDP via Guacamole</div>
+            <div class="cb-desc">Full Windows desktop in any browser — no VPN, no RDP client, no firewall exceptions required</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Live container health monitor</div>
+            <div class="cb-desc">Status of all Docker services — Nginx, API, Guacamole, PostgreSQL, Portainer — refreshed every 15 seconds</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Built-in guided onboarding tour</div>
+            <div class="cb-desc">Contextual driver.js tour on every page — click ? anytime to walk through each feature in place</div>
+          </div>
+        </li>
+        <li>
+          <span class="cb-arrow">▸</span>
+          <div class="cb-body">
+            <div class="cb-title">Quick links to Guacamole, Portainer &amp; Proxmox</div>
+            <div class="cb-desc">One-click access to the RDP gateway, container management console, and hypervisor — all from the dashboard without separate bookmarks or credentials</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="comp-footer">
+    <span class="cfb cfb-c">adversary-sim</span>
+    <span class="cf-eq">+</span>
+    <span class="cfb cfb-g">labops</span>
+    <span class="cf-eq">=</span>
+    <span class="cfb cfb-d">⬡ se-demo-lab</span>
+    <span style="font-size:8px;margin-left:4px;">Deploy integrated or independently · Single Docker host per component · One <code>make install</code></span>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>2 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 3 — ADVERSARY SIMULATION
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="advsim">
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-c">se_console</span>
+    </div>
+    <span class="tag tag-c">adversary-sim</span>
+  </div>
+
+  <div class="advsim-body">
+
+    <div class="advsim-left">
+      <div class="section-lbl" style="margin-bottom:4.5mm;">The Attack Flow — A Demo in Six Steps</div>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Choose a Scenario</div>
+            <div class="step-desc">Select from 24 production attacks across Endpoint, NDR, and Firewall. Each scenario includes expected detections, MITRE techniques, and a pre-built runbook.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Target the Victim VM</div>
+            <div class="step-desc">Enter the Windows VM IP address and click Launch. The sandcat agent is pre-deployed at first boot on every LabOps VM — no manual setup needed.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">CALDERA Orchestrates the Attack</div>
+            <div class="step-desc">The CALDERA C2 framework dispatches abilities to the agent. The SE narrates the story — they don't operate the attack.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Real Techniques Execute Live</div>
+            <div class="step-desc">Actual PowerShell, LOLBins, credential tools, and lateral movement run on the victim VM — visible in the CALDERA feed as they happen.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Sophos Detects and Alerts</div>
+            <div class="step-desc">Endpoint, NDR, or Firewall generates real telemetry and alerts. The customer watches their product respond to a live attack in real time.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">SE Pivots to Sophos Central</div>
+            <div class="step-desc">Open the XDR threat hunt and walk the customer through the kill-chain investigation — turning a live attack into a proof of value.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-n">11</div><div class="stat-l">Endpoint</div></div>
+        <div class="stat-item"><div class="stat-n">6</div><div class="stat-l">NDR</div></div>
+        <div class="stat-item"><div class="stat-n">7</div><div class="stat-l">Firewall</div></div>
+        <div class="stat-item"><div class="stat-n">60+</div><div class="stat-l">MITRE TTPs</div></div>
+        <div class="stat-item"><div class="stat-n">2–4m</div><div class="stat-l">Per Demo</div></div>
+      </div>
+    </div>
+
+    <div class="advsim-right">
+
+      <div class="arch-panel">
+        <div class="arch-lbl">Platform Architecture — adversary-sim</div>
+
+        <div class="arch-row">
+          <div class="abox abox-c" style="flex:1;">
+            <div class="abox-lbl">Docker Host · advsim-net</div>
+            <div class="asvcs">
+              <div class="asvc asvc-c"><span class="dot dot-c"></span>SE Console</div>
+              <div class="asvc asvc-c"><span class="dot dot-c"></span>CALDERA C2</div>
+              <div class="asvc asvc-c"><span class="dot dot-c"></span>n8n Workflows</div>
+              <div class="asvc asvc-c"><span class="dot dot-p"></span>Kali Linux</div>
+              <div class="asvc asvc-c"><span class="dot dot-r"></span>Atomic Red Team</div>
+              <div class="asvc asvc-c"><span class="dot dot-g"></span>Guacamole RDP</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-row" style="margin-top:5px;">
+          <span class="arch-arrow">↓</span>
+          <div class="abox abox-d" style="flex:1;">
+            <div class="abox-lbl">Windows VM (LabOps)</div>
+            <div class="asvcs">
+              <div class="asvc asvc-d"><span class="dot dot-d"></span>sandcat agent</div>
+              <div class="asvc asvc-d"><span class="dot dot-d"></span>Sophos Endpoint</div>
+            </div>
+          </div>
+          <span class="arch-arrow">→</span>
+          <div class="abox abox-g" style="flex:1;">
+            <div class="abox-lbl">Sophos Central</div>
+            <div class="asvcs">
+              <div class="asvc asvc-g"><span class="dot dot-g"></span>XDR · MDR</div>
+              <div class="asvc asvc-g"><span class="dot dot-g"></span>NDR · Firewall</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="talking-panel">
+        <div class="talking-hdr">
+          <div class="talking-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="1.5" width="10" height="11" rx="1"/>
+              <path d="M4.5 1.5v2h5v-2"/>
+              <path d="M4.5 6.5h5M4.5 9h3"/>
+            </svg>
+          </div>
+          <div class="talking-title">SE Talking Points &amp; Scenario Runbook</div>
+        </div>
+        <div class="talking-sub">
+          Every scenario ships with a structured runbook: what to say before the attack starts, what to highlight as techniques execute on screen, and how to pivot to Sophos Central for the detection walkthrough. Talking points are written for four industry verticals so the narrative always fits the customer in the room.
+        </div>
+        <div class="runbook-screen">
+          <img src="screenshots/run-book.png" alt="SE Talking Points runbook"
+               onerror="this.parentNode.style.display='none'">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>3 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 4 — LABOPS
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="labops-page">
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-g">LAB_OPS</span>
+      <span class="ph-slash">//</span><span class="ph-page-g">dashboard</span>
+    </div>
+    <span class="tag tag-g">labops</span>
+  </div>
+
+  <div class="labops-body">
+
+    <div class="labops-left">
+      <div class="section-lbl">LabOps Highlights</div>
+
+      <div class="feat-grid">
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x=".7" y="1.5" width="12.6" height="8" rx="1.2"/>
+              <path d="M4.5 13h5M7 9.5V13"/>
+              <path d="M4.2 6l1.5 1.5 3-3"/>
+            </svg>
+          </div>
+          <div class="feat-title">VM Provisioning</div>
+          <div class="feat-desc">Clone any Windows template from Proxmox in 2–4 minutes. Terraform handles the clone; Ansible configures RDP, creates the demo user, and disables the Windows Firewall.</div>
+          <div class="feat-chip">2–4 minutes · fully automated</div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M7 1.5v4"/>
+              <path d="M4.2 3.5A5.3 5.3 0 1 0 9.8 3.5"/>
+            </svg>
+          </div>
+          <div class="feat-title">Start · Stop · Destroy</div>
+          <div class="feat-desc">Full VM lifecycle from the browser. Stop VMs between sessions to conserve resources. Destroy to reclaim disk after a demo. Always a confirm dialog before destruction.</div>
+          <div class="feat-chip">graceful shutdown or force-off</div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x=".7" y="1.5" width="12.6" height="11" rx="1.2"/>
+              <path d="M.7 5h12.6"/>
+              <circle cx="2.8" cy="3.2" r=".7" fill="currentColor" stroke="none"/>
+              <circle cx="5.1" cy="3.2" r=".7" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div class="feat-title">Browser-Based RDP</div>
+          <div class="feat-desc">Apache Guacamole renders a full Windows desktop in any browser tab. No VPN, no RDP client, no firewall exceptions. Share the URL — anyone can connect instantly.</div>
+          <div class="feat-chip">no client software required</div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 7h2.5l1.5-4 2 8 1.5-5.5 1.5 2H13"/>
+            </svg>
+          </div>
+          <div class="feat-title">Service Health Monitor</div>
+          <div class="feat-desc">Live status of all Docker containers — Nginx, API, Guacamole, guacd, PostgreSQL, Portainer — displayed as a service grid refreshed every 15 seconds.</div>
+          <div class="feat-chip">15-second refresh · 6 services</div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 1l4.8 2.8v5.4L7 12 2.2 9.2V3.8z"/>
+              <path d="M7 1v11M2.2 3.8l9.6 5.4M11.8 3.8L2.2 9.2"/>
+            </svg>
+          </div>
+          <div class="feat-title">Terraform + Ansible</div>
+          <div class="feat-desc">Infrastructure-as-code from start to finish. Terraform clones from Proxmox; Ansible applies day-one Windows config. Idempotent — safe to run more than once.</div>
+          <div class="feat-chip">infrastructure-as-code</div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon-box">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="6"/>
+              <path d="M9.2 4.8l-1.5 3.7-3.7 1.5 1.5-3.7z"/>
+            </svg>
+          </div>
+          <div class="feat-title">Guided Onboarding Tour</div>
+          <div class="feat-desc">Built-in driver.js tour covers VM lifecycle controls, provisioning flow, RDP access, and service health in context. Click ? on any page to launch the tour on demand.</div>
+          <div class="feat-chip">on-demand · every page</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: arch + stats -->
+    <div class="labops-right">
+
+      <div class="section-lbl">Platform Architecture</div>
+
+      <div class="labops-arch">
+
+        <div class="gbox gbox-g">
+          <div class="gbox-lbl">Docker Host · labops-net</div>
+          <div class="gsvcs">
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>Nginx Dashboard</div>
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>LabOps API</div>
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>Guacamole</div>
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>guacd</div>
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>PostgreSQL</div>
+            <div class="gsvc gsvc-g"><span class="dot dot-g"></span>Portainer</div>
+          </div>
+        </div>
+
+        <div class="gbox-arrow-row">
+          <span class="gbox-arrow">↓</span>
+          <span class="gbox-arrow-lbl">Terraform + Proxmox API</span>
+        </div>
+
+        <div class="gbox gbox-d">
+          <div class="gbox-lbl">Proxmox Hypervisor</div>
+          <div class="gsvcs">
+            <div class="gsvc gsvc-d"><span class="dot dot-d"></span>VM Templates 100–199</div>
+            <div class="gsvc gsvc-d"><span class="dot dot-d"></span>Terraform · Ansible</div>
+          </div>
+        </div>
+
+        <div class="gbox-arrow-row">
+          <span class="gbox-arrow">↓</span>
+          <span class="gbox-arrow-lbl">Cloned from templates</span>
+        </div>
+
+        <div class="gbox gbox-w">
+          <div class="gbox-lbl">Lab VMs · IDs 200–299</div>
+          <div class="gsvcs">
+            <div class="gsvc gsvc-b"><span class="dot dot-b"></span>Windows 11 + Sophos Endpoint</div>
+            <div class="gsvc gsvc-sl"><span class="dot dot-sl"></span>Windows 11 Unmanaged</div>
+            <div class="gsvc gsvc-p"><span class="dot dot-p"></span>Windows Server</div>
+          </div>
+        </div>
+
+        <div class="gbox-arrow-row">
+          <span class="gbox-arrow">↗</span>
+          <span class="gbox-arrow-lbl">Guacamole RDP · browser-native</span>
+        </div>
+
+      </div>
+
+      <div class="labops-stats">
+        <div class="ls-item"><div class="ls-n">3</div><div class="ls-l">VM Templates</div></div>
+        <div class="ls-item"><div class="ls-n">2–4m</div><div class="ls-l">Provision Time</div></div>
+        <div class="ls-item"><div class="ls-n">6</div><div class="ls-l">Docker Services</div></div>
+        <div class="ls-item"><div class="ls-n">1</div><div class="ls-l">Install Command</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>4 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 5 — LIVE ATTACK CONSOLE
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="console-page">
+<style>
+#console-page { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 4mm; }
+.con-header { flex-shrink: 0; }
+.con-title { font-family: var(--fh); font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px; }
+.con-sub { font-family: var(--fb); font-size: 12px; color: var(--sub); line-height: 1.55; }
+.con-hero { flex-shrink: 0; }
+.con-hero img { width: 100%; display: block; border-radius: 6px; border: 1px solid rgba(0,216,245,.22); box-shadow: 0 6px 32px rgba(0,0,0,.65); max-height: 112mm; object-fit: cover; object-position: top; }
+.con-strip {
+  display: flex; flex-shrink: 0;
+  border: 1px solid rgba(0,216,245,.15); border-radius: 6px; overflow: hidden;
+  background: var(--panel2);
+}
+.con-callout {
+  flex: 1; padding: 5.5mm 6mm;
+  border-right: 1px solid rgba(0,216,245,.1);
+}
+.con-callout:last-child { border-right: none; }
+.con-callout-label { font-family: var(--fh); font-size: 8px; font-weight: 700; color: var(--cyan); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 5px; }
+.con-callout-text { font-family: var(--fb); font-size: 12px; color: var(--sub); line-height: 1.55; }
+.con-callout-text strong { color: var(--text); font-weight: 700; }
+</style>
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-d">attack_console</span>
+    </div>
+    <span class="tag tag-d">se-demo-lab</span>
+  </div>
+
+  <div class="con-header">
+    <div class="con-title">The Live Attack Console</div>
+    <div class="con-sub">Real attack techniques executing on a real Windows endpoint — narrated in real time. The left panel streams every CALDERA ability as it runs. The right panel shows the victim desktop responding.</div>
+  </div>
+
+  <div class="con-hero">
+    <img src="screenshots/console-hero.png" alt="Attack Console"
+      onerror="this.style.background='#0d1f32';this.style.height='112mm'">
+  </div>
+
+  <div class="con-strip">
+    <div class="con-callout">
+      <div class="con-callout-label">Attacker View</div>
+      <div class="con-callout-text">Every CALDERA ability streams live — <strong>technique ID, command, and output</strong>. Narrate each step as it executes.</div>
+    </div>
+    <div class="con-callout">
+      <div class="con-callout-label">Victim View</div>
+      <div class="con-callout-text">Live RDP via Guacamole — <strong>no VPN, no client</strong>. The customer watches their endpoint respond as detections fire.</div>
+    </div>
+    <div class="con-callout">
+      <div class="con-callout-label">SE Narration</div>
+      <div class="con-callout-text"><strong>Talking points</strong> and <strong>expected detections</strong> surface automatically — always know what to say next, mid-attack.</div>
+    </div>
+    <div class="con-callout">
+      <div class="con-callout-label">One Click to Launch</div>
+      <div class="con-callout-text">Select scenario → enter victim IP → click <strong>Launch Simulation</strong>. CALDERA runs the full attack chain. No CLI needed.</div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>5 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 6 — SCENARIO STUDIO & AI GENERATION
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="studio-page">
+<style>
+#studio-page { padding: 7mm 9mm 6.5mm; display: flex; flex-direction: column; gap: 4.5mm; }
+.studio-body { display: flex; gap: 6mm; flex: 1; min-height: 0; }
+
+/* Left: AI Generate UI mockup */
+.studio-left { width: 112mm; flex-shrink: 0; display: flex; flex-direction: column; gap: 3mm; }
+.studio-mock {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: #0b1929;
+  border: 1px solid rgba(0,216,245,0.2);
+  border-radius: 8px;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.sm-tabs {
+  display: flex; border-bottom: 1px solid rgba(0,216,245,0.12); flex-shrink: 0;
+}
+.sm-tab {
+  font-family: var(--fm); font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase;
+  padding: 3mm 5mm; color: rgba(255,255,255,0.3);
+}
+.sm-tab.sm-active {
+  color: var(--cyan); border-bottom: 2px solid var(--cyan); margin-bottom: -1px;
+  background: rgba(0,216,245,0.05);
+}
+.sm-tab-icon { margin-right: 4px; color: var(--gold); }
+.sm-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 5mm 5.5mm 4.5mm; gap: 3.5mm; }
+.sm-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); flex-shrink: 0; }
+.sm-box {
+  flex: 1; min-height: 0;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,216,245,0.14);
+  border-radius: 5px; padding: 4mm 5mm;
+  font-family: var(--fb); font-size: 12px; color: rgba(255,255,255,0.82);
+  line-height: 1.75; overflow: hidden;
+}
+.sm-foot {
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.sm-prov { font-family: var(--fm); font-size: 8px; color: var(--dim); }
+.sm-prov span { color: var(--cyan); }
+.sm-btn {
+  font-family: var(--fm); font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase;
+  background: var(--cyan); color: var(--bg);
+  border-radius: 4px; padding: 4px 12px;
+}
+
+/* Right: panels */
+.studio-right { flex: 1; display: flex; flex-direction: column; gap: 4mm; min-width: 0; }
+
+/* What AI generates panel — rows distribute evenly */
+.studio-generates { display: flex; flex-direction: column; flex: 1; margin-top: 1.5mm; }
+.studio-gen-row {
+  display: flex; align-items: flex-start; gap: 9px; flex: 1;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 2px 0;
+}
+.studio-gen-row:last-child { border-bottom: none; }
+.studio-gen-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 5px; }
+.studio-gen-text { font-family: var(--fb); font-size: 10.5px; color: var(--sub); line-height: 1.5; }
+.studio-gen-text strong { color: var(--text); font-weight: 600; }
+
+/* Immediately Launchable — compact, no flex-grow */
+.studio-launch {
+  flex-shrink: 0;
+  background: var(--panel2);
+  border: 1px solid rgba(0,216,245,0.15);
+  border-left: 3px solid rgba(0,216,245,0.45);
+  border-radius: 6px; padding: 4.5mm 5mm;
+}
+.studio-launch-hdr { display: flex; align-items: center; gap: 7px; margin-bottom: 3mm; }
+.studio-launch-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--cyan);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan); flex-shrink: 0;
+}
+.studio-launch-icon svg { width: 11px; height: 11px; }
+.studio-launch-title { font-family: var(--fb); font-size: 12px; font-weight: 700; color: #fff; }
+.studio-launch-sub { font-family: var(--fb); font-size: 10.5px; color: var(--sub); line-height: 1.55; margin-bottom: 3.5mm; }
+.studio-prov-lbl { font-family: var(--fm); font-size: 7px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); margin-bottom: 2.5mm; }
+.studio-prov-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.studio-prov { font-family: var(--fm); font-size: 9px; color: var(--cyan); background: rgba(0,216,245,0.07); border: 1px solid rgba(0,216,245,0.2); border-radius: 3px; padding: 3px 8px; }
+</style>
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-d">scenario_studio</span>
+    </div>
+    <span class="tag tag-d">se-demo-lab</span>
+  </div>
+
+  <div class="section-lbl">Scenario Studio — AI Generation</div>
+
+  <div class="studio-body">
+
+    <!-- Left: AI Generate UI mockup -->
+    <div class="studio-left">
+      <div class="section-lbl">Describe the Attack in Plain English</div>
+      <div class="studio-mock">
+        <div class="sm-tabs">
+          <div class="sm-tab sm-active"><span class="sm-tab-icon">✦</span>AI Generate</div>
+          <div class="sm-tab">Design Scenario</div>
+        </div>
+        <div class="sm-body">
+          <div class="sm-lbl">Describe Your Scenario</div>
+          <div class="sm-box">A threat actor targets a mid-size manufacturing company using a spear-phishing email with a malicious Office macro. After gaining initial access, they dump credentials from LSASS memory, perform lateral movement using Pass-the-Hash to reach the domain controller, delete Volume Shadow Copies to prevent recovery, and deploy ransomware that encrypts the production floor's shared drives. The customer runs Sophos Endpoint with Intercept X.</div>
+          <div class="sm-foot">
+            <div class="sm-prov">Provider: <span>Anthropic Claude</span></div>
+            <div class="sm-btn">Generate Scenario →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: what AI produces + launch panel -->
+    <div class="studio-right">
+
+      <div class="arch-panel" style="flex:1; min-height:0; display:flex; flex-direction:column;">
+        <div class="arch-lbl">What AI generates in under 60 seconds</div>
+        <div class="studio-generates">
+          <div class="studio-gen-row"><span class="studio-gen-dot"></span><span class="studio-gen-text"><strong>MITRE ATT&amp;CK mapping</strong> — technique IDs and tactic names auto-assigned from the description</span></div>
+          <div class="studio-gen-row"><span class="studio-gen-dot"></span><span class="studio-gen-text"><strong>CALDERA adversary profile</strong> — abilities and PowerShell commands loaded directly into the C2 framework</span></div>
+          <div class="studio-gen-row"><span class="studio-gen-dot"></span><span class="studio-gen-text"><strong>Expected Sophos detections</strong> — severity-graded, product-specific, ready for the demo narrative</span></div>
+          <div class="studio-gen-row"><span class="studio-gen-dot"></span><span class="studio-gen-text"><strong>Customer talking points</strong> — four industry verticals: Universal, Financial Services, Healthcare, Manufacturing</span></div>
+          <div class="studio-gen-row"><span class="studio-gen-dot"></span><span class="studio-gen-text"><strong>SE runbook</strong> — setup steps, timing notes, and pivot instructions for Sophos Central</span></div>
+        </div>
+      </div>
+
+      <div class="studio-launch">
+        <div class="studio-launch-hdr">
+          <div class="studio-launch-icon">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="5.5"/>
+              <path d="M5 7l1.5 1.5 3-3"/>
+            </svg>
+          </div>
+          <div class="studio-launch-title">Immediately Launchable</div>
+        </div>
+        <div class="studio-launch-sub">Generated scenarios load directly into CALDERA — no manual ability creation, no adversary configuration. The moment generation completes, the scenario appears in the SE Console ready to launch.</div>
+        <div class="studio-prov-lbl">AI Providers</div>
+        <div class="studio-prov-row">
+          <span class="studio-prov">Anthropic Claude</span>
+          <span class="studio-prov">OpenAI GPT-4o</span>
+          <span class="studio-prov">Google Gemini</span>
+          <span class="studio-prov">Ollama (local)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>6 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 7 — CLOSE + SPECS
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="close">
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-d">se_demo_platform</span>
+    </div>
+    <span class="tag tag-d">se-demo-lab</span>
+  </div>
+
+  <div class="close-quote-block">
+    <div class="close-quote">
+      From a customer story to a live attack<br>
+      to a <span class="hl">Sophos detection</span> — four minutes.
+    </div>
+    <div class="close-quote-right">
+      <div class="close-kicker">This is the demo that wins technical buyers.</div>
+      <div class="close-by">Prepared by Jason Clark</div>
+    </div>
+  </div>
+
+  <div class="close-body">
+
+    <div class="close-left">
+
+      <div class="close-body-text">
+        This platform replaces canned demos, screen recordings, and verbal descriptions of what Sophos detects. Every demo runs live, against a real Windows VM, with real attack techniques executing in real time. The customer doesn't watch a video — they watch their product respond to an actual attack.
+      </div>
+
+      <div>
+        <div class="portfolio-lbl">Validates the Sophos Portfolio</div>
+        <div class="portfolio-tags">
+          <span class="tag tag-c">Endpoint</span>
+          <span class="tag tag-c">NDR</span>
+          <span class="tag tag-c">Firewall</span>
+          <span class="tag tag-c">XDR</span>
+          <span class="tag tag-c">MDR</span>
+          <span class="tag tag-g">Central</span>
+          <span class="tag tag-g">Email</span>
+        </div>
+      </div>
+
+      <div class="close-contact">
+        <strong>Get Access</strong><br>
+        Repo &nbsp;&nbsp;·&nbsp; <strong>github.com/sophos-internal/se-demo-lab</strong><br>
+        Install guide in README · One <code>make install</code> per component
+      </div>
+
+    </div>
+
+    <div class="close-right">
+
+      <div class="spec-cols">
+
+        <div class="spec-col spec-col-c">
+          <div class="spec-col-hdr">
+            <div class="spec-brand">
+              <span class="sbs">Sophos&nbsp;</span><span class="sbp-c">Adversary Simulation</span>
+            </div>
+          </div>
+          <div class="spec-table">
+            <div class="spec-row"><div class="spec-key">Scenarios</div><div class="spec-val">24 production · 68 total incl. AI-generated</div></div>
+            <div class="spec-row"><div class="spec-key">Products</div><div class="spec-val">Endpoint · NDR · Firewall</div></div>
+            <div class="spec-row"><div class="spec-key">MITRE TTPs</div><div class="spec-val">60+ techniques mapped</div></div>
+            <div class="spec-row"><div class="spec-key">Demo Duration</div><div class="spec-val">2–4 minutes per scenario</div></div>
+            <div class="spec-row"><div class="spec-key">Talking Points</div><div class="spec-val">4 industry verticals / scenario</div></div>
+            <div class="spec-row"><div class="spec-key">AI Providers</div><div class="spec-val">Anthropic · OpenAI · Gemini · Ollama</div></div>
+            <div class="spec-row"><div class="spec-key">C2 Framework</div><div class="spec-val">CALDERA + sandcat agent</div></div>
+            <div class="spec-row"><div class="spec-key">Red Tools</div><div class="spec-val">Kali Linux · Atomic Red Team</div></div>
+            <div class="spec-row"><div class="spec-key">Deployment</div><div class="spec-val">Docker · <code>make install</code></div></div>
+          </div>
+        </div>
+
+        <div class="spec-col spec-col-g">
+          <div class="spec-col-hdr">
+            <div class="spec-brand">
+              <span class="sbs">Sophos&nbsp;</span><span class="sbp-g">Lab_OPS Platform</span>
+            </div>
+          </div>
+          <div class="spec-table">
+            <div class="spec-row"><div class="spec-key">VM Templates</div><div class="spec-val">Win 11 · Win 11 Unmanaged · Server</div></div>
+            <div class="spec-row"><div class="spec-key">VM ID Range</div><div class="spec-val">200–299 (templates 100–199)</div></div>
+            <div class="spec-row"><div class="spec-key">Provisioning</div><div class="spec-val">Terraform + Proxmox API · 2–4 min</div></div>
+            <div class="spec-row"><div class="spec-key">VM Config</div><div class="spec-val">Ansible — RDP, demo user, firewall</div></div>
+            <div class="spec-row"><div class="spec-key">RDP Access</div><div class="spec-val">Apache Guacamole · browser-native</div></div>
+            <div class="spec-row"><div class="spec-key">Services</div><div class="spec-val">Nginx · API · Guacamole · Portainer</div></div>
+            <div class="spec-row"><div class="spec-key">Hypervisor</div><div class="spec-val">Proxmox VE</div></div>
+            <div class="spec-row"><div class="spec-key">Network</div><div class="spec-val">labops-net 172.20.0.0/24</div></div>
+            <div class="spec-row"><div class="spec-key">Deployment</div><div class="spec-val">Docker · <code>make install</code></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="spec-note">
+        <div class="spec-note-lbl">Full Platform — se-demo-lab</div>
+        <div class="spec-note-text">
+          <span class="hc">adversary-sim</span> and <span class="hg">labops</span> share a Docker bridge network (<code>labops-net</code>) and deploy on a single host. Install independently with <code>make install</code>, or together as <span class="hd">se-demo-lab</span>. Extensible: any additional demo stack joins by declaring <code>labops-net</code> as an external network.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>7 of 8</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 8 — BUILT-IN HELP SYSTEM
+     ═════════════════════════════════════════════════════ -->
+<div class="page" id="help-page">
+
+  <div class="ph">
+    <div class="ph-l">
+      <span class="ph-sophos">SOPHOS&nbsp;</span><span class="ph-c">ADVERSARY</span>
+      <span class="ph-slash">//</span><span class="ph-page-d">help_center</span>
+    </div>
+    <span class="tag tag-c">se-demo-lab</span>
+  </div>
+
+  <div class="help-body">
+
+    <!-- Left column: copy -->
+    <div class="help-left">
+
+      <div class="help-headline">
+        Built-in help.<br>
+        <span class="hl">No ticket required.</span>
+      </div>
+
+      <div class="help-sub">
+        200 SEs in 30 countries running live attack demos. When something goes wrong before a customer call, there's no time to file a support request. Every page in the platform ships with a built-in troubleshooting guide — searchable, offline, and honest about its own limitations.
+      </div>
+
+      <div class="help-features">
+
+        <div class="hf-item">
+          <div class="hf-icon">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="6" cy="6" r="4.2"/>
+              <path d="M9.5 9.5l2.5 2.5"/>
+            </svg>
+          </div>
+          <div class="hf-body">
+            <div class="hf-title">Keyword Search</div>
+            <div class="hf-desc">Type what's broken. Synonym expansion matches "sandcat" to "agent", "RDP" to "Guacamole", "restart" to "reset". Top 3 answers ranked by relevance.</div>
+          </div>
+        </div>
+
+        <div class="hf-item">
+          <div class="hf-icon">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3.5h10M2 7h7M2 10.5h5"/>
+            </svg>
+          </div>
+          <div class="hf-body">
+            <div class="hf-title">38 Answers, 9 Topic Categories</div>
+            <div class="hf-desc">Getting started, sandcat agent, CALDERA operations, RDP/Guacamole, AI providers, VM management, Docker infrastructure, credentials — every common failure mode covered.</div>
+          </div>
+        </div>
+
+        <div class="hf-item">
+          <div class="hf-icon">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 1.5v2.5M7 10v2.5M1.5 7H4M10 7h2.5"/>
+              <circle cx="7" cy="7" r="2.2"/>
+            </svg>
+          </div>
+          <div class="hf-body">
+            <div class="hf-title">Zero Dependencies</div>
+            <div class="hf-desc">Pure client-side keyword matching. No LLM calls, no API keys, no hallucinations. Works offline. The KB file is a plain markdown file — any SE can read, edit, and update it directly.</div>
+          </div>
+        </div>
+
+        <div class="hf-item">
+          <div class="hf-icon">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 2.5h10v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2.5z"/>
+              <path d="M5 2.5V1M9 2.5V1"/>
+              <path d="M4.5 7l1.5 1.5 3-3"/>
+            </svg>
+          </div>
+          <div class="hf-body">
+            <div class="hf-title">Contextual Entry Points</div>
+            <div class="hf-desc">Error states in the SE Console surface a direct link to the relevant KB section. The <code>?</code> tour icon on every page opens guided walkthroughs before reaching the full help center.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="help-caveat">
+        <span class="help-caveat-icon">⚗</span>
+        <span>Experimental keyword matching — works better than you'd expect, worse than you'd hope. Honestly? Browse the FAQ — it's faster.</span>
+      </div>
+
+    </div>
+
+    <!-- Right column: screenshots -->
+    <div class="help-right">
+
+      <div class="help-screen-stack">
+
+        <!-- Top screenshot: full page with result -->
+        <div class="help-screen help-screen-main">
+          <div class="help-screen-chrome">
+            <div class="hsc-dot hsc-dot-r"></div>
+            <div class="hsc-dot hsc-dot-y"></div>
+            <div class="hsc-dot hsc-dot-g"></div>
+            <div class="hsc-url">localhost:8081/help</div>
+          </div>
+          <div class="help-screen-img-wrap">
+            <img src="../screenshots/help-full.png" alt="Help Center search with result" class="help-screen-img" onerror="this.parentNode.style.display='none';this.parentNode.nextElementSibling.style.display='flex'">
+            <div class="help-screen-ph" style="display:none">
+              <div class="help-ph-mock">
+                <div class="hpm-search">
+                  <div class="hpm-bar"></div>
+                  <div class="hpm-caveat"></div>
+                </div>
+                <div class="hpm-card">
+                  <div class="hpm-card-q"></div>
+                  <div class="hpm-card-a"></div>
+                  <div class="hpm-card-a hpm-card-a2"></div>
+                  <div class="hpm-card-a hpm-card-a3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom screenshot: browse/topics view -->
+        <div class="help-screen help-screen-browse">
+          <div class="help-screen-chrome">
+            <div class="hsc-dot hsc-dot-r"></div>
+            <div class="hsc-dot hsc-dot-y"></div>
+            <div class="hsc-dot hsc-dot-g"></div>
+            <div class="hsc-url">Browse Topics</div>
+          </div>
+          <div class="help-screen-img-wrap">
+            <img src="../screenshots/help-browse.png" alt="Help Center browse topics" class="help-screen-img" onerror="this.parentNode.style.display='none';this.parentNode.nextElementSibling.style.display='flex'">
+            <div class="help-screen-ph" style="display:none">
+              <div class="help-ph-mock help-ph-chips">
+                <div class="hpm-chip-row">
+                  <div class="hpm-chip"></div><div class="hpm-chip hpm-chip-w"></div>
+                  <div class="hpm-chip"></div><div class="hpm-chip hpm-chip-w2"></div>
+                </div>
+                <div class="hpm-chip-row">
+                  <div class="hpm-chip hpm-chip-w2"></div><div class="hpm-chip"></div>
+                  <div class="hpm-chip hpm-chip-w"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="help-screen-lbl">Help Center · <code>localhost:8081/help</code></div>
+
+    </div>
+
+  </div>
+
+  <div class="pg-footer">
+    <span>Sophos Internal</span>
+    <span>Adversary Simulation Platform</span>
+    <span>8 of 8</span>
+  </div>
+</div>
+
+</body>
+</html>

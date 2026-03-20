@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "last_updated": "2026-03-17",
+  "last_updated": "2026-03-20",
   "scenarios": [
     {
       "id": "SCN-001",
@@ -2421,7 +2421,8 @@
       "source": "case-submission",
       "case_id": "CASE-1773412916801",
       "submitted_by": "",
-      "industry": "universal"
+      "industry": "universal",
+      "status": "approved"
     },
     {
       "id": "SCN-971941",
@@ -3655,6 +3656,774 @@
       "session_id": null,
       "caldera_adversary_id": "scn027-policy-violation",
       "caldera_group": "red"
+    },
+    {
+      "id": "SCN-APPR-968843",
+      "title": "Approved Case Scenario",
+      "description": "",
+      "mitre_tactics": [],
+      "mitre_techniques": [],
+      "tools": [],
+      "atomic_tests": [],
+      "caldera_ability": "",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "atomic",
+      "expected_detections": [],
+      "talking_points": {
+        "universal": [
+          "Based on a real-world incident case",
+          "Threat actor: Unknown",
+          "Submitted by: MDR Team"
+        ]
+      },
+      "se_runbook": {
+        "setup": "Original case source: Unknown. Context: None",
+        "steps": [
+          "Review case details with customer",
+          "Configure target environment",
+          "Launch simulation and observe detections"
+        ],
+        "talking_points_timing": "Introduce talking points after initial detection fires"
+      },
+      "source": "case-approved",
+      "case_id": "",
+      "submitted_by": "",
+      "industry": "universal"
+    },
+    {
+      "id": "SCN-726902",
+      "title": "Ransomware Detection Test",
+      "description": "This test simulates ransomware behavior by encrypting files and modifying system registry entries to validate detection capabilities. The simulation helps security teams verify their ability to identify and respond to ransomware attacks in a controlled environment.",
+      "mitre_tactics": [
+        "Impact",
+        "Defense Evasion"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1486",
+          "name": "Data Encrypted for Impact"
+        },
+        {
+          "id": "T1112",
+          "name": "Modify Registry"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Custom Ransomware Simulator"
+      ],
+      "difficulty": "medium",
+      "platform": "windows",
+      "execution_engine": "atomic",
+      "expected_detections": [
+        {
+          "detection": "File encryption activity monitoring",
+          "severity": "high"
+        },
+        {
+          "detection": "Registry modification alerts",
+          "severity": "medium"
+        },
+        {
+          "detection": "Suspicious PowerShell execution",
+          "severity": "medium"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Ransomware Detection Test is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "generated_at": "2026-03-19T15:22:01.812Z",
+      "source": "ai-enriched",
+      "ai_provider": "anthropic"
+    },
+    {
+      "id": "SCN-099433",
+      "title": "Supply Chain Compromise with Credential Harvesting",
+      "description": "Attackers leverage compromised supply chain components to establish persistence through scheduled tasks and harvest credentials from the Security Account Manager. This attack combines initial access through trusted software with credential theft to enable lateral movement and privilege escalation.",
+      "mitre_tactics": [
+        "Persistence",
+        "Credential Access"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1053.005",
+          "name": "Scheduled Task/Job: Scheduled Task"
+        },
+        {
+          "id": "T1003.002",
+          "name": "OS Credential Dumping: Security Account Manager"
+        }
+      ],
+      "tools": [
+        "schtasks",
+        "reg",
+        "mimikatz"
+      ],
+      "difficulty": "medium",
+      "platform": "windows",
+      "execution_engine": "atomic",
+      "expected_detections": [
+        {
+          "detection": "Scheduled task creation with suspicious parameters or uncommon executables",
+          "severity": "medium"
+        },
+        {
+          "detection": "Registry access to SAM hive with non-system processes",
+          "severity": "high"
+        },
+        {
+          "detection": "LSASS memory access patterns consistent with credential dumping",
+          "severity": "high"
+        },
+        {
+          "detection": "Unusual process spawning from scheduled tasks",
+          "severity": "medium"
+        },
+        {
+          "detection": "File system access to SAM database files",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Supply Chain Compromise with Credential Harvesting is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "generated_at": "2026-03-19T15:28:12.238Z",
+      "source": "ai-enriched",
+      "ai_provider": "anthropic"
+    },
+    {
+      "id": "SCN-AI-146328",
+      "product": "endpoint",
+      "title": "Phishing to Mimikatz to Ransomware Chain",
+      "description": "Complete attack chain starting with spear-phishing email delivering malicious attachment that downloads Mimikatz for credential harvesting, deploys CALDERA for lateral movement, and culminates in ransomware deployment. This scenario demonstrates how modern APT groups chain multiple attack vectors for maximum impact.",
+      "mitre_tactics": [
+        "Initial Access",
+        "Credential Access",
+        "Command and Control",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1566.001",
+          "name": "Spearphishing Attachment"
+        },
+        {
+          "id": "T1003.001",
+          "name": "LSASS Memory"
+        },
+        {
+          "id": "T1059.001",
+          "name": "PowerShell"
+        },
+        {
+          "id": "T1486",
+          "name": "Data Encrypted for Impact"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "Mimikatz",
+        "CALDERA",
+        "Ransomware"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "custom-146328",
+      "caldera_adversary_id": "custom-146328",
+      "caldera_group": "red",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Malicious PowerShell execution with obfuscation",
+          "severity": "high"
+        },
+        {
+          "detection": "Mimikatz credential dumping from LSASS",
+          "severity": "critical"
+        },
+        {
+          "detection": "Suspicious network connections to C2",
+          "severity": "high"
+        },
+        {
+          "detection": "Ransomware file encryption behavior",
+          "severity": "critical"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "This demonstrates how attackers chain multiple techniques - starting with social engineering, they quickly escalate to credential theft and ransomware deployment within minutes",
+          "Notice how Sophos Endpoint detects each stage of the attack chain - from the initial malicious PowerShell to the final ransomware behavior patterns"
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure Windows 11 VM with Sophos Endpoint installed, PowerShell execution policy allows scripts, and network connectivity for C2 simulation",
+        "steps": [
+          "Execute the phishing simulation PowerShell to show initial access",
+          "Demonstrate credential dumping detection when Mimikatz simulation runs",
+          "Show lateral movement and C2 communication alerts",
+          "Highlight ransomware behavior detection and automatic response"
+        ],
+        "talking_points_timing": "Deliver talking points after each major detection phase - after PowerShell detection, after credential dumping alerts, and during ransomware prevention"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "ai-enriched",
+      "submitted_by": "Scenario Studio",
+      "submitted_at": "2026-03-19T15:28:44.989Z",
+      "expires_at": null,
+      "session_id": null
+    },
+    {
+      "id": "SCN-AI-900918",
+      "product": "endpoint",
+      "title": "Ransomware Attack with Credential Dumping & File Encryption",
+      "description": "This scenario simulates a complete ransomware attack chain where an attacker dumps credentials using Mimikatz, escalates privileges, and encrypts files across the network. The simulation demonstrates how modern ransomware groups combine credential theft with file encryption to maximize damage and ransom demands.",
+      "mitre_tactics": [
+        "Credential Access",
+        "Defense Evasion",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1003.001",
+          "name": "LSASS Memory"
+        },
+        {
+          "id": "T1059.001",
+          "name": "PowerShell"
+        },
+        {
+          "id": "T1486",
+          "name": "Data Encrypted for Impact"
+        }
+      ],
+      "tools": [
+        "Mimikatz",
+        "PowerShell",
+        "Custom Ransomware Simulator"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "custom-900918",
+      "caldera_adversary_id": "custom-900918",
+      "caldera_group": "red",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Suspicious process accessing LSASS memory",
+          "severity": "critical"
+        },
+        {
+          "detection": "Mass file encryption activity detected",
+          "severity": "critical"
+        },
+        {
+          "detection": "Credential dumping tool execution",
+          "severity": "high"
+        },
+        {
+          "detection": "Ransomware-like behavior pattern",
+          "severity": "critical"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Sophos XDR correlates credential dumping attempts with subsequent file encryption to identify ransomware attacks in their early stages",
+          "Our behavioral analysis can detect mass file encryption even when using legitimate Windows APIs, preventing ransomware execution before significant damage occurs",
+          "The combination of memory protection and real-time file monitoring creates multiple detection layers that ransomware must bypass simultaneously"
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure Windows Defender is disabled temporarily for demo purposes. Have sample non-critical files in Documents folder. Verify PowerShell execution policy allows script execution.",
+        "steps": [
+          "Execute the PowerShell simulation to show credential dumping attempt",
+          "Demonstrate how Sophos detects LSASS memory access patterns",
+          "Show file encryption simulation and real-time Sophos blocking",
+          "Display the correlation of events in Sophos Central dashboard"
+        ],
+        "talking_points_timing": "Deliver talking points after each major detection event - after credential dump attempt, during file encryption simulation, and during final dashboard review"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "ai-enriched",
+      "submitted_by": "Scenario Studio",
+      "submitted_at": "2026-03-19T16:47:59.569Z",
+      "expires_at": null,
+      "session_id": null
+    },
+    {
+      "id": "SCN-AI-588742",
+      "product": "endpoint",
+      "title": "Manufacturing Ransomware Attack via Spear Phishing",
+      "description": "A comprehensive attack simulation targeting a manufacturing company through spear-phishing, credential dumping, lateral movement, and ransomware deployment. This scenario demonstrates the full attack chain from initial compromise to production system encryption that Sophos Intercept X detects and blocks.",
+      "mitre_tactics": [
+        "Initial Access",
+        "Defense Evasion",
+        "Credential Access",
+        "Lateral Movement",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1566.001",
+          "name": "Phishing: Spearphishing Attachment"
+        },
+        {
+          "id": "T1059.005",
+          "name": "Command and Scripting Interpreter: Visual Basic"
+        },
+        {
+          "id": "T1003.001",
+          "name": "OS Credential Dumping: LSASS Memory"
+        },
+        {
+          "id": "T1550.002",
+          "name": "Use Alternate Authentication Material: Pass the Hash"
+        },
+        {
+          "id": "T1490",
+          "name": "Inhibit System Recovery"
+        },
+        {
+          "id": "T1486",
+          "name": "Data Encrypted for Impact"
+        }
+      ],
+      "tools": [
+        "Mimikatz",
+        "PsExec",
+        "VSSAdmin",
+        "Custom Ransomware"
+      ],
+      "atomic_tests": [],
+      "caldera_ability": "custom-588742",
+      "caldera_adversary_id": "custom-588742",
+      "caldera_group": "red",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "detection": "Malicious Office macro execution blocked",
+          "severity": "high"
+        },
+        {
+          "detection": "LSASS memory access attempt detected",
+          "severity": "critical"
+        },
+        {
+          "detection": "Pass-the-Hash lateral movement blocked",
+          "severity": "critical"
+        },
+        {
+          "detection": "Volume Shadow Copy deletion prevented",
+          "severity": "high"
+        },
+        {
+          "detection": "Ransomware behavior and file encryption blocked",
+          "severity": "critical"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "This attack chain represents 80% of successful ransomware incidents targeting manufacturing - Sophos blocks it at multiple stages before any damage occurs",
+          "Notice how Intercept X doesn't just detect the final ransomware payload, but identifies and stops the entire attack progression from the initial macro through credential theft",
+          "The CryptoGuard technology specifically protects your production data shares, even if an unknown ransomware variant bypassed other defenses"
+        ]
+      },
+      "se_runbook": {
+        "setup": "Ensure Sophos Central demo tenant is configured with manufacturing-themed device names. Have a test file share mapped to simulate production floor data.",
+        "steps": [
+          "Execute the simulation script showing each attack phase",
+          "Open Sophos Central to show real-time detections appearing",
+          "Navigate to the Threat Cases to show the correlated attack chain",
+          "Demonstrate the blocked actions in the device timeline",
+          "Show how CryptoGuard would have protected file shares as the final safety net"
+        ],
+        "talking_points_timing": "Deliver talking points after showing each major detection category - after macro block, after credential protection, and after ransomware prevention"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "ai-enriched",
+      "submitted_by": "Scenario Studio",
+      "submitted_at": "2026-03-20T02:09:25.894Z",
+      "expires_at": null,
+      "session_id": null
+    },
+    {
+      "id": "SCN-069412",
+      "title": "BEC Phishing to Ransomware with Data Exfiltration",
+      "description": "Business Email Compromise attack uses phishing to deliver initial payload that establishes persistence via scheduled tasks, performs credential harvesting and data collection, then deploys ransomware while exfiltrating sensitive data. This multi-stage attack combines financial fraud tactics with destructive malware deployment for maximum impact.",
+      "mitre_tactics": [
+        "Initial Access",
+        "Persistence",
+        "Collection",
+        "Exfiltration",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application"
+        },
+        {
+          "id": "T1566",
+          "name": "Phishing"
+        },
+        {
+          "id": "T1053.005",
+          "name": "Scheduled Task/Job: Scheduled Task"
+        }
+      ],
+      "tools": [
+        "PowerShell",
+        "certutil",
+        "WinRAR",
+        "Cobalt Strike",
+        "Mimikatz"
+      ],
+      "difficulty": "medium",
+      "platform": "windows",
+      "execution_engine": "endpoint",
+      "expected_detections": [
+        {
+          "detection": "Email with suspicious attachment or link from external sender",
+          "severity": "medium"
+        },
+        {
+          "detection": "Process spawning from Office application executing PowerShell",
+          "severity": "high"
+        },
+        {
+          "detection": "Scheduled task creation with suspicious command line arguments",
+          "severity": "high"
+        },
+        {
+          "detection": "Large volume of file encryption activity",
+          "severity": "critical"
+        },
+        {
+          "detection": "Suspicious network connections to external IPs",
+          "severity": "high"
+        },
+        {
+          "detection": "Creation of ransom note files across multiple directories",
+          "severity": "critical"
+        },
+        {
+          "detection": "Unusual data compression and staging activities",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "BEC Phishing to Ransomware with Data Exfiltration is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "generated_at": "2026-03-20T15:21:01.279Z",
+      "source": "ai-enriched",
+      "ai_provider": "anthropic"
+    },
+    {
+      "id": "SCN-MAN-087337",
+      "product": "endpoint",
+      "title": "ransomware with phishing",
+      "description": "I need a BEC attack that loads reansomware and performs data exfil",
+      "mitre_tactics": [
+        "initial-access",
+        "execution"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "T1190"
+        },
+        {
+          "id": "T1566",
+          "name": "T1566"
+        },
+        {
+          "id": "T1053.005",
+          "name": "T1053.005"
+        }
+      ],
+      "tools": [],
+      "atomic_tests": [],
+      "caldera_ability": "",
+      "caldera_adversary_id": "",
+      "caldera_group": "red",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "severity": "medium",
+          "detection": "Email with suspicious attachment or link from external sender"
+        },
+        {
+          "severity": "high",
+          "detection": "Process spawning from Office application executing PowerShell"
+        },
+        {
+          "severity": "high",
+          "detection": "Scheduled task creation with suspicious command line arguments"
+        },
+        {
+          "severity": "critical",
+          "detection": "Large volume of file encryption activity"
+        },
+        {
+          "severity": "high",
+          "detection": "Suspicious network connections to external IPs"
+        },
+        {
+          "severity": "critical",
+          "detection": "Creation of ransom note files across multiple directories"
+        },
+        {
+          "severity": "high",
+          "detection": "Unusual data compression and staging activities"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "BEC Phishing to Ransomware with Data Exfiltration is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "se_runbook": {},
+      "status": "approved",
+      "launchable": false,
+      "source": "hand-authored",
+      "submitted_by": "Scenario Studio",
+      "submitted_at": "2026-03-20T15:21:27.332Z",
+      "expires_at": null,
+      "session_id": null
+    },
+    {
+      "id": "SCN-334753",
+      "title": "Supply Chain Attack with Credential Harvesting and Lateral Movement",
+      "description": "A multi-stage attack beginning with a supply chain compromise that delivers phishing payloads, followed by credential harvesting using Mimikatz and lateral movement via pass-the-hash techniques. The attack includes defense evasion through Windows event log clearing to maintain persistence and avoid detection.",
+      "mitre_tactics": [
+        "Initial Access",
+        "Defense Evasion",
+        "Credential Access",
+        "Lateral Movement"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1566",
+          "name": "Phishing"
+        },
+        {
+          "id": "T1070.001",
+          "name": "Clear Windows Event Logs"
+        },
+        {
+          "id": "T1550.002",
+          "name": "Pass the Hash"
+        }
+      ],
+      "tools": [
+        "Mimikatz",
+        "Email client",
+        "PowerShell"
+      ],
+      "difficulty": "medium",
+      "platform": "windows",
+      "execution_engine": "endpoint",
+      "expected_detections": [
+        {
+          "detection": "Phishing email attachment execution with suspicious process spawning",
+          "severity": "high"
+        },
+        {
+          "detection": "Mimikatz process execution and LSASS memory access patterns",
+          "severity": "critical"
+        },
+        {
+          "detection": "Windows Event Log clearing via wevtutil or PowerShell",
+          "severity": "high"
+        },
+        {
+          "detection": "NTLM hash extraction from memory",
+          "severity": "critical"
+        },
+        {
+          "detection": "Pass-the-Hash authentication anomalies across network segments",
+          "severity": "high"
+        },
+        {
+          "detection": "Abnormal lateral movement patterns to multiple endpoints",
+          "severity": "medium"
+        },
+        {
+          "detection": "Credential dumping tools spawned from compromised supply chain software",
+          "severity": "critical"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Supply Chain Attack with Credential Harvesting and Lateral Movement is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "generated_at": "2026-03-20T16:15:24.447Z",
+      "source": "ai-enriched",
+      "ai_provider": "anthropic"
+    },
+    {
+      "id": "SCN-MAN-346656",
+      "product": "endpoint",
+      "title": "supply chain",
+      "description": "supply chain with mimi katz and lateral movement",
+      "mitre_tactics": [
+        "initial-access",
+        "defense-evasion"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1566",
+          "name": "T1566"
+        },
+        {
+          "id": "T1070.001",
+          "name": "T1070.001"
+        },
+        {
+          "id": "T1550.002",
+          "name": "T1550.002"
+        }
+      ],
+      "tools": [],
+      "atomic_tests": [],
+      "caldera_ability": "",
+      "caldera_adversary_id": "",
+      "caldera_group": "red",
+      "audience": "Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        {
+          "severity": "high",
+          "detection": "Phishing email attachment execution with suspicious process spawning"
+        },
+        {
+          "severity": "critical",
+          "detection": "Mimikatz process execution and LSASS memory access patterns"
+        },
+        {
+          "severity": "high",
+          "detection": "Windows Event Log clearing via wevtutil or PowerShell"
+        },
+        {
+          "severity": "critical",
+          "detection": "NTLM hash extraction from memory"
+        },
+        {
+          "severity": "high",
+          "detection": "Pass-the-Hash authentication anomalies across network segments"
+        },
+        {
+          "severity": "medium",
+          "detection": "Abnormal lateral movement patterns to multiple endpoints"
+        },
+        {
+          "severity": "critical",
+          "detection": "Credential dumping tools spawned from compromised supply chain software"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Supply Chain Attack with Credential Harvesting and Lateral Movement is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "se_runbook": {},
+      "status": "approved",
+      "launchable": false,
+      "source": "hand-authored",
+      "submitted_by": "Scenario Studio",
+      "submitted_at": "2026-03-20T16:15:46.651Z",
+      "expires_at": null,
+      "session_id": null
+    },
+    {
+      "id": "SCN-307027",
+      "title": "Supply Chain Phishing to Ransomware",
+      "description": "Attackers compromise the supply chain through phishing to gain initial access, then deploy mimikatz for credential harvesting before executing ransomware. This multi-stage attack leverages trusted relationships and harvested credentials to maximize impact across the target environment.",
+      "mitre_tactics": [
+        "Initial Access",
+        "Credential Access",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application"
+        },
+        {
+          "id": "T1566",
+          "name": "Phishing"
+        },
+        {
+          "id": "T1003.001",
+          "name": "LSASS Memory"
+        }
+      ],
+      "tools": [
+        "mimikatz",
+        "ransomware"
+      ],
+      "difficulty": "medium",
+      "platform": "windows",
+      "execution_engine": "endpoint",
+      "expected_detections": [
+        {
+          "detection": "Email security gateway blocks malicious attachment or URL",
+          "severity": "medium"
+        },
+        {
+          "detection": "Endpoint detection of suspicious process execution from email attachment",
+          "severity": "high"
+        },
+        {
+          "detection": "LSASS memory access by mimikatz or similar credential dumping tool",
+          "severity": "high"
+        },
+        {
+          "detection": "Unusual process behavior and memory manipulation consistent with credential harvesting",
+          "severity": "high"
+        },
+        {
+          "detection": "Mass file encryption activity and ransomware note creation",
+          "severity": "critical"
+        },
+        {
+          "detection": "Network traffic to known malicious C2 infrastructure",
+          "severity": "high"
+        }
+      ],
+      "talking_points": {
+        "universal": [
+          "Supply Chain Phishing to Ransomware is commonly observed in MDR cases - analysts detect this in real time",
+          "Watch the alert fire within seconds in the MDR console"
+        ]
+      },
+      "generated_at": "2026-03-20T16:48:19.320Z",
+      "source": "ai-enriched",
+      "ai_provider": "anthropic"
     }
   ]
 }

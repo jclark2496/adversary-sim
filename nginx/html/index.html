@@ -1031,10 +1031,10 @@
         </nav>
         <div id="hdr-controls">
         <button class="tour-help-btn" id="tour-help-btn" title="Page help">?</button>
+        <a href="help.html" target="_blank" title="Help &amp; Troubleshooting" style="display:inline-flex;align-items:center;font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.08em;padding:5px 10px;background:transparent;border:1px solid rgba(0,237,255,.18);border-radius:5px;color:rgba(232,240,255,.6);text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(0,237,255,.4)';this.style.color='#00EDFF'" onmouseout="this.style.borderColor='rgba(0,237,255,.18)';this.style.color='rgba(232,240,255,.6)'">KB</a>
           <div class="nav-wrap" id="nav-wrap">
             <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
             <div class="nav-dd" id="nav-dd">
-              <button class="nav-it" onclick="window.location.href='/index.html?tour=1'">&#9658; Start Tour</button>
               <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
               <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
               <button class="nav-it" onclick="navToggle();window.open('/tools.html','_blank')">Red Tools</button>
@@ -1042,6 +1042,7 @@
               <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
               <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
               <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
+              <button class="nav-it" onclick="navToggle();window.open('/help.html','_blank')">Help &amp; Troubleshooting</button>
             </div>
           </div>
         </div>
@@ -1847,6 +1848,7 @@
         <div class="xer fin">
           <div class="xerhd"><div class="xxco">✕</div><div class="xerlbl">Launch Failed</div></div>
           <div class="xermsg">${x(S.xe||'Could not reach webhook. Is n8n running?')}</div>
+          <a href="help.html" target="_blank" class="xcb" style="text-decoration:none">&#x3F; Troubleshooting Guide</a>
         </div>`;
     }
   }
@@ -2665,12 +2667,33 @@ function labmgrClick() {
   if (url) { window.open(url, '_blank'); } else { showToast('Lab Manager not configured — set it in Settings'); }
 }
 
+// Normalize a labopsUrl — replace localhost with actual hostname
+function normalizeLabopsUrl(url) {
+  try {
+    const p = new URL(url);
+    if (p.hostname === 'localhost' || p.hostname === '127.0.0.1') {
+      p.hostname = window.location.hostname;
+      return p.toString();
+    }
+  } catch(e) {}
+  return url;
+}
+
 // Init Lab Manager dot on page load
 (function() {
   const cached = localStorage.getItem('labopsUrl');
-  if (cached) { labmgrUpdateDot(cached); return; }
+  if (cached) {
+    const normalized = normalizeLabopsUrl(cached);
+    if (normalized !== cached) localStorage.setItem('labopsUrl', normalized);
+    labmgrUpdateDot(normalized);
+    return;
+  }
   fetch('/api/settings').then(r => r.ok ? r.json() : {}).then(cfg => {
-    if (cfg.labopsUrl) { localStorage.setItem('labopsUrl', cfg.labopsUrl); labmgrUpdateDot(cfg.labopsUrl); }
+    if (cfg.labopsUrl) {
+      const url = normalizeLabopsUrl(cfg.labopsUrl);
+      localStorage.setItem('labopsUrl', url);
+      labmgrUpdateDot(url);
+    }
   }).catch(() => {});
 })();
 

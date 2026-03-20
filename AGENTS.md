@@ -1,6 +1,6 @@
 # Adversary Simulation Platform -- AI Coding Context
 
-> This file provides context for GitHub Copilot and other AI coding agents.
+> This is a brief AI context primer for GitHub Copilot and other AI coding agents. For the full engineering reference (architecture, all credentials/IDs, critical gotchas, workflow details), see **[CLAUDE.md](CLAUDE.md)**.
 
 ## Project Purpose
 Standalone attack simulation platform for Sophos SE demos. Orchestrates live MITRE ATT&CK

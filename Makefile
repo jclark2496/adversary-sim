@@ -146,6 +146,10 @@ sandcat:
 	&& echo "✅ sandcat.go-windows compiled (AMD64)" \
 	|| echo "⚠️  Sandcat build failed — is $(CALDERA_CTR) running? Try: make up"
 
+.PHONY: workflows
+workflows: _import-workflows
+	@echo "✅ Workflows re-imported and activated"
+
 .PHONY: profiles
 profiles:
 	@echo "▶ Loading CALDERA profiles and adversaries..."
@@ -267,7 +271,13 @@ _setup-ai:
 		sed -i "s/^AI_PROVIDER=.*/AI_PROVIDER=$$provider/" .env; \
 		sed -i "s/^AI_API_KEY=.*/AI_API_KEY=$$api_key/" .env; \
 	fi; \
-	printf '{"provider":"%s","apiKey":"%s","model":""}' "$$provider" "$$api_key" > nginx/html/ai-config.json; \
+	case "$$provider" in \
+		anthropic) dflt_model="claude-sonnet-4-6" ;; \
+		openai)    dflt_model="gpt-4o" ;; \
+		gemini)    dflt_model="gemini-2.5-flash" ;; \
+		*)         dflt_model="" ;; \
+	esac; \
+	printf '{"provider":"%s","apiKey":"%s","model":"%s"}' "$$provider" "$$api_key" "$$dflt_model" > nginx/html/ai-config.json; \
 	echo "✅ AI provider: $$label"; \
 	if [ "$$provider" = "ollama" ]; then \
 		$(MAKE) _setup-ollama; \
@@ -381,8 +391,9 @@ _detect-labops:
 		sed 's/GUAC_HOST/labops-guacamole/' nginx/conf/default.conf.tpl > nginx/conf/default.conf; \
 		echo "  → nginx proxying Guacamole to labops-guacamole"; \
 		if [ -f nginx/html/ai-config.json ]; then \
-			python3 -c "import json; c=json.load(open('nginx/html/ai-config.json')); c['labopsUrl']='http://localhost:8080'; open('nginx/html/ai-config.json','w').write(json.dumps(c))"; \
-			echo "  → labopsUrl set to http://localhost:8080 in ai-config.json"; \
+			HOST_IP=$$(hostname -I 2>/dev/null | awk '{print $$1}' || ipconfig getifaddr en0 2>/dev/null || echo "localhost"); \
+			python3 -c "import json,sys; c=json.load(open('nginx/html/ai-config.json')); c['labopsUrl']='http://'+sys.argv[1]+':8080'; open('nginx/html/ai-config.json','w').write(json.dumps(c))" "$$HOST_IP"; \
+			echo "  → labopsUrl set to http://$$HOST_IP:8080 in ai-config.json"; \
 		fi; \
 	else \
 		echo "✅ Standalone mode — using advsim-net network"; \

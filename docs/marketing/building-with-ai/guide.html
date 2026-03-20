@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Building with AI: What I Learned</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a1a;
+  --ink-mid: #3d3d3d;
+  --ink-soft: #6b6b6b;
+  --ink-faint: #a0a0a0;
+  --rule: #e8e8e8;
+  --rule-dark: #d0d0d0;
+  --bg: #ffffff;
+  --bg-alt: #f7f7f7;
+  --bg-code: #f4f4f4;
+  --accent: #0369a1;
+}
+
+@page { size: 210mm 297mm; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  font-size: 11pt;
+  line-height: 1.68;
+  color: var(--ink);
+  background: white;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  position: relative;
+  background: white;
+  page-break-after: always;
+  break-after: page;
+}
+
+/* ─────────────────────────────────────
+   COVER
+───────────────────────────────────── */
+#cover {
+  display: flex;
+  flex-direction: column;
+  padding: 15mm 18mm 14mm;
+  border-top: 4px solid var(--ink);
+}
+
+.cover-wordmark {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 7.5pt;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  margin-bottom: 20mm;
+}
+.cover-wordmark .accent { color: var(--ink); }
+
+.cover-hero {
+  flex: 1;
+  padding-bottom: 10mm;
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.cover-eyebrow {
+  font-family: 'Syne', sans-serif;
+  font-size: 9pt;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 4mm;
+  letter-spacing: 0.02em;
+}
+
+.cover-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 40pt;
+  font-weight: 700;
+  line-height: 1.02;
+  color: var(--ink);
+  margin-bottom: 6mm;
+  letter-spacing: -0.01em;
+}
+
+.cover-subtitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 12.5pt;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 5mm;
+  max-width: 150mm;
+}
+
+.cover-meta {
+  font-family: 'Syne', sans-serif;
+  font-size: 8.5pt;
+  color: var(--ink-faint);
+  display: flex;
+  gap: 4mm;
+  align-items: center;
+}
+.cover-meta-dot { color: var(--rule-dark); }
+
+.cover-bottom { padding-top: 8mm; }
+
+.cover-toc-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 4mm;
+}
+
+.cover-toc {
+  columns: 2;
+  column-gap: 8mm;
+}
+
+.cover-toc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2mm;
+  padding: 2.5mm 0;
+  border-bottom: 1px solid var(--rule);
+  break-inside: avoid;
+}
+
+.cover-toc-arrow { color: var(--ink-faint); font-size: 9pt; flex-shrink: 0; margin-top: 0.5mm; }
+
+.cover-toc-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 9.5pt;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.cover-toc-text small {
+  display: block;
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-top: 0.5mm;
+}
+
+.cover-bottom-bar {
+  margin-top: 6mm;
+  padding-top: 3.5mm;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cover-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.5pt;
+  color: var(--ink-faint);
+}
+.cover-badge .hi { color: var(--ink-soft); }
+
+/* ─────────────────────────────────────
+   CONTENT PAGES
+───────────────────────────────────── */
+.content-page { display: flex; flex-direction: column; height: 297mm; }
+
+.page-top-rule {
+  height: 3px;
+  flex-shrink: 0;
+  background: var(--ink);
+}
+
+.page-inner {
+  padding: 8mm 18mm 6mm;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.running-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 3mm;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 5mm;
+  flex-shrink: 0;
+}
+
+.running-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 7pt;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+.running-wordmark .hi { color: var(--ink-soft); }
+
+.running-page {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7pt;
+  color: var(--ink-faint);
+}
+
+.page-content { flex: 1; overflow: hidden; }
+
+.page-footer-bar {
+  flex-shrink: 0;
+  margin-top: 3mm;
+  padding-top: 2.5mm;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 7pt;
+  color: var(--ink-faint);
+}
+
+/* ─────────────────────────────────────
+   TYPOGRAPHY
+───────────────────────────────────── */
+.chapter-eyebrow {
+  font-family: 'Syne', sans-serif;
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 2mm;
+}
+
+h1.chapter-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22pt;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 5mm;
+  padding-bottom: 4mm;
+  border-bottom: 1px solid var(--rule-dark);
+  letter-spacing: -0.01em;
+}
+
+h1.no-border { border-bottom: none; padding-bottom: 0; margin-bottom: 3mm; }
+
+h2.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 5mm;
+  margin-bottom: 2.5mm;
+}
+h2.section-title:first-child { margin-top: 0; }
+h2.section-title.mt0 { margin-top: 0; }
+
+h3.sub-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: var(--ink-mid);
+  margin-top: 3.5mm;
+  margin-bottom: 1.5mm;
+}
+h3.sub-title.cyan { color: var(--accent); }
+h3.sub-title.green { color: #1a6b3c; }
+h3.sub-title.gold { color: #7a4a0a; }
+
+p {
+  font-size: 11pt;
+  line-height: 1.68;
+  color: var(--ink);
+  margin-bottom: 3mm;
+}
+p:last-child { margin-bottom: 0; }
+p strong { font-weight: 700; }
+p.conclusion { font-weight: 700; }
+p.big-close { font-weight: 700; font-size: 12pt; }
+
+blockquote {
+  border-left: 2px solid var(--ink-soft);
+  padding: 3mm 5mm;
+  margin: 3.5mm 0;
+}
+blockquote p {
+  font-style: italic;
+  font-size: 11pt;
+  color: var(--ink-mid);
+  margin-bottom: 0;
+}
+
+ul { list-style: none; padding-left: 3.5mm; margin-bottom: 2.5mm; }
+ul li {
+  position: relative;
+  padding: 0.8mm 0 0.8mm 4mm;
+  font-size: 11pt;
+  line-height: 1.55;
+}
+ul li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--ink-soft);
+  font-size: 10pt;
+  top: 1mm;
+}
+ul li strong { font-weight: 700; }
+
+ol { padding-left: 5.5mm; margin-bottom: 2.5mm; }
+ol li {
+  padding: 0.8mm 0;
+  font-size: 11pt;
+  line-height: 1.55;
+}
+ol li strong { font-weight: 700; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5pt;
+  background: var(--bg-code);
+  padding: 0.5mm 1.5mm;
+  border-radius: 2px;
+  color: var(--ink-mid);
+}
+
+pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9pt;
+  background: var(--bg-code);
+  border: 1px solid var(--rule);
+  padding: 4mm 5mm;
+  margin: 3mm 0;
+  white-space: pre;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────
+   TABLES
+───────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 3mm 0;
+  font-size: 10pt;
+}
+
+thead tr { background: var(--bg-alt); border-bottom: 2px solid var(--rule-dark); }
+thead th {
+  padding: 2.5mm 3mm;
+  text-align: left;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 9.5pt;
+  color: var(--ink);
+}
+
+tbody tr { border-bottom: 1px solid var(--rule); }
+tbody tr:nth-child(even) { background: var(--bg-alt); }
+tbody td {
+  padding: 2.5mm 3mm;
+  vertical-align: top;
+  font-size: 10pt;
+  line-height: 1.5;
+}
+tbody td strong { font-weight: 700; }
+.tick { color: #1a6b3c; font-weight: 700; }
+.cross { color: #8b1a1a; font-weight: 700; }
+.both { color: var(--ink-soft); font-size: 9.5pt; }
+
+/* ─────────────────────────────────────
+   FIGURES
+───────────────────────────────────── */
+.figure { margin: 3.5mm 0; }
+.figure img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+  border: 1px solid var(--rule);
+}
+/* Only constrain height when two images are stacked on the same page */
+.figure.paired img { max-height: 88mm; width: auto; max-width: 100%; margin: 0 auto; }
+.figure-caption {
+  font-size: 8.5pt;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 1.5mm;
+  text-align: center;
+}
+
+.img-ph {
+  width: 100%;
+  background: var(--bg-alt);
+  border: 1px dashed var(--rule-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5mm;
+  padding: 5mm;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt;
+  text-align: center;
+  min-height: 55mm;
+}
+.img-ph.paired { min-height: 88mm; }
+.img-ph .name { color: var(--ink-soft); font-weight: 500; font-size: 8.5pt; }
+
+/* ─────────────────────────────────────
+   UTILITY
+───────────────────────────────────── */
+.section-divider { height: 1px; background: var(--rule); margin: 4mm 0; }
+
+.comic-strip {
+  margin-top: 7mm;
+  width: 100%;
+}
+
+.editorial-joke {
+  margin-top: 10mm;
+  padding: 7mm 0;
+  border-top: 1px solid #d0d0d0;
+  border-bottom: 1px solid #d0d0d0;
+  text-align: center;
+}
+.editorial-joke p {
+  font-family: 'Syne', sans-serif;
+  font-size: 12.5pt;
+  font-style: italic;
+  color: #4a4a4a;
+  line-height: 1.75;
+  margin: 0;
+  padding: 0 8mm;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+
+.sp1 { height: 2mm; }
+.sp2 { height: 3.5mm; }
+.sp3 { height: 5mm; }
+
+.term-name { font-weight: 700; }
+.term-link { font-weight: 700; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 1 — COVER
+═══════════════════════════════════════════════════════════════ -->
+<div class="page" id="cover">
+  <div class="cover-top">
+    <div class="cover-wordmark">SOPHOS <span class="accent">SALES ENGINEERING</span> <span class="accent">// building_with_ai</span></div>
+    <div class="cover-hero">
+      <div class="cover-eyebrow">30-Day Learning Journey &nbsp;·&nbsp; Tools &nbsp;·&nbsp; Concepts &nbsp;·&nbsp; Getting Started</div>
+      <div class="cover-title">Building with AI:<br>What I Learned</div>
+      <div class="cover-subtitle">A Sales Engineer's Field Guide to Building Real Tools with Claude Code</div>
+      <div class="cover-meta">
+        <span>Version 1.0</span>
+        <span class="cover-meta-dot">·</span>
+        <span>March 2026</span>
+        <span class="cover-meta-dot">·</span>
+        <span>Sophos Sales Engineering</span>
+        <span class="cover-meta-dot">·</span>
+        <span>Internal Use Only</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-toc-label">Chapters</div>
+    <div class="cover-toc">
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">About This Guide</div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 1: Why This Guide Exists<small>Projects &amp; What You'll Build</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 2: The Stack<small>Tools, Costs, and Tiers</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 3: Key Concepts Glossary<small>Plain-English Definitions</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 4: Plan-Then-Execute Pattern<small>The Core Workflow</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 5: Dos and Don'ts<small>Security-Aware Building</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 6: Claude Chat vs Code<small>Right Tool, Right Job</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Chapter 7: The Memory Pattern<small>CLAUDE.md &amp; Persistent Context</small></div>
+      </div>
+      <div class="cover-toc-item">
+        <span class="cover-toc-arrow">→</span>
+        <div class="cover-toc-text">Getting Started: Your Path Forward</div>
+      </div>
+    </div>
+    <div class="cover-bottom-bar">
+      <span class="cover-badge">sophos <span class="hi">sales engineering</span> // se_toolkit</span>
+      <span class="cover-badge" style="color: var(--ink-soft)">Version 1.0 &nbsp;·&nbsp; March 2026</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 2 — ABOUT THIS GUIDE
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">2 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Introduction</div>
+      <h1 class="chapter-title">About This Guide</h1>
+
+      <blockquote>
+        <p>You're a Sales Engineer. You're not a developer. You weren't hired to write code. This guide is going to make you dangerous anyway.</p>
+      </blockquote>
+
+      <div class="sp2"></div>
+
+      <p>This guide was built from 30 days of building real tools after hours — usually three nights a week, occasionally full weekends when I had the house to myself. Limited formal dev background, but eager to acquire more knowledge. The learning curve was steep for about a week. Then it accelerated faster than anything I'd experienced in this career.</p>
+
+      <p>The goal was simple: learn as much as I could about building with AI to improve how I work and live, then share those learnings with other SEs. Not to give you a toolkit — to show you what I built, what I learned, and the possibilities. So you can see what's out there and skip the mistakes I made.</p>
+
+      <p>This guide covers the complete stack — from first installation to working automated lab environments — with practical steps you can start immediately.</p>
+
+      <div class="editorial-joke">
+        <p>Rule of thumb: if you've explained your project to Claude more than twice in the same week, you forgot to write a CLAUDE.md.</p>
+      </div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 3 — CHAPTER 1: WHY THIS GUIDE EXISTS (Part 1)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">3 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 1</div>
+      <h1 class="chapter-title">Why This Guide Exists</h1>
+
+      <p>None of the projects below required writing code from scratch. Every one was built by describing what was wanted to an AI coding assistant and iterating. The AI writes the code. You tell it what to build, review what it produces, and steer.</p>
+      <p>That's what this guide teaches you to do.</p>
+
+      <div class="sp1"></div>
+      <h2 class="section-title mt0">My Project Examples</h2>
+
+      <table>
+        <thead>
+          <tr><th>Project</th><th>What It Does</th><th>Time to Build</th><th>Category</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SE Leaders Intelligence Briefing</strong></td>
+            <td>Automated daily digest — aggregates industry news, competitive intel, and market data. Delivered every morning with actionable guidance on how it applies to SE teams. Runs itself.</td>
+            <td>1 day</td>
+            <td>Automation</td>
+          </tr>
+          <tr>
+            <td><strong>AI Exposure Management Tool</strong></td>
+            <td>Scans customer public-facing infrastructure for AI-related exposure risks. Exposed keys, chatbots, unauthenticated AI endpoints. Plugs directly into the Threat Profile workflow.</td>
+            <td>2 days</td>
+            <td>Security</td>
+          </tr>
+          <tr>
+            <td><strong>Open Source Idea Platform</strong></td>
+            <td>Full web app with GitHub integration, auto-generated pages, admin panel, community discussions. Built to promote idea sharing inside Sophos.</td>
+            <td>3 days</td>
+            <td>Web App</td>
+          </tr>
+          <tr>
+            <td><strong>Automated Lab Manager (LabOps)</strong></td>
+            <td>Provisions Windows VMs on Proxmox, configures environments, manages lifecycle through a web console. One command setup. Easy button for SE lab provisioning.</td>
+            <td>1 day</td>
+            <td>Infrastructure</td>
+          </tr>
+          <tr>
+            <td><strong>Attack Simulation Platform</strong></td>
+            <td>Converts real MDR cases using natural language into live, repeatable attack demos mapped to MITRE ATT&amp;CK. Built on top of LabOps.</td>
+            <td>3 days</td>
+            <td>Demos</td>
+          </tr>
+          <tr>
+            <td><strong>AI Publication + iOS Control App</strong></td>
+            <td>Personal learning project: AI narrator running multiple websites, 11 automated workflows, Instagram pipeline, native iOS app.</td>
+            <td>5 days</td>
+            <td>Personal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 4 — CHAPTER 1 (continued)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">4 of 20</span>
+    </div>
+    <div class="page-content">
+      <h2 class="section-title mt0">"I don't know where to start."</h2>
+
+      <p>Start with whatever annoys you. At work: a report you build manually every week, a process that takes too many clicks, a tool you wish existed. At home: a personal project you've been wanting to build, something for your family, a hobby tool.</p>
+
+      <p>Either path works. I built half of these examples outside of work hours before I ever applied them to SE tools. The skills transfer completely — learn by building what you care about, then bring that knowledge to Sophos.</p>
+
+      <p class="conclusion">By following this guide, you'll build real tools, automate real workflows, and understand why people keep saying "AI changes everything" — with demos to prove it.</p>
+
+      <div class="editorial-joke">
+        <p>The most common first SE project: automating the weekly status report. The second most common: automating the follow-up asking why nobody filled out the status report.</p>
+      </div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 5 — CHAPTER 2: THE STACK (Part 1)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">5 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 2</div>
+      <h1 class="chapter-title">The Stack — What You Need and What It Costs</h1>
+
+      <p>This is one SE's setup. The principles in this guide — giving AI context, documenting as you build, the plan-then-execute pattern — work regardless of which specific tools you pick. Use what clicks. Skip what doesn't.</p>
+      <p>You don't need all of these on Day 1. Start with Tier 1. Add the rest as the guide introduces them.</p>
+
+      <div class="figure">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 345" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="loop-arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#444"/>
+      </marker>
+      <marker id="loop-arr-dash" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="340" y="26" text-anchor="middle" font-family="'Syne',sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">The AI Development Loop</text>
+    <text x="340" y="42" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">This is your workflow for everything you build</text>
+
+    <!--
+      True pentagon: cx=340, cy=192, r=122
+      DESCRIBE  (0°)   → (340, 70)
+      BUILD     (72°)  → (459, 154)
+      TEST      (144°) → (412, 291)
+      ITERATE   (216°) → (268, 291)
+      DOCUMENT  (288°) → (221, 154)
+      All boxes: w=136, h=44
+    -->
+
+    <!-- DESCRIBE — (340,70), box x=272 y=48 -->
+    <rect x="272" y="48" width="136" height="44" rx="8" fill="#edf2fb" stroke="#3a6bb0" stroke-width="2"/>
+    <text x="340" y="67" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11.5" font-weight="700" fill="#3a6bb0">DESCRIBE</text>
+    <text x="340" y="83" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#555">Tell Claude what you want</text>
+
+    <!-- BUILD — (459,154), box x=391 y=132 -->
+    <rect x="391" y="132" width="136" height="44" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+    <text x="459" y="151" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11.5" font-weight="700" fill="#2e8b57">BUILD</text>
+    <text x="459" y="167" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#555">Claude Code writes it</text>
+
+    <!-- TEST — (412,291), box x=344 y=269 -->
+    <rect x="344" y="269" width="136" height="44" rx="8" fill="#faeaea" stroke="#b53030" stroke-width="2"/>
+    <text x="412" y="288" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11.5" font-weight="700" fill="#b53030">TEST</text>
+    <text x="412" y="304" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#555">Run it, see what happens</text>
+
+    <!-- ITERATE — (268,291), box x=200 y=269 -->
+    <rect x="200" y="269" width="136" height="44" rx="8" fill="#faf0e4" stroke="#c8772a" stroke-width="2"/>
+    <text x="268" y="288" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11.5" font-weight="700" fill="#c8772a">ITERATE</text>
+    <text x="268" y="304" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#555">Tell Claude what to fix</text>
+
+    <!-- DOCUMENT — (221,154), box x=153 y=132 -->
+    <rect x="153" y="132" width="136" height="44" rx="8" fill="#f0ecf9" stroke="#6b4fb8" stroke-width="2"/>
+    <text x="221" y="151" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11.5" font-weight="700" fill="#6b4fb8">DOCUMENT</text>
+    <text x="221" y="167" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#555">Update CLAUDE.md</text>
+
+    <!-- Center label -->
+    <text x="340" y="196" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#ccc" font-style="italic">repeat for every feature</text>
+
+    <!-- Arrows — each curves outward from the pentagon center -->
+    <!-- 1. DESCRIBE right (408,70) → BUILD left (391,154): arc outward right-then-down -->
+    <path d="M408,70 C448,72 424,118 391,146" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#loop-arr)"/>
+    <!-- 2. BUILD bottom (459,176) → TEST top-right (470,269): arc outward down-right -->
+    <path d="M459,176 C462,226 474,269 470,269" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#loop-arr)"/>
+    <!-- 3. TEST left (344,291) → ITERATE right (336,291): straight across -->
+    <path d="M344,291 L336,291" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#loop-arr)"/>
+    <!-- 4. ITERATE top (268,269) → DOCUMENT bottom (221,176): arc outward down-left -->
+    <path d="M268,269 C264,236 228,204 221,176" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#loop-arr)"/>
+    <!-- 5. DOCUMENT top (221,132) → DESCRIBE left (272,70): dashed arc outward up-left -->
+    <path d="M221,132 C222,90 256,64 272,68" fill="none" stroke="#aaa" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#loop-arr-dash)"/>
+  </svg>
+</div>
+      <div class="figure-caption">The AI development loop — Describe, Build, Test, Iterate, Document. Repeat.</div>
+
+      <div class="sp2"></div>
+      <h2 class="section-title">Tier 1 — The Essentials (Install These First)</h2>
+
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>What It Does</th><th>Cost</th><th>Platform</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Claude Desktop</strong></td>
+            <td>AI chat for planning, writing, analysis, brainstorming</td>
+            <td>Free / Pro $20/mo</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>VS Code</strong></td>
+            <td>Code editor — your workspace for everything</td>
+            <td>Free</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>Claude Code</strong></td>
+            <td>AI coding agent inside VS Code. Reads your files, writes code, runs commands. This is the engine.</td>
+            <td>Included with Pro or API</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub</strong></td>
+            <td>Version control. Your undo button, your backup, your collaboration tool.</td>
+            <td>Free</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>Notion</strong></td>
+            <td>Documentation, project management, knowledge base</td>
+            <td>Free tier available</td>
+            <td>Mac + Win</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 6 — CHAPTER 2 (continued): AI Toolkit + Tier 2
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">6 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="figure">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="tk-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#555"/>
+      </marker>
+      <marker id="tk-arr-dash" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="340" y="28" text-anchor="middle" font-family="'Syne',sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">The AI Toolkit — How Everything Connects</text>
+    <text x="340" y="44" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">Three tiers. One workflow. Start with Tier 1.</text>
+
+    <!-- Row height: 62px, starting at y=58 -->
+    <!-- TIER 1 — ESSENTIALS (blue) -->
+    <rect x="8" y="57" width="82" height="58" rx="6" fill="#edf2fb" stroke="#3a6bb0" stroke-width="1.5"/>
+    <text x="49" y="76" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="#3a6bb0">TIER 1</text>
+    <text x="49" y="88" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" fill="#3a6bb0">ESSENTIALS</text>
+
+    <!-- Tier 1 boxes: 4 tools -->
+    <rect x="96" y="57" width="128" height="58" rx="5" fill="#f0f4fd" stroke="#3a6bb0" stroke-width="1.5"/>
+    <text x="160" y="78" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">CLAUDE DESKTOP</text>
+    <text x="160" y="92" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Chat · Plan · Think</text>
+
+    <rect x="234" y="57" width="148" height="58" rx="5" fill="#ddeeff" stroke="#3a6bb0" stroke-width="2"/>
+    <text x="308" y="72" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">VS CODE +</text>
+    <text x="308" y="84" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">CLAUDE CODE</text>
+    <text x="308" y="97" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Build · Edit · Run</text>
+    <rect x="238" y="100" width="34" height="12" rx="3" fill="#3a6bb0"/>
+    <text x="255" y="110" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" fill="white" font-weight="700">build</text>
+
+    <rect x="392" y="57" width="128" height="58" rx="5" fill="#f0f4fd" stroke="#3a6bb0" stroke-width="1.5"/>
+    <text x="456" y="78" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">GITHUB</text>
+    <text x="456" y="92" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Version control</text>
+
+    <rect x="530" y="57" width="142" height="58" rx="5" fill="#f0f4fd" stroke="#3a6bb0" stroke-width="1.5"/>
+    <text x="601" y="78" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">NOTION</text>
+    <text x="601" y="92" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Docs &amp; planning</text>
+
+    <!-- Tier 1 arrows + labels -->
+    <line x1="224" y1="86" x2="234" y2="86" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <text x="229" y="80" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7" fill="#888">plan</text>
+    <line x1="382" y1="86" x2="392" y2="86" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <text x="387" y="80" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7" fill="#888">build</text>
+    <line x1="520" y1="86" x2="530" y2="86" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <text x="525" y="80" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7" fill="#888">collab</text>
+
+    <!-- "Enables" label between tiers -->
+    <line x1="96" y1="131" x2="672" y2="131" stroke="#d0e8d0" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="340" y="142" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#888" font-style="italic">Enables ↕</text>
+
+    <!-- TIER 2 — POWER TOOLS (green) -->
+    <rect x="8" y="147" width="82" height="58" rx="6" fill="#e8f5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="49" y="166" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="#2e8b57">TIER 2</text>
+    <text x="49" y="178" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7" fill="#2e8b57">POWER TOOLS</text>
+
+    <rect x="96" y="147" width="128" height="58" rx="5" fill="#f0faf4" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="160" y="168" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">MCP CONNECTORS</text>
+    <text x="160" y="182" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Claude tool bridge</text>
+
+    <rect x="234" y="147" width="148" height="58" rx="5" fill="#f0faf4" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="308" y="168" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">n8n</text>
+    <text x="308" y="182" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Automate workflows</text>
+
+    <rect x="392" y="147" width="128" height="58" rx="5" fill="#f0faf4" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="456" y="168" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">DOCKER</text>
+    <text x="456" y="182" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Run containers</text>
+
+    <rect x="530" y="147" width="142" height="58" rx="5" fill="#f0faf4" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="601" y="168" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">GAMMA</text>
+    <text x="601" y="182" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">AI presentations</text>
+
+    <!-- Tier 2 arrows -->
+    <line x1="224" y1="176" x2="234" y2="176" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <line x1="382" y1="176" x2="392" y2="176" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <line x1="520" y1="176" x2="530" y2="176" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+
+    <!-- "Integrates" label -->
+    <line x1="96" y1="221" x2="672" y2="221" stroke="#e8d8c8" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="340" y="232" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#888" font-style="italic">Integrates ↕</text>
+
+    <!-- TIER 3 — ADVANCED (orange) -->
+    <rect x="8" y="237" width="82" height="58" rx="6" fill="#faf0e4" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="49" y="256" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="#c8772a">TIER 3</text>
+    <text x="49" y="268" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" fill="#c8772a">ADVANCED</text>
+
+    <rect x="96" y="237" width="128" height="58" rx="5" fill="#fdf6ee" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="160" y="258" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">SUPABASE</text>
+    <text x="160" y="272" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Database &amp; auth</text>
+
+    <rect x="234" y="237" width="148" height="58" rx="5" fill="#fdf6ee" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="308" y="258" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">TESTFLIGHT</text>
+    <text x="308" y="272" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">iOS deployment</text>
+
+    <rect x="392" y="237" width="128" height="58" rx="5" fill="#fdf6ee" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="456" y="258" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">PROXMOX</text>
+    <text x="456" y="272" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">VM hypervisor</text>
+
+    <rect x="530" y="237" width="142" height="58" rx="5" fill="#fdf6ee" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="601" y="252" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">TERRAFORM +</text>
+    <text x="601" y="264" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">ANSIBLE</text>
+    <text x="601" y="278" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Infra as code</text>
+
+    <!-- Tier 3 arrows -->
+    <line x1="224" y1="266" x2="234" y2="266" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <line x1="382" y1="266" x2="392" y2="266" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+    <line x1="520" y1="266" x2="530" y2="266" stroke="#555" stroke-width="1.2" marker-end="url(#tk-arr)"/>
+
+    <!-- CONTEXT LAYER (teal) -->
+    <rect x="8" y="310" width="82" height="58" rx="6" fill="#e8f5f5" stroke="#2a8a8a" stroke-width="1.5"/>
+    <text x="49" y="330" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="#2a8a8a">CONTEXT</text>
+    <text x="49" y="342" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" fill="#2a8a8a">LAYER</text>
+
+    <rect x="96" y="310" width="180" height="58" rx="5" fill="#f0fafa" stroke="#2a8a8a" stroke-width="1.5"/>
+    <text x="186" y="331" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">CLAUDE.md</text>
+    <text x="186" y="345" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Project memory</text>
+
+    <rect x="286" y="310" width="200" height="58" rx="5" fill="#f0fafa" stroke="#2a8a8a" stroke-width="1.5"/>
+    <text x="386" y="331" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">project.md</text>
+    <text x="386" y="345" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Technical reference</text>
+
+    <rect x="496" y="310" width="176" height="58" rx="5" fill="#f0fafa" stroke="#2a8a8a" stroke-width="1.5"/>
+    <text x="584" y="331" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">Skills</text>
+    <text x="584" y="345" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Reusable workflows</text>
+
+    <text x="340" y="382" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#888" font-style="italic">Claude Code reads these automatically at session start</text>
+  </svg>
+</div>
+      <div class="figure-caption">The complete AI toolkit — three tiers, one workflow. Start with Tier 1.</div>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">Tier 2 — Power Tools (Add in Week 1)</h2>
+
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>What It Does</th><th>Cost</th><th>Platform</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MCP Connectors</strong></td>
+            <td>Lets Claude talk directly to Notion, n8n, databases, and more. One config file, permanent superpowers.</td>
+            <td>Free</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>n8n</strong></td>
+            <td>Visual workflow automation. Like Zapier but self-hosted and dramatically more powerful.</td>
+            <td>Free (self-hosted)</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>Docker</strong></td>
+            <td>Runs apps in containers. "It works on my machine" becomes "it works on every machine."</td>
+            <td>Free</td>
+            <td>Mac + Win</td>
+          </tr>
+          <tr>
+            <td><strong>Gamma</strong></td>
+            <td>AI presentation builder. Connected to Claude via MCP. Describe a deck, it builds it.</td>
+            <td>Free tier</td>
+            <td>Web</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 7 — CHAPTER 2: Tier 3 + Cost Note
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">7 of 20</span>
+    </div>
+    <div class="page-content">
+      <h2 class="section-title mt0">Tier 3 — Advanced (Week 2+)</h2>
+
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>What It Does</th><th>Cost</th><th>Platform</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Supabase</strong></td>
+            <td>Database + auth + API. A backend for your apps without needing backend experience.</td>
+            <td>Free tier</td>
+            <td>Web</td>
+          </tr>
+          <tr>
+            <td><strong>TestFlight</strong></td>
+            <td>Put an iOS app on your phone without the App Store.</td>
+            <td>Free (Apple Dev $99/yr)</td>
+            <td>Mac only</td>
+          </tr>
+          <tr>
+            <td><strong>Proxmox</strong></td>
+            <td>VM hypervisor for lab environments.</td>
+            <td>Free</td>
+            <td>Dedicated HW</td>
+          </tr>
+          <tr>
+            <td><strong>Terraform + Ansible</strong></td>
+            <td>Infrastructure as code. Describe servers in config files, machines build themselves.</td>
+            <td>Free</td>
+            <td>Mac + Win</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sp2"></div>
+      <p><strong>Total cost to get started: $0–$20/month.</strong> The paid version of Claude Pro ($20/mo) is the only thing that isn't free, and it's worth every penny once you see what Claude Code can do.</p>
+
+      <div class="editorial-joke">
+        <p>Proxmox is free. Terraform is free. Ansible is free. The three weeks you'll spend learning them before realising Claude can just write the configs for you — priceless.</p>
+      </div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 8 — CHAPTER 3: GLOSSARY (Part 1)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">8 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 3</div>
+      <h1 class="chapter-title">Key Concepts — The Glossary You'll Actually Use</h1>
+
+      <p>You're going to hear these terms constantly. Each one explained in plain English.</p>
+
+      <div class="sp1"></div>
+
+      <table>
+        <thead>
+          <tr><th style="width:32%">Term</th><th>Plain English Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="term-name">Markdown (.md files)</span></td>
+            <td>Simple text formatting that every tool in this stack understands. # for headers, ** for bold, - for lists. It's the common language between you, Claude, GitHub, and Notion. Takes 5 minutes to learn.</td>
+          </tr>
+          <tr>
+            <td><span class="term-link">CLAUDE.md</span></td>
+            <td>A markdown file you put in your project folder. Claude Code reads it automatically at the start of every session. It's a briefing document: "here's what this project is, here's what we've built, here's what to do next." This single file is the difference between Claude starting confused and Claude picking up exactly where you left off. <strong>The most important concept in this guide.</strong></td>
+          </tr>
+          <tr>
+            <td><span class="term-link">project.md</span></td>
+            <td>A companion to CLAUDE.md with more detail: infrastructure specifics, API endpoints, deployment instructions, known issues. CLAUDE.md is the executive summary. project.md is the technical reference.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">MCP (Model Context Protocol)</span></td>
+            <td>A standard that lets Claude talk to external tools directly. Instead of copy-pasting between Claude and Notion, MCP lets Claude read and write to Notion on its own. Same for n8n, databases, file systems, and dozens of other tools. Configure once, forget forever.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Skills</span></td>
+            <td>Packaged instructions that teach Claude how to do specific things well. Like handing a new hire a procedures manual. Claude Code comes with built-in skills, and you can create custom ones. They live in <code>~/.claude/skills/</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">System Prompt</span></td>
+            <td>Instructions you give Claude before a conversation starts. Defines its role, rules, and context. Think of it as a job description for AI.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 9 — CHAPTER 3: GLOSSARY (Part 2)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">9 of 20</span>
+    </div>
+    <div class="page-content">
+      <table>
+        <thead>
+          <tr><th style="width:32%">Term</th><th>Plain English Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="term-name">Plan Mode (Claude Code)</span></td>
+            <td>A mode where Claude Code maps out everything it intends to do before writing a single line of code. Files it'll create, changes it'll make, commands it'll run. You review the plan, ask questions, adjust, then approve. Blueprint before construction.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Auto-accept / Bypass Permissions</span></td>
+            <td>A mode that lets Claude Code execute without pausing for permission at each step. Powerful when combined with Plan Mode. Dangerous without it.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">n8n Workflows</span></td>
+            <td>Visual automation pipelines. Connect triggers ("when this happens") to actions ("do this") by dragging boxes and drawing lines. No code required for basic workflows.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Docker Containers</span></td>
+            <td>Self-contained packages that run apps identically on every machine. One command starts everything. Eliminates setup headaches.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">API (Application Programming Interface)</span></td>
+            <td>How software talks to other software. When Claude Code creates a blog post, it's calling an API. When n8n sends an email, it's calling an API. APIs are the bridges between tools.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Git / GitHub</span></td>
+            <td>Version control. Every change is saved as a snapshot ("commit") you can always revert to. GitHub stores those snapshots in the cloud. It's your undo button for everything.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Terraform</span></td>
+            <td>Infrastructure as code. Describe what servers you want in a config file, Terraform builds them. Repeatable, consistent, shareable.</td>
+          </tr>
+          <tr>
+            <td><span class="term-name">Ansible</span></td>
+            <td>Configuration management. Once a server exists, Ansible configures it — installs software, sets permissions, applies policies. Also defined in code files.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 10 — CHAPTER 4: PLAN-THEN-EXECUTE (Part 1)
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">10 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 4</div>
+      <h1 class="chapter-title">The Plan-Then-Execute Pattern</h1>
+
+      <blockquote>
+        <p>This is the single most important workflow in the guide. Everything else builds on it.</p>
+      </blockquote>
+
+      <div class="sp1"></div>
+
+      <p>Claude Code has two modes that work together:</p>
+      <p><strong>Plan Mode</strong> — Claude reads your project, analyzes your request, and produces a detailed plan: files to create, changes to make, commands to run. It executes nothing. You review, question, adjust.</p>
+      <p><strong>Bypass Permissions</strong> — Once you've approved the plan and you're confident Claude understands the task, you enable auto-accept. Claude executes the entire plan without pausing at each step. It creates, runs, tests, iterates — all autonomously.</p>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">The Pattern</h2>
+
+      <ol>
+        <li>Describe what you want to build</li>
+        <li>Turn on Plan Mode — Claude maps out the full approach</li>
+        <li>Review: Does it understand the architecture? Is it touching files it shouldn't? Is the approach correct?</li>
+        <li>Adjust if needed ("don't use that library" or "start with the backend first")</li>
+        <li>Approve. Turn on Bypass. Let it build.</li>
+        <li>Come back, review output, test, iterate.</li>
+      </ol>
+
+      <div class="sp1"></div>
+      <p>Without Plan Mode, you're approving each action one at a time — like reviewing a construction project one brick at a time instead of looking at the blueprint. With it, you see the whole plan, approve once, and let the builder work.</p>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 11 — CHAPTER 4: The Rules + Diagram
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">11 of 20</span>
+    </div>
+    <div class="page-content">
+      <h2 class="section-title mt0">The Rules</h2>
+
+      <div class="two-col">
+        <div>
+          <h3 class="sub-title cyan">Always use Plan Mode when:</h3>
+          <ul>
+            <li>Starting a new project</li>
+            <li>Making architectural changes</li>
+            <li>Working with unfamiliar libraries or frameworks</li>
+            <li>Modifying critical infrastructure or security-related code</li>
+            <li>You're not 100% confident Claude understands what you want</li>
+          </ul>
+
+          <h3 class="sub-title green">Only use Bypass Mode when:</h3>
+          <ul>
+            <li>You've reviewed the plan and it's correct</li>
+            <li>The task is straightforward and you trust Claude's approach</li>
+            <li>You're iterating on something you've already built</li>
+            <li>Time matters and you're willing to review output afterward</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="sub-title gold">Never use Bypass Mode when:</h3>
+          <ul>
+            <li>Claude hasn't produced a plan first</li>
+            <li>You're working in production</li>
+            <li>The task involves deleting files or data</li>
+            <li>You don't understand what Claude is about to do</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sp1"></div>
+
+      <div class="figure">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="pte-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#444"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="340" y="28" text-anchor="middle" font-family="'Syne',sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">The Plan-Then-Execute Pattern</text>
+    <text x="340" y="44" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">Review the blueprint. Then let the builder work.</text>
+
+    <!-- PHASE 1: PLAN box (left) -->
+    <rect x="12" y="56" width="282" height="220" rx="8" fill="#f0ecf9" stroke="#6b4fb8" stroke-width="2"/>
+    <rect x="12" y="56" width="282" height="36" rx="8" fill="#6b4fb8"/>
+    <rect x="12" y="75" width="282" height="17" fill="#6b4fb8"/>
+    <text x="153" y="78" text-anchor="middle" font-family="'Syne',sans-serif" font-size="12" font-weight="700" fill="white">PHASE 1: PLAN</text>
+
+    <!-- Plan steps -->
+    <rect x="26" y="104" width="254" height="46" rx="6" fill="white" stroke="#9c80d0" stroke-width="1.2"/>
+    <text x="153" y="122" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">DESCRIBE WHAT YOU WANT</text>
+    <text x="153" y="137" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Write a clear prompt or spec</text>
+
+    <line x1="153" y1="150" x2="153" y2="162" stroke="#9c80d0" stroke-width="1.5" marker-end="url(#pte-arr)"/>
+
+    <rect x="26" y="162" width="254" height="46" rx="6" fill="white" stroke="#9c80d0" stroke-width="1.2"/>
+    <text x="153" y="180" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">CLAUDE MAPS THE PLAN</text>
+    <text x="153" y="195" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Reviews scope, lists steps</text>
+
+    <line x1="153" y1="208" x2="153" y2="220" stroke="#9c80d0" stroke-width="1.5" marker-end="url(#pte-arr)"/>
+
+    <rect x="26" y="220" width="254" height="46" rx="6" fill="white" stroke="#9c80d0" stroke-width="1.2"/>
+    <text x="153" y="238" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">YOU REVIEW &amp; ADJUST</text>
+    <text x="153" y="253" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Edit, approve, or push back</text>
+
+    <!-- APPROVE button (center) -->
+    <rect x="296" y="156" width="88" height="38" rx="19" fill="#c8772a" stroke="none"/>
+    <text x="340" y="170" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="white">▼ APPROVE ▼</text>
+    <line x1="294" y1="175" x2="296" y2="175" stroke="#c8772a" stroke-width="1.8"/>
+    <line x1="384" y1="175" x2="386" y2="175" stroke="#c8772a" stroke-width="1.8"/>
+
+    <!-- PHASE 2: EXECUTE box (right) -->
+    <rect x="386" y="56" width="282" height="220" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+    <rect x="386" y="56" width="282" height="36" rx="8" fill="#2e8b57"/>
+    <rect x="386" y="75" width="282" height="17" fill="#2e8b57"/>
+    <text x="527" y="78" text-anchor="middle" font-family="'Syne',sans-serif" font-size="12" font-weight="700" fill="white">PHASE 2: EXECUTE</text>
+
+    <!-- Execute steps -->
+    <rect x="400" y="104" width="254" height="46" rx="6" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="527" y="122" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">ENABLE BYPASS PERMISSIONS</text>
+    <text x="527" y="137" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Auto-approve file and terminal ops</text>
+
+    <line x1="527" y1="150" x2="527" y2="162" stroke="#5ab87e" stroke-width="1.5" marker-end="url(#pte-arr)"/>
+
+    <rect x="400" y="162" width="254" height="46" rx="6" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="527" y="180" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">CLAUDE BUILDS AUTONOMOUSLY</text>
+    <text x="527" y="195" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Writes, runs, tests, iterates</text>
+
+    <line x1="527" y1="208" x2="527" y2="220" stroke="#5ab87e" stroke-width="1.5" marker-end="url(#pte-arr)"/>
+
+    <rect x="400" y="220" width="254" height="46" rx="6" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="527" y="238" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">REVIEW OUTPUT &amp; TEST</text>
+    <text x="527" y="253" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Check results, run tests, iterate</text>
+
+    <!-- Warning bar -->
+    <rect x="12" y="290" width="656" height="36" rx="6" fill="#fff8e8" stroke="#c8772a" stroke-width="1.5"/>
+    <text x="340" y="313" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#8a4800">⚠ Never bypass without reviewing the plan first. Git commit before big runs.</text>
+  </svg>
+</div>
+      <div class="figure-caption">Review the blueprint. Then let the builder work.</div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 12 — CHAPTER 5: DOS AND DON'TS
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">12 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 5</div>
+      <h1 class="chapter-title">Dos and Don'ts — Especially for a Cybersecurity Company</h1>
+
+      <p>You work at Sophos. Your team will immediately (and correctly) ask: "What data is being sent where?" This section answers that.</p>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">DO</h2>
+
+      <ul>
+        <li><strong>Use CLAUDE.md in every project.</strong> It's the single biggest productivity multiplier. No CLAUDE.md = starting from zero every session.</li>
+        <li><strong>Document as you build.</strong> Update Notion and project files after every session. Future you will be grateful.</li>
+        <li><strong>"Describe, Build, Test, Iterate."</strong> Don't try to spec everything perfectly upfront. Tell Claude what you want, see what it builds, adjust.</li>
+        <li><strong>Keep secrets in .env files.</strong> Add .env to your .gitignore. Commit a .env.example with placeholder values.</li>
+        <li><strong>Ask Claude to explain.</strong> "What does this code do?" makes you learn faster than copying blindly.</li>
+        <li><strong>Use Claude to write your documentation.</strong> It's genuinely better at structured docs than most humans. Let it.</li>
+      </ul>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 13 — CHAPTER 5: DON'T + Where Your Data Goes
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">13 of 20</span>
+    </div>
+    <div class="page-content">
+      <h2 class="section-title mt0">DON'T</h2>
+
+      <ul>
+        <li><strong>Never paste customer data into any AI tool.</strong> No PII. No customer environment details. No case data. No exceptions.</li>
+        <li><strong>Never paste credentials into a prompt.</strong> No API keys, passwords, tokens, or secrets. If Claude needs an API key, it goes in a .env file.</li>
+        <li><strong>Never commit .env files to GitHub.</strong> This is how secrets leak. It happens to professionals constantly. Don't be that commit.</li>
+        <li><strong>Never trust AI output blindly.</strong> Review generated code before running it, especially anything touching infrastructure or customer-facing systems.</li>
+        <li><strong>Never use AI-generated code in production without review.</strong> It's a starting point, not a finished product. Test it. Read it. Understand it.</li>
+      </ul>
+
+      <div class="section-divider"></div>
+
+      <h2 class="section-title">Where Your Data Goes</h2>
+
+      <div class="figure">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 330" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="dg-arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#2e8b57"/>
+      </marker>
+      <marker id="dg-block" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#b53030"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="340" y="26" text-anchor="middle" font-family="'Syne',sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Where Your Data Goes</text>
+    <text x="340" y="42" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">What stays local. What goes to the cloud. What never goes anywhere.</text>
+
+    <!-- ZONE 1: LOCAL (green) -->
+    <rect x="10" y="52" width="660" height="68" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+    <text x="22" y="72" font-family="'Syne',sans-serif" font-size="11" font-weight="700" fill="#2e8b57">LOCAL — YOUR MACHINE</text>
+    <text x="22" y="87" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Your code and containers stay here</text>
+    <!-- Local tools -->
+    <rect x="160" y="60" width="108" height="52" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="214" y="81" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">VS CODE</text>
+    <text x="214" y="96" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Your editor</text>
+    <rect x="278" y="60" width="118" height="52" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="337" y="81" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">CLAUDE CODE</text>
+    <text x="337" y="96" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Files &amp; edits</text>
+    <rect x="406" y="60" width="108" height="52" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="460" y="81" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">DOCKER</text>
+    <text x="460" y="96" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Containers</text>
+    <rect x="524" y="60" width="138" height="52" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="593" y="76" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">n8n</text>
+    <text x="593" y="90" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" font-weight="700" fill="#1a1a1a">SELF-HOSTED</text>
+    <text x="593" y="105" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Workflows</text>
+
+    <!-- Arrow down: API calls -->
+    <line x1="340" y1="120" x2="340" y2="138" stroke="#2e8b57" stroke-width="2" marker-end="url(#dg-arr)"/>
+    <text x="340" y="133" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#2e8b57" font-style="italic"> API calls &amp; syncs</text>
+
+    <!-- ZONE 2: CLOUD (amber/yellow) -->
+    <rect x="10" y="140" width="660" height="68" rx="8" fill="#fdf8e8" stroke="#c8a020" stroke-width="2"/>
+    <text x="22" y="160" font-family="'Syne',sans-serif" font-size="11" font-weight="700" fill="#a07010">CLOUD — VENDOR SERVERS</text>
+    <text x="22" y="175" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Prompts and docs go here — no customer data</text>
+    <!-- Cloud tools -->
+    <rect x="160" y="148" width="108" height="52" rx="5" fill="white" stroke="#c8a020" stroke-width="1.2"/>
+    <text x="214" y="169" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">CLAUDE API</text>
+    <text x="214" y="184" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Anthropic servers</text>
+    <rect x="278" y="148" width="118" height="52" rx="5" fill="white" stroke="#c8a020" stroke-width="1.2"/>
+    <text x="337" y="169" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">NOTION</text>
+    <text x="337" y="184" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Docs &amp; notes</text>
+    <rect x="406" y="148" width="108" height="52" rx="5" fill="white" stroke="#c8a020" stroke-width="1.2"/>
+    <text x="460" y="169" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">GITHUB</text>
+    <text x="460" y="184" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Code repos</text>
+    <rect x="524" y="148" width="138" height="52" rx="5" fill="white" stroke="#c8a020" stroke-width="1.2"/>
+    <text x="593" y="169" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">GAMMA</text>
+    <text x="593" y="184" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Presentations</text>
+
+    <!-- BLOCKED separator -->
+    <line x1="10" y1="220" x2="660" y2="220" stroke="#b53030" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <rect x="295" y="210" width="90" height="20" rx="4" fill="#faeaea" stroke="#b53030" stroke-width="1.2"/>
+    <text x="340" y="224" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" font-weight="700" fill="#b53030">✕ BLOCKED</text>
+
+    <!-- ZONE 3: NEVER (red) -->
+    <rect x="10" y="232" width="660" height="68" rx="8" fill="#faeaea" stroke="#b53030" stroke-width="2"/>
+    <text x="22" y="252" font-family="'Syne',sans-serif" font-size="11" font-weight="700" fill="#b53030">NEVER — DANGER ZONE</text>
+    <text x="22" y="267" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">These never go into any AI tool</text>
+    <!-- Danger items -->
+    <rect x="160" y="240" width="108" height="52" rx="5" fill="white" stroke="#b53030" stroke-width="1.2"/>
+    <text x="214" y="259" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#b53030">CUSTOMER PII</text>
+    <text x="214" y="274" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Names, emails, IDs</text>
+    <rect x="278" y="240" width="118" height="52" rx="5" fill="white" stroke="#b53030" stroke-width="1.2"/>
+    <text x="337" y="259" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#b53030">API KEYS</text>
+    <text x="337" y="274" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">In prompts or chat</text>
+    <rect x="406" y="240" width="108" height="52" rx="5" fill="white" stroke="#b53030" stroke-width="1.2"/>
+    <text x="460" y="259" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#b53030">.ENV FILES</text>
+    <text x="460" y="274" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">On GitHub</text>
+    <rect x="524" y="240" width="138" height="52" rx="5" fill="white" stroke="#b53030" stroke-width="1.2"/>
+    <text x="593" y="259" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#b53030">INTERNAL DOCS</text>
+    <text x="593" y="274" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Without clearance</text>
+
+    <text x="340" y="318" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#888" font-style="italic">Keep customer data off every AI tool, including Claude.</text>
+  </svg>
+</div>
+      <div class="figure-caption">What stays local. What goes to the cloud. What never goes anywhere.</div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 14 — CHAPTER 5: Data Table + Chapter 6 Intro
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">14 of 20</span>
+    </div>
+    <div class="page-content">
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Where Data Lives</th><th>What to Know</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Claude Desktop / Chat</strong></td>
+            <td>Anthropic's cloud servers</td>
+            <td>Don't paste customer data or credentials. General planning and brainstorming is fine.</td>
+          </tr>
+          <tr>
+            <td><strong>Claude Code</strong></td>
+            <td>Local files + API calls to Anthropic</td>
+            <td>Your code stays local. Prompts and responses go through Anthropic's API. Same rule: no customer data.</td>
+          </tr>
+          <tr>
+            <td><strong>Notion</strong></td>
+            <td>Notion's cloud</td>
+            <td>Don't store raw credentials. Reference where to find them, never the values.</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub</strong></td>
+            <td>GitHub cloud (or private repos)</td>
+            <td>Use private repos for anything work-related. .gitignore your secrets.</td>
+          </tr>
+          <tr>
+            <td><strong>n8n (self-hosted)</strong></td>
+            <td>Your machine</td>
+            <td>Stays local. Best option for workflows that touch sensitive data.</td>
+          </tr>
+          <tr>
+            <td><strong>Docker</strong></td>
+            <td>Your machine</td>
+            <td>Containers run locally. Data stays local unless you configure external storage.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-divider"></div>
+
+      <div class="chapter-eyebrow">Chapter 6</div>
+      <h1 class="chapter-title no-border">Claude Chat vs Claude Code</h1>
+
+      <h2 class="section-title mt0">Plan in Chat. Build in Code.</h2>
+      <p style="font-style:italic;color:var(--ink-soft);margin-bottom:3mm;">One of the most common early mistakes. Takes 60 seconds to fix.</p>
+
+      <p>Claude Desktop (the chat app) is where you think, plan, write specs, brainstorm, review outputs, and draft non-code content. It's your <strong>strategist</strong>.</p>
+      <p>Claude Code (inside VS Code or terminal) is where you build. It creates files, writes code, runs commands, connects to tools via MCP, and executes. It's your <strong>builder</strong>.</p>
+      <p>Same intelligence. Different capabilities.</p>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 15 — CHAPTER 6: Chat vs Code Diagram + Table
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">15 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="figure">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 350" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+          <defs>
+            <marker id="cv-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#c8772a"/>
+            </marker>
+          </defs>
+          <!-- Title -->
+          <text x="340" y="26" text-anchor="middle" font-family="'Syne',sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Claude Chat vs Claude Code</text>
+          <text x="340" y="42" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">Plan in Chat. Build in Code.</text>
+          <!-- LEFT: Claude Desktop -->
+          <rect x="10" y="52" width="264" height="246" rx="8" fill="#edf2fb" stroke="#3a6bb0" stroke-width="2"/>
+          <text x="142" y="72" text-anchor="middle" font-family="'Syne',sans-serif" font-size="12" font-weight="700" fill="#3a6bb0">CLAUDE DESKTOP</text>
+          <text x="142" y="86" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#888">Chat interface</text>
+          <rect x="96" y="92" width="92" height="16" rx="8" fill="#3a6bb0"/>
+          <text x="142" y="104" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="white">STRATEGIST</text>
+          <rect x="22" y="116" width="240" height="26" rx="4" fill="white" stroke="#b8ccee" stroke-width="1"/>
+          <text x="42" y="129" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Planning &amp; brainstorming</text>
+          <text x="42" y="140" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Best for thinking through problems</text>
+          <rect x="22" y="148" width="240" height="26" rx="4" fill="white" stroke="#b8ccee" stroke-width="1"/>
+          <text x="42" y="161" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Writing specs &amp; docs</text>
+          <text x="42" y="172" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Outlines, PRDs, design docs</text>
+          <rect x="22" y="180" width="240" height="26" rx="4" fill="white" stroke="#b8ccee" stroke-width="1"/>
+          <text x="42" y="193" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Reviewing approaches</text>
+          <text x="42" y="204" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Sanity-check your ideas</text>
+          <rect x="22" y="212" width="240" height="26" rx="4" fill="white" stroke="#b8ccee" stroke-width="1"/>
+          <text x="42" y="225" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Drafting emails &amp; comms</text>
+          <text x="42" y="236" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Summaries, announcements</text>
+          <rect x="22" y="244" width="240" height="26" rx="4" fill="white" stroke="#b8ccee" stroke-width="1"/>
+          <text x="42" y="257" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Explaining concepts</text>
+          <text x="42" y="268" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Architecture, trade-offs</text>
+          <text x="142" y="290" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#3a6bb0" letter-spacing="2">THINKS</text>
+          <!-- CENTER BRIDGE -->
+          <line x1="274" y1="170" x2="295" y2="170" stroke="#c8772a" stroke-width="1.5" marker-end="url(#cv-arr)"/>
+          <line x1="406" y1="170" x2="385" y2="170" stroke="#c8772a" stroke-width="1.5" marker-end="url(#cv-arr)"/>
+          <rect x="295" y="146" width="90" height="50" rx="6" fill="#fff3e0" stroke="#c8772a" stroke-width="1.8"/>
+          <text x="340" y="162" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" font-weight="700" fill="#8a4800">Draft in Chat</text>
+          <text x="340" y="175" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" font-weight="700" fill="#8a4800">Paste into Code</text>
+          <text x="340" y="188" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" fill="#c8772a" font-style="italic">THE POWER MOVE</text>
+          <!-- RIGHT: Claude Code -->
+          <rect x="406" y="52" width="264" height="246" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+          <text x="538" y="72" text-anchor="middle" font-family="'Syne',sans-serif" font-size="12" font-weight="700" fill="#2e8b57">CLAUDE CODE</text>
+          <text x="538" y="86" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#888">Terminal tool</text>
+          <rect x="492" y="92" width="92" height="16" rx="8" fill="#2e8b57"/>
+          <text x="538" y="104" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" font-weight="700" fill="white">BUILDER</text>
+          <rect x="418" y="116" width="240" height="26" rx="4" fill="white" stroke="#90ccaa" stroke-width="1"/>
+          <text x="438" y="129" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Creating &amp; editing code</text>
+          <text x="438" y="140" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Multi-file edits with context</text>
+          <rect x="418" y="148" width="240" height="26" rx="4" fill="white" stroke="#90ccaa" stroke-width="1"/>
+          <text x="438" y="161" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Running terminal commands</text>
+          <text x="438" y="172" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Tests, builds, installs</text>
+          <rect x="418" y="180" width="240" height="26" rx="4" fill="white" stroke="#90ccaa" stroke-width="1"/>
+          <text x="438" y="193" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">File creation &amp; management</text>
+          <text x="438" y="204" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Scaffolds entire projects</text>
+          <rect x="418" y="212" width="240" height="26" rx="4" fill="white" stroke="#90ccaa" stroke-width="1"/>
+          <text x="438" y="225" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">MCP tool connections</text>
+          <text x="438" y="236" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">GitHub, Notion, Supabase...</text>
+          <rect x="418" y="244" width="240" height="26" rx="4" fill="white" stroke="#90ccaa" stroke-width="1"/>
+          <text x="438" y="257" font-family="'Syne',sans-serif" font-size="9.5" font-weight="700" fill="#1a1a1a">Autonomous execution</text>
+          <text x="438" y="268" font-family="'Syne',sans-serif" font-size="7.5" fill="#666">Bypass mode for long runs</text>
+          <text x="538" y="290" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#2e8b57" letter-spacing="2">BUILDS</text>
+          <!-- Bottom comparison bar -->
+          <rect x="10" y="308" width="660" height="30" rx="6" fill="#f2f2f2" stroke="#d8d8d8" stroke-width="1"/>
+          <text x="160" y="327" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555"><tspan font-weight="700">MCP:</tspan> Both (different setup)</text>
+          <line x1="320" y1="312" x2="320" y2="334" stroke="#d8d8d8" stroke-width="1"/>
+          <text x="405" y="327" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555"><tspan font-weight="700">Memory:</tspan> Built-in vs CLAUDE.md files</text>
+          <line x1="490" y1="312" x2="490" y2="334" stroke="#d8d8d8" stroke-width="1"/>
+          <text x="575" y="327" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#555"><tspan font-weight="700">Skills:</tspan> ✕ Chat · ✓ Code</text>
+        </svg>
+      </div>
+      <div class="figure-caption">Plan in Chat. Build in Code. Same intelligence, different capabilities.</div>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">When to Use What</h2>
+
+      <table>
+        <thead>
+          <tr><th>Task</th><th style="width:12%">Chat</th><th style="width:12%">Code</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Planning and brainstorming</td><td class="tick">✓</td><td></td><td>Use Chat for thinking</td></tr>
+          <tr><td>Writing specs, reviewing approaches</td><td class="tick">✓</td><td></td><td>Draft in Chat first</td></tr>
+          <tr><td>Drafting emails, docs, strategies</td><td class="tick">✓</td><td></td><td></td></tr>
+          <tr><td>Creating and editing actual code</td><td></td><td class="tick">✓</td><td>Code writes the files</td></tr>
+          <tr><td>Running terminal commands</td><td></td><td class="tick">✓</td><td></td></tr>
+          <tr><td>File creation and testing</td><td></td><td class="tick">✓</td><td></td></tr>
+          <tr><td>MCP-connected tools</td><td class="both">Both</td><td class="both">Both</td><td>Different config per app</td></tr>
+          <tr><td>Custom skills (~/.claude/skills/)</td><td class="cross">✗</td><td class="tick">✓</td><td>Skills are Code-only</td></tr>
+          <tr><td>Memory across sessions</td><td class="both">Built-in memory</td><td class="both">CLAUDE.md files</td><td>CLAUDE.md is more powerful</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sp1"></div>
+      <p><strong>The power move:</strong> Draft a detailed spec in Claude Chat, then paste it into Claude Code as a prompt. Chat does the thinking. Code does the building. This is the workflow behind every project in Chapter 1.</p>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 16 — CHAPTER 7: THE MEMORY PATTERN
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">16 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Chapter 7</div>
+      <h1 class="chapter-title">The Memory Pattern</h1>
+
+      <h2 class="section-title mt0">CLAUDE.md and Persistent Context</h2>
+
+      <blockquote>
+        <p>The quality of what AI builds for you is directly proportional to the context you give it. This is not a suggestion. It's physics.</p>
+      </blockquote>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">What Goes in CLAUDE.md</h2>
+      <p>This file lives in your project root. Claude Code reads it automatically. Every time. No setup required.</p>
+
+<pre># CLAUDE.md — [Project Name]
+
+## Overview
+[2-3 sentences: what this project is and what it does]
+
+## Infrastructure
+[What's running, where, how to access it]
+
+## Completed Work
+[What's been built so far — bullet points]
+
+## Pending Tasks
+[What's next — in priority order]
+
+## Key Decisions
+[Choices made and why — so Claude doesn't re-debate them]
+
+## File Paths
+[Important directories and files]
+
+## Credentials
+[Where to find them — NEVER the actual values]</pre>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">The Memory Loop</h2>
+      <p>This is the pattern that makes everything work:</p>
+      <ol>
+        <li><strong>Start a session</strong> — Claude reads CLAUDE.md, knows exactly where things stand</li>
+        <li><strong>Build stuff</strong> — Claude creates, modifies, tests</li>
+        <li><strong>End the session</strong> — Ask Claude: "Update CLAUDE.md with what we accomplished and what's next"</li>
+        <li><strong>Next session</strong> — Claude reads the updated CLAUDE.md, picks up seamlessly</li>
+      </ol>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 17 — CHAPTER 7: Memory Diagrams
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">17 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="figure paired">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 310" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="cm-arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#c8772a"/>
+      </marker>
+      <marker id="cm-arr2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#3a6bb0"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="340" y="24" text-anchor="middle" font-family="'Syne',sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">How CLAUDE.md Gives AI Persistent Memory</text>
+    <text x="340" y="40" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">The bridge between sessions</text>
+
+    <!-- SESSION 1 box (left) -->
+    <rect x="10" y="50" width="188" height="188" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+    <text x="104" y="70" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11" font-weight="700" fill="#2e8b57">SESSION 1</text>
+
+    <rect x="22" y="80" width="164" height="36" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="104" y="95" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">BUILD FEATURES</text>
+    <text x="104" y="108" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Write code, add functionality</text>
+
+    <rect x="22" y="124" width="164" height="36" rx="5" fill="white" stroke="#5ab87e" stroke-width="1.2"/>
+    <text x="104" y="139" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">MAKE DECISIONS</text>
+    <text x="104" y="152" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Architecture and approach</text>
+
+    <rect x="22" y="168" width="164" height="36" rx="5" fill="white" stroke="#c8772a" stroke-width="1.8"/>
+    <text x="104" y="183" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#c8772a">UPDATE CLAUDE.md</text>
+    <text x="104" y="196" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Document what was built</text>
+
+    <!-- CLAUDE.md bridge box (center) -->
+    <rect x="236" y="78" width="208" height="132" rx="8" fill="#fff8ee" stroke="#c8772a" stroke-width="2"/>
+    <text x="340" y="100" text-anchor="middle" font-family="'Syne',sans-serif" font-size="14" font-weight="700" fill="#c8772a">CLAUDE.md</text>
+    <text x="340" y="116" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#888">The bridge</text>
+    <text x="256" y="138" font-family="'Syne',sans-serif" font-size="9" fill="#444">• Project goals</text>
+    <text x="256" y="154" font-family="'Syne',sans-serif" font-size="9" fill="#444">• Key decisions</text>
+    <text x="256" y="170" font-family="'Syne',sans-serif" font-size="9" fill="#444">• Architecture</text>
+    <text x="256" y="186" font-family="'Syne',sans-serif" font-size="9" fill="#444">• Conventions</text>
+
+    <!-- "writes" arrow -->
+    <path d="M186,186 C210,186 225,160 236,144" fill="none" stroke="#c8772a" stroke-width="1.8" marker-end="url(#cm-arr)"/>
+    <text x="206" y="178" font-family="'Syne',sans-serif" font-size="8.5" fill="#c8772a" font-style="italic">writes</text>
+
+    <!-- "reads" arrow -->
+    <path d="M444,144 C455,160 470,186 482,186" fill="none" stroke="#3a6bb0" stroke-width="1.8" marker-end="url(#cm-arr2)"/>
+    <text x="456" y="178" font-family="'Syne',sans-serif" font-size="8.5" fill="#3a6bb0" font-style="italic">reads</text>
+
+    <!-- TIME arrow label -->
+    <text x="340" y="54" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#ccc">TIME →</text>
+
+    <!-- SESSION 2 box (right) -->
+    <rect x="482" y="50" width="188" height="188" rx="8" fill="#edf2fb" stroke="#3a6bb0" stroke-width="2"/>
+    <text x="576" y="70" text-anchor="middle" font-family="'Syne',sans-serif" font-size="11" font-weight="700" fill="#3a6bb0">SESSION 2</text>
+
+    <rect x="494" y="80" width="164" height="36" rx="5" fill="white" stroke="#5a8fd0" stroke-width="1.2"/>
+    <text x="576" y="95" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">READS CLAUDE.md</text>
+    <text x="576" y="108" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Full project context loaded</text>
+
+    <rect x="494" y="124" width="164" height="36" rx="5" fill="white" stroke="#5a8fd0" stroke-width="1.2"/>
+    <text x="576" y="139" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">PICKS UP</text>
+    <text x="576" y="152" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">Right where you left off</text>
+
+    <rect x="494" y="168" width="164" height="36" rx="5" fill="white" stroke="#5a8fd0" stroke-width="1.2"/>
+    <text x="576" y="183" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#1a1a1a">KEEPS BUILDING</text>
+    <text x="576" y="196" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">No re-explanation needed</text>
+
+    <!-- Bottom comparison bars -->
+    <rect x="10" y="252" width="326" height="24" rx="5" fill="#faeaea" stroke="#b53030" stroke-width="1.2"/>
+    <text x="173" y="268" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#b53030">Without CLAUDE.md → every session starts from zero</text>
+    <rect x="344" y="252" width="326" height="24" rx="5" fill="#e8f5ee" stroke="#2e8b57" stroke-width="1.2"/>
+    <text x="507" y="268" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" fill="#2e8b57">With CLAUDE.md → every session starts informed</text>
+
+    <text x="340" y="298" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8.5" fill="#999" font-style="italic">MEMORY.md is who you are. CLAUDE.md is what you are building. project.md is the technical details.</text>
+  </svg>
+</div>
+      <div class="figure-caption">How context flows through Claude Code sessions via CLAUDE.md</div>
+
+      <div class="sp2"></div>
+
+      <div class="figure paired">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="100%" style="background:#fafafa;border:1px solid #e0e0e0;border-radius:6px;display:block">
+    <defs>
+      <marker id="ma-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="310" y="24" text-anchor="middle" font-family="'Syne',sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">Claude Memory Architecture</text>
+    <text x="310" y="40" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9.5" fill="#888" font-style="italic">Three layers. Different purposes. All automatic.</text>
+
+    <!-- Claude Code Session box (right) -->
+    <rect x="558" y="60" width="112" height="120" rx="8" fill="#f0ecf9" stroke="#6b4fb8" stroke-width="2"/>
+    <text x="614" y="82" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#6b4fb8">CLAUDE CODE</text>
+    <text x="614" y="96" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="700" fill="#6b4fb8">SESSION</text>
+    <text x="614" y="114" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">All layers loaded</text>
+    <text x="614" y="127" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#555">at session start</text>
+
+    <!-- Layer 1: MEMORY.md (orange) -->
+    <rect x="10" y="58" width="538" height="62" rx="8" fill="#faf0e4" stroke="#c8772a" stroke-width="2"/>
+    <text x="22" y="78" font-family="'Syne',sans-serif" font-size="13" font-weight="700" fill="#c8772a">MEMORY.md</text>
+    <rect x="22" y="84" width="148" height="18" rx="3" fill="rgba(200,119,42,0.12)" stroke="#c8772a" stroke-width="1"/>
+    <text x="96" y="97" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#8a5010">~/.claude/MEMORY.md</text>
+    <text x="280" y="78" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">Global memory — who you are</text>
+    <text x="280" y="92" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Your preferences, patterns, learned behaviors</text>
+    <text x="280" y="106" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Persists across ALL projects automatically</text>
+    <!-- arrow to Claude Code Session -->
+    <line x1="548" y1="89" x2="558" y2="89" stroke="#bbb" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ma-arr)"/>
+
+    <!-- Layer 2: CLAUDE.md (teal) -->
+    <rect x="10" y="132" width="538" height="62" rx="8" fill="#e8f5f5" stroke="#2a8a8a" stroke-width="2"/>
+    <text x="22" y="152" font-family="'Syne',sans-serif" font-size="13" font-weight="700" fill="#2a8a8a">CLAUDE.md</text>
+    <rect x="22" y="158" width="148" height="18" rx="3" fill="rgba(42,138,138,0.10)" stroke="#2a8a8a" stroke-width="1"/>
+    <text x="96" y="171" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#1a6060">./CLAUDE.md (project root)</text>
+    <text x="280" y="152" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">Project memory — what you are building</text>
+    <text x="280" y="166" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Architecture, decisions, conventions</text>
+    <text x="280" y="180" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">You maintain it. Updated after each session.</text>
+    <!-- arrow to Claude Code Session -->
+    <line x1="548" y1="163" x2="558" y2="120" stroke="#bbb" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ma-arr)"/>
+
+    <!-- Layer 3: project.md (green) -->
+    <rect x="10" y="206" width="538" height="62" rx="8" fill="#e8f5ee" stroke="#2e8b57" stroke-width="2"/>
+    <text x="22" y="226" font-family="'Syne',sans-serif" font-size="13" font-weight="700" fill="#2e8b57">project.md</text>
+    <rect x="22" y="232" width="148" height="18" rx="3" fill="rgba(46,139,87,0.10)" stroke="#2e8b57" stroke-width="1"/>
+    <text x="96" y="245" text-anchor="middle" font-family="'Syne',sans-serif" font-size="8" fill="#1a6030">./project.md (project root)</text>
+    <text x="280" y="226" font-family="'Syne',sans-serif" font-size="10" font-weight="700" fill="#1a1a1a">Technical reference — how it all works</text>
+    <text x="280" y="240" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">Detailed infrastructure, APIs, deployment</text>
+    <text x="280" y="254" font-family="'Syne',sans-serif" font-size="8.5" fill="#555">The deep context for complex projects</text>
+    <!-- arrow to Claude Code Session -->
+    <line x1="548" y1="237" x2="558" y2="168" stroke="#bbb" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ma-arr)"/>
+  </svg>
+</div>
+      <div class="figure-caption">The full memory architecture — CLAUDE.md, project.md, and session state.</div>
+
+      <div class="sp2"></div>
+      <p><strong>Those who do this will build things in hours. Those who skip it may spend half of every session re-explaining their project.</strong></p>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 18 — GETTING STARTED: First Steps
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">18 of 20</span>
+    </div>
+    <div class="page-content">
+      <div class="chapter-eyebrow">Getting Started</div>
+      <h1 class="chapter-title">Your Path Forward</h1>
+
+      <blockquote>
+        <p>You don't need a perfect plan. You need to start building. Here's how.</p>
+      </blockquote>
+
+      <p>This guide has shown you the complete stack — tools, concepts, patterns, real projects. Now it's time to apply it. You don't need to master everything at once. Pick a starting point, build something small, then expand from there.</p>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">First Steps (Start Here)</h2>
+
+      <h3 class="sub-title cyan">Week 1: Install and Explore</h3>
+      <ol>
+        <li><strong>Set up your tools</strong> — VS Code, Claude Desktop, Claude Code, GitHub account</li>
+        <li><strong>Build your first thing</strong> — Ask Claude Code to create a simple HTML dashboard or automation script</li>
+        <li><strong>Create your first CLAUDE.md file</strong> — Start the memory habit from Day 1</li>
+        <li><strong>Push to GitHub</strong> — Get comfortable with <code>git add</code>, <code>git commit</code>, <code>git push</code></li>
+      </ol>
+
+      <h3 class="sub-title green">Week 2: Add Context and Connections</h3>
+      <ol>
+        <li><strong>Set up Notion</strong> — Create a project workspace, document what you're building</li>
+        <li><strong>Connect MCP tools</strong> — Link Claude to Notion, enable web search, add Gamma</li>
+        <li><strong>Install Docker</strong> — Run your first container (n8n is a good starting point)</li>
+      </ol>
+
+      <div class="sp1"></div>
+      <h2 class="section-title">Topics to Explore (Pick What Interests You)</h2>
+      <p>Once you have the basics down, choose topics based on what you want to build. You don't need to do all of these — pick the ones that solve real problems for you.</p>
+
+      <h3 class="sub-title">Beginner Level</h3>
+      <ul>
+        <li><strong>Automation workflows</strong> — Use n8n to automate reports, notifications, data collection</li>
+        <li><strong>Documentation tools</strong> — Build a knowledge base, automate meeting notes, create onboarding guides</li>
+        <li><strong>Data dashboards</strong> — Visualize SE metrics, customer data, lab inventory (Sanitize sensitive data)</li>
+      </ul>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 19 — GETTING STARTED: Topics + Resources
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">19 of 20</span>
+    </div>
+    <div class="page-content">
+      <h3 class="sub-title cyan" style="margin-top:0">Intermediate Level</h3>
+      <ul>
+        <li><strong>MCP integrations</strong> — Connect Claude to Slack, Google Drive, Gmail, GitHub</li>
+        <li><strong>Docker deployments</strong> — Self-host tools (n8n, databases, web apps)</li>
+        <li><strong>Web applications</strong> — Build internal tools with Supabase backend</li>
+        <li><strong>API integrations</strong> — Connect tools that don't have native integrations</li>
+      </ul>
+
+      <h3 class="sub-title green">Advanced Level</h3>
+      <ul>
+        <li><strong>Infrastructure as Code</strong> — Use Terraform and Ansible to provision and configure servers</li>
+        <li><strong>Lab automation</strong> — Build LabOps-style VM provisioning and management</li>
+        <li><strong>iOS/mobile apps</strong> — Create native apps for field tools or demos</li>
+        <li><strong>Custom MCP servers</strong> — Build your own Claude connectors for proprietary systems</li>
+      </ul>
+
+      <div class="section-divider"></div>
+
+      <h2 class="section-title">Where to Go for Help</h2>
+
+      <div class="two-col">
+        <div>
+          <h3 class="sub-title">Official Resources</h3>
+          <ul>
+            <li><strong>Anthropic Prompt Engineering Guide</strong> — How to write effective prompts</li>
+            <li><strong>Claude Code Documentation</strong> — Complete reference for Claude Code features</li>
+            <li><strong>MCP Server Catalog</strong> — Browse available MCP connectors</li>
+          </ul>
+
+          <h3 class="sub-title">Courses &amp; Training</h3>
+          <ul>
+            <li><strong>Anthropic Academy</strong> — Free courses on prompt engineering and AI development</li>
+            <li><strong>Vanderbilt Coursera: Prompt Engineering for ChatGPT</strong> — Transferable skills that work with Claude</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="sub-title">Communities</h3>
+          <ul>
+            <li><strong>Claude Discord</strong> — Official Anthropic community</li>
+            <li><strong>r/ClaudeAI</strong> — Reddit community for Claude users</li>
+            <li><strong>MCP GitHub Discussions</strong> — For MCP-specific questions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 20 — GETTING STARTED: Core Pattern + Final Advice
+═══════════════════════════════════════════════════════════════ -->
+<div class="page content-page">
+  <div class="page-top-rule"></div>
+  <div class="page-inner">
+    <div class="running-header">
+      <span class="running-wordmark">SOPHOS <span class="hi">SALES ENGINEERING</span> // building_with_ai</span>
+      <span class="running-page">20 of 20</span>
+    </div>
+    <div class="page-content">
+      <h2 class="section-title mt0">The Core Pattern (Repeat This Forever)</h2>
+      <p>Every project you build from here follows the same workflow:</p>
+      <ol>
+        <li><strong>Plan</strong> — Describe what you want in Claude Chat, refine the approach</li>
+        <li><strong>Create CLAUDE.md</strong> — Set up the memory file before you start building</li>
+        <li><strong>Build</strong> — Use Claude Code with Plan Mode → review → Bypass</li>
+        <li><strong>Document</strong> — Update Notion, update CLAUDE.md, commit to GitHub</li>
+        <li><strong>Iterate</strong> — Test, improve, add features</li>
+      </ol>
+      <p>This pattern works whether you're building a one-hour automation or a month-long infrastructure project. The tools change. The pattern doesn't.</p>
+
+      <div class="section-divider"></div>
+
+      <h2 class="section-title">What Success Looks Like</h2>
+      <div class="two-col">
+        <div>
+          <h3 class="sub-title cyan">After your first week:</h3>
+          <ul>
+            <li>You've built something that works (even if it's simple)</li>
+            <li>You have a CLAUDE.md habit</li>
+            <li>Your projects are on GitHub</li>
+            <li>You understand Plan-Then-Execute</li>
+          </ul>
+          <h3 class="sub-title green">After your first month:</h3>
+          <ul>
+            <li>You've automated at least one repetitive task</li>
+            <li>You're comfortable with Docker and n8n</li>
+            <li>You've connected Claude to your other tools via MCP</li>
+            <li>You've shown a colleague something you built</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="sub-title gold">After three months:</h3>
+          <ul>
+            <li>You're building tools people at Sophos actually use</li>
+            <li>You're teaching others the patterns from this guide</li>
+            <li>You're thinking "I could build that" when you see gaps in your workflow</li>
+            <li>The SE team is asking you how you built things so fast</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <h2 class="section-title">Final Advice</h2>
+      <p><strong>Start small.</strong> Your first project doesn't need to be LabOps. Build a script that saves you 10 minutes a week. Build a dashboard that answers one question you ask repeatedly. Build a tool that makes one part of your job slightly less annoying.</p>
+      <p><strong>Document everything.</strong> Future you will thank past you. CLAUDE.md isn't optional. GitHub commits aren't optional. Notion documentation isn't optional. These aren't overhead — they're the difference between building once and rebuilding every session.</p>
+      <p><strong>Share what you learn.</strong> The best way to solidify your skills is to teach someone else. Walk a teammate through this guide. Show them a tool you built. Answer their questions. You'll find gaps in your own understanding — that's how you get better.</p>
+      <p><strong>The tools will keep improving.</strong> Claude gets smarter. New MCP connectors appear. Docker images get easier. But the patterns in this guide — Plan-Then-Execute, CLAUDE.md, document as you build — those don't change. Learn the patterns. The rest is just applying them to new problems.</p>
+      <p class="big-close">Go build something.</p>
+    </div>
+    <div class="page-footer-bar">
+      <span>Building with AI: What I Learned</span>
+      <span>Sophos Sales Engineering · Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

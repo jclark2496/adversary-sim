@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & Troubleshooting — Sophos Adversary Simulation Platform</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    body { overflow-y: auto; }
+
+    /* dot-grid bg */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .page { position: relative; z-index: 1; }
+
+    .content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 28px 80px;
+    }
+
+    /* ── Page title row ──────────────────────────────────── */
+    .page-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-family: var(--ft);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+
+    .page-subtitle {
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .upd-kb-btn {
+      font-family: var(--fm);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.25);
+      border-radius: 5px;
+      color: var(--text-sec);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .upd-kb-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.5); color: var(--text-primary); }
+
+    /* ── Search box ──────────────────────────────────────── */
+    .search-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: rgba(3,7,30,.7);
+      border: 1px solid rgba(0,237,255,.14);
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: var(--fm);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(var(--accent-cyan-rgb),.07);
+    }
+    .search-input::placeholder { color: rgba(235,246,255,.45); }
+
+    .search-caveat {
+      margin-top: 10px;
+      font-size: 11.5px;
+      color: rgba(var(--text-rgb), 0.42);
+      font-family: var(--fm);
+      letter-spacing: 0.01em;
+    }
+    .caveat-icon { margin-right: 5px; opacity: 0.7; }
+    .caveat-link {
+      color: var(--accent-cyan);
+      opacity: 0.7;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: rgba(var(--accent-cyan-rgb), 0.35);
+      cursor: pointer;
+    }
+    .caveat-link:hover { opacity: 1; }
+
+    .search-btn {
+      font-family: var(--fm);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      padding: 12px 22px;
+      background: rgba(0,237,255,.1);
+      border: 1px solid rgba(0,237,255,.35);
+      border-radius: 6px;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .search-btn:hover { background: rgba(0,237,255,.18); border-color: rgba(0,237,255,.55); }
+
+    /* ── Loading / status strip ──────────────────────────── */
+    .kb-status {
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 10px 0;
+      letter-spacing: .04em;
+    }
+    .kb-status.err { color: #FF4444; }
+
+    /* ── Result cards ────────────────────────────────────── */
+    #results-area { margin-bottom: 40px; }
+
+    .no-results {
+      padding: 28px 24px;
+      background: rgba(3,7,30,.5);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.07);
+      border-radius: 8px;
+      font-family: var(--fm);
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .no-results strong { color: var(--text-sec); }
+
+    .result-card {
+      background: rgba(8,15,46,.7);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.1);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      animation: fadeUp .3s ease forwards;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .result-card:nth-child(1) { animation-delay: .05s; }
+    .result-card:nth-child(2) { animation-delay: .10s; }
+    .result-card:nth-child(3) { animation-delay: .15s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .result-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.07);
+      background: rgba(3,7,30,.4);
+    }
+
+    .result-section {
+      display: inline-block;
+      font-family: var(--fm);
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(var(--accent-cyan-rgb),.6);
+      margin-bottom: 5px;
+    }
+
+    .result-title {
+      font-family: var(--ft);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+      letter-spacing: .02em;
+    }
+
+    .result-body {
+      padding: 16px 18px;
+      font-family: var(--ft);
+      font-size: 13px;
+      color: var(--text-sec);
+      line-height: 1.75;
+    }
+
+    /* Markdown rendered content styles */
+    .result-body h4 {
+      font-family: var(--ft);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin: 16px 0 8px;
+    }
+    .result-body p { margin: 0 0 10px; }
+    .result-body p:last-child { margin-bottom: 0; }
+    .result-body code {
+      font-family: var(--fm);
+      font-size: 11px;
+      background: rgba(0,237,255,.07);
+      border: 1px solid rgba(0,237,255,.12);
+      border-radius: 3px;
+      padding: 1px 6px;
+      color: var(--accent-cyan);
+    }
+    .result-body pre {
+      background: rgba(3,7,30,.8);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.12);
+      border-radius: 5px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .result-body pre code {
+      font-family: var(--fm);
+      font-size: 11px;
+      background: none;
+      border: none;
+      padding: 0;
+      color: rgba(235,246,255,.85);
+    }
+    .result-body strong { color: var(--text-primary); font-weight: 700; }
+    .result-body ul, .result-body ol {
+      margin: 6px 0 10px 18px;
+      padding: 0;
+    }
+    .result-body li { margin: 4px 0; }
+
+    .result-footer {
+      padding: 10px 18px;
+      border-top: 1px solid rgba(var(--accent-cyan-rgb),.06);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .copy-btn {
+      font-family: var(--fm);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.2);
+      border-radius: 4px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .copy-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.45); color: var(--accent-cyan); }
+    .copy-btn.copied { color: #00FF41; border-color: rgba(0,255,65,.35); }
+
+    /* ── Browse section ──────────────────────────────────── */
+    .browse-hdr {
+      font-family: var(--ft);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--text-label);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .browse-group { margin-bottom: 28px; }
+
+    .browse-group-title {
+      font-family: var(--ft);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+
+    .browse-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .browse-chip {
+      font-family: var(--fm);
+      font-size: 11px;
+      padding: 6px 14px;
+      background: rgba(var(--accent-cyan-rgb),.05);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.14);
+      border-radius: 4px;
+      color: var(--text-sec);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .browse-chip:hover { background: rgba(var(--accent-cyan-rgb),.1); border-color: rgba(var(--accent-cyan-rgb),.35); color: var(--text-primary); }
+    .browse-chip.active { background: rgba(var(--accent-cyan-rgb),.12); border-color: rgba(var(--accent-cyan-rgb),.4); color: var(--accent-cyan); }
+
+    /* Expanded chip section */
+    .chip-expanded {
+      margin-top: 12px;
+      padding: 16px 18px;
+      background: rgba(3,7,30,.6);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.1);
+      border-radius: 6px;
+      display: none;
+      animation: fadeUp .2s ease forwards;
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    .chip-expanded.visible { display: block; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(8,15,46,.95);
+      border: 1px solid rgba(var(--accent-cyan-rgb),.3);
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+    }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .toast.ok { color: #00FF41; border-color: rgba(0,255,65,.3); }
+
+    @media (max-width: 600px) {
+      .content { padding: 24px 16px 60px; }
+      .page-title-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <header class="shared-header">
+    <a href="index.html" style="text-decoration:none">
+      <div class="shared-wordmark">
+        <span class="wm-primary">SOPHOS</span>
+        <span class="wm-accent wm-accent-cyan">ADVERSARY</span>
+        <span class="wm-slash">//</span>
+        <span class="wm-page wm-page-cyan">help</span>
+      </div>
+    </a>
+  </header>
+
+  <!-- ── Nav ─────────────────────────────────────────────────── -->
+  <div id="hdr-controls" style="position:fixed;top:10px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
+    <div class="nav-wrap" id="nav-wrap">
+      <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
+      <div class="nav-dd" id="nav-dd">
+        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
+        <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
+        <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
+        <button class="nav-it" onclick="navToggle();window.open('/tools.html','_blank')">Red Tools</button>
+        <button class="nav-it" onclick="navToggle();window.open('/architecture.html','_blank')">Architecture</button>
+        <button class="nav-it" onclick="navToggle();window.open('/settings.html','_blank')">Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content ─────────────────────────────────────────────── -->
+  <div class="content">
+
+    <div class="page-title-row">
+      <div>
+        <h1 class="page-title">&#x3F; Help &amp; Troubleshooting</h1>
+        <div class="page-subtitle">Search the knowledge base or browse by topic</div>
+      </div>
+      <!-- Update KB button — replace URL below with actual raw GitHub URL when repo is public -->
+      <!-- KB_SOURCE_URL: https://raw.githubusercontent.com/[your-org]/adversary-sim/main/nginx/html/kb.md -->
+      <button class="upd-kb-btn" onclick="updateKB()">&#x21BA; Update KB</button>
+    </div>
+
+    <!-- ── Search ───────────────────────────────────────────── -->
+    <div class="search-wrap">
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="sandcat not connecting, RDP blank, operation discarded..."
+        onkeydown="if(event.key==='Enter') doSearch()"
+      >
+      <button class="search-btn" onclick="doSearch()">SEARCH</button>
+    </div>
+
+    <div class="search-caveat">
+      <span class="caveat-icon">⚗</span>
+      Experimental. Keyword matching — works better than you'd expect, worse than you'd hope.
+      Honestly? <a href="#browse-topics" class="caveat-link" onclick="document.getElementById('browse-topics').scrollIntoView({behavior:'smooth'});return false;">scroll down to the FAQ</a> — it's faster.
+    </div>
+
+    <div class="kb-status" id="kb-status">Loading knowledge base...</div>
+
+    <!-- ── Search results ───────────────────────────────────── -->
+    <div id="results-area"></div>
+
+    <!-- ── Browse all topics ────────────────────────────────── -->
+    <div id="browse-area" style="display:none">
+      <div class="browse-hdr">Browse All Topics</div>
+      <div id="browse-groups"></div>
+    </div>
+
+  </div><!-- /.content -->
+</div><!-- /.page -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Nav ──────────────────────────────────────────────────── */
+function navToggle() {
+  document.getElementById('nav-dd').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('nav-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('nav-dd').classList.remove('open');
+  }
+});
+
+/* ── Toast ────────────────────────────────────────────────── */
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('visible');
+  setTimeout(function() { t.classList.remove('visible'); }, 3000);
+}
+
+/* ── KB State ─────────────────────────────────────────────── */
+var kbSections = []; // [{parentTitle, title, content, raw}]
+
+/* ── Tiny markdown renderer ───────────────────────────────── */
+function renderMd(text) {
+  var lines = text.split('\n');
+  var out = '';
+  var inPre = false;
+  var preLines = [];
+  var inList = false;
+  var listLines = [];
+
+  function flushList() {
+    if (!listLines.length) return;
+    out += '<ul>';
+    listLines.forEach(function(li) { out += '<li>' + inlineRender(li) + '</li>'; });
+    out += '</ul>';
+    listLines = [];
+    inList = false;
+  }
+
+  function inlineRender(s) {
+    // **bold**
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // `code`
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    return s;
+  }
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+
+    // fenced code block start/end
+    if (/^```/.test(line)) {
+      if (!inPre) {
+        flushList();
+        inPre = true;
+        preLines = [];
+      } else {
+        out += '<pre><code>' + preLines.map(function(l) {
+          return l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }).join('\n') + '</code></pre>';
+        inPre = false;
+      }
+      continue;
+    }
+    if (inPre) { preLines.push(line); continue; }
+
+    // ### heading -> h4
+    if (/^###\s+/.test(line)) {
+      flushList();
+      out += '<h4>' + inlineRender(line.replace(/^###\s+/, '')) + '</h4>';
+      continue;
+    }
+    // ## heading -> skip (section context already in header)
+    if (/^##\s+/.test(line)) { flushList(); continue; }
+
+    // list item
+    if (/^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) {
+      var txt = line.replace(/^[-*]\s+/, '').replace(/^\d+\.\s+/, '');
+      listLines.push(txt);
+      inList = true;
+      continue;
+    }
+
+    // blank line
+    if (!line.trim()) {
+      flushList();
+      continue;
+    }
+
+    // paragraph
+    flushList();
+    out += '<p>' + inlineRender(line) + '</p>';
+  }
+  flushList();
+  return out;
+}
+
+/* ── Parse kb.md into sections ────────────────────────────── */
+function parseKB(md) {
+  var sections = [];
+  var lines = md.split('\n');
+  var currentParent = '';
+  var currentTitle  = '';
+  var currentLines  = [];
+  var inSection = false;
+
+  function flush() {
+    if (currentTitle && currentLines.length) {
+      var raw = currentLines.join('\n').trim();
+      sections.push({
+        parentTitle: currentParent,
+        title: currentTitle,
+        content: raw,
+        rendered: renderMd(raw)
+      });
+    }
+    currentLines = [];
+  }
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+
+    // Top-level section (##)
+    if (/^##\s+[^#]/.test(line)) {
+      flush();
+      currentParent = line.replace(/^##\s+/, '').trim();
+      currentTitle  = '';
+      inSection = false;
+      continue;
+    }
+
+    // Sub-section (###)
+    if (/^###\s+/.test(line)) {
+      flush();
+      currentTitle = line.replace(/^###\s+/, '').trim();
+      inSection = true;
+      continue;
+    }
+
+    // Separator lines (---)
+    if (/^---+\s*$/.test(line)) { continue; }
+
+    if (inSection) {
+      currentLines.push(line);
+    }
+  }
+  flush();
+  return sections;
+}
+
+/* ── Synonym map ──────────────────────────────────────────── */
+var SYNONYMS = [
+  ['agent', 'sandcat'],
+  ['rdp', 'guacamole', 'remote desktop'],
+  ['restart', 'reset', 'clean'],
+  ['password', 'credentials', 'login', 'credential'],
+  ['caldera', 'operation', 'c2'],
+  ['install', 'setup', 'make install'],
+  ['n8n', 'webhook', 'workflow'],
+  ['docker', 'container', 'infrastructure'],
+  ['scenario', 'demo', 'attack'],
+  ['vm', 'virtual machine', 'windows', 'victim'],
+];
+
+function expandQuery(words) {
+  var expanded = words.slice();
+  words.forEach(function(w) {
+    SYNONYMS.forEach(function(group) {
+      if (group.indexOf(w) !== -1) {
+        group.forEach(function(syn) {
+          if (expanded.indexOf(syn) === -1) expanded.push(syn);
+        });
+      }
+    });
+  });
+  return expanded;
+}
+
+/* ── Keyword search ───────────────────────────────────────── */
+function scoreSection(section, words) {
+  var corpus = (section.parentTitle + ' ' + section.title + ' ' + section.content).toLowerCase();
+  var score = 0;
+  words.forEach(function(w) {
+    if (!w) return;
+    var re = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    var titleHits = ((section.title + ' ' + section.parentTitle).toLowerCase().match(re) || []).length;
+    var bodyHits  = (section.content.toLowerCase().match(re) || []).length;
+    score += titleHits * 3 + bodyHits;
+  });
+  return score;
+}
+
+function doSearch() {
+  var query = document.getElementById('search-input').value.trim();
+  if (!query || !kbSections.length) return;
+
+  var words = expandQuery(query.toLowerCase().split(/\s+/).filter(Boolean));
+  var scored = kbSections.map(function(s) {
+    return { section: s, score: scoreSection(s, words) };
+  }).filter(function(x) { return x.score > 0; });
+
+  scored.sort(function(a, b) { return b.score - a.score; });
+  var top = scored.slice(0, 3);
+
+  var area = document.getElementById('results-area');
+  if (!top.length) {
+    area.innerHTML = '<div class="no-results"><strong>Nothing found</strong> — try different keywords or browse all topics below.</div>';
+    return;
+  }
+
+  area.innerHTML = '';
+  top.forEach(function(item) {
+    var s = item.section;
+    var card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML =
+      '<div class="result-header">' +
+        '<span class="result-section">' + esc(s.parentTitle) + '</span>' +
+        '<h3 class="result-title">' + esc(s.title) + '</h3>' +
+      '</div>' +
+      '<div class="result-body">' + s.rendered + '</div>' +
+      '<div class="result-footer">' +
+        '<button class="copy-btn" onclick="copySection(this, ' + JSON.stringify(s.title + '\n\n' + s.content) + ')">Copy</button>' +
+      '</div>';
+    area.appendChild(card);
+  });
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copySection(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── Browse chips ─────────────────────────────────────────── */
+function buildBrowse() {
+  var groups = {};
+  kbSections.forEach(function(s) {
+    if (!groups[s.parentTitle]) groups[s.parentTitle] = [];
+    groups[s.parentTitle].push(s);
+  });
+
+  var container = document.getElementById('browse-groups');
+  container.innerHTML = '';
+
+  Object.keys(groups).forEach(function(parent) {
+    var grpDiv = document.createElement('div');
+    grpDiv.className = 'browse-group';
+
+    var title = document.createElement('div');
+    title.className = 'browse-group-title';
+    title.textContent = parent;
+    grpDiv.appendChild(title);
+
+    var chips = document.createElement('div');
+    chips.className = 'browse-chips';
+
+    // Expanded content area (one per group, shown below chips)
+    var expanded = document.createElement('div');
+    expanded.className = 'chip-expanded';
+
+    groups[parent].forEach(function(s) {
+      var chip = document.createElement('button');
+      chip.className = 'browse-chip';
+      chip.textContent = s.title;
+      chip.onclick = function() {
+        var isActive = chip.classList.contains('active');
+        // Close all in this group
+        chips.querySelectorAll('.browse-chip').forEach(function(c) { c.classList.remove('active'); });
+        expanded.classList.remove('visible');
+        expanded.innerHTML = '';
+        if (!isActive) {
+          chip.classList.add('active');
+          expanded.innerHTML =
+            '<div class="result-body">' + s.rendered + '</div>' +
+            '<div style="margin-top:10px;display:flex;justify-content:flex-end">' +
+              '<button class="copy-btn" onclick="copySection(this,' + JSON.stringify(s.title + '\n\n' + s.content) + ')">Copy</button>' +
+            '</div>';
+          expanded.classList.add('visible');
+        }
+      };
+      chips.appendChild(chip);
+    });
+
+    grpDiv.appendChild(chips);
+    grpDiv.appendChild(expanded);
+    container.appendChild(grpDiv);
+  });
+
+  document.getElementById('browse-area').style.display = '';
+}
+
+/* ── Load kb.md ───────────────────────────────────────────── */
+async function loadKB() {
+  var statusEl = document.getElementById('kb-status');
+  try {
+    var r = await fetch('/kb.md?_=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var md = await r.text();
+    kbSections = parseKB(md);
+    statusEl.textContent = kbSections.length + ' topics loaded. Type a question above or browse below.';
+    buildBrowse();
+  } catch(e) {
+    statusEl.className = 'kb-status err';
+    statusEl.textContent = 'Could not load knowledge base: ' + e.message;
+  }
+}
+
+/* ── Update KB (placeholder) ──────────────────────────────── */
+// To enable real updates, replace KB_SOURCE_URL below with the raw GitHub URL
+// e.g. https://raw.githubusercontent.com/your-org/adversary-sim/main/nginx/html/kb.md
+async function updateKB() {
+  showToast('KB is up to date', 'ok');
+  // Real implementation would: fetch(KB_SOURCE_URL) -> compare -> POST to server to save
+  // Placeholder: just reload from local server
+  var statusEl = document.getElementById('kb-status');
+  statusEl.className = 'kb-status';
+  statusEl.textContent = 'Refreshing...';
+  await loadKB();
+}
+
+/* ── Boot ─────────────────────────────────────────────────── */
+window.addEventListener('load', loadKB);
+</script>
+</body>
+</html>

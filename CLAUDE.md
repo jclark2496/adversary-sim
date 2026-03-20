@@ -91,7 +91,7 @@ This is a **production SE enablement platform** for running live attack simulati
 | Volume | Used By | Purpose |
 |---|---|---|
 | caldera-data | advsim-caldera | CALDERA data persistence |
-| n8n-data | advsim-n8n | n8n workflows + credentials (standalone only) |
+| n8n-data | advsim-n8n | n8n workflows + credentials (both standalone and LabOps modes) |
 | guac-db | advsim-guac-postgres | Guacamole connection/user DB (standalone only) |
 
 ### Demo Launch Data Flow
@@ -247,7 +247,7 @@ n8n Code nodes that use `require('fs')` to write `scenarios.json` will silently 
 NODE_FUNCTION_ALLOW_BUILTIN=fs,path,child_process
 ```
 
-This is already set in `docker-compose.yml`. If you see n8n workflows failing on the `Write to scenarios.json` step, this is the first thing to check.
+This is already set in `docker-compose.n8n.yml` — you do not need to configure it manually. If you see n8n workflows failing on the `Write to scenarios.json` step, verify the variable is present in the running container: `docker exec advsim-n8n env | grep NODE_FUNCTION`.
 
 The n8n container mounts `./nginx/html` at `/data/scenarios`, so n8n writes directly to the nginx-served `scenarios.json`.
 

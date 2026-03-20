@@ -1,30 +1,10 @@
 // nginx/html/tour.js
-// Guided tour — Driver.js v1 wrapper for all 6 SE Console pages.
+// Per-page guided tour — Driver.js v1 wrapper for all 6 SE Console pages.
 // Loaded by each page just before </body>. Each page calls initTour('page-name').
 // DOM is already ready when this runs — never use DOMContentLoaded here.
 
 (function () {
   'use strict';
-
-  var DONE_KEY = 'advsim_tour_done';
-  var PAGE_KEY = 'advsim_tour_page';
-
-  var PAGE_NAMES = {
-    console:      'Attack Console',
-    admin:        'Scenario Studio',
-    tools:        'Red Tools',
-    settings:     'Settings',
-    architecture: 'Architecture'
-  };
-
-  var NEXT_PAGE = {
-    index:        { page: 'admin',        label: 'Scenario Studio', url: '/admin.html' },
-    console:      { page: 'admin',        label: 'Scenario Studio', url: '/admin.html' },
-    admin:        { page: 'tools',        label: 'Red Tools',       url: '/tools.html' },
-    tools:        { page: 'settings',     label: 'Settings',        url: '/settings.html' },
-    settings:     { page: 'architecture', label: 'Architecture',    url: '/architecture.html' },
-    architecture: null
-  };
 
   // ── Step definitions ───────────────────────────────────────────────────────
 
@@ -36,14 +16,6 @@
           description: 'Your launchpad for running live attack simulations. Let\'s walk through the key controls.',
           showButtons: ['next'],
           nextBtnText: 'Let\'s go \u2192'
-        }
-      },
-      {
-        element: '#nav-btn',
-        popover: {
-          title: 'NAVIGATION',
-          description: 'Use the Menu to move between pages: Scenario Studio, Red Tools, Architecture, and Settings.',
-          side: 'bottom', align: 'end'
         }
       },
       {
@@ -62,7 +34,6 @@
           side: 'right', align: 'start'
         },
         onHighlightStarted: function () {
-          // Auto-select the first scenario so #rp is populated for the next step
           var first = document.querySelector('.srow');
           if (first) first.click();
         }
@@ -104,18 +75,28 @@
         popover: {
           title: 'LAUNCH SIMULATION',
           description: 'Starts the CALDERA operation on your victim. The Attack Console opens automatically.',
-          side: 'top', align: 'start',
+          side: 'top', align: 'start'
+        }
+      },
+      {
+        element: '#nav-btn',
+        popover: {
+          title: 'NAVIGATION MENU',
+          description: 'Use <strong>Menu</strong> to access all pages of the platform:<br><br>' +
+            '\u2022 <strong>Attack Console</strong> \u2014 Watch live CALDERA operations and victim desktop<br>' +
+            '\u2022 <strong>Scenario Studio</strong> \u2014 Build and manage attack scenarios with AI or manual design<br>' +
+            '\u2022 <strong>Red Tools</strong> \u2014 Browser-based Kali Linux, Atomic Red Team, and CALDERA access<br>' +
+            '\u2022 <strong>Architecture</strong> \u2014 Platform reference, service map, and scenario catalog<br>' +
+            '\u2022 <strong>Settings</strong> \u2014 Configure your AI provider and Lab Manager URL',
+          side: 'bottom', align: 'end',
           showButtons: ['previous', 'next'],
-          nextBtnText: 'Done'
+          nextBtnText: 'Done \u2713'
         }
       }
     ];
   }
 
   function consoleSteps() {
-    // .lk elements are feed rows — only exist when an operation is active.
-    // We build the step list dynamically so the ability-detail step is skipped
-    // when no operation is running (no .lk elements in DOM).
     var steps = [
       {
         popover: {
@@ -170,7 +151,7 @@
           description: 'When the attack completes, open Sophos XDR or Sophos Central to show the customer their real detections side-by-side.',
           side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
-          nextBtnText: 'Done'
+          nextBtnText: 'Done \u2713'
         }
       }
     );
@@ -247,7 +228,7 @@
           description: 'Review AI-generated scenarios before they appear in the SE Console. Edit any field or delete if not needed.',
           side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
-          nextBtnText: 'Done'
+          nextBtnText: 'Done \u2713'
         }
       }
     ];
@@ -294,7 +275,7 @@
           description: 'RDP session to your victim VM. Use this alongside manual red team tools to watch techniques land in real time.',
           side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
-          nextBtnText: 'Done'
+          nextBtnText: 'Done \u2713'
         }
       }
     ];
@@ -345,7 +326,7 @@
         description: 'Check the current version and pull updates directly from this page. No reinstall needed.',
         side: 'top', align: 'start',
         showButtons: ['previous', 'next'],
-        nextBtnText: 'Done'
+        nextBtnText: 'Done \u2713'
       }
     });
     return steps;
@@ -392,10 +373,10 @@
         element: '#arch-scenarios',
         popover: {
           title: 'SCENARIO CATALOG',
-          description: 'Full library of all 24 built-in scenarios with MITRE mappings and CALDERA adversary IDs.',
-          side: 'bottom', align: 'start',
+          description: 'Full library of all built-in scenarios with MITRE mappings and CALDERA adversary IDs.',
+          side: 'top', align: 'start',
           showButtons: ['previous', 'next'],
-          nextBtnText: 'You\'re all set! \u2713'
+          nextBtnText: 'Done \u2713'
         }
       }
     ];
@@ -423,166 +404,38 @@
       .catch(function () { return { labops: false }; });
   }
 
-  function showCrossPagePrompt(page) {
-    var next = NEXT_PAGE[page];
-    removeCrossPagePrompt();
-    var el = document.createElement('div');
-    el.id = 'tour-xpage';
-    if (next) {
-      el.innerHTML =
-        '<span>Getting Started Tour: Next up \u2014 <strong>' + next.label + '</strong></span>' +
-        '<div class="tour-xpage-btns">' +
-        '<button id="tour-xpage-go">Continue \u2192</button>' +
-        '<button id="tour-xpage-skip">Finish Tour</button>' +
-        '</div>';
-      el.querySelector('#tour-xpage-go').addEventListener('click', function () {
-        localStorage.setItem(PAGE_KEY, next.page);
-        removeCrossPagePrompt();
-        window.open(next.url, '_blank');
-      });
-      el.querySelector('#tour-xpage-skip').addEventListener('click', function () {
-        localStorage.removeItem(PAGE_KEY);
-        removeCrossPagePrompt();
-      });
-    } else {
-      // Architecture page — tour complete
-      localStorage.setItem(DONE_KEY, '1');
-      localStorage.removeItem(PAGE_KEY);
-      el.innerHTML =
-        '<span>\uD83C\uDF89 Tour complete! You\'re ready to run live attack simulations.</span>' +
-        '<div class="tour-xpage-btns">' +
-        '<button id="tour-xpage-done">Back to SE Console</button>' +
-        '</div>';
-      el.querySelector('#tour-xpage-done').addEventListener('click', function () {
-        removeCrossPagePrompt();
-        window.location.href = '/index.html';
-      });
-    }
-    document.body.appendChild(el);
-  }
-
-  function removeCrossPagePrompt() {
-    var el = document.getElementById('tour-xpage');
-    if (el) el.remove();
-  }
-
-  function showContinueBanner(page, onContinue) {
-    removeContinueBanner();
-    var name = PAGE_NAMES[page] || page;
-    var el = document.createElement('div');
-    el.id = 'tour-banner';
-    el.innerHTML =
-      '<span>Getting Started Tour: continuing on <strong>' + name + '</strong></span>' +
-      '<button id="tour-banner-cont">Continue</button>' +
-      '<button id="tour-banner-dis">Dismiss</button>';
-    document.body.insertBefore(el, document.body.firstChild);
-
-    var timeout = setTimeout(function () {
-      localStorage.removeItem(PAGE_KEY);
-      removeContinueBanner();
-    }, 8000);
-
-    el.querySelector('#tour-banner-cont').addEventListener('click', function () {
-      clearTimeout(timeout);
-      localStorage.removeItem(PAGE_KEY);
-      removeContinueBanner();
-      onContinue();
-    });
-    el.querySelector('#tour-banner-dis').addEventListener('click', function () {
-      clearTimeout(timeout);
-      localStorage.removeItem(PAGE_KEY);
-      removeContinueBanner();
-    });
-  }
-
-  function removeContinueBanner() {
-    var el = document.getElementById('tour-banner');
-    if (el) el.remove();
-  }
-
   // ── Tour launcher ─────────────────────────────────────────────────────────
 
   var _mode = { labops: false };
-  var _currentPage = '';
 
-  function launchTour(page, gettingStarted, skipIntro) {
+  function launchTour(page) {
     var opts = Object.assign({}, _mode);
     var steps = getSteps(page, opts);
-    if (skipIntro) steps = steps.slice(1);
 
-    // Track whether user completed tour naturally vs dismissed early.
-    // onDestroyStarted fires before destroy — drv.hasNextStep() false = natural completion.
-    var _completedNaturally = false;
-
-    var drv = window.driver.js.driver({
+    window.driver.js.driver({
       animate: true,
       showProgress: true,
       allowClose: true,
       stagePadding: 6,
       overlayOpacity: 0.3,
-      steps: steps,
-      onDestroyStarted: function () {
-        _completedNaturally = !drv.hasNextStep();
-        drv.destroy();
-      },
-      onDestroyed: function () {
-        if (gettingStarted) {
-          localStorage.setItem(DONE_KEY, '1');
-          if (_completedNaturally) {
-            showCrossPagePrompt(page);
-          }
-        }
-      }
-    });
-    drv.drive();
+      steps: steps
+    }).drive();
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
   window.initTour = function (page, opts) {
-    _currentPage = page;
     opts = opts || {};
 
-    // Wire ? help button immediately — DOM is ready since tour.js loads at end of body
     var helpBtn = document.getElementById('tour-help-btn');
     if (helpBtn) {
       helpBtn.addEventListener('click', function () {
-        launchTour(page, false, false);
+        launchTour(page);
       });
     }
 
     getMode(opts).then(function (mode) {
       _mode = Object.assign({}, mode, opts);
-
-      // ?tour=1 param — triggered by Start Tour link
-      var params = new URLSearchParams(window.location.search);
-      if (params.get('tour') === '1') {
-        window.history.replaceState({}, '', window.location.pathname);
-        launchTour(page, true, false);
-        return;
-      }
-
-      // Continue banner from cross-page prompt
-      var continuePage = localStorage.getItem(PAGE_KEY);
-      if (continuePage === page) {
-        showContinueBanner(page, function () {
-          launchTour(page, true, true);
-        });
-        return;
-      }
-
-      // Auto-launch on index if first visit
-      if (page === 'index' && !localStorage.getItem(DONE_KEY)) {
-        function tryLaunch() {
-          var sl = document.getElementById('sl');
-          if (sl && sl.children.length > 0) {
-            setTimeout(function () { launchTour(page, true, false); }, 800);
-          } else {
-            setTimeout(tryLaunch, 300);
-          }
-        }
-        tryLaunch();
-      }
     });
   };
 

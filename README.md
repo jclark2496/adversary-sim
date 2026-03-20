@@ -177,16 +177,16 @@ You can change your AI provider anytime via the Settings gear icon in the SE Con
 
 If you already have [LabOps](https://github.com/jclark2496/labops) running, `make install` will detect it automatically and:
 
-- **Skip Guacamole** — uses LabOps' existing Guacamole instance
-- **Skip n8n** — imports adversary-sim workflows into LabOps' n8n instance
+- **Skip Guacamole** — uses LabOps' existing Guacamole instance on `labops-net`
+- **Run its own n8n** — `advsim-n8n` always starts regardless of mode (LabOps no longer runs n8n)
 - **Join `labops-net`** — containers connect to the shared Docker network instead of creating their own
-- **Share services** — nginx proxies are auto-configured to point at LabOps' infrastructure
+- **Auto-configure nginx** — proxies are set to point at LabOps' Guacamole instance
 
 No extra flags needed. Just run `make install` from the `adversary-sim` directory and the detection script handles the rest. A `.labops-mode` file is written to record the detected mode.
 
-After installing both projects, configure the Lab Manager URL in the SE Console:
-1. Click the gear icon in the header
-2. Enter your LabOps dashboard URL (e.g., `http://localhost:8080`)
+After installing both projects, the Lab Manager URL is auto-configured to the host's IP during `make install`. If you need to update it:
+1. Click the gear icon in the SE Console header
+2. Enter your LabOps dashboard URL (e.g., `http://192.168.1.63:8080`)
 3. Click Test to verify connectivity
 4. Click Save
 

@@ -392,12 +392,108 @@
     .save-status.ok  { color: #00FF41; }
     .save-status.err { color: #FF4444; }
 
+    /* ── Knowledge Base section ──────────────────────────────── */
+    .kb-section {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .kb-section-hdr {
+      font-family: var(--ft);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--text-label);
+      margin-bottom: 16px;
+    }
+
+    .kb-desc {
+      font-family: var(--fm);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .kb-btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .kb-btn {
+      font-family: var(--fm);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 9px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .kb-btn.primary {
+      background: rgba(0,237,255,.08);
+      border: 1px solid rgba(0,237,255,.3);
+      color: var(--accent-cyan);
+    }
+    .kb-btn.primary:hover { background: rgba(0,237,255,.15); border-color: rgba(0,237,255,.5); }
+
+    .kb-btn.secondary {
+      background: transparent;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.18);
+      color: var(--text-sec);
+    }
+    .kb-btn.secondary:hover { border-color: rgba(var(--accent-cyan-rgb),.38); color: var(--text-primary); }
+
+    /* ── Help link near title ─────────────────────────────── */
+    .page-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .page-title-row .page-title {
+      margin: 0;
+    }
+
+    .help-link-btn {
+      font-family: var(--fm);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid rgba(var(--accent-cyan-rgb),.18);
+      border-radius: 5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .help-link-btn:hover { border-color: rgba(var(--accent-cyan-rgb),.4); color: var(--accent-cyan); }
+
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 600px) {
       .content { padding: 24px 16px 60px; }
       .stg-grid { grid-template-columns: 1fr 1fr; }
       .upd-meta-grid { grid-template-columns: 1fr; gap: 4px; }
       .upd-meta-label { margin-top: 10px; }
+      .page-title-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -420,7 +516,6 @@
     <div class="nav-wrap" id="nav-wrap">
       <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
       <div class="nav-dd" id="nav-dd">
-              <button class="nav-it" onclick="window.location.href='/index.html?tour=1'">&#9658; Start Tour</button>
         <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
@@ -435,7 +530,10 @@
   <!-- ── Content ─────────────────────────────────────────────── -->
   <div class="content">
 
-    <h1 class="page-title">&#x2699; Settings</h1>
+    <div class="page-title-row">
+      <h1 class="page-title">&#x2699; Settings</h1>
+      <a href="help.html" class="help-link-btn">&#x3F; Help &amp; Troubleshooting</a>
+    </div>
 
     <!-- ─── Section 1: AI Provider ─────────────────────────── -->
     <div class="section">
@@ -529,6 +627,16 @@
     <div class="settings-footer">
       <span class="save-status" id="save-status"></span>
       <button class="settings-save-btn" id="save-btn" onclick="stgSave()">SAVE SETTINGS</button>
+    </div>
+
+    <!-- ─── Knowledge Base ───────────────────────────────────── -->
+    <div class="kb-section">
+      <div class="kb-section-hdr">Knowledge Base</div>
+      <div class="kb-desc">Built-in troubleshooting guide for common platform issues — sandcat agent problems, CALDERA operations, RDP connectivity, AI provider setup, and more.</div>
+      <div class="kb-btn-row">
+        <a href="help.html" class="kb-btn primary">&#x3F; Open Help Center</a>
+        <button class="kb-btn secondary" onclick="refreshKB()">&#x21BA; Update Knowledge Base</button>
+      </div>
     </div>
 
   </div><!-- /.content -->
@@ -829,6 +937,34 @@
       statusEl.textContent = '\u26a0 Error: ' + e.message;
       document.getElementById('upd-rollback-btn').style.display = '';
     }
+  }
+
+  /* ── Refresh KB ───────────────────────────────────────────── */
+  async function refreshKB() {
+    try {
+      await fetch('/kb.md', { cache: 'reload' });
+      showToast('\u2713 KB is up to date');
+    } catch(e) {
+      showToast('\u26a0 Could not refresh KB');
+    }
+  }
+
+  /* ── Toast (reused from help.html pattern) ─────────────────── */
+  function showToast(msg) {
+    var existing = document.getElementById('stg-toast');
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = 'stg-toast';
+      existing.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(8,15,46,.95);border:1px solid rgba(0,237,255,.3);border-radius:6px;padding:10px 18px;font-family:var(--fm);font-size:11px;color:var(--accent-cyan);z-index:999;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;';
+      document.body.appendChild(existing);
+    }
+    existing.textContent = msg;
+    existing.style.opacity = '1';
+    existing.style.transform = 'translateY(0)';
+    setTimeout(function() {
+      existing.style.opacity = '0';
+      existing.style.transform = 'translateY(8px)';
+    }, 3000);
   }
 
   /* ── Boot ─────────────────────────────────────────────────── */
