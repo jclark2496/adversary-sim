@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rabbit hole</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: #080808;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+  );
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+/* Boot sequence */
+.boot { margin-bottom: 48px; }
+.tl { color: #00ff41; min-height: 1.6em; }
+.tl.dim { color: #005c15; }
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Feature section — fades in after boot */
+#feature-section {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#feature-section.visible { opacity: 1; }
+
+/* Section headings */
+.section-rule {
+  border: none;
+  border-top: 1px solid #005c15;
+  margin: 40px 0 28px;
+}
+.section-heading {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: #00ff41;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+/* Feature cards */
+.feature-card {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #002a0a;
+}
+.feature-card:last-child { border-bottom: none; }
+.feature-name {
+  font-size: 14px;
+  color: #00ff41;
+  margin-bottom: 4px;
+}
+.feature-desc {
+  font-size: 12px;
+  color: #005c15;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* Toggle button */
+.rh-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Courier New', monospace;
+}
+.rh-toggle-track {
+  position: relative;
+  width: 36px;
+  height: 18px;
+  border: 1px solid #005c15;
+  border-radius: 9px;
+  background: transparent;
+  transition: border-color 0.2s ease;
+  flex-shrink: 0;
+}
+.rh-toggle-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #005c15;
+  transition: left 0.2s ease, background 0.2s ease;
+}
+.rh-toggle-label {
+  font-size: 11px;
+  color: #005c15;
+  margin-left: 10px;
+  min-width: 24px;
+  transition: color 0.2s ease;
+}
+/* ON state */
+.rh-toggle[aria-pressed="true"] .rh-toggle-track { border-color: #00ff41; }
+.rh-toggle[aria-pressed="true"] .rh-toggle-dot { left: 20px; background: #00ff41; }
+.rh-toggle[aria-pressed="true"] .rh-toggle-label { color: #00ff41; }
+
+/* Roadmap cards */
+.roadmap-card {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #002a0a;
+}
+.roadmap-card:last-child { border-bottom: none; }
+.roadmap-name {
+  font-size: 14px;
+  color: #00ff41;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.roadmap-badge {
+  font-size: 10px;
+  color: #003a0d;
+  border: 1px solid #003a0d;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-weight: normal;
+}
+.roadmap-desc {
+  font-size: 12px;
+  color: #005c15;
+  line-height: 1.5;
+}
+
+/* Back link */
+.back-link {
+  display: inline-block;
+  margin-top: 48px;
+  font-size: 11px;
+  color: #005c15;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.back-link:hover { color: #00ff41; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Boot sequence -->
+  <div class="boot">
+    <div class="tl dim" id="boot-1" style="display:none">$ ./rabbit-hole --enter</div>
+    <div class="tl" id="boot-2" style="display:none">&gt; Beta features unlocked.</div>
+    <div class="tl" id="boot-3" style="display:none">&gt; <span class="cursor">_</span></div>
+  </div>
+
+  <!-- Feature section (hidden until boot completes) -->
+  <div id="feature-section">
+
+    <hr class="section-rule">
+    <div class="section-heading">Beta</div>
+
+    <!-- Booth Duty -->
+    <div class="feature-card">
+      <div class="feature-name">Booth Duty</div>
+      <div class="feature-desc">Run the full attack demo without any live infrastructure.<br>Built for trade shows and conferences.</div>
+      <button class="rh-toggle" data-key="rh_booth_duty" aria-pressed="false">
+        <span class="rh-toggle-track"><span class="rh-toggle-dot"></span></span>
+        <span class="rh-toggle-label">OFF</span>
+      </button>
+    </div>
+
+    <!-- Stage Dive -->
+    <div class="feature-card">
+      <div class="feature-name">Stage Dive</div>
+      <div class="feature-desc">Describe an attack in plain English. AI builds the full scenario. You run the demo.</div>
+      <button class="rh-toggle" data-key="rh_stage_dive" aria-pressed="false">
+        <span class="rh-toggle-track"><span class="rh-toggle-dot"></span></span>
+        <span class="rh-toggle-label">OFF</span>
+      </button>
+    </div>
+
+    <hr class="section-rule">
+    <div class="section-heading">On the Horizon</div>
+
+    <!-- Roadmap cards -->
+    <div class="roadmap-card">
+      <div class="roadmap-name">Kali + Atomic Integration <span class="roadmap-badge">coming soon</span></div>
+      <div class="roadmap-desc">Activate Kali Linux and Atomic Red Team within the SE Console for manual attack techniques beyond automated scenarios.</div>
+    </div>
+
+    <div class="roadmap-card">
+      <div class="roadmap-name">Customer Mode <span class="roadmap-badge">coming soon</span></div>
+      <div class="roadmap-desc">Hide SE-facing UI elements for a clean, distraction-free view during live demos with customers.</div>
+    </div>
+
+    <div class="roadmap-card">
+      <div class="roadmap-name">AI Debrief <span class="roadmap-badge">coming soon</span></div>
+      <div class="roadmap-desc">Auto-generate a post-demo attack summary — MITRE map, detections triggered, and customer-ready talking points.</div>
+    </div>
+
+    <a class="back-link" href="/index.html">← back to console</a>
+
+  </div><!-- /feature-section -->
+</div><!-- /container -->
+
+<script>
+// ── Boot sequence ──────────────────────────────────────────
+(function() {
+  var b1 = document.getElementById('boot-1');
+  var b2 = document.getElementById('boot-2');
+  var b3 = document.getElementById('boot-3');
+  var fs = document.getElementById('feature-section');
+
+  b1.style.display = '';
+  setTimeout(function() { b2.style.display = ''; }, 400);
+  setTimeout(function() {
+    b3.style.display = '';
+    setTimeout(function() { fs.classList.add('visible'); }, 150);
+  }, 700);
+})();
+
+// ── Toggle logic ───────────────────────────────────────────
+function initToggles() {
+  document.querySelectorAll('.rh-toggle').forEach(function(btn) {
+    var key = btn.getAttribute('data-key');
+    var isOn = localStorage.getItem(key) === 'on';
+    setToggle(btn, isOn);
+
+    btn.addEventListener('click', function() {
+      var nowOn = btn.getAttribute('aria-pressed') !== 'true';
+      localStorage.setItem(key, nowOn ? 'on' : 'off');
+      setToggle(btn, nowOn);
+    });
+  });
+}
+
+function setToggle(btn, isOn) {
+  btn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+  btn.querySelector('.rh-toggle-label').textContent = isOn ? 'ON' : 'OFF';
+}
+
+initToggles();
+</script>
+</body>
+</html>
