@@ -143,6 +143,92 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
   transition: opacity 0.5s ease;
 }
 #key-hint.hidden { opacity: 0; }
+
+/* ── WINDOW CONTROLS (shared) ── */
+.win-btns { display:flex; height:100%; flex-shrink:0; }
+.win-btn  { display:flex; align-items:center; justify-content:center; cursor:default; }
+.win-btn svg { stroke:rgba(255,255,255,0.65); stroke-width:1.2; fill:none; }
+.win-btn:hover { background:rgba(255,255,255,0.1); }
+.win-btn:hover svg { stroke:#fff; }
+.win-btn.close:hover { background:#c42b1c; }
+
+/* ── POWERSHELL WINDOW ── */
+#ps-win {
+  position:absolute; top:14px; left:12px; width:88%;
+  border-radius:6px; overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,0.7);
+  border:1px solid rgba(255,255,255,0.15);
+  transition:opacity 0.4s ease; z-index:2;
+}
+#ps-win.fade-out { opacity:0; pointer-events:none; }
+.ps-tb {
+  height:30px; background:var(--win-titlebar);
+  display:flex; align-items:center; padding:0 0 0 10px; gap:7px;
+}
+.ps-tb .win-btn { width:38px; height:30px; }
+.ps-tb .win-btn svg { width:9px; height:9px; }
+.ps-title-text { flex:1; font-size:11px; color:rgba(255,255,255,0.8); font-family:var(--font-ui); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#ps-body {
+  background:var(--ps-body); padding:8px 12px;
+  font-family:var(--font-mono); font-size:11px; line-height:1.75;
+  height:150px; overflow:hidden;
+}
+.ps-path  { color:var(--teal-ok); }
+.ps-out   { color:#cccccc; }
+.ps-warn  { color:var(--enc-orange); }
+.ps-err   { color:var(--err-red); }
+.ps-ok    { color:var(--teal-ok); }
+.ps-block { color:var(--block-blue); }
+
+/* ── NOTEPAD WINDOW ── */
+#notepad-win {
+  position:absolute; top:40px; left:30px; width:82%;
+  border-radius:6px; overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,0.9);
+  border:1px solid rgba(255,80,80,0.2);
+  opacity:0; transform:translateY(10px);
+  transition:opacity 0.5s ease, transform 0.5s ease;
+  pointer-events:none; z-index:10;
+}
+#notepad-win.visible { opacity:1; transform:translateY(0); }
+.np-tb {
+  height:28px; background:#2c2c2c;
+  display:flex; align-items:center; padding:0 0 0 8px; gap:6px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.np-tb .win-btn { width:36px; height:28px; }
+.np-tb .win-btn svg { width:8px; height:8px; }
+.np-title-text { flex:1; font-size:10px; color:rgba(255,255,255,0.7); font-family:var(--font-ui); }
+.np-menu {
+  height:22px; background:#1e1e1e; display:flex; align-items:center;
+  padding:0 8px; gap:12px; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.np-menu span { font-size:10px; color:rgba(255,255,255,0.5); font-family:var(--font-ui); }
+#np-body {
+  background:#180000; padding:10px 12px;
+  font-family:var(--font-mono); font-size:10px; line-height:1.7;
+  height:160px; overflow:hidden;
+}
+.rn-head { color:#ff4444; font-weight:700; font-size:11px; display:block; margin-bottom:3px; }
+.rn-sep  { color:rgba(255,100,100,0.35); display:block; margin-bottom:6px; }
+.rn-body { color:rgba(255,200,200,0.7); display:block; margin-bottom:3px; }
+.rn-url  { color:#ff6666; display:block; margin-top:4px; }
+.rn-key  { color:rgba(255,200,200,0.3); font-size:8.5px; display:block; margin-top:6px; word-break:break-all; }
+
+/* ── RANSOM WALLPAPER ── */
+#ransom-wp {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:20px;
+  opacity:0; transition:opacity 1s ease; pointer-events:none; z-index:1;
+}
+#ransom-wp.visible { opacity:1; }
+.rw-skull { font-size:36px; margin-bottom:8px; }
+.rw-title { font-size:18px; font-weight:900; color:var(--ransom-red); font-family:var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; text-shadow:0 0 24px rgba(200,0,0,0.5); margin-bottom:6px; }
+.rw-sub   { font-size:10px; color:rgba(255,255,255,0.45); font-family:var(--font-mono); line-height:1.6; margin-bottom:12px; }
+.rw-timer { font-size:22px; font-weight:700; color:#ff3333; font-family:var(--font-mono); letter-spacing:0.1em; text-shadow:0 0 16px rgba(255,50,50,0.5); }
+.rw-timer-lbl { font-size:9px; color:rgba(255,255,255,0.3); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.1em; margin-top:3px; }
+.rw-id { margin-top:10px; font-size:8px; color:rgba(255,255,255,0.15); font-family:var(--font-mono); }
 </style>
 </head>
 <body>
@@ -208,6 +294,119 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 <script>
 // ── GLOBAL STATE (initialized here, populated by later tasks) ──
 window._demoTimers = [];
+
+// ── SVG CONSTANTS ──
+const SVG_WIN_CONTROLS = `
+  <div class="win-btns">
+    <div class="win-btn" style="width:38px;height:30px;">
+      <svg viewBox="0 0 10 10" width="9" height="9"><line x1="0" y1="5" x2="10" y2="5"/></svg>
+    </div>
+    <div class="win-btn" style="width:38px;height:30px;">
+      <svg viewBox="0 0 10 10" width="9" height="9"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+    </div>
+    <div class="win-btn close" style="width:38px;height:30px;">
+      <svg viewBox="0 0 10 10" width="9" height="9"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+    </div>
+  </div>`;
+
+function sophosShieldSVG(size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="6" fill="#0065BD"/>
+    <path d="M16 4L6 8.5V16.5C6 21.8 10.4 26.7 16 28C21.6 26.7 26 21.8 26 16.5V8.5L16 4Z" fill="white" fill-opacity="0.15"/>
+    <path d="M16 5.5L7 9.7V16.8C7 21.6 11 26.1 16 27.3C21 26.1 25 21.6 25 16.8V9.7L16 5.5Z" fill="white" fill-opacity="0.08"/>
+    <text x="16" y="21" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="800" fill="white">S</text>
+  </svg>`;
+}
+
+function psIconSVG(size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="none">
+    <rect width="16" height="16" rx="2" fill="#012456"/>
+    <text x="8" y="12" text-anchor="middle" font-family="'Cascadia Code','Courier New',monospace" font-size="10" font-weight="700" fill="white">PS</text>
+  </svg>`;
+}
+
+// ── INJECT WINDOWS CHROME INTO #desktop ──
+function buildDesktopChrome() {
+  // Replace SVG placeholders in taskbar
+  document.getElementById('tb-ps').innerHTML =
+    psIconSVG(11) + ' PowerShell';
+  document.getElementById('tb-sophos').innerHTML =
+    sophosShieldSVG(11) + ' Sophos Endpoint · Protected';
+  document.getElementById('sophos-active').innerHTML =
+    sophosShieldSVG(14) + ' Sophos Endpoint · Active';
+
+  const desktop = document.getElementById('desktop');
+
+  // PowerShell window
+  const psWin = document.createElement('div');
+  psWin.id = 'ps-win';
+  psWin.innerHTML = `
+    <div class="ps-tb">
+      ${psIconSVG(13)}
+      <div class="ps-title-text">Administrator: Windows PowerShell</div>
+      ${SVG_WIN_CONTROLS}
+    </div>
+    <div id="ps-body">
+      <span class="ps-path">PS C:\\Users\\demo\\Documents&gt; </span><span class="ps-out">.\lockbit3.exe --target C:\\Users\\demo</span><br>
+      <span id="pl1" style="display:none"></span>
+      <span id="pl2" style="display:none"></span>
+      <span id="pl3" style="display:none"></span>
+      <span id="pl4" style="display:none"></span>
+      <span id="pl5" style="display:none"></span>
+      <span id="pl6" style="display:none"></span>
+      <span id="pl7" style="display:none"></span>
+      <span id="pl8" style="display:none"></span>
+    </div>`;
+  desktop.insertBefore(psWin, document.getElementById('taskbar'));
+
+  // Ransom wallpaper
+  const rwp = document.createElement('div');
+  rwp.id = 'ransom-wp';
+  rwp.innerHTML = `
+    <div class="rw-skull">💀</div>
+    <div class="rw-title">Your Files Have Been Encrypted</div>
+    <div class="rw-sub">All documents, databases and backups have been encrypted.<br>Do not attempt recovery without our decryption key.</div>
+    <div class="rw-timer" id="rw-countdown">71:59:47</div>
+    <div class="rw-timer-lbl">Time remaining to pay</div>
+    <div class="rw-id">VICTIM-ID: 8F2A9C-447B-E91D-CC38 · README_RESTORE_FILES.txt</div>`;
+  desktop.insertBefore(rwp, document.getElementById('taskbar'));
+
+  // Notepad window
+  const np = document.createElement('div');
+  np.id = 'notepad-win';
+  np.innerHTML = `
+    <div class="np-tb">
+      <span style="font-size:12px">📄</span>
+      <div class="np-title-text">README_RESTORE_FILES.txt — Notepad</div>
+      ${SVG_WIN_CONTROLS.replace(/38px;height:30px/g,'36px;height:28px').replace(/9px" height="9px/g,'8px" height="8')}
+    </div>
+    <div class="np-menu"><span>File</span><span>Edit</span><span>View</span></div>
+    <div id="np-body">
+      <span class="rn-head">~~~ LOCKBIT 3.0 ~~~</span>
+      <span class="rn-sep">================================================</span>
+      <span class="rn-body">All your files have been encrypted with AES-256 + RSA-2048.</span>
+      <span class="rn-body">There is no recovery without our decryption key.</span>
+      <span class="rn-body">&nbsp;</span>
+      <span class="rn-body">You have <strong style="color:#ff4444">72 hours</strong> to contact us or your data</span>
+      <span class="rn-body">will be published to our leak site.</span>
+      <span class="rn-url">http://lockbit3[.]onion/decrypt/8f2a9c</span>
+      <span class="rn-key">VICTIM-ID: 8F2A9C-447B-E91D-CC38-5502AB | FILES: 847 | SIZE: 4.2GB</span>
+    </div>`;
+  desktop.insertBefore(np, document.getElementById('taskbar'));
+}
+
+buildDesktopChrome();
+
+// Ransom countdown
+let rwSecs = 71*3600 + 59*60 + 47;
+setInterval(() => {
+  if (rwSecs > 0) rwSecs--;
+  const h = String(Math.floor(rwSecs/3600)).padStart(2,'0');
+  const m = String(Math.floor((rwSecs%3600)/60)).padStart(2,'0');
+  const s = String(rwSecs%60).padStart(2,'0');
+  const el = document.getElementById('rw-countdown');
+  if (el) el.textContent = `${h}:${m}:${s}`;
+}, 1000);
 
 // Clock
 function updateClock() {
