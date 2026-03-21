@@ -35,7 +35,7 @@ This is a **production SE enablement platform** for running live attack simulati
 |    Serves SE Console, proxies /caldera/ /guacamole/ /api/   |
 |                                                             |
 |  advsim-caldera    172.20.0.10  :8888                       |
-|    ARM64, v5.1.0 from private GHCR                          |
+|    Multi-architecture, v5.1.0 from private GHCR                          |
 |    C2 for sandcat agents on victim VMs                      |
 |                                                             |
 |  advsim-n8n        172.20.0.31  :5679->5678                  |
@@ -43,12 +43,12 @@ This is a **production SE enablement platform** for running live attack simulati
 |    Always runs (both standalone and LabOps modes)           |
 |                                                             |
 |  advsim-kali       172.20.0.70  :2222->22   (optional)       |
-|  advsim-atomic     172.20.0.40  (arm64, idle, optional)     |
+|  advsim-atomic     172.20.0.40  (idle, optional, multi-arch)     |
 |                                                             |
 |  --- Standalone mode only (no LabOps) ---                   |
 |  advsim-guacamole  172.20.0.81  :8085->8080 (amd64/Rosetta)|
 |  advsim-guacd      172.20.0.80               (amd64/Rosetta)|
-|  advsim-guac-postgres 172.20.0.82            (arm64 native) |
+|  advsim-guac-postgres 172.20.0.82            (multi-arch) |
 |                                                             |
 |  AI Provider (configurable via Settings / ai-config.json)   |
 |    Ollama (native):  host.docker.internal:11434             |
@@ -65,14 +65,14 @@ This is a **production SE enablement platform** for running live attack simulati
 
 | Container | Image | IP | External Port | Notes |
 |---|---|---|---|---|
-| advsim-caldera | caldera:local (GHCR ARM64 v5.1.0) | 172.20.0.10 | 8888 | red/admin, admin/admin |
-| advsim-n8n | n8nio/n8n:latest (arm64) | 172.20.0.31 | 5679->5678 | Always runs. Handles AI scenario workflows. |
-| advsim-nginx | nginx:alpine (arm64) | 172.20.0.51 | 8081->80 | -- |
-| advsim-atomic | custom build (arm64) | 172.20.0.40 | none | Idle (tail -f /dev/null). Optional -- Docker Compose profile, `make tools` |
-| advsim-kali | kalilinux/kali-rolling (arm64) | 172.20.0.70 | 2222 | root/kali. Optional -- Docker Compose profile, `make tools` |
+| advsim-caldera | caldera:local (GHCR multi-arch v5.1.0) | 172.20.0.10 | 8888 | red/admin, admin/admin |
+| advsim-n8n | n8nio/n8n:latest (multi-arch) | 172.20.0.31 | 5679->5678 | Always runs. Handles AI scenario workflows. |
+| advsim-nginx | nginx:alpine (multi-arch) | 172.20.0.51 | 8081->80 | -- |
+| advsim-atomic | custom build (multi-arch) | 172.20.0.40 | none | Idle (tail -f /dev/null). Optional -- Docker Compose profile, `make tools` |
+| advsim-kali | kalilinux/kali-rolling (multi-arch) | 172.20.0.70 | 2222 | root/kali. Optional -- Docker Compose profile, `make tools` |
 | advsim-guacamole | guacamole/guacamole:latest (**amd64**) | 172.20.0.81 | 8085->8080 | Standalone only |
 | advsim-guacd | guacamole/guacd:latest (**amd64**) | 172.20.0.80 | none | Standalone only |
-| advsim-guac-postgres | postgres:15-alpine (arm64) | 172.20.0.82 | none | Standalone only |
+| advsim-guac-postgres | postgres:15-alpine (multi-arch) | 172.20.0.82 | none | Standalone only |
 
 ### Nginx Proxy Routes
 
@@ -213,7 +213,7 @@ adversary-sim/
 |       +-- scenario_builder.json   <- Scenario Builder workflow (AI + manual scenario creation with CALDERA auto-loading)
 |
 +-- atomic-runner/
-    +-- Dockerfile                  <- ARM64 Ubuntu with Atomic Red Team definitions
+    +-- Dockerfile                  <- Ubuntu with Atomic Red Team definitions (any arch)
     +-- entrypoint.sh
 ```
 
@@ -254,7 +254,7 @@ The n8n container mounts `./nginx/html` at `/data/scenarios`, so n8n writes dire
 
 ### 4.3 Sandcat Must Be Compiled AMD64
 
-CALDERA runs in an ARM64 container (Apple Silicon). Victim VMs are x86-64 Windows machines. The sandcat agent binary must be cross-compiled:
+CALDERA container and victim VMs may run on different architectures. Victim VMs are always x86-64 Windows. The sandcat agent must be compiled for AMD64 regardless of the Docker host architecture:
 
 ```bash
 make sandcat
@@ -268,7 +268,7 @@ Run this after every fresh `docker compose up` or if agents fail to download the
 
 ### 4.4 Guacamole and guacd Are amd64-Only (Rosetta)
 
-Both `guacamole/guacamole:latest` and `guacamole/guacd:latest` have no arm64 builds. They run via Docker's Rosetta 2 x86-64 emulation on Apple Silicon. Both are explicitly tagged `platform: linux/amd64` in `docker-compose.guacamole.yml`. This works fine for demo use.
+Both `guacamole/guacamole:latest` and `guacamole/guacd:latest` are amd64-only (no ARM64 builds exist). On ARM64 hosts (e.g., Apple Silicon Macs), they run via Docker's Rosetta 2 emulation. On x86-64 hosts, they run natively. Both are explicitly tagged `platform: linux/amd64` in `docker-compose.guacamole.yml`. This is expected and works fine for demo use.
 
 Guacamole is only deployed in **standalone mode**. When LabOps is present, adversary-sim uses the LabOps Guacamole instance on the same Docker network.
 
