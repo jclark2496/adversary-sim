@@ -1034,6 +1034,10 @@
       border-color: rgba(180,60,255,0.3) !important;
       color: #c060f0 !important;
     }
+    .nav-it.beta-btn {
+      border: 1px solid rgba(180,60,255,0.3);
+      color: #c060f0;
+    }
   </style>
 </head>
 <body>
@@ -1068,8 +1072,8 @@
           <div class="nav-wrap" id="nav-wrap">
             <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
             <div class="nav-dd" id="nav-dd">
-              <button id="dd-booth-duty" class="nav-it" style="display:none" onclick="navToggle();window.open('/demo.html','_blank')">Booth Duty</button>
-              <button id="dd-stage-dive" class="nav-it" style="display:none" onclick="navToggle();openStageDive()">Stage Dive</button>
+              <button id="dd-booth-duty" class="nav-it beta-btn" style="display:none" onclick="navToggle();window.open('/demo.html','_blank')">Booth Duty</button>
+              <button id="dd-stage-dive" class="nav-it beta-btn" style="display:none" onclick="navToggle();openStageDive()">Stage Dive</button>
               <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
               <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
               <button class="nav-it" onclick="navToggle();window.open('/tools.html','_blank')">Red Tools</button>
