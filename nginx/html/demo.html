@@ -32,6 +32,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 #app {
   display: flex; flex-direction: column;
   width: 100vw; height: 100vh;
+  min-width: 1280px;
 }
 
 /* Header bar */
@@ -484,7 +485,7 @@ function buildDesktopChrome() {
     <div class="np-tb">
       <span style="font-size:12px">📄</span>
       <div class="np-title-text">README_RESTORE_FILES.txt — Notepad</div>
-      ${SVG_WIN_CONTROLS.replace(/38px;height:30px/g,'36px;height:28px').replace(/9px" height="9px/g,'8px" height="8')}
+      ${SVG_WIN_CONTROLS.replace(/38px;height:30px/g,'36px;height:28px').replace(/width="9" height="9"/g,'width="8" height="8"')}
     </div>
     <div class="np-menu"><span>File</span><span>Edit</span><span>View</span></div>
     <div id="np-body">
@@ -825,7 +826,11 @@ function ch1AdvanceTo(stage) {
     feedDone('f4','00:41');
     for (let i=0;i<7;i++) showPsLine(PS_LINES_CH1, i);
     document.getElementById('ps-win').classList.add('fade-out');
-    document.getElementById('desktop').classList.add('ransomed');
+    const desktopEl = document.getElementById('desktop');
+    desktopEl.style.transition = 'none';  // disable transition for instant snap
+    desktopEl.classList.add('ransomed');
+    desktopEl.offsetHeight;               // force reflow
+    setTimeout(() => { desktopEl.style.transition = ''; }, 50); // restore
     document.getElementById('ransom-wp').classList.add('visible');
     document.getElementById('notepad-win').classList.add('visible');
     document.getElementById('tb-notepad').style.display = 'flex';
@@ -872,12 +877,12 @@ function hideToast(cb) {
   const el = document.getElementById('sophos-toast');
   el.style.transition = 'opacity 0.3s ease';
   el.style.opacity = '0';
-  setTimeout(() => {
+  t(350, () => {
     el.classList.remove('visible');
     el.style.opacity = '';
     el.style.transition = '';
     if (cb) cb();
-  }, 350);
+  });
 }
 function showExpanded() {
   document.getElementById('sophos-exp').classList.add('visible');
@@ -958,7 +963,7 @@ function ch2Autoplay() {
   t(7100,  () => showPsLine(PS_LINES_CH2,4));
   t(7800,  () => { feedBlocked('f4','00:34',true); setBlockCount(4,4); showPsLine(PS_LINES_CH2,5); showPsLine(PS_LINES_CH2,6); });
   t(8000,  () => showToast('File Encryption Blocked','Ransomware stopped. Files are safe.'));
-  t(10000, () => hideToast(() => setTimeout(showExpanded, 350)));
+  t(10000, () => hideToast(() => t(350, showExpanded)));
   t(10400, () => { ch2Stage = 5; document.getElementById('feed-lbl').textContent = 'Attacker Console — All Blocked'; });
 }
 
