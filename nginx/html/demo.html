@@ -271,6 +271,70 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 #block-counter.visible { display:flex; }
 .bc-text  { font-size:11px; color:rgba(232,240,255,0.7); flex:1; }
 .bc-count { font-size:13px; font-weight:700; color:#6ab4ff; }
+
+/* ── SOPHOS TOAST ── */
+#sophos-toast {
+  position:absolute; bottom:44px; right:10px; width:220px;
+  background:#1f1f1f; border-radius:6px; overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
+  font-family:var(--font-ui);
+  opacity:0; transform:translateX(12px);
+  transition:opacity 0.3s ease, transform 0.3s ease;
+  pointer-events:none; z-index:30;
+}
+#sophos-toast.visible { opacity:1; transform:translateX(0); }
+.toast-accent { height:3px; background:var(--sophos-blue); }
+.toast-row { display:flex; align-items:flex-start; gap:10px; padding:10px 12px 10px 10px; }
+.toast-app-name { font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:2px; }
+.toast-title { font-size:12px; font-weight:600; color:#fff; margin-bottom:2px; }
+.toast-body  { font-size:10px; color:rgba(255,255,255,0.6); line-height:1.4; }
+.toast-time  { font-size:9px; color:rgba(255,255,255,0.3); margin-top:4px; }
+
+/* ── SOPHOS EXPANDED ALERT ── */
+#sophos-exp {
+  position:absolute; bottom:44px; right:10px; width:300px;
+  background:var(--win-dark); border-radius:10px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 16px 48px rgba(0,0,0,0.85);
+  font-family:var(--font-ui);
+  opacity:0; transform:translateX(12px);
+  transition:opacity 0.4s ease, transform 0.4s ease;
+  pointer-events:none; z-index:31;
+}
+#sophos-exp.visible { opacity:1; transform:translateX(0); }
+.exp-topbar { height:3px; background:var(--sophos-blue); }
+.exp-hdr { display:flex; align-items:center; gap:12px; padding:14px 16px 12px; border-bottom:1px solid rgba(255,255,255,0.07); }
+.exp-hdr-text { flex:1; min-width:0; }
+.exp-product { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.exp-title   { font-size:15px; font-weight:600; color:#fff; line-height:1.2; }
+.exp-status  {
+  display:flex; align-items:center; gap:12px;
+  margin:12px 16px;
+  background:rgba(108,203,95,0.08); border:1px solid rgba(108,203,95,0.22);
+  border-radius:8px; padding:10px 14px;
+}
+.exp-status-icon {
+  width:32px; height:32px; flex-shrink:0;
+  background:rgba(108,203,95,0.15); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  animation:pulse-green 1.8s ease-in-out infinite;
+}
+@keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(108,203,95,.4)} 50%{box-shadow:0 0 0 6px rgba(108,203,95,0)} }
+.exp-status-label { font-size:13px; font-weight:600; color:var(--success-green); margin-bottom:1px; }
+.exp-status-sub   { font-size:11px; color:rgba(255,255,255,0.55); }
+.exp-body  { padding:0 16px 14px; }
+.exp-desc  { font-size:12px; color:rgba(255,255,255,0.65); line-height:1.6; margin-bottom:12px; }
+.exp-chips { display:flex; gap:8px; margin-bottom:14px; }
+.exp-chip  { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px 10px; }
+.exp-chip-lbl { font-size:9px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
+.exp-chip-val { font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); }
+.exp-chip-val.green { color:var(--success-green); }
+.exp-footer { display:flex; align-items:center; gap:8px; padding:10px 16px 14px; border-top:1px solid rgba(255,255,255,0.07); }
+.exp-powered { font-size:10px; color:rgba(255,255,255,0.25); }
+.exp-btns   { margin-left:auto; display:flex; gap:8px; }
+.exp-btn    { font-size:11px; padding:6px 14px; border-radius:5px; cursor:pointer; font-family:var(--font-ui); font-weight:500; }
+.btn-primary { background:var(--sophos-blue); color:#fff; border:none; }
+.btn-ghost   { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.12); }
 </style>
 </head>
 <body>
@@ -435,6 +499,61 @@ function buildDesktopChrome() {
       <span class="rn-key">VICTIM-ID: 8F2A9C-447B-E91D-CC38-5502AB | FILES: 847 | SIZE: 4.2GB</span>
     </div>`;
   desktop.insertBefore(np, document.getElementById('taskbar'));
+
+  // Sophos toast
+  const toastEl = document.createElement('div');
+  toastEl.id = 'sophos-toast';
+  toastEl.innerHTML = `
+  <div class="toast-accent"></div>
+  <div class="toast-row">
+    <div>${sophosShieldSVG(32)}</div>
+    <div style="flex:1;min-width:0;">
+      <div class="toast-app-name">Sophos Endpoint</div>
+      <div class="toast-title" id="toast-title">File Encryption Blocked</div>
+      <div class="toast-body" id="toast-body">Ransomware activity detected and stopped.</div>
+      <div class="toast-time">just now</div>
+    </div>
+  </div>`;
+  desktop.insertBefore(toastEl, document.getElementById('taskbar'));
+
+  // Sophos expanded alert
+  const expEl = document.createElement('div');
+  expEl.id = 'sophos-exp';
+  expEl.innerHTML = `
+  <div class="exp-topbar"></div>
+  <div class="exp-hdr">
+    <div>${sophosShieldSVG(36)}</div>
+    <div class="exp-hdr-text">
+      <div class="exp-product">Sophos Intercept X · CryptoGuard</div>
+      <div class="exp-title">Ransomware Blocked</div>
+    </div>
+  </div>
+  <div class="exp-status">
+    <div class="exp-status-icon">
+      <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+        <polyline points="3,9 7,13 15,5" stroke="#6CCB5F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="exp-status-label">Threat Neutralized</div>
+      <div class="exp-status-sub">0 files encrypted · 4 attacks blocked</div>
+    </div>
+  </div>
+  <div class="exp-body">
+    <div class="exp-desc">CryptoGuard detected and stopped <strong style="color:rgba(255,255,255,0.85)">lockbit3.exe</strong>. All 4 attack techniques were blocked across credential access, tamper protection, and encryption prevention.</div>
+    <div class="exp-chips">
+      <div class="exp-chip"><div class="exp-chip-lbl">Attacks blocked</div><div class="exp-chip-val">4 of 4</div></div>
+      <div class="exp-chip"><div class="exp-chip-lbl">Files encrypted</div><div class="exp-chip-val green">0</div></div>
+    </div>
+  </div>
+  <div class="exp-footer">
+    <span class="exp-powered">Powered by Sophos Endpoint</span>
+    <div class="exp-btns">
+      <button class="exp-btn btn-ghost">Dismiss</button>
+      <button class="exp-btn btn-primary">View in Sophos Central</button>
+    </div>
+  </div>`;
+  desktop.insertBefore(expEl, document.getElementById('taskbar'));
 }
 
 buildDesktopChrome();
@@ -741,11 +860,118 @@ function ch1Autoplay() {
   });
 }
 
+// ── TOAST HELPERS ──
+function showToast(title, body) {
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent  = body;
+  document.getElementById('sophos-toast').style.opacity = '';
+  document.getElementById('sophos-toast').style.transition = '';
+  document.getElementById('sophos-toast').classList.add('visible');
+}
+function hideToast(cb) {
+  const el = document.getElementById('sophos-toast');
+  el.style.transition = 'opacity 0.3s ease';
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.classList.remove('visible');
+    el.style.opacity = '';
+    el.style.transition = '';
+    if (cb) cb();
+  }, 350);
+}
+function showExpanded() {
+  document.getElementById('sophos-exp').classList.add('visible');
+}
+function hideExpanded() {
+  document.getElementById('sophos-exp').classList.remove('visible');
+}
+
+// ── CHAPTER 2 RESET ──
+let ch2Stage = 0;
+
+function ch2Reset() {
+  ch2Stage = 0;
+  feedReset();
+  hidePsLines();
+  feedDone('f0','00:03');   // sandcat always pre-done in ch2
+  // Panel — neutral/amber
+  document.getElementById('atk-panel').style.borderColor = 'rgba(255,255,255,0.08)';
+  document.getElementById('atk-hdr').style.background = 'rgba(255,255,255,0.02)';
+  document.getElementById('feed-dot').className = 'panel-dot dot-amber blinking';
+  document.getElementById('feed-lbl').className = 'panel-lbl amber';
+  document.getElementById('feed-lbl').textContent = 'Attacker Console';
+  // Desktop stays blue
+  document.getElementById('desktop').classList.remove('ransomed');
+  document.getElementById('ransom-wp').classList.remove('visible');
+  document.getElementById('notepad-win').classList.remove('visible');
+  document.getElementById('ps-win').classList.remove('fade-out');
+  document.getElementById('tb-notepad').style.display = 'none';
+  // Show Sophos indicators
+  document.getElementById('sophos-active').style.display = 'flex';
+  document.getElementById('tb-sophos').style.display = 'flex';
+  hideToast();
+  hideExpanded();
+}
+
+function ch2AdvanceTo(stage) {
+  ch2Reset();
+  ch2Stage = stage;
+  if (stage >= 2) {
+    feedBlocked('f1','00:11',false);
+    setBlockCount(1, null);
+    showPsLine(PS_LINES_CH2,0);
+    showPsLine(PS_LINES_CH2,1);
+  }
+  if (stage >= 3) {
+    feedBlocked('f2','00:19',false);
+    feedBlocked('f3','00:28',false);
+    setBlockCount(3, null);
+    showPsLine(PS_LINES_CH2,2);
+    showPsLine(PS_LINES_CH2,3);
+  }
+  if (stage >= 4) {
+    feedBlocked('f4','00:34',true);
+    setBlockCount(4, 4);
+    showPsLine(PS_LINES_CH2,4);
+    showPsLine(PS_LINES_CH2,5);
+    showPsLine(PS_LINES_CH2,6);
+    document.getElementById('feed-lbl').textContent = 'Attacker Console — All Blocked';
+  }
+  if (stage >= 5) {
+    showExpanded();
+  }
+}
+
+function ch2Autoplay() {
+  ch2Reset(); startOpTimer();
+  t(800,   () => feedRunning('f1','00:11'));
+  t(1500,  () => { feedBlocked('f1','00:11',false); setBlockCount(1,null); showPsLine(PS_LINES_CH2,0); showPsLine(PS_LINES_CH2,1); });
+  t(1600,  () => showToast('Credential Theft Blocked','LSASS memory access prevented by Intercept X.'));
+  t(3200,  () => hideToast());
+  t(3600,  () => feedRunning('f2','00:19'));
+  t(4200,  () => { feedBlocked('f2','00:19',false); setBlockCount(2,null); });
+  t(4500,  () => feedRunning('f3','00:28'));
+  t(5100,  () => { feedBlocked('f3','00:28',false); setBlockCount(3,null); showPsLine(PS_LINES_CH2,2); showPsLine(PS_LINES_CH2,3); });
+  t(5200,  () => showToast('Tamper Protection Active','Registry change + shadow copy deletion blocked.'));
+  t(6700,  () => hideToast());
+  t(7000,  () => feedRunning('f4','00:34'));
+  t(7100,  () => showPsLine(PS_LINES_CH2,4));
+  t(7800,  () => { feedBlocked('f4','00:34',true); setBlockCount(4,4); showPsLine(PS_LINES_CH2,5); showPsLine(PS_LINES_CH2,6); });
+  t(8000,  () => showToast('File Encryption Blocked','Ransomware stopped. Files are safe.'));
+  t(10000, () => hideToast(() => setTimeout(showExpanded, 350)));
+  t(10400, () => { ch2Stage = 5; document.getElementById('feed-lbl').textContent = 'Attacker Console — All Blocked'; });
+}
+
 // ── TEMP TEST KEYS (replaced in Task 6) ──
 document.addEventListener('keydown', e => {
-  if (e.key === ' ') { e.preventDefault(); clearAllTimers(); ch1AdvanceTo(Math.min(ch1Stage+1, 6)); }
-  if (e.key === 'r' || e.key === 'R') { clearAllTimers(); ch1Reset(); }
-  if (e.key === 'p' || e.key === 'P') { clearAllTimers(); ch1Autoplay(); }
+  if (e.key === ' ') { e.preventDefault(); clearAllTimers();
+    if (currentChapter === 1) ch1AdvanceTo(Math.min(ch1Stage+1, 6));
+    else ch2AdvanceTo(Math.min(ch2Stage+1, 5));
+  }
+  if (e.key === 'r' || e.key === 'R') { clearAllTimers(); if (currentChapter===1) ch1Reset(); else ch2Reset(); }
+  if (e.key === 'p' || e.key === 'P') { clearAllTimers(); if (currentChapter===1) ch1Autoplay(); else ch2Autoplay(); }
+  if (e.key === '1') { clearAllTimers(); currentChapter=1; setChapterHeader(1); ch1Reset(); }
+  if (e.key === '2') { clearAllTimers(); currentChapter=2; setChapterHeader(2); ch2Reset(); }
 });
 </script>
 </body>
