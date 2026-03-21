@@ -1039,45 +1039,40 @@
       color: #c060f0;
     }
 
-    /* ── Stage Dive overlay ──────────────────────────────────── */
+    /* ── Stage Dive overlay — stage-optimized (high visibility) ─ */
     #stage-dive-overlay {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: #080808;
+      background: linear-gradient(150deg, #0c2d5c 0%, #1a4a8a 100%);
       opacity: 0;
       transition: opacity 0.25s ease;
       font-family: 'Courier New', monospace;
-    }
-    #stage-dive-overlay::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent, transparent 2px,
-        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
-      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #sd-terminal {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 60px 24px;
+      width: 90%;
+      max-width: 820px;
+      padding: 52px 60px;
+      border: 2px solid #00ff41;
+      border-radius: 10px;
+      box-shadow: 0 0 60px rgba(0,255,65,0.12), 0 20px 60px rgba(0,0,0,0.35);
     }
     .sd-line {
       color: #00ff41;
-      font-size: 13px;
-      margin-bottom: 24px;
+      font-size: 16px;
+      margin-bottom: 28px;
     }
-    .sd-line.dim { color: #005c15; }
+    .sd-line.dim { color: rgba(0,255,65,0.5); }
     #sd-close {
       position: absolute;
-      top: 20px;
-      right: 24px;
-      font-size: 11px;
+      top: 24px;
+      right: 28px;
+      font-size: 13px;
       font-family: 'Courier New', monospace;
-      color: #005c15;
+      color: rgba(0,255,65,0.55);
       background: none;
       border: none;
       cursor: pointer;
@@ -1086,38 +1081,38 @@
     #sd-close:hover { color: #00ff41; }
     #sd-input {
       width: 100%;
-      min-height: 120px;
+      min-height: 140px;
       font-family: 'Courier New', monospace;
-      font-size: 14px;
+      font-size: 17px;
       color: #00ff41;
       background: transparent;
-      border: 1px solid #005c15;
-      border-radius: 4px;
-      padding: 12px;
+      border: 1px solid rgba(0,255,65,0.4);
+      border-radius: 6px;
+      padding: 16px;
       resize: vertical;
       display: block;
     }
-    #sd-input::placeholder { color: #003a0d; }
+    #sd-input::placeholder { color: rgba(0,255,65,0.3); }
     #sd-input:focus { border-color: #00ff41; outline: none; }
     #sd-submit {
-      margin-top: 12px;
+      margin-top: 16px;
       font-family: 'Courier New', monospace;
-      font-size: 13px;
+      font-size: 16px;
       color: #00ff41;
       background: transparent;
-      border: 1px solid #00ff41;
-      border-radius: 3px;
-      padding: 8px 20px;
+      border: 2px solid #00ff41;
+      border-radius: 6px;
+      padding: 14px 36px;
       cursor: pointer;
       transition: background 0.15s ease;
     }
-    #sd-submit:hover { background: rgba(0,255,65,0.08); }
+    #sd-submit:hover { background: rgba(0,255,65,0.12); }
     #sd-submit:disabled { opacity: 0.4; cursor: not-allowed; }
     #sd-output {
-      font-size: 13px;
+      font-size: 16px;
       color: #00ff41;
       white-space: pre-wrap;
-      line-height: 1.6;
+      line-height: 1.7;
     }
     .sd-cursor {
       display: inline-block;
@@ -1126,14 +1121,14 @@
     @keyframes sd-blink { 50% { opacity: 0; } }
     .sd-close-btn {
       display: inline-block;
-      margin-top: 20px;
+      margin-top: 24px;
       font-family: 'Courier New', monospace;
-      font-size: 13px;
-      color: #005c15;
+      font-size: 15px;
+      color: rgba(0,255,65,0.7);
       background: transparent;
-      border: 1px solid #005c15;
-      border-radius: 3px;
-      padding: 8px 20px;
+      border: 1px solid rgba(0,255,65,0.5);
+      border-radius: 6px;
+      padding: 12px 28px;
       cursor: pointer;
       transition: color 0.15s ease, border-color 0.15s ease;
     }
