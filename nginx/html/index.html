@@ -2911,6 +2911,12 @@ function sdReset() {
   document.getElementById('sd-submit').disabled = false;
 }
 
+function sdEscape(str) {
+  return String(str || '').replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];
+  });
+}
+
 function sdSubmit() {
   var input = document.getElementById('sd-input');
   var description = input.value.trim();
@@ -2934,32 +2940,32 @@ function sdSubmit() {
     return res.json();
   })
   .then(function(data) {
-    // Build success output
-    var lines = ['&gt; done.', '&gt;', '&gt; ' + (data.title || 'Untitled Scenario')];
-    lines.push('&gt; \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    // Build success output — escape all API-supplied fields
+    var lines = ['&gt; done.', '&gt;', '&gt; ' + sdEscape(data.title || 'Untitled Scenario')];
+    lines.push('&gt; ──────────────────────────────────────');
     lines.push('&gt; MITRE');
     if (data.mitre_techniques && data.mitre_techniques.length) {
       data.mitre_techniques.forEach(function(t) {
-        lines.push('&gt;   ' + (t.id || '') + ' \u00b7 ' + (t.name || ''));
+        lines.push('&gt;   ' + sdEscape(t.id) + ' · ' + sdEscape(t.name));
       });
     }
     lines.push('&gt;');
     lines.push('&gt; EXPECTED DETECTIONS');
     if (data.expected_detections && data.expected_detections.length) {
       data.expected_detections.forEach(function(d) {
-        var sev = d.severity ? '[' + d.severity.toUpperCase() + '] ' : '';
-        lines.push('&gt;   ' + sev + (d.detection || ''));
+        var sev = d.severity ? '[' + sdEscape(d.severity).toUpperCase() + '] ' : '';
+        lines.push('&gt;   ' + sev + sdEscape(d.detection));
       });
     }
-    lines.push('&gt; \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    lines.push('&gt; ──────────────────────────────────────');
     lines.push('&gt; Scenario ready. Find it in the SE Console to launch.');
 
-    out.innerHTML = lines.join('\n') + '\n<button class="sd-close-btn" onclick="sdClose()">\u2190 Close and go to scenarios</button>';
+    out.innerHTML = lines.join('\n') + '\n<button class="sd-close-btn" onclick="sdClose()">← Close and go to scenarios</button>';
   })
   .catch(function(err) {
-    var msg = (err && err.message) ? err.message : 'request failed \u2014 check your connection';
+    var msg = sdEscape((err && err.message) ? err.message : 'request failed \u2014 check your connection');
     out.innerHTML = '&gt; error: ' + msg + '\n&gt; try again.';
-    // Re-enable after short delay
+    // Re-enable after short delay so SE can read the error
     setTimeout(function() {
       out.style.display = 'none';
       document.getElementById('sd-prompt').style.display = '';
