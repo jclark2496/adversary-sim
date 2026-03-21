@@ -1,6 +1,6 @@
 # The Rabbit Hole — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add a discoverable easter egg in the SE Console that leads to a hidden terminal-aesthetic lab page where SEs can activate beta features (Booth Duty, Stage Dive) and see the product roadmap.
 
@@ -26,7 +26,7 @@
 
 This task builds the page skeleton and the animated boot sequence. The feature cards section is rendered in the DOM but invisible (`opacity: 0`) — it will fade in after the boot completes. This gives us something testable before the toggle logic exists.
 
-- [ ] **Step 1: Create `nginx/html/lab.html` with this full content**
+- [x] **Step 1: Create `nginx/html/lab.html` with this full content**
 
 ```html
 <!DOCTYPE html>
@@ -302,7 +302,7 @@ initToggles();
 </html>
 ```
 
-- [ ] **Step 2: Open `http://localhost:8081/lab.html` in a browser and verify**
+- [x] **Step 2: Open `http://localhost:8081/lab.html` in a browser and verify**
 
 Expected:
 - Black background with green scanlines visible
@@ -315,7 +315,7 @@ Expected:
 - Refreshing the page shows the toggle in its last state (localStorage persisted)
 - "← back to console" link at bottom is dim, brightens on hover
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add nginx/html/lab.html
@@ -344,7 +344,7 @@ And at line ~1039 in the dropdown:
 <button class="nav-it" onclick="navToggle();window.open('/demo.html','_blank')">Demo Mode</button>
 ```
 
-- [ ] **Step 1: Add the easter egg trigger CSS**
+- [x] **Step 1: Add the easter egg trigger CSS**
 
 Find the `#hdr-controls` CSS block (around line 75) and add the rabbit hole trigger styles immediately after it:
 
@@ -372,7 +372,7 @@ Find the `#hdr-controls` CSS block (around line 75) and add the rabbit hole trig
 .rabbit-hole-trigger:hover .rh-ver { color: #d940f5; }
 ```
 
-- [ ] **Step 2: Replace the existing Demo Mode button with Booth Duty + Stage Dive buttons**
+- [x] **Step 2: Replace the existing Demo Mode button with Booth Duty + Stage Dive buttons**
 
 The existing Demo Mode button is in `main-nav` at line ~1031. It becomes the Booth Duty button (renamed, hidden by default). A new Stage Dive button is added immediately after it (also hidden by default).
 
@@ -388,7 +388,7 @@ To:
 
 The old inline cyan styles are intentionally removed. The JS in Task 3 applies beta-purple styles at runtime when each flag is on.
 
-- [ ] **Step 3: Update the hamburger dropdown**
+- [x] **Step 3: Update the hamburger dropdown**
 
 Change the existing Demo Mode item in `nav-dd` from:
 ```html
@@ -400,7 +400,7 @@ To:
 <button id="dd-stage-dive" class="nav-it" onclick="navToggle();openStageDive()" style="display:none">Stage Dive</button>
 ```
 
-- [ ] **Step 4: Add the easter egg trigger markup inside `#hdr-controls`, after `#nav-btn`'s parent `.nav-wrap` div**
+- [x] **Step 4: Add the easter egg trigger markup inside `#hdr-controls`, after `#nav-btn`'s parent `.nav-wrap` div**
 
 The `#hdr-controls` div currently ends with `</div>` closing the nav-wrap. Add the trigger as the last child of `#hdr-controls`:
 
@@ -411,7 +411,7 @@ The `#hdr-controls` div currently ends with `</div>` closing the nav-wrap. Add t
 </a>
 ```
 
-- [ ] **Step 5: Verify in browser**
+- [x] **Step 5: Verify in browser**
 
 Open `http://localhost:8081`. Expected:
 - 🐇 v2.1 appears at far right of the header, after the ☰ Menu button
@@ -419,7 +419,7 @@ Open `http://localhost:8081`. Expected:
 - Clicking opens `lab.html` in a new tab
 - Demo Mode and Stage Dive buttons are NOT visible in the nav (hidden)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add nginx/html/index.html
@@ -435,7 +435,7 @@ git commit -m "feat: add rabbit hole easter egg trigger and hidden beta nav butt
 
 Read localStorage on page load and show/restyle the beta nav buttons accordingly.
 
-- [ ] **Step 1: Add the feature flag JS**
+- [x] **Step 1: Add the feature flag JS**
 
 Find the end of the `<script>` block in `index.html` (just before the closing `</script>` tag) and add:
 
@@ -473,7 +473,7 @@ Find the end of the `<script>` block in `index.html` (just before the closing `<
 })();
 ```
 
-- [ ] **Step 2: Test Booth Duty flag**
+- [x] **Step 2: Test Booth Duty flag**
 
 In browser devtools console on `http://localhost:8081`:
 ```javascript
@@ -488,7 +488,7 @@ location.reload();
 ```
 Expected: button is gone.
 
-- [ ] **Step 3: Test Stage Dive flag**
+- [x] **Step 3: Test Stage Dive flag**
 
 ```javascript
 localStorage.setItem('rh_stage_dive', 'on');
@@ -496,11 +496,11 @@ location.reload();
 ```
 Expected: `Stage Dive` button appears with dim purple styling. Clicking it calls `openStageDive()` which doesn't exist yet — a console error is fine at this stage.
 
-- [ ] **Step 4: Test via lab.html**
+- [x] **Step 4: Test via lab.html**
 
 Open `lab.html`, toggle Booth Duty ON, click "← back to console". The SE Console will load fresh (it's a new navigation, not a reload) — the flag is read on page load, so the button should appear immediately.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add nginx/html/index.html
@@ -516,7 +516,7 @@ git commit -m "feat: read rabbit hole localStorage flags on SE Console load"
 
 Build the full-screen Stage Dive overlay. This is the largest task — CSS, HTML, and JS for the overlay, loading state, success state, and error state.
 
-- [ ] **Step 1: Add Stage Dive overlay CSS**
+- [x] **Step 1: Add Stage Dive overlay CSS**
 
 In the `<style>` block of `index.html`, add:
 
@@ -595,7 +595,7 @@ In the `<style>` block of `index.html`, add:
 @keyframes sd-blink { 50% { opacity: 0; } }
 ```
 
-- [ ] **Step 2: Add Stage Dive overlay HTML**
+- [x] **Step 2: Add Stage Dive overlay HTML**
 
 Add this immediately before the closing `</body>` tag in `index.html`:
 
@@ -614,7 +614,7 @@ Add this immediately before the closing `</body>` tag in `index.html`:
 </div>
 ```
 
-- [ ] **Step 3: Add Stage Dive JS functions**
+- [x] **Step 3: Add Stage Dive JS functions**
 
 In the `<script>` block, add before the closing `</script>`:
 
@@ -712,7 +712,7 @@ function stageDiveError(output, input, err) {
 }
 ```
 
-- [ ] **Step 4: Verify the overlay opens**
+- [x] **Step 4: Verify the overlay opens**
 
 In browser with Stage Dive flag enabled:
 - Click Stage Dive button → overlay fades in over the SE Console
@@ -721,21 +721,21 @@ In browser with Stage Dive flag enabled:
 - ✕ close button top-right — click it, overlay fades out
 - Empty submit does nothing (no request sent)
 
-- [ ] **Step 5: Verify loading state**
+- [x] **Step 5: Verify loading state**
 
 Submit a short description. Expected:
 - Inputs disabled, prompt hidden
 - `> building scenario...` and blinking `_` appear
 
-- [ ] **Step 6: Verify error state**
+- [x] **Step 6: Verify error state**
 
 To force an error without touching the AI provider, temporarily change the fetch URL in the JS from `'/api/scenario-build'` to `'/api/does-not-exist'`. Submit any description. Expected: error message appears (`> error: Not Found`), then the form resets after 2.5s for retry. Restore the correct URL after testing.
 
-- [ ] **Step 7: Verify success state (requires AI provider configured)**
+- [x] **Step 7: Verify success state (requires AI provider configured)**
 
 Submit `"A credential dumping attack using Mimikatz on a Windows endpoint"`. Expected: loading state → success output showing scenario title, MITRE techniques, expected detections, and the `← Close and go to scenarios` button. Clicking the button closes the overlay.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add nginx/html/index.html
@@ -751,7 +751,7 @@ git commit -m "feat: add Stage Dive full-screen overlay with AI scenario build"
 
 A final pass to verify the whole flow works together and clean up any loose ends.
 
-- [ ] **Step 1: Full flow test — Booth Duty**
+- [x] **Step 1: Full flow test — Booth Duty**
 
 1. Open `http://localhost:8081` → confirm no Booth Duty/Stage Dive/Demo Mode in nav
 2. Click 🐇 v2.1 → lab opens in new tab
@@ -761,7 +761,7 @@ A final pass to verify the whole flow works together and clean up any loose ends
 6. Click it → `demo.html` opens in new tab
 7. Open hamburger menu → confirm `Booth Duty` also appears there
 
-- [ ] **Step 2: Full flow test — Stage Dive**
+- [x] **Step 2: Full flow test — Stage Dive**
 
 1. In lab.html toggle Stage Dive ON
 2. Return to SE Console, reload
@@ -771,18 +771,18 @@ A final pass to verify the whole flow works together and clean up any loose ends
 6. Verify loading → success (or error if AI not configured)
 7. Close → overlay dismissed, SE Console visible
 
-- [ ] **Step 3: Full flow test — toggle OFF**
+- [x] **Step 3: Full flow test — toggle OFF**
 
 1. In lab.html toggle both features OFF
 2. Return to SE Console, reload
 3. Confirm both buttons are gone
 4. Confirm 🐇 v2.1 still visible and hovering correctly
 
-- [ ] **Step 4: Verify lab.html back link**
+- [x] **Step 4: Verify lab.html back link**
 
 On `lab.html`: click `← back to console` → lands on `http://localhost:8081/index.html`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add nginx/html/index.html nginx/html/lab.html

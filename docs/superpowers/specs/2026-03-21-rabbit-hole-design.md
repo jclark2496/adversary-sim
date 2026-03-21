@@ -235,31 +235,39 @@ Clicking the Stage Dive nav button injects (or reveals) a full-screen overlay el
 </div>
 ```
 
-**Overlay styling:**
-- `position: fixed; inset: 0; z-index: 1000; background: #080808`
-- Same scanline overlay `::after` as `lab.html`
-- Centered content column: `max-width: 640px; margin: 0 auto; padding: 60px 24px`
+**Overlay styling** *(as implemented — optimized for stage/projector use):*
+- `position: fixed; inset: 0; z-index: 1000`
+- Background: `linear-gradient(150deg, #0c2d5c 0%, #1a4a8a 100%)` (bright blue gradient — high visibility on projectors)
+- No scanline overlay (removed for stage clarity)
+- Display: `flex; align-items: center; justify-content: center` — content card is vertically and horizontally centered
 - Fade in: `opacity: 0 → 1` over `250ms`
 
+**Content card (`#sd-terminal`):**
+- `width: 92%; max-width: 960px; padding: 60px 72px`
+- `border: 2px solid #f0f5ff; border-radius: 12px`
+- `box-shadow: 0 0 80px rgba(240,245,255,0.08), 0 24px 64px rgba(0,0,0,0.4)`
+
+**Text color:** `#f0f5ff` (bright off-white) throughout — maximum legibility on blue background for live stage use.
+
 **Close button (`#sd-close`):**
-- `position: absolute; top: 20px; right: 24px`
-- `font-size: 11px; font-family: monospace; color: #005c15; background: none; border: none; cursor: pointer`
-- Hover: `color: #00ff41`
+- `position: absolute; top: 24px; right: 28px`
+- `font-size: 14px; font-family: monospace; color: rgba(240,245,255,0.5); background: none; border: none; cursor: pointer`
+- Hover: `color: #f0f5ff`
 
 **Textarea (`#sd-input`):**
-- `width: 100%; min-height: 120px`
-- `font-family: 'Courier New', monospace; font-size: 14px; color: #00ff41`
-- `background: transparent; border: 1px solid #005c15; border-radius: 4px; padding: 12px`
+- `width: 100%; min-height: 160px`
+- `font-family: 'Courier New', monospace; font-size: 19px; color: #f0f5ff`
+- `background: rgba(255,255,255,0.06); border: 1px solid rgba(240,245,255,0.45); border-radius: 8px; padding: 18px 20px`
 - `resize: vertical`
-- Placeholder color: `#003a0d`
-- Focus: `border-color: #00ff41; outline: none`
+- Placeholder color: `rgba(240,245,255,0.35)`
+- Focus: `border-color: #f0f5ff; outline: none; background: rgba(255,255,255,0.09)`
 
 **Submit button (`#sd-submit`):**
-- `margin-top: 12px`
-- `font-family: 'Courier New', monospace; font-size: 13px`
-- `color: #00ff41; background: transparent; border: 1px solid #00ff41; border-radius: 3px; padding: 8px 20px; cursor: pointer`
-- Hover: `background: rgba(0,255,65,0.08)`
-- Disabled (during loading): `opacity: 0.4; cursor: not-allowed`
+- `margin-top: 20px`
+- `font-family: 'Courier New', monospace; font-size: 17px`
+- `color: #f0f5ff; background: transparent; border: 2px solid #f0f5ff; border-radius: 8px; padding: 16px 44px; cursor: pointer`
+- Hover: `background: rgba(240,245,255,0.1)`
+- Disabled (during loading): `opacity: 0.35; cursor: not-allowed`
 
 #### Loading State
 

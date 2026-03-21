@@ -143,9 +143,10 @@ adversary-sim/
 |   +-- conf/default.conf           <- Generated from default.conf.tpl by make install
 |   +-- conf/default.conf.tpl       <- Nginx config template (N8N_PROXY_IP placeholder)
 |   +-- html/                       <- Served at http://localhost:8081/
-|       +-- index.html              <- SE Console: scenario picker with product/tactic filters, saved targets, launch button
+|       +-- index.html              <- SE Console: scenario picker with product/tactic filters, saved targets, launch button. Contains easter egg 🐇 trigger, hidden Booth Duty + Stage Dive beta nav buttons (shown via rh_booth_duty/rh_stage_dive localStorage flags), and Stage Dive full-screen overlay (POST /api/scenario-build)
 |       +-- console.html            <- Attack Console: CALDERA feed + Guacamole RDP split panel
 |       +-- admin.html              <- Scenario Studio: creative workspace for building and managing attack scenarios. Two creation paths: Design Scenario (manual with MITRE technique picker) and AI Generate (plain English -> auto-built scenario with CALDERA abilities). No password gate.
+|       +-- lab.html                <- The Rabbit Hole: hidden beta lab page. Standalone (no shared.css). Terminal aesthetic (Matrix green on #080808). Boot sequence + two feature toggles (Booth Duty, Stage Dive) backed by localStorage + three roadmap cards. Accessible only via 🐇 v2.1 easter egg in index.html header.
 |       +-- architecture.html       <- Platform reference for SEs (not customers)
 |       +-- scenarios.json          <- Scenario catalog: source of truth for all scenarios
 |       +-- ai-config.json          <- AI provider + labopsUrl config (gitignored, written by make install / Settings UI)
@@ -585,6 +586,17 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
   - Click a saved target chip to auto-fill the IP field
   - Persists across browser sessions
 
+### The Rabbit Hole — Beta Lab (lab.html + feature flags)
+
+- **Easter egg trigger**: A dim 🐇 v2.1 link at the far right of the `#hdr-controls` header div (after ☰ Menu). Gray at rest, flares neon purple on hover. Links to `/lab.html` in a new tab. No tooltip.
+- **`lab.html`**: Standalone terminal-aesthetic page (no shared.css). Matrix green on near-black. Boot sequence (`$ ./rabbit-hole --enter` → `> Beta features unlocked.` → blinking cursor). Two feature toggle cards. Three "coming soon" roadmap cards (Kali + Atomic Integration, Customer Mode, AI Debrief). Back link to SE Console.
+- **Feature flags** (localStorage, read by index.html on every page load):
+  - `rh_booth_duty` — shows/hides `#nav-booth-duty` + `#dd-booth-duty` (opens demo.html)
+  - `rh_stage_dive` — shows/hides `#nav-stage-dive` + `#dd-stage-dive` (opens Stage Dive overlay)
+  - Both default to hidden (`null` = off). No server-side persistence.
+- **Stage Dive overlay** (`#stage-dive-overlay` in index.html): Full-screen overlay, blue gradient background, off-white text and border, vertically centered card. Textarea for plain-English attack description → POST `/api/scenario-build` → displays MITRE techniques + expected detections. Does NOT auto-launch a CALDERA operation — SE finds the scenario in the console list and launches manually.
+- **Beta button styling**: `.beta-btn` class — dim purple border `rgba(180,60,255,0.3)`, color `#c060f0`. Applied to both main nav and hamburger dropdown items.
+
 ### Scenario Studio (admin.html)
 
 - **No password gate** -- open access for all SEs
@@ -789,4 +801,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-18 — Brand unification: Orbitron wordmark (SOPHOS ADVERSARY // page_name, cyan accent) applied to all 5 adversary pages (synced from mdr-demo-lab); shared.css .wm-* classes added, legacy .shared-brand/.shared-tag removed. Scenario Studio replaces Admin Console; Scenario Builder n8n workflow; architecture.html now single scrollable page; Kali + Atomic Red Team now optional (Docker Compose profiles, `make tools`)*
+*Last updated: 2026-03-21 — The Rabbit Hole: added lab.html (hidden beta lab with feature toggles and roadmap), 🐇 v2.1 easter egg trigger in index.html header, Booth Duty + Stage Dive localStorage-gated beta nav buttons, Stage Dive full-screen overlay (blue bg, off-white text, POST /api/scenario-build). Previous: 2026-03-18 — Brand unification: Orbitron wordmark applied to all pages; shared.css .wm-* classes; Scenario Studio; architecture.html single scrollable page; Kali + Atomic optional.*
