@@ -962,17 +962,79 @@ function ch2Autoplay() {
   t(10400, () => { ch2Stage = 5; document.getElementById('feed-lbl').textContent = 'Attacker Console — All Blocked'; });
 }
 
-// ── TEMP TEST KEYS (replaced in Task 6) ──
+// ── KEYBOARD HANDLER ──
+let manualMode = false;
+let looping = false;
+
 document.addEventListener('keydown', e => {
-  if (e.key === ' ') { e.preventDefault(); clearAllTimers();
-    if (currentChapter === 1) ch1AdvanceTo(Math.min(ch1Stage+1, 6));
-    else ch2AdvanceTo(Math.min(ch2Stage+1, 5));
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+
+  switch(e.key) {
+    case ' ':
+      e.preventDefault();
+      clearAllTimers();
+      manualMode = true; looping = false;
+      if (currentChapter === 1) ch1AdvanceTo(Math.min(ch1Stage+1, 6));
+      else                       ch2AdvanceTo(Math.min(ch2Stage+1, 5));
+      break;
+    case '1':
+      clearAllTimers(); manualMode = true; looping = false;
+      currentChapter = 1; setChapterHeader(1); ch1Reset();
+      break;
+    case '2':
+      clearAllTimers(); manualMode = true; looping = false;
+      currentChapter = 2; setChapterHeader(2); ch2Reset();
+      break;
+    case 'r': case 'R':
+      clearAllTimers(); manualMode = true; looping = false;
+      if (currentChapter === 1) ch1Reset();
+      else ch2Reset();
+      break;
+    case 'l': case 'L':
+      manualMode = false;
+      startAutoLoop();
+      break;
+    case 'f': case 'F':
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+      break;
   }
-  if (e.key === 'r' || e.key === 'R') { clearAllTimers(); if (currentChapter===1) ch1Reset(); else ch2Reset(); }
-  if (e.key === 'p' || e.key === 'P') { clearAllTimers(); if (currentChapter===1) ch1Autoplay(); else ch2Autoplay(); }
-  if (e.key === '1') { clearAllTimers(); currentChapter=1; setChapterHeader(1); ch1Reset(); }
-  if (e.key === '2') { clearAllTimers(); currentChapter=2; setChapterHeader(2); ch2Reset(); }
 });
+
+// ── AUTO-LOOP ──
+function startAutoLoop() {
+  looping = true;
+  runLoopChapter1();
+}
+
+function runLoopChapter1() {
+  if (!looping) return;
+  currentChapter = 1;
+  setChapterHeader(1);
+  ch1Autoplay();
+  // Chapter 1 finishes at ~8500ms. Wait 8500 + 5000 pause = 13500ms then run ch2
+  t(13500, () => {
+    if (!looping) return;
+    runLoopChapter2();
+  });
+}
+
+function runLoopChapter2() {
+  if (!looping) return;
+  currentChapter = 2;
+  setChapterHeader(2);
+  ch2Autoplay();
+  // Chapter 2 finishes at ~10400ms. Wait 10400 + 6000 pause = 16400ms then loop back
+  t(16400, () => {
+    if (!looping) return;
+    runLoopChapter1();
+  });
+}
+
+// ── START ON PAGE LOAD ──
+setChapterHeader(1);
+ch1Reset();
+startAutoLoop();
 </script>
 </body>
 </html>
