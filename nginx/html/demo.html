@@ -576,6 +576,177 @@ function setBlockCount(n, outOf) {
   document.getElementById('block-counter').classList.add('visible');
   document.getElementById('bc-count').textContent = outOf ? `${n} of ${outOf} blocked` : `${n} blocked`;
 }
+
+// ── PS TERMINAL LINES ──
+// Ch1 lines (shown one by one during encryption)
+const PS_LINES_CH1 = [
+  { id:'pl1', cls:'ps-out',  html:'Initializing encryption engine...<br>' },
+  { id:'pl2', cls:'ps-out',  html:'Scanning 847 files across 23 directories...<br>' },
+  { id:'pl3', cls:'ps-warn', html:'Encrypting report_Q1.docx ... <span style="color:#f14c4c">LOCKED</span><br>' },
+  { id:'pl4', cls:'ps-warn', html:'Encrypting financials_2025.xlsx ... <span style="color:#f14c4c">LOCKED</span><br>' },
+  { id:'pl5', cls:'ps-warn', html:'Encrypting contracts_signed.pdf ... <span style="color:#f14c4c">LOCKED</span><br>' },
+  { id:'pl6', cls:'ps-warn', html:'Encrypting employee_data.xlsx ... <span style="color:#f14c4c">LOCKED</span><br>' },
+  { id:'pl7', cls:'ps-err',  html:'847 files encrypted. Ransom note deployed.<br>' },
+];
+
+// Ch2 lines (shown as blocks fire)
+const PS_LINES_CH2 = [
+  { id:'pl1', cls:'ps-block', html:'BLOCKED: Sophos Intercept X terminated process<br>' },
+  { id:'pl2', cls:'ps-block', html:'Access denied — credential dump prevented<br>' },
+  { id:'pl3', cls:'ps-block', html:'BLOCKED: Registry modification prevented by Tamper Protection<br>' },
+  { id:'pl4', cls:'ps-block', html:'BLOCKED: Shadow copy deletion denied by CryptoGuard<br>' },
+  { id:'pl5', cls:'ps-warn',  html:'Attempting file encryption...<br>' },
+  { id:'pl6', cls:'ps-err',   html:'ERROR: Access denied — CryptoGuard intercepted attempt<br>' },
+  { id:'pl7', cls:'ps-ok',    html:'Rolling back 0 file(s)... No files encrypted.<br>' },
+];
+
+function showPsLine(lineArr, idx) {
+  const l = lineArr[idx];
+  const el = document.getElementById(l.id);
+  if (!el) return;
+  el.className = l.cls;
+  el.innerHTML = l.html;
+  el.style.display = 'inline';
+}
+
+function hidePsLines() {
+  for (let i=1; i<=8; i++) {
+    const el = document.getElementById('pl'+i);
+    if (el) { el.style.display='none'; el.innerHTML=''; }
+  }
+}
+
+// ── HEADER SWAP ──
+const CHAPTER_META = {
+  1: {
+    pillClass: 'ch-pill ch1', pillText: '⚠ Chapter 1',
+    title: 'Unprotected — The Attack Succeeds',
+    sub:   'No endpoint protection · LockBit 3.0 ransomware'
+  },
+  2: {
+    pillClass: 'ch-pill ch2', pillText: '🛡 Chapter 2',
+    title: 'Sophos Protected — Every Layer Blocked',
+    sub:   'Intercept X · CryptoGuard · Tamper Protection'
+  }
+};
+function setChapterHeader(ch) {
+  const meta = CHAPTER_META[ch];
+  document.getElementById('ch-pill').className  = meta.pillClass;
+  document.getElementById('ch-pill').textContent = meta.pillText;
+  document.getElementById('hdr-title').textContent = meta.title;
+  document.getElementById('hdr-sub').textContent   = meta.sub;
+}
+
+// ── OP TIMER ──
+let opSecs = 0, opInterval;
+function startOpTimer() {
+  opSecs = 0; clearInterval(opInterval);
+  opInterval = setInterval(() => {
+    opSecs++;
+    const m = String(Math.floor(opSecs/60)).padStart(2,'0');
+    const s = String(opSecs%60).padStart(2,'0');
+    document.getElementById('op-timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+// ── TIMER MANAGEMENT ──
+window._demoTimers = window._demoTimers || [];
+function t(ms, fn) {
+  const id = setTimeout(fn, ms);
+  window._demoTimers.push(id);
+  return id;
+}
+function clearAllTimers() {
+  window._demoTimers.forEach(clearTimeout);
+  window._demoTimers = [];
+  clearInterval(opInterval);
+}
+
+// ── CHAPTER 1 STAGES ──
+// Stage 0 = reset; stages 1-6 per spec
+let ch1Stage = 0;
+let currentChapter = 1;
+
+function ch1Reset() {
+  ch1Stage = 0;
+  feedReset();
+  hidePsLines();
+  feedDone('f0', '00:03');       // sandcat always pre-done
+  document.getElementById('desktop').className = '';  // remove ransomed class
+  document.getElementById('ransom-wp').classList.remove('visible');
+  document.getElementById('notepad-win').classList.remove('visible');
+  document.getElementById('ps-win').classList.remove('fade-out');
+  document.getElementById('tb-notepad').style.display = 'none';
+  document.getElementById('sophos-active').style.display = 'none';
+  document.getElementById('tb-sophos').style.display = 'none';
+  // Panel border — red for ch1
+  document.getElementById('atk-panel').style.borderColor = 'rgba(255,50,50,0.2)';
+  document.getElementById('atk-hdr').style.background = 'rgba(255,50,50,0.04)';
+  document.getElementById('feed-dot').className = 'panel-dot dot-red blinking';
+  document.getElementById('feed-lbl').className = 'panel-lbl red';
+  document.getElementById('feed-lbl').textContent = 'Attacker Console';
+  // Reset ransom countdown
+  rwSecs = 71*3600 + 59*60 + 47;
+  const el = document.getElementById('rw-countdown');
+  if (el) el.textContent = '71:59:47';
+}
+
+function ch1AdvanceTo(stage) {
+  ch1Reset();
+  ch1Stage = stage;
+  // Apply all stages up to target
+  if (stage >= 2) { feedDone('f1','00:11'); }
+  if (stage >= 3) { feedDone('f2','00:19'); }
+  if (stage >= 4) { feedDone('f3','00:28'); }
+  if (stage >= 5) {
+    feedRunning('f4','00:34');
+    for (let i=0;i<6;i++) showPsLine(PS_LINES_CH1, i);
+  }
+  if (stage >= 6) {
+    feedDone('f4','00:41');
+    for (let i=0;i<7;i++) showPsLine(PS_LINES_CH1, i);
+    document.getElementById('ps-win').classList.add('fade-out');
+    document.getElementById('desktop').classList.add('ransomed');
+    document.getElementById('ransom-wp').classList.add('visible');
+    document.getElementById('notepad-win').classList.add('visible');
+    document.getElementById('tb-notepad').style.display = 'flex';
+  }
+}
+
+function ch1Autoplay() {
+  ch1Reset(); startOpTimer();
+  // Per spec timing table:
+  t(800,  () => feedRunning('f1','00:11'));
+  t(1600, () => feedDone('f1','00:11'));
+  t(2200, () => feedRunning('f2','00:19'));
+  t(3000, () => feedDone('f2','00:19'));
+  t(3500, () => feedRunning('f3','00:28'));
+  t(4200, () => feedDone('f3','00:28'));
+  t(4800, () => feedRunning('f4','00:34'));
+  t(4900, () => showPsLine(PS_LINES_CH1, 0));
+  t(4900, () => showPsLine(PS_LINES_CH1, 1));
+  t(5600, () => showPsLine(PS_LINES_CH1, 2));
+  t(6100, () => showPsLine(PS_LINES_CH1, 3));
+  t(6600, () => showPsLine(PS_LINES_CH1, 4));
+  t(7100, () => showPsLine(PS_LINES_CH1, 5));
+  t(7600, () => showPsLine(PS_LINES_CH1, 6));
+  t(7700, () => feedDone('f4','00:41'));
+  t(7800, () => document.getElementById('desktop').classList.add('ransomed'));
+  t(7900, () => document.getElementById('ransom-wp').classList.add('visible'));
+  t(8000, () => document.getElementById('ps-win').classList.add('fade-out'));
+  t(8500, () => {
+    document.getElementById('notepad-win').classList.add('visible');
+    document.getElementById('tb-notepad').style.display = 'flex';
+    ch1Stage = 6;
+  });
+}
+
+// ── TEMP TEST KEYS (replaced in Task 6) ──
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') { e.preventDefault(); clearAllTimers(); ch1AdvanceTo(Math.min(ch1Stage+1, 6)); }
+  if (e.key === 'r' || e.key === 'R') { clearAllTimers(); ch1Reset(); }
+  if (e.key === 'p' || e.key === 'P') { clearAllTimers(); ch1Autoplay(); }
+});
 </script>
 </body>
 </html>
