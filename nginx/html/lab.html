@@ -36,7 +36,7 @@ body::after {
 /* Boot sequence */
 .boot { margin-bottom: 48px; }
 .tl { color: #00ff41; min-height: 1.6em; }
-.tl.dim { color: #005c15; }
+.tl.dim { color: #3a9c4a; }
 
 .cursor {
   display: inline-block;
@@ -54,7 +54,7 @@ body::after {
 /* Section headings */
 .section-rule {
   border: none;
-  border-top: 1px solid #005c15;
+  border-top: 1px solid #1e6b2a;
   margin: 40px 0 28px;
 }
 .section-heading {
@@ -70,7 +70,7 @@ body::after {
 .feature-card {
   margin-bottom: 28px;
   padding-bottom: 28px;
-  border-bottom: 1px solid #005c15;
+  border-bottom: 1px solid #1e6b2a;
 }
 .feature-name {
   font-size: 14px;
@@ -79,7 +79,7 @@ body::after {
 }
 .feature-desc {
   font-size: 12px;
-  color: #005c15;
+  color: #4ab85a;
   margin-bottom: 14px;
   line-height: 1.5;
 }
@@ -99,7 +99,7 @@ body::after {
   position: relative;
   width: 36px;
   height: 18px;
-  border: 1px solid #005c15;
+  border: 1px solid #1e6b2a;
   border-radius: 9px;
   background: transparent;
   transition: border-color 0.2s ease;
@@ -112,12 +112,12 @@ body::after {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #005c15;
+  background: #1e6b2a;
   transition: left 0.2s ease, background 0.2s ease;
 }
 .rh-toggle-label {
   font-size: 11px;
-  color: #005c15;
+  color: #3a9c4a;
   margin-left: 8px;
   min-width: 24px;
   transition: color 0.2s ease;
@@ -131,7 +131,7 @@ body::after {
 .roadmap-card {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #005c15;
+  border-bottom: 1px solid #1e6b2a;
 }
 .roadmap-card:last-child { border-bottom: none; }
 .roadmap-name {
@@ -144,31 +144,42 @@ body::after {
 }
 .roadmap-badge {
   font-size: 10px;
-  color: #003a0d;
-  border: 1px solid #003a0d;
+  color: #3a9c4a;
+  border: 1px solid #1e6b2a;
   border-radius: 3px;
   padding: 1px 6px;
   font-weight: normal;
 }
 .roadmap-desc {
   font-size: 12px;
-  color: #005c15;
+  color: #4ab85a;
   line-height: 1.5;
 }
 
-/* Back link */
-.back-link {
-  display: inline-block;
-  margin-top: 48px;
-  font-size: 11px;
-  color: #005c15;
-  text-decoration: none;
-  transition: color 0.2s ease;
+/* Close button */
+.close-btn {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid #1e6b2a;
+  color: #3a9c4a;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+  z-index: 100;
 }
-.back-link:hover { color: #00ff41; }
+.close-btn:hover { border-color: #00ff41; color: #00ff41; }
 </style>
 </head>
 <body>
+<button class="close-btn" onclick="window.close()||window.location.href='/index.html'" title="Close">✕</button>
 <div class="container">
 
   <!-- Boot sequence -->
@@ -221,8 +232,6 @@ body::after {
       <div class="roadmap-name">AI Debrief <span class="roadmap-badge">coming soon</span></div>
       <div class="roadmap-desc">Auto-generate a post-demo attack summary — MITRE map, detections triggered, and customer-ready talking points.</div>
     </div>
-
-    <a class="back-link" href="/index.html">← back to console</a>
 
   </div><!-- /feature-section -->
 </div><!-- /container -->

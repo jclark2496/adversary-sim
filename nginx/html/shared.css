@@ -388,7 +388,7 @@ select.ctrl option {
   top: calc(100% + 4px);
   right: 0;
   min-width: 160px;
-  background: var(--bg-card);
+  background: #080c18;
   border: 1px solid var(--border-dim);
   border-radius: var(--radius);
   padding: 4px 0;
@@ -428,6 +428,49 @@ select.ctrl option {
   height: 1px;
   background: var(--border-dim);
   margin: 3px 0;
+}
+
+/* Nav category headers */
+.nav-cat {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(0,237,255,0.7);
+  padding: 10px 14px 3px;
+  pointer-events: none;
+  user-select: none;
+}
+.nav-cat-divider {
+  height: 1px;
+  background: rgba(0,237,255,0.08);
+  margin: 6px 10px;
+}
+
+/* Floating tour button (bottom-right FAB) */
+.tour-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(0,229,255,0.3);
+  color: rgba(0,229,255,0.7);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--fm);
+  cursor: pointer;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.tour-fab:hover {
+  border-color: rgba(0,229,255,0.8);
+  color: #00e5ff;
+  box-shadow: 0 0 10px rgba(0,229,255,0.2);
 }
 
 /* ── Update Notification Dot ─────────────────────────────── */

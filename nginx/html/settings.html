@@ -512,17 +512,24 @@
 
   <!-- ── Nav ─────────────────────────────────────────────────── -->
   <div id="hdr-controls" style="position:fixed;top:10px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
-        <button class="tour-help-btn" id="tour-help-btn" title="Page help">?</button>
+        <button class="tour-help-btn" id="tour-help-btn" title="Page help" style="display:none">?</button>
     <div class="nav-wrap" id="nav-wrap">
       <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu</button>
       <div class="nav-dd" id="nav-dd">
-        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">SE Console</button>
+        <button class="nav-it" onclick="navToggle();window.location.href='index.html'">← SE Console</button>
+        <div class="nav-cat-divider"></div>
+        <div class="nav-cat">Red Team</div>
         <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
         <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
         <button class="nav-it" onclick="navToggle();window.open('/tools.html','_blank')">Red Tools</button>
+        <div class="nav-cat-divider"></div>
+        <div class="nav-cat">Platform</div>
         <button class="nav-it" onclick="navToggle();window.open('/architecture.html','_blank')">Architecture</button>
         <button class="nav-it" onclick="navToggle();labmgrClick()">Lab Manager</button>
         <button class="nav-it" onclick="navToggle();window.open('https://central.sophos.com','_blank')">Sophos Central</button>
+        <div class="nav-cat-divider"></div>
+        <div class="nav-cat">Config</div>
+        <button class="nav-it" onclick="navToggle();window.open('/help.html','_blank')">Help &amp; Troubleshooting</button>
       </div>
     </div>
   </div>
@@ -972,5 +979,6 @@
 </script>
 <script src="/tour.js"></script>
 <script>initTour('settings');</script>
+<button class="tour-fab" title="Start tour" onclick="document.getElementById('tour-help-btn').click()">?</button>
 </body>
 </html>
