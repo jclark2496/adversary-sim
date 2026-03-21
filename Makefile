@@ -300,6 +300,15 @@ _setup-tools:
 .PHONY: _check-docker
 _check-docker:
 	@echo "▶ Verifying Docker..."
+	@# On Linux, ensure user is in docker group (works even if Docker was pre-installed)
+	@if [ "$$(uname)" != "Darwin" ] && ! docker info >/dev/null 2>&1; then \
+		if sudo docker info >/dev/null 2>&1; then \
+			echo "▶ Adding $$USER to docker group (requires new shell session to take effect)..."; \
+			sudo usermod -aG docker $$USER 2>/dev/null || true; \
+			echo "⚠️  Docker group updated. Run: newgrp docker  then re-run make install"; \
+			exit 1; \
+		fi; \
+	fi
 	@docker info > /dev/null 2>&1 || (echo "❌ Docker is not running. Start Docker Desktop first." && exit 1)
 	@echo "✅ Docker is running"
 	@docker compose version > /dev/null 2>&1 || (echo "❌ Docker Compose not found. Update Docker Desktop." && exit 1)
