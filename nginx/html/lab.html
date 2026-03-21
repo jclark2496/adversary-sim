@@ -62,6 +62,7 @@ body::after {
   letter-spacing: 0.2em;
   color: #00ff41;
   text-transform: uppercase;
+  font-variant: small-caps;
   margin-bottom: 24px;
 }
 
@@ -69,9 +70,8 @@ body::after {
 .feature-card {
   margin-bottom: 28px;
   padding-bottom: 28px;
-  border-bottom: 1px solid #002a0a;
+  border-bottom: 1px solid #005c15;
 }
-.feature-card:last-child { border-bottom: none; }
 .feature-name {
   font-size: 14px;
   color: #00ff41;
@@ -118,7 +118,7 @@ body::after {
 .rh-toggle-label {
   font-size: 11px;
   color: #005c15;
-  margin-left: 10px;
+  margin-left: 8px;
   min-width: 24px;
   transition: color 0.2s ease;
 }
@@ -131,7 +131,7 @@ body::after {
 .roadmap-card {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #002a0a;
+  border-bottom: 1px solid #005c15;
 }
 .roadmap-card:last-child { border-bottom: none; }
 .roadmap-name {
@@ -173,21 +173,20 @@ body::after {
 
   <!-- Boot sequence -->
   <div class="boot">
-    <div class="tl dim" id="boot-1" style="display:none">$ ./rabbit-hole --enter</div>
+    <div class="tl" id="boot-1" style="display:none">$ ./rabbit-hole --enter</div>
     <div class="tl" id="boot-2" style="display:none">&gt; Beta features unlocked.</div>
-    <div class="tl" id="boot-3" style="display:none">&gt; <span class="cursor">_</span></div>
+    <div class="tl" id="boot-3" style="display:none"><span class="cursor">_</span></div>
   </div>
 
   <!-- Feature section (hidden until boot completes) -->
   <div id="feature-section">
 
-    <hr class="section-rule">
-    <div class="section-heading">Beta</div>
+    <div class="section-heading">BETA</div>
 
     <!-- Booth Duty -->
     <div class="feature-card">
       <div class="feature-name">Booth Duty</div>
-      <div class="feature-desc">Run the full attack demo without any live infrastructure.<br>Built for trade shows and conferences.</div>
+      <div class="feature-desc">Run the full attack demo without any live infrastructure. Built for trade shows and conferences.</div>
       <button class="rh-toggle" data-key="rh_booth_duty" aria-pressed="false">
         <span class="rh-toggle-track"><span class="rh-toggle-dot"></span></span>
         <span class="rh-toggle-label">OFF</span>
@@ -205,7 +204,7 @@ body::after {
     </div>
 
     <hr class="section-rule">
-    <div class="section-heading">On the Horizon</div>
+    <div class="section-heading">ON THE HORIZON</div>
 
     <!-- Roadmap cards -->
     <div class="roadmap-card">
@@ -238,10 +237,8 @@ body::after {
 
   b1.style.display = '';
   setTimeout(function() { b2.style.display = ''; }, 400);
-  setTimeout(function() {
-    b3.style.display = '';
-    setTimeout(function() { fs.classList.add('visible'); }, 150);
-  }, 700);
+  setTimeout(function() { b3.style.display = ''; }, 700);
+  setTimeout(function() { fs.classList.add('visible'); }, 700);
 })();
 
 // ── Toggle logic ───────────────────────────────────────────
