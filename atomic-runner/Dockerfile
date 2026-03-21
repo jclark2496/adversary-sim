@@ -3,7 +3,7 @@
 # PowerShell tests execute on the Windows victim endpoint via CALDERA agent
 # Linux-compatible ART tests can run directly in this container
 
-FROM --platform=linux/arm64 ubuntu:22.04
+FROM ubuntu:22.04
 
 LABEL maintainer="MDR Demo Lab"
 LABEL description="Atomic Red Team test runner and definition store"

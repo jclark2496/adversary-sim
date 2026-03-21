@@ -15,7 +15,6 @@ services:
 
   n8n:
     image: n8nio/n8n:latest
-    platform: linux/arm64
     container_name: advsim-n8n
     restart: unless-stopped
     ports:

@@ -54,7 +54,6 @@ services:
     build:
       context: ./atomic-runner
       dockerfile: Dockerfile
-    platform: linux/arm64
     container_name: advsim-atomic
     restart: unless-stopped
     profiles: ["tools"]
@@ -71,7 +70,6 @@ services:
   # ---------------------------------------------------------------------------
   nginx:
     image: nginx:alpine
-    platform: linux/arm64
     container_name: advsim-nginx
     restart: unless-stopped
     ports:
@@ -90,7 +88,6 @@ services:
   # ---------------------------------------------------------------------------
   kali:
     image: kalilinux/kali-rolling:latest
-    platform: linux/arm64
     container_name: advsim-kali
     restart: unless-stopped
     profiles: ["tools"]
