@@ -2645,6 +2645,27 @@
 
 
   /* =====================================================
+     RABBIT HOLE FEATURE FLAGS
+  ===================================================== */
+  // ── Rabbit Hole feature flags ──────────────────────────────
+  (function applyFeatureFlags() {
+    var boothDuty = localStorage.getItem('rh_booth_duty') === 'on';
+    var stageDive = localStorage.getItem('rh_stage_dive') === 'on';
+
+    // Booth Duty
+    var btnBD = document.getElementById('nav-booth-duty');
+    var ddBD = document.getElementById('dd-booth-duty');
+    if (btnBD) btnBD.style.display = boothDuty ? '' : 'none';
+    if (ddBD) ddBD.style.display = boothDuty ? '' : 'none';
+
+    // Stage Dive
+    var btnSD = document.getElementById('nav-stage-dive');
+    var ddSD = document.getElementById('dd-stage-dive');
+    if (btnSD) btnSD.style.display = stageDive ? '' : 'none';
+    if (ddSD) ddSD.style.display = stageDive ? '' : 'none';
+  })();
+
+  /* =====================================================
      BOOT
   ===================================================== */
   document.addEventListener('DOMContentLoaded', () => { wire(); init(); loadMitreData(); });
