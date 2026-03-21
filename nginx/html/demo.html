@@ -176,6 +176,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
     <div id="vic-panel">
       <div id="vic-panel-hdr">
         <div class="panel-dot dot-green"></div>
+        <!-- cosmetic display IP — not a live address, no routing -->
         <div class="vic-hdr-lbl">Victim Desktop · 192.168.1.45</div>
         <div id="sophos-active" style="display:none;">
           SOPHOS_SHIELD_SVG_14
@@ -205,6 +206,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 <div id="key-hint">Space &nbsp;·&nbsp; 1 &nbsp;·&nbsp; 2 &nbsp;·&nbsp; R &nbsp;·&nbsp; L &nbsp;·&nbsp; F</div>
 
 <script>
+// ── GLOBAL STATE (initialized here, populated by later tasks) ──
+window._demoTimers = [];
+
 // Clock
 function updateClock() {
   const now = new Date();
