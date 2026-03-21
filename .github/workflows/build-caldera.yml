@@ -20,7 +20,7 @@ jobs:
       contents: read
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v6
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -33,7 +33,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push multi-arch CALDERA
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "https://github.com/mitre/caldera.git#${{ github.event.inputs.caldera_tag }}"
           platforms: linux/amd64,linux/arm64
