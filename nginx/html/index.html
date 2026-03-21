@@ -1038,6 +1038,106 @@
       border: 1px solid rgba(180,60,255,0.3);
       color: #c060f0;
     }
+
+    /* ── Stage Dive overlay ──────────────────────────────────── */
+    #stage-dive-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #080808;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      font-family: 'Courier New', monospace;
+    }
+    #stage-dive-overlay::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 2px,
+        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+      );
+    }
+    #sd-terminal {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+    .sd-line {
+      color: #00ff41;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .sd-line.dim { color: #005c15; }
+    #sd-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: #005c15;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    #sd-close:hover { color: #00ff41; }
+    #sd-input {
+      width: 100%;
+      min-height: 120px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #00ff41;
+      background: transparent;
+      border: 1px solid #005c15;
+      border-radius: 4px;
+      padding: 12px;
+      resize: vertical;
+      display: block;
+    }
+    #sd-input::placeholder { color: #003a0d; }
+    #sd-input:focus { border-color: #00ff41; outline: none; }
+    #sd-submit {
+      margin-top: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #00ff41;
+      background: transparent;
+      border: 1px solid #00ff41;
+      border-radius: 3px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    #sd-submit:hover { background: rgba(0,255,65,0.08); }
+    #sd-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    #sd-output {
+      font-size: 13px;
+      color: #00ff41;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    .sd-cursor {
+      display: inline-block;
+      animation: sd-blink 1s step-end infinite;
+    }
+    @keyframes sd-blink { 50% { opacity: 0; } }
+    .sd-close-btn {
+      display: inline-block;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #005c15;
+      background: transparent;
+      border: 1px solid #005c15;
+      border-radius: 3px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .sd-close-btn:hover { color: #00ff41; border-color: #00ff41; }
   </style>
 </head>
 <body>
@@ -2786,12 +2886,112 @@ function normalizeLabopsUrl(url) {
   } catch(e) { /* silent */ }
 })();
 
-// ── Rabbit Hole: Stage Dive placeholder (implemented in Task 4) ──
-function openStageDive() {}
+// ── Stage Dive overlay ──────────────────────────────────────
+function openStageDive() {
+  var overlay = document.getElementById('stage-dive-overlay');
+  if (!overlay) return;
+  overlay.style.display = '';
+  setTimeout(function() { overlay.style.opacity = '1'; }, 10);
+  // Reset to prompt state
+  sdReset();
+}
+
+function sdClose() {
+  var overlay = document.getElementById('stage-dive-overlay');
+  if (!overlay) return;
+  overlay.style.opacity = '0';
+  setTimeout(function() { overlay.style.display = 'none'; }, 260);
+}
+
+function sdReset() {
+  document.getElementById('sd-prompt').style.display = '';
+  document.getElementById('sd-output').style.display = 'none';
+  document.getElementById('sd-output').innerHTML = '';
+  document.getElementById('sd-input').disabled = false;
+  document.getElementById('sd-submit').disabled = false;
+}
+
+function sdSubmit() {
+  var input = document.getElementById('sd-input');
+  var description = input.value.trim();
+  if (!description) return;
+
+  // Disable inputs, show loading
+  input.disabled = true;
+  document.getElementById('sd-submit').disabled = true;
+  document.getElementById('sd-prompt').style.display = 'none';
+  var out = document.getElementById('sd-output');
+  out.style.display = '';
+  out.innerHTML = '&gt; building scenario...\n&gt; <span class="sd-cursor">_</span>';
+
+  fetch('/api/scenario-build', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode: 'ai', description: description })
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('request failed \u2014 check your connection');
+    return res.json();
+  })
+  .then(function(data) {
+    // Build success output
+    var lines = ['&gt; done.', '&gt;', '&gt; ' + (data.title || 'Untitled Scenario')];
+    lines.push('&gt; \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    lines.push('&gt; MITRE');
+    if (data.mitre_techniques && data.mitre_techniques.length) {
+      data.mitre_techniques.forEach(function(t) {
+        lines.push('&gt;   ' + (t.id || '') + ' \u00b7 ' + (t.name || ''));
+      });
+    }
+    lines.push('&gt;');
+    lines.push('&gt; EXPECTED DETECTIONS');
+    if (data.expected_detections && data.expected_detections.length) {
+      data.expected_detections.forEach(function(d) {
+        var sev = d.severity ? '[' + d.severity.toUpperCase() + '] ' : '';
+        lines.push('&gt;   ' + sev + (d.detection || ''));
+      });
+    }
+    lines.push('&gt; \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    lines.push('&gt; Scenario ready. Find it in the SE Console to launch.');
+
+    out.innerHTML = lines.join('\n') + '\n<button class="sd-close-btn" onclick="sdClose()">\u2190 Close and go to scenarios</button>';
+  })
+  .catch(function(err) {
+    var msg = (err && err.message) ? err.message : 'request failed \u2014 check your connection';
+    out.innerHTML = '&gt; error: ' + msg + '\n&gt; try again.';
+    // Re-enable after short delay
+    setTimeout(function() {
+      out.style.display = 'none';
+      document.getElementById('sd-prompt').style.display = '';
+      input.disabled = false;
+      document.getElementById('sd-submit').disabled = false;
+    }, 2000);
+  });
+}
+
+// Wire up close and submit buttons after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  var closeBtn = document.getElementById('sd-close');
+  if (closeBtn) closeBtn.addEventListener('click', sdClose);
+  var submitBtn = document.getElementById('sd-submit');
+  if (submitBtn) submitBtn.addEventListener('click', sdSubmit);
+});
 </script>
 <script src="/tour.js"></script>
 <script>initTour('index');</script>
 
+<!-- Stage Dive overlay -->
+<div id="stage-dive-overlay" style="display:none">
+  <button id="sd-close">✕ close</button>
+  <div id="sd-terminal">
+    <div class="sd-line dim">$ stage-dive --init</div>
+    <div id="sd-prompt">
+      <textarea id="sd-input" placeholder="Describe the attack..."></textarea>
+      <button id="sd-submit">Build Scenario →</button>
+    </div>
+    <div id="sd-output" style="display:none"></div>
+  </div>
+</div>
 
 </body>
 </html>
