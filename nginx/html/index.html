@@ -1003,6 +1003,37 @@
     .fav-divider { height:1px; background:var(--border-dim); margin:4px 12px 8px; }
 
     /* Launch controls are now inside the detail panel (.launch-card) */
+
+    /* ── Rabbit Hole easter egg ──────────────────────────────── */
+    .rabbit-hole-trigger {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      margin-left: 8px;
+    }
+    .rh-rabbit {
+      font-size: 13px;
+      filter: grayscale(1) brightness(0.45);
+      transition: filter 0.25s ease;
+    }
+    .rh-ver {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      color: rgba(160,160,175,0.28);
+      transition: color 0.25s ease;
+    }
+    .rabbit-hole-trigger:hover .rh-rabbit {
+      filter: grayscale(1) brightness(0.25) sepia(1) hue-rotate(250deg) saturate(30) brightness(2.8);
+    }
+    .rabbit-hole-trigger:hover .rh-ver {
+      color: #d940f5;
+    }
+    .beta-btn {
+      border-color: rgba(180,60,255,0.3) !important;
+      color: #c060f0 !important;
+    }
   </style>
 </head>
 <body>
@@ -1028,7 +1059,8 @@
               <button class="dropdown-item" onclick="openEnrichCard()">Enrich with AI</button>
             </div>
           </div>
-          <button class="nav-tab" onclick="window.open('/demo.html','_blank')" style="background:rgba(0,237,255,0.08);border-color:rgba(0,237,255,0.3);color:#00EDFF;" title="Trade show demo mode — no live infrastructure needed">Demo Mode</button>
+          <button id="nav-booth-duty" class="nav-tab nav-btn beta-btn" style="display:none" onclick="window.open('/demo.html','_blank')">Booth Duty</button>
+          <button id="nav-stage-dive" class="nav-tab nav-btn beta-btn" style="display:none" onclick="openStageDive()">Stage Dive</button>
         </nav>
         <div id="hdr-controls">
         <button class="tour-help-btn" id="tour-help-btn" title="Page help">?</button>
@@ -1036,7 +1068,8 @@
           <div class="nav-wrap" id="nav-wrap">
             <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
             <div class="nav-dd" id="nav-dd">
-              <button class="nav-it" onclick="navToggle();window.open('/demo.html','_blank')">Demo Mode</button>
+              <button id="dd-booth-duty" class="nav-it" style="display:none" onclick="navToggle();window.open('/demo.html','_blank')">Booth Duty</button>
+              <button id="dd-stage-dive" class="nav-it" style="display:none" onclick="navToggle();openStageDive()">Stage Dive</button>
               <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
               <button class="nav-it" onclick="navToggle();window.open('/admin.html','_blank')">Scenario Studio</button>
               <button class="nav-it" onclick="navToggle();window.open('/tools.html','_blank')">Red Tools</button>
@@ -1047,6 +1080,10 @@
               <button class="nav-it" onclick="navToggle();window.open('/help.html','_blank')">Help &amp; Troubleshooting</button>
             </div>
           </div>
+          <a class="rabbit-hole-trigger" href="/lab.html" target="_blank">
+            <span class="rh-rabbit">🐇</span>
+            <span class="rh-ver">v2.1</span>
+          </a>
         </div>
       </div>
 
@@ -2723,6 +2760,9 @@ function normalizeLabopsUrl(url) {
     }
   } catch(e) { /* silent */ }
 })();
+
+// ── Rabbit Hole: Stage Dive placeholder (implemented in Task 4) ──
+function openStageDive() {}
 </script>
 <script src="/tour.js"></script>
 <script>initTour('index');</script>
