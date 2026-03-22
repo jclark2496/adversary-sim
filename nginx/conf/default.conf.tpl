@@ -58,6 +58,15 @@ server {
         add_header Cache-Control 'no-cache';
     }
 
+    # Proxy to LabOps API (LabOps mode only — fails silently in standalone)
+    # Lets the browser call /labops/api/vms without needing an external LabOps URL
+    location /labops/api/ {
+        proxy_pass http://labops-api:3000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
     # Block direct access to sensitive config files
     location = /ai-config.json { deny all; }
 

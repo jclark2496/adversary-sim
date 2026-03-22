@@ -2267,12 +2267,11 @@
   }
 
   // Auto-discovered VMs from LabOps API
+  // Uses internal nginx proxy /labops/api/ — no external URL needed, works in LabOps mode only
   var discoveredVms = [];
   async function fetchLabVms() {
-    const labopsUrl = localStorage.getItem('labopsUrl') || '';
-    if (!labopsUrl) return;
     try {
-      const res = await fetch(labopsUrl.replace(/\/$/, '') + '/api/vms', { signal: AbortSignal.timeout(5000) });
+      const res = await fetch('/labops/api/vms', { signal: AbortSignal.timeout(5000) });
       if (!res.ok) return;
       const data = await res.json();
       const vms = (data.vms || data.data || (Array.isArray(data) ? data : [])).filter(v => v.status === 'running' && v.ip);
