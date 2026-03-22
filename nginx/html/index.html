@@ -271,6 +271,9 @@
     }
     .stgt-chip:hover { background:rgba(var(--accent-cyan-rgb),0.16); border-color:rgba(var(--accent-cyan-rgb),0.3); }
     .stgt-chip .stgt-lbl { opacity:0.6; font-size:10px; }
+    .stgt-chip.stgt-vm { background:rgba(80,200,120,0.07); border-color:rgba(80,200,120,0.18); }
+    .stgt-chip.stgt-vm:hover { background:rgba(80,200,120,0.14); border-color:rgba(80,200,120,0.32); }
+    .stgt-chip .stgt-vm-tag { font-size:9px; font-weight:700; letter-spacing:.06em; color:rgba(80,200,120,0.7); text-transform:uppercase; margin-right:1px; }
     .stgt-chip .stgt-x {
       opacity:0.4; font-size:10px; margin-left:2px; cursor:pointer;
       padding:0 2px; border-radius:3px;
@@ -1634,6 +1637,7 @@
       S.filt = [...S.all];
       filt();
       renderSavedTargets();
+      fetchLabVms();
     } catch (e) {
       $('sl').innerHTML = `<div class="lempty"><strong>Load Failed</strong>
         Could not fetch scenarios.json<br>
@@ -2252,6 +2256,30 @@
   function saveSavedTargets(list) {
     localStorage.setItem('savedTargets', JSON.stringify(list));
   }
+  function getDismissedVms() {
+    try { return JSON.parse(localStorage.getItem('dismissedVms') || '[]'); }
+    catch { return []; }
+  }
+  function dismissVm(ip) {
+    const list = getDismissedVms();
+    if (!list.includes(ip)) { list.push(ip); localStorage.setItem('dismissedVms', JSON.stringify(list)); }
+    renderSavedTargets();
+  }
+
+  // Auto-discovered VMs from LabOps API
+  var discoveredVms = [];
+  async function fetchLabVms() {
+    const labopsUrl = localStorage.getItem('labopsUrl') || '';
+    if (!labopsUrl) return;
+    try {
+      const res = await fetch(labopsUrl.replace(/\/$/, '') + '/api/vms', { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) return;
+      const data = await res.json();
+      const vms = (data.data || data || []).filter(v => v.status === 'running' && v.ip);
+      discoveredVms = vms.map(v => ({ ip: v.ip, label: v.name || ('VM ' + v.vmid) }));
+      renderSavedTargets();
+    } catch(e) {}
+  }
   function addSavedTarget() {
     const ip = S.tgt.trim();
     if (!ip) return;
@@ -2299,11 +2327,23 @@
     const d = $('pngdot'); if (d) d.className = 'pngdot';
   }
   function renderSavedTargets() {
-    const list = getSavedTargets();
+    const manual = getSavedTargets();
+    const dismissed = getDismissedVms();
+    const manualIps = new Set(manual.map(t => t.ip));
     const el = $('saved-targets');
     if (!el) return;
     let h = '';
-    list.forEach(t => {
+    // Auto-discovered VM chips (green tint, "VM" tag)
+    discoveredVms.forEach(v => {
+      if (dismissed.includes(v.ip) || manualIps.has(v.ip)) return;
+      const safe = JSON.stringify(v).replace(/"/g,'&quot;');
+      h += `<div class="stgt-chip stgt-vm" onclick="selectSavedTarget(${safe})" title="${v.label}">
+        <span class="stgt-vm-tag">VM</span>${v.ip}<span class="stgt-lbl">${v.label}</span>
+        <span class="stgt-x" onclick="event.stopPropagation();dismissVm('${v.ip}')" title="Hide">&#x2715;</span>
+      </div>`;
+    });
+    // Manually saved chips
+    manual.forEach(t => {
       const lbl = t.label ? ` <span class="stgt-lbl">${t.label}</span>` : '';
       h += `<div class="stgt-chip" onclick="selectSavedTarget(${JSON.stringify(t).replace(/"/g,'&quot;')})">
         ${t.ip}${lbl}<span class="stgt-x" onclick="event.stopPropagation();removeSavedTarget('${t.ip}')" title="Remove">&#x2715;</span>
