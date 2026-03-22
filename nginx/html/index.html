@@ -705,6 +705,34 @@
     }
     .wiz-textarea:focus { border-color:rgba(var(--accent-green-rgb),.4); }
     .wiz-textarea::placeholder { color:rgba(var(--text-rgb),0.38); }
+    /* Custom select for wizard (replaces native OS-rendered select) */
+    .wiz-csel { position:relative; }
+    .wiz-csel-btn {
+      width:100%; display:flex; align-items:center; justify-content:space-between;
+      background:rgba(var(--bg-deep-rgb),0.7); border:1px solid var(--border-dim);
+      border-radius:5px; padding:7px 30px 7px 10px; color:var(--text-primary);
+      font-size:13px; cursor:pointer; text-align:left; font-family:inherit;
+      transition:border-color .18s; position:relative;
+    }
+    .wiz-csel-btn:hover { border-color:rgba(var(--accent-cyan-rgb),0.38); }
+    .wiz-csel-btn::after {
+      content:''; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+      width:10px; height:6px; pointer-events:none;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,240,255,0.45)' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    }
+    .wiz-csel-list {
+      display:none; position:absolute; top:calc(100% + 3px); left:0; right:0;
+      background:var(--bg-card); border:1px solid var(--border-dim); border-radius:5px;
+      z-index:600; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.5);
+    }
+    .wiz-csel.open .wiz-csel-list { display:block; }
+    .wiz-csel-list button {
+      display:block; width:100%; padding:8px 12px; text-align:left;
+      background:transparent; border:none; color:var(--text-sec);
+      font-size:13px; cursor:pointer; font-family:inherit; transition:background .1s,color .1s;
+    }
+    .wiz-csel-list button:hover { background:rgba(var(--accent-cyan-rgb),.08); color:var(--text-primary); }
+    .wiz-csel-list button.active { color:var(--accent-cyan); }
     .wiz-tactgrid { display:flex; flex-wrap:wrap; gap:5px; }
     .wiz-tact {
       padding:4px 10px; border-radius:100px; cursor:pointer;
@@ -1415,13 +1443,17 @@
           </div>
           <div class="wiz-ig">
             <div class="wiz-lbl">Case Source</div>
-            <select id="wiz-source" class="ctrl">
-              <option value="Customer Incident">Customer Incident</option>
-              <option value="Threat Intel">Threat Intel</option>
-              <option value="Red Team Exercise">Red Team Exercise</option>
-              <option value="Public Report">Public Report</option>
-              <option value="Other">Other</option>
-            </select>
+            <div class="wiz-csel" id="wiz-source-csel">
+              <button class="wiz-csel-btn" onclick="wizCselToggle('wiz-source-csel')"><span>Customer Incident</span></button>
+              <div class="wiz-csel-list">
+                <button class="active" onclick="wizCselSelect('wiz-source-csel','Customer Incident','Customer Incident')">Customer Incident</button>
+                <button onclick="wizCselSelect('wiz-source-csel','Threat Intel','Threat Intel')">Threat Intel</button>
+                <button onclick="wizCselSelect('wiz-source-csel','Red Team Exercise','Red Team Exercise')">Red Team Exercise</button>
+                <button onclick="wizCselSelect('wiz-source-csel','Public Report','Public Report')">Public Report</button>
+                <button onclick="wizCselSelect('wiz-source-csel','Other','Other')">Other</button>
+              </div>
+              <input type="hidden" id="wiz-source" value="Customer Incident">
+            </div>
           </div>
           <div class="wiz-ig">
             <div class="wiz-lbl">Submitter Name</div>
@@ -1429,13 +1461,17 @@
           </div>
           <div class="wiz-ig">
             <div class="wiz-lbl">Target Industry</div>
-            <select id="wiz-industry" class="ctrl">
-              <option value="universal">Universal</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="financial_services">Financial Services</option>
-              <option value="manufacturing">Manufacturing</option>
-              <option value="retail">Retail</option>
-            </select>
+            <div class="wiz-csel" id="wiz-industry-csel">
+              <button class="wiz-csel-btn" onclick="wizCselToggle('wiz-industry-csel')"><span>Universal</span></button>
+              <div class="wiz-csel-list">
+                <button class="active" onclick="wizCselSelect('wiz-industry-csel','Universal','universal')">Universal</button>
+                <button onclick="wizCselSelect('wiz-industry-csel','Healthcare','healthcare')">Healthcare</button>
+                <button onclick="wizCselSelect('wiz-industry-csel','Financial Services','financial_services')">Financial Services</button>
+                <button onclick="wizCselSelect('wiz-industry-csel','Manufacturing','manufacturing')">Manufacturing</button>
+                <button onclick="wizCselSelect('wiz-industry-csel','Retail','retail')">Retail</button>
+              </div>
+              <input type="hidden" id="wiz-industry" value="universal">
+            </div>
           </div>
         </div>
       </div>
@@ -2345,6 +2381,29 @@
     $('tpd').classList.remove('open');
   }
 
+  /* ── Wizard custom select helpers ──────────────────── */
+  function wizCselToggle(id) {
+    const el = document.getElementById(id);
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.wiz-csel.open').forEach(e => e.classList.remove('open'));
+    if (!wasOpen) el.classList.add('open');
+  }
+  function wizCselSelect(cselId, label, value) {
+    const el = document.getElementById(cselId);
+    el.classList.remove('open');
+    el.querySelector('.wiz-csel-btn span').textContent = label;
+    el.querySelectorAll('.wiz-csel-list button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const inputId = cselId.replace('-csel', '');
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = value;
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.wiz-csel')) {
+      document.querySelectorAll('.wiz-csel.open').forEach(function(el) { el.classList.remove('open'); });
+    }
+  });
+
   /* =====================================================
      CASE WIZARD
   ===================================================== */
@@ -2360,7 +2419,9 @@
     ['wiz-title','wiz-desc','wiz-actor','wiz-submitter','wiz-context','wiz-techin','wiz-toolin']
       .forEach(id => { const el = $(id); if (el) el.value = ''; });
     $('wiz-source').value = 'Customer Incident';
+    document.querySelector('#wiz-source-csel .wiz-csel-btn span').textContent = 'Customer Incident';
     $('wiz-industry').value = 'universal';
+    document.querySelector('#wiz-industry-csel .wiz-csel-btn span').textContent = 'Universal';
     // Render tactic toggles
     $('wiz-tactgrid').innerHTML = WIZ_TACTICS.map(t =>
       `<button class="wiz-tact" data-tact="${x(t)}">${x(t)}</button>`
