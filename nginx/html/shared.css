@@ -430,6 +430,19 @@ select.ctrl option {
   margin: 3px 0;
 }
 
+/* Product-switch item — visually distinct from regular nav items */
+.nav-it-switch {
+  color: var(--accent-cyan) !important;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+.nav-it-switch:hover {
+  background: rgba(var(--accent-cyan-rgb), 0.1) !important;
+  color: var(--accent-cyan) !important;
+  opacity: 1;
+}
+
 /* Nav category headers */
 .nav-cat {
   font-size: 9px;
