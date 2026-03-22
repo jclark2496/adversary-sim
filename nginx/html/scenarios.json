@@ -55,15 +55,15 @@
       "talking_points": {
         "universal": [
           "LSASS credential dumping is the #1 technique we see in MDR cases after initial access",
-          "Our analysts detect this in real-time — you can see the alert fire within seconds of execution",
+          "Our analysts detect this in real-time \u2014 you can see the alert fire within seconds of execution",
           "The attacker only needs to run this once to get every password hash on the system"
         ],
         "financial_services": [
           "In financial environments, these hashes can be used to move laterally to trading systems or payment infrastructure",
-          "PCI-DSS requires detection and response to credential theft — this shows your MDR coverage"
+          "PCI-DSS requires detection and response to credential theft \u2014 this shows your MDR coverage"
         ],
         "healthcare": [
-          "Credential dumping is step 2 in most healthcare ransomware attacks — after initial access, before lateral movement to clinical systems",
+          "Credential dumping is step 2 in most healthcare ransomware attacks \u2014 after initial access, before lateral movement to clinical systems",
           "HIPAA breach notification is triggered the moment PHI systems are reachable with stolen credentials"
         ],
         "manufacturing": [
@@ -74,13 +74,13 @@
       "se_runbook": {
         "setup": "Ensure Windows victim VM is running with Sophos agent active. Verify CALDERA agent (sandcat) is deployed on victim.",
         "steps": [
-          "Show the clean MDR console — no alerts",
+          "Show the clean MDR console \u2014 no alerts",
           "Launch the simulation from this UI",
           "Switch to MDR console and watch alerts fire in real time",
-          "Walk through the alert detail — process tree, memory access, hash extraction",
-          "Show analyst response workflow — isolation, investigation, containment"
+          "Walk through the alert detail \u2014 process tree, memory access, hash extraction",
+          "Show analyst response workflow \u2014 isolation, investigation, containment"
         ],
-        "talking_points_timing": "Deliver industry talking points while alerts are loading — typically 10-15 seconds after execution"
+        "talking_points_timing": "Deliver industry talking points while alerts are loading \u2014 typically 10-15 seconds after execution"
       },
       "status": "approved",
       "launchable": true,
@@ -161,17 +161,17 @@
       ],
       "talking_points": {
         "universal": [
-          "Every attacker runs these commands within minutes of gaining access — it's how they figure out where they are and what's valuable",
-          "Individually these look like normal admin activity. Our MDR detects the *pattern* — the sequence and timing is the tell",
-          "This stage is critical to catch — if you miss it, the attacker moves on to lateral movement and credential theft"
+          "Every attacker runs these commands within minutes of gaining access \u2014 it's how they figure out where they are and what's valuable",
+          "Individually these look like normal admin activity. Our MDR detects the *pattern* \u2014 the sequence and timing is the tell",
+          "This stage is critical to catch \u2014 if you miss it, the attacker moves on to lateral movement and credential theft"
         ],
         "financial_services": [
           "Attackers are specifically looking for systems connected to trading platforms, payment rails, or SWIFT infrastructure",
-          "Network discovery commands reveal the path to high-value targets — catching this early stops the kill chain"
+          "Network discovery commands reveal the path to high-value targets \u2014 catching this early stops the kill chain"
         ],
         "healthcare": [
           "Discovery commands help attackers identify EHR systems, medical imaging servers, and backup locations",
-          "Ransomware groups specifically target backups first — this discovery phase is where they find them"
+          "Ransomware groups specifically target backups first \u2014 this discovery phase is where they find them"
         ],
         "manufacturing": [
           "In manufacturing environments, attackers use discovery to find historian servers and HMI systems",
@@ -179,15 +179,15 @@
         ]
       },
       "se_runbook": {
-        "setup": "No special setup required. Works with any Windows endpoint. Good first demo — low risk, highly visible.",
+        "setup": "No special setup required. Works with any Windows endpoint. Good first demo \u2014 low risk, highly visible.",
         "steps": [
-          "Show the MDR console — explain what baseline looks like",
-          "Launch the simulation — this one runs fast (under 60 seconds)",
+          "Show the MDR console \u2014 explain what baseline looks like",
+          "Launch the simulation \u2014 this one runs fast (under 60 seconds)",
           "Point out how each individual command looks benign",
           "Show how MDR correlates them into a single high-confidence alert",
           "Highlight the MITRE ATT&CK mapping in the alert detail"
         ],
-        "talking_points_timing": "Start industry talking points immediately after launch — alerts appear fast on this one"
+        "talking_points_timing": "Start industry talking points immediately after launch \u2014 alerts appear fast on this one"
       },
       "status": "approved",
       "launchable": true,
@@ -202,7 +202,7 @@
     {
       "id": "SCN-003",
       "product": "endpoint",
-      "title": "Phishing → Payload → Persistence",
+      "title": "Phishing \u2192 Payload \u2192 Persistence",
       "description": "Full kill chain simulation: phishing document triggers payload execution, which establishes persistence via scheduled task. Multi-step CALDERA operation.",
       "mitre_tactics": [
         "Initial Access",
@@ -266,17 +266,17 @@
       ],
       "talking_points": {
         "universal": [
-          "This is the most common initial access path we see — phishing is still #1",
-          "The scary part isn't the phishing — it's the persistence. The attacker survives reboots and patch cycles",
-          "Our MDR caught this at the execution stage — before the attacker had time to move laterally"
+          "This is the most common initial access path we see \u2014 phishing is still #1",
+          "The scary part isn't the phishing \u2014 it's the persistence. The attacker survives reboots and patch cycles",
+          "Our MDR caught this at the execution stage \u2014 before the attacker had time to move laterally"
         ],
         "financial_services": [
-          "Business email compromise starts exactly like this — a 'vendor invoice' attachment that looks legitimate",
-          "Once persistence is established, attackers wait weeks before acting — this is how wire fraud setups work"
+          "Business email compromise starts exactly like this \u2014 a 'vendor invoice' attachment that looks legitimate",
+          "Once persistence is established, attackers wait weeks before acting \u2014 this is how wire fraud setups work"
         ],
         "healthcare": [
-          "Healthcare is the #1 targeted sector for phishing — high-pressure clinical environments mean staff click links",
-          "Ransomware deployment typically happens 2-3 weeks after this persistence stage — MDR breaks the chain here"
+          "Healthcare is the #1 targeted sector for phishing \u2014 high-pressure clinical environments mean staff click links",
+          "Ransomware deployment typically happens 2-3 weeks after this persistence stage \u2014 MDR breaks the chain here"
         ],
         "manufacturing": [
           "Spearphishing targeting supply chain contacts is a major vector in manufacturing attacks",
@@ -286,13 +286,13 @@
       "se_runbook": {
         "setup": "CALDERA must be running and sandcat agent deployed on victim. This scenario uses CALDERA for multi-step orchestration. Allow 3-5 minutes for full chain execution.",
         "steps": [
-          "Brief the prospect on the scenario — 'we're simulating a phishing attack from click to persistence'",
-          "Launch from this UI — CALDERA will orchestrate the full chain",
-          "Walk through each stage as it executes: document open → child process → scheduled task",
-          "Show MDR detecting at the execution stage — before persistence completes ideally",
-          "If MDR catches it post-persistence, show the remediation workflow — task removal, process kill, isolation"
+          "Brief the prospect on the scenario \u2014 'we're simulating a phishing attack from click to persistence'",
+          "Launch from this UI \u2014 CALDERA will orchestrate the full chain",
+          "Walk through each stage as it executes: document open \u2192 child process \u2192 scheduled task",
+          "Show MDR detecting at the execution stage \u2014 before persistence completes ideally",
+          "If MDR catches it post-persistence, show the remediation workflow \u2014 task removal, process kill, isolation"
         ],
-        "talking_points_timing": "This scenario takes 3-5 minutes — use the full industry talking points during execution"
+        "talking_points_timing": "This scenario takes 3-5 minutes \u2014 use the full industry talking points during execution"
       },
       "status": "approved",
       "launchable": true,
@@ -308,7 +308,7 @@
       "id": "SCN-005",
       "product": "endpoint",
       "title": "Pass the Hash Lateral Movement",
-      "description": "Simulate an attacker harvesting NTLM hashes from a compromised host and using them to authenticate to remote systems without the plaintext password. Demonstrates the direct continuation of SCN-001 — stolen hashes become the keys to lateral movement.",
+      "description": "Simulate an attacker harvesting NTLM hashes from a compromised host and using them to authenticate to remote systems without the plaintext password. Demonstrates the direct continuation of SCN-001 \u2014 stolen hashes become the keys to lateral movement.",
       "mitre_tactics": [
         "Discovery",
         "Credential Access",
@@ -363,33 +363,33 @@
       ],
       "talking_points": {
         "universal": [
-          "Pass the Hash is why credential dumping is so dangerous — once the attacker has the hash, they never need the password",
-          "There's no failed login attempt, no password prompt — standard perimeter monitoring is completely blind to this",
+          "Pass the Hash is why credential dumping is so dangerous \u2014 once the attacker has the hash, they never need the password",
+          "There's no failed login attempt, no password prompt \u2014 standard perimeter monitoring is completely blind to this",
           "Sophos MDR detects the authentication anomaly: same hash used from multiple source IPs is an immediate red flag"
         ],
         "financial_services": [
           "In financial environments, lateral movement via Pass the Hash is how attackers traverse from a workstation to treasury systems or payment servers",
-          "Attackers specifically target service accounts — one hash can unlock dozens of systems on the same domain"
+          "Attackers specifically target service accounts \u2014 one hash can unlock dozens of systems on the same domain"
         ],
         "healthcare": [
-          "EHR systems and clinical workstations often share service account credentials — Pass the Hash creates a direct path to patient data",
-          "HIPAA requires detecting unauthorized access to PHI systems — MDR catches this before the attacker reaches clinical data"
+          "EHR systems and clinical workstations often share service account credentials \u2014 Pass the Hash creates a direct path to patient data",
+          "HIPAA requires detecting unauthorized access to PHI systems \u2014 MDR catches this before the attacker reaches clinical data"
         ],
         "manufacturing": [
-          "OT/IT boundary systems often use shared domain accounts — a single hash can bridge the gap from corporate to plant floor",
+          "OT/IT boundary systems often use shared domain accounts \u2014 a single hash can bridge the gap from corporate to plant floor",
           "Lateral movement to historian servers or HMI systems is the critical step before OT disruption"
         ]
       },
       "se_runbook": {
         "setup": "Run SCN-001 first or explain that hashes are already harvested. CALDERA agent must be deployed on Windows victim. Works best as the second scenario in a kill-chain narrative.",
         "steps": [
-          "Frame it: 'Now the attacker has hashes from SCN-001 — watch what they do next'",
-          "Launch the simulation — share enumeration fires first",
+          "Frame it: 'Now the attacker has hashes from SCN-001 \u2014 watch what they do next'",
+          "Launch the simulation \u2014 share enumeration fires first",
           "Point out the authentication step: 'No password. Just the hash. The system can't tell the difference'",
           "Show the MDR alert: anomalous NTLM authentication pattern",
           "Explain: without MDR, this lateral movement is completely invisible to traditional tools"
         ],
-        "talking_points_timing": "Deliver the 'no password needed' line immediately when the PtH step executes — highest-impact moment"
+        "talking_points_timing": "Deliver the 'no password needed' line immediately when the PtH step executes \u2014 highest-impact moment"
       },
       "status": "approved",
       "launchable": true,
@@ -455,20 +455,20 @@
       ],
       "talking_points": {
         "universal": [
-          "PowerShell is the #1 tool attackers use post-compromise — it's built into every Windows endpoint and trusted by default",
-          "AMSI bypass is step zero before running any malicious script — attackers have to disable scanning before pulling down the payload",
-          "Sophos Endpoint integrates directly into AMSI — we see the script content even when it's obfuscated or encoded"
+          "PowerShell is the #1 tool attackers use post-compromise \u2014 it's built into every Windows endpoint and trusted by default",
+          "AMSI bypass is step zero before running any malicious script \u2014 attackers have to disable scanning before pulling down the payload",
+          "Sophos Endpoint integrates directly into AMSI \u2014 we see the script content even when it's obfuscated or encoded"
         ],
         "financial_services": [
-          "Living-off-the-land PowerShell attacks leave minimal disk artifacts — they're designed to evade forensic investigation",
+          "Living-off-the-land PowerShell attacks leave minimal disk artifacts \u2014 they're designed to evade forensic investigation",
           "Encoded PowerShell commands are the delivery mechanism for most banking trojans and wire fraud malware"
         ],
         "healthcare": [
-          "Healthcare environments often whitelist PowerShell for legitimate IT admin use — attackers exploit that trust",
+          "Healthcare environments often whitelist PowerShell for legitimate IT admin use \u2014 attackers exploit that trust",
           "Remote access tools deployed via PowerShell cradles are the typical first step in healthcare ransomware attacks"
         ],
         "manufacturing": [
-          "PowerShell is often unrestricted on manufacturing workstations — attackers use it to avoid raising alerts on engineering systems",
+          "PowerShell is often unrestricted on manufacturing workstations \u2014 attackers use it to avoid raising alerts on engineering systems",
           "ICS/OT reconnaissance scripts are frequently delivered via PowerShell download cradles from a compromised IT host"
         ]
       },
@@ -476,12 +476,12 @@
         "setup": "No special setup required. Good general-purpose demo showing attacker evasion techniques. Highlights Sophos Endpoint AMSI integration specifically.",
         "steps": [
           "Introduce the concept: 'The attacker is already in. Now they need to run their tools without triggering AV'",
-          "Launch simulation — encoded command fires first",
+          "Launch simulation \u2014 encoded command fires first",
           "Show the PowerShell ScriptBlock log telemetry in Sophos XDR",
           "Explain AMSI bypass step: 'This is how they blind traditional AV before pulling down the real payload'",
           "Show how Sophos Endpoint memory integrity monitoring catches the bypass attempt"
         ],
-        "talking_points_timing": "Pause on the AMSI bypass step — this is the key differentiator for Sophos Endpoint. Spend 30-60 seconds on the detection story here."
+        "talking_points_timing": "Pause on the AMSI bypass step \u2014 this is the key differentiator for Sophos Endpoint. Spend 30-60 seconds on the detection story here."
       },
       "status": "approved",
       "launchable": true,
@@ -555,29 +555,29 @@
           "severity": "critical"
         },
         {
-          "detection": "High-confidence ransomware precursor — automatic MDR escalation",
+          "detection": "High-confidence ransomware precursor \u2014 automatic MDR escalation",
           "severity": "critical"
         }
       ],
       "talking_points": {
         "universal": [
-          "Ransomware operators spend weeks inside a network before they encrypt anything — they're maximizing blast radius",
-          "Shadow copy deletion is the single highest-confidence ransomware signal — when we see it, we escalate immediately",
-          "Sophos MDR stops ransomware at the pre-deployment phase — before a single file is encrypted"
+          "Ransomware operators spend weeks inside a network before they encrypt anything \u2014 they're maximizing blast radius",
+          "Shadow copy deletion is the single highest-confidence ransomware signal \u2014 when we see it, we escalate immediately",
+          "Sophos MDR stops ransomware at the pre-deployment phase \u2014 before a single file is encrypted"
         ],
         "financial_services": [
-          "The average ransomware demand in financial services is now $4.7M — and that's before regulatory fines and reputational damage",
-          "Wire transfer fraud and ransomware are increasingly combined — attackers encrypt and extort simultaneously",
-          "MDR's 24/7 coverage means we catch ransomware at 3am on a Sunday — when your team isn't watching"
+          "The average ransomware demand in financial services is now $4.7M \u2014 and that's before regulatory fines and reputational damage",
+          "Wire transfer fraud and ransomware are increasingly combined \u2014 attackers encrypt and extort simultaneously",
+          "MDR's 24/7 coverage means we catch ransomware at 3am on a Sunday \u2014 when your team isn't watching"
         ],
         "healthcare": [
-          "Healthcare ransomware directly impacts patient care — hospitals have diverted ambulances and cancelled surgeries after attacks",
-          "The average healthcare ransomware attack costs $1.4M and takes 54 days to recover from — MDR prevention is orders of magnitude cheaper",
+          "Healthcare ransomware directly impacts patient care \u2014 hospitals have diverted ambulances and cancelled surgeries after attacks",
+          "The average healthcare ransomware attack costs $1.4M and takes 54 days to recover from \u2014 MDR prevention is orders of magnitude cheaper",
           "HIPAA breach notification requirements mean every encrypted patient record is a reportable incident"
         ],
         "manufacturing": [
-          "Ransomware on OT systems stops production lines — the cost per hour of downtime often exceeds the ransom demand itself",
-          "Manufacturing is the #1 targeted sector for ransomware — attackers know operational disruption creates payment pressure",
+          "Ransomware on OT systems stops production lines \u2014 the cost per hour of downtime often exceeds the ransom demand itself",
+          "Manufacturing is the #1 targeted sector for ransomware \u2014 attackers know operational disruption creates payment pressure",
           "MDR catches the IT foothold before attackers ever reach OT systems"
         ]
       },
@@ -585,10 +585,10 @@
         "setup": "This is the highest-impact demo. Save it for the close. CALDERA agent must be deployed on Windows victim. Allow 3-5 minutes for full chain. Have Sophos XDR console ready to switch to at the end.",
         "steps": [
           "Frame it: 'This is the scenario your prospect fears most. Let's show them exactly how we stop it.'",
-          "Launch simulation — walk through each phase as it executes",
-          "Phase 1 (defense disable): 'This is the attacker preparing the battlefield — removing your recovery options'",
-          "Phase 2 (shadow copies): 'This is the point of no return in most ransomware attacks — we catch it here'",
-          "Phase 3 (ransom note): 'Show the actual ransom note file in File Explorer on the Windows VM — very visual'",
+          "Launch simulation \u2014 walk through each phase as it executes",
+          "Phase 1 (defense disable): 'This is the attacker preparing the battlefield \u2014 removing your recovery options'",
+          "Phase 2 (shadow copies): 'This is the point of no return in most ransomware attacks \u2014 we catch it here'",
+          "Phase 3 (ransom note): 'Show the actual ransom note file in File Explorer on the Windows VM \u2014 very visual'",
           "Switch to Sophos XDR: show the critical alerts firing, analyst escalation workflow, isolation recommendation"
         ],
         "talking_points_timing": "This scenario is the conversation-changer. Take your time. Use the full vertical talking points during phases 2 and 3."
@@ -602,1850 +602,6 @@
       "session_id": null,
       "caldera_adversary_id": "scn008-ransomware-simulation",
       "caldera_group": "red"
-    },
-    {
-      "id": "SCN-598062",
-      "product": "endpoint",
-      "title": "Credential Access",
-      "description": "Attack maps to T1056.001, uses map tool, and has high severity expected detection.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1056.001",
-          "name": "Map to T1056.001"
-        }
-      ],
-      "tools": [
-        "map"
-      ],
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "what fires",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Credential Access is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-01T01:29:49.674Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-01T01:29:49.674Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-CASE-610969",
-      "product": "endpoint",
-      "title": "Supply Chain Compromise Demo",
-      "description": "A simulated attack showcases a malicious npm package infiltrating an organization's supply chain, resulting in credential theft.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Credential Access",
-        "Exfiltration"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1195.001",
-          "name": "Injection of Malicious Code"
-        }
-      ],
-      "tools": [
-        "npm",
-        "SweetSpecter"
-      ],
-      "atomic_tests": [
-        "T1195.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Supply Chain Compromise Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point 1: Supply chain vulnerability ",
-          "Key Point 2: Credential theft consequences "
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: simulate attack",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "source": "case-submission",
-      "case_id": "PENDING-001",
-      "submitted_by": "MDR Analyst",
-      "industry": "universal",
-      "status": "pending",
-      "launchable": false,
-      "submitted_at": "2026-02-28T14:32:00Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-CASE-145712",
-      "product": "endpoint",
-      "title": "Lockbit Ransomware Attack",
-      "description": "A business was targeted by Lockbit ransomware attackers, resulting in potential data loss and disruption of operations.",
-      "mitre_tactics": [
-        "Initial Network Infiltration",
-        "Lateral Movement"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Reconnaissance"
-        }
-      ],
-      "tools": [],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Specific File Access Alert",
-          "severity": "high"
-        },
-        {
-          "detection": "Network Traffic Anomaly Detection",
-          "severity": "medium"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point 1: Data Loss Risks",
-          "Key Point 2: Importance of Quick Response"
-        ],
-        "healthcare": [],
-        "financial_services": [],
-        "manufacturing": [],
-        "retail": []
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "source": "case-submission",
-      "case_id": "CASE-1772485136431",
-      "submitted_by": "Andy",
-      "industry": "universal",
-      "status": "pending",
-      "launchable": false,
-      "submitted_at": "2026-03-01T00:00:00Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-190966",
-      "product": "endpoint",
-      "title": "Add Log4j",
-      "description": "Attackers exploit Apache Log4j to execute malicious commands.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Use of Base64 in Command Execution"
-        },
-        {
-          "id": "T1210.0001",
-          "name": "Exploiting Weaknesses in Software"
-        }
-      ],
-      "tools": [
-        "Apache Log4j",
-        "Base64"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Apache Log4j vulnerability detection",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Add Log4j is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-02T20:59:47.484Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-02T20:59:47.484Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-232156",
-      "product": "endpoint",
-      "title": "short title",
-      "description": "2 sentence description",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Phishing"
-        }
-      ],
-      "tools": [
-        "test"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "what fires",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "short title is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T02:50:26.964Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T02:50:26.964Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-968490",
-      "product": "endpoint",
-      "title": "LAND Attack",
-      "description": "The attacker uses the compromised credentials to execute a LAND attack, which involves using privileged access to create elevated tokens and gather additional sensitive information.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        "T1003.001",
-        "Gather Credentials",
-        "Use Privilege Escalation",
-        "Create Elevated Token"
-      ],
-      "tools": [
-        "PowerShell",
-        "Windows Management Instrumentation (WMI)"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "what fires",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "LAND Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T03:52:40.428Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T03:52:40.428Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-040586",
-      "product": "endpoint",
-      "title": "Stuxnet Attack",
-      "description": "The attackers exploited a vulnerability in Windows to gain initial access, then used Duqu and Windows Exploiter to spread the malware and disrupt industrial control systems.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Use credentials obtained from other accounts or previously compromised accounts to obtain access to additional systems or data"
-        }
-      ],
-      "tools": [
-        "Windows Exploiter",
-        "Duqu"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Malware behavior monitoring",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Stuxnet Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T03:53:54.357Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T03:53:54.357Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-035381",
-      "product": "endpoint",
-      "title": "BEC Attack",
-      "description": "Attacker used phishing to gain initial access, then deployed mimikats to escalate privileges.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Use of Registries to gain access to network resources"
-        }
-      ],
-      "tools": [
-        "Phishing Tool"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Endpoint Detection and Response",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "BEC Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T17:13:49.841Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T17:13:49.841Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-421961",
-      "product": "endpoint",
-      "title": "Custom Scenario",
-      "description": "{\"title\":\"BEC Attack\",mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"Initial Access via Email\"}],\"tools\":[\"Email Tools\",\"Spear Phishing Tools\"],\"difficulty\":\"medium",
-      "mitre_tactics": [
-        "Unknown"
-      ],
-      "mitre_techniques": [],
-      "tools": [],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": [
-          "Custom Scenario is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T18:43:36.766Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T18:43:36.766Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-687447",
-      "product": "endpoint",
-      "title": "Credential Access via Phishing",
-      "description": "The attacker sent a phishing email, and the victim logged in, allowing the attacker to steal their credentials and modify a Teams link in an existing calendar invitation.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Phishing"
-        }
-      ],
-      "tools": [
-        "Email",
-        "Microsoft Office 365"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Successful login attempts to portal.office.com with suspicious user agent strings",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Credential Access via Phishing is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T19:21:21.257Z",
-      "source": "ollama-enriched",
-      "status": "pending",
-      "launchable": false,
-      "submitted_by": "Ollama AI",
-      "submitted_at": "2026-03-03T19:21:21.257Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-292834",
-      "product": "endpoint",
-      "title": "Pacific Rim Attack",
-      "description": "A Pacific Rim-inspired attack simulates a distributed denial-of-service (DDoS) attack by scanning for open ports and identifying vulnerable software, then uses stolen credentials to gain access to systems.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        "T1003.001",
-        "Gather Foundation Information"
-      ],
-      "tools": [
-        "Nmap",
-        "Bash Scripting"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Network Traffic Analysis",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Pacific Rim Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T21:28:06.892Z",
-      "source": "ollama-enriched"
-    },
-    {
-      "id": "SCN-276283",
-      "product": "endpoint",
-      "title": "Pacific Rim Attack",
-      "description": "The Pacific Rim attack uses Pacifica and other malicious tools to exploit vulnerabilities in Sophos software, bypassing security controls and gaining unauthorized access.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        "T1003.001",
-        "Exploitation of Vulnerabilities"
-      ],
-      "tools": [
-        "Pacifica",
-        " Malware"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "multi-stage",
-      "expected_detections": [
-        "Fileless malware detection",
-        "Network traffic monitoring"
-      ],
-      "talking_points": {
-        "universal": [
-          "Pacific Rim Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-03T21:44:31.062Z",
-      "source": "ollama-enriched"
-    },
-    {
-      "title": "Pacific Rim Attack Demo",
-      "description": "A simulated attack showcasing exploitation of Sophos vulnerabilities, leveraging Pacifica and other malicious tools to bypass security controls.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Exploitation of Vulnerabilities"
-        }
-      ],
-      "tools": [
-        "Pacifica",
-        "Malware"
-      ],
-      "atomic_tests": [
-        "T1003.001-1"
-      ],
-      "caldera_ability": "security-event-detection",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "simulated",
-      "expected_detections": [
-        {
-          "detection": "Sophos Software Vulnerability Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point 1: Vulnerability exploitation",
-          "Key Point 2: Malware detection"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Configure demo environment",
-        "steps": [
-          "Step 1: Set up Sophos software with known vulnerability",
-          "Step 2: Simulate attack using Pacifica and malware"
-        ],
-        "talking_points_timing": "Discuss talking points after first detection alert is triggered"
-      },
-      "id": "SCN-CASE-302303",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-276283",
-      "submitted_by": "SE Session",
-      "industry": "universal"
-    },
-    {
-      "title": "Pacific Rim Attack Demo",
-      "description": "Simulate a Sophos software vulnerability exploitation attack, demonstrating MDR's detection and response capabilities.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Exploitation of Vulnerabilities"
-        }
-      ],
-      "tools": [
-        "Pacifica",
-        "Malware"
-      ],
-      "atomic_tests": [
-        "T1003.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Sophos Software Exploit Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1: Vulnerability exploitation risks",
-          "Key point 2: MDR's threat detection capabilities"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Configure demo environment",
-        "steps": [
-          "Step 1: Install Pacifica malware",
-          "Step 2: Trigger Sophos software exploit",
-          "Step 3: Review simulated detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-307107",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-276283",
-      "submitted_by": "SE Session",
-      "industry": "universal"
-    },
-    {
-      "title": "Pacific Rim Demo",
-      "description": "Simulate a Sophos software vulnerability exploitation attack, showcasing MDR's detection and response capabilities.",
-      "mitre_tactics": [
-        "Credential Access",
-        "Exploitation of Vulnerabilities"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Exploitation of Vulnerabilities"
-        }
-      ],
-      "tools": [
-        "Pacifica",
-        "Malware"
-      ],
-      "atomic_tests": [
-        "T1003.001-1"
-      ],
-      "caldera_ability": "tactical-analysis",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "simulated",
-      "expected_detections": [
-        {
-          "detection": "Sophos Malware Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key MDR Response Insights"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-311859",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-276283",
-      "submitted_by": "SE Session",
-      "industry": "universal"
-    },
-    {
-      "title": "Credential Theft via LSASS Memory Dump",
-      "description": "Threat actor used Mimikatz to dump LSASS memory and extract plaintext credentials, followed by lateral movement using Pass the Hash to access a domain controller.",
-      "mitre_tactics": [],
-      "mitre_techniques": [
-        "T1033",
-        "T1003.001"
-      ],
-      "tools": [
-        "Mimikatz"
-      ],
-      "audience": "technical",
-      "difficulty": "medium",
-      "duration_minutes": 4,
-      "caldera_ability": "scn001-credential-dumping",
-      "caldera_adversary_id": "scn001-credential-dumping",
-      "execution_engine": "caldera",
-      "launchable": true,
-      "talking_points": {
-        "general": [
-          "Mimikatz can extract plaintext credentials from LSASS memory, bypassing Windows credential protection.",
-          "The attacker gains access to domain credentials, enabling lateral movement and privilege escalation.",
-          "Sophos XDR detects Mimikatz activity on the endpoint, triggering alerts and alerting MDR analysts."
-        ]
-      },
-      "detection_notes": "Sophos XDR alert 12345: 'Mimikatz detected dumping LSASS memory'",
-      "id": "SCN-CASE-081576",
-      "product": "endpoint",
-      "source": "ai-generated",
-      "status": "pending",
-      "case_id": "CASE-1772602055747",
-      "submitted_by": "Test",
-      "submitted_at": "2026-03-04T05:27:35.747Z",
-      "expires_at": null,
-      "session_id": null,
-      "atomic_tests": [],
-      "industry": "financial"
-    },
-    {
-      "title": "Pacific Rim Demo",
-      "description": "In this demo, we'll simulate the Pacific Rim attack scenario, showcasing how MDR can detect and prevent sophisticated attacks. The attacker uses a combination of techniques to gain initial access, move laterally, and maintain persistence.",
-      "mitre_tactics": [
-        "T1204",
-        "T1490"
-      ],
-      "mitre_techniques": [
-        "T1033",
-        "T1053.005",
-        "T1547.001"
-      ],
-      "tools": [],
-      "audience": "technical",
-      "difficulty": "medium",
-      "duration_minutes": 8,
-      "caldera_ability": "scn003-phishing-persistence",
-      "caldera_adversary_id": "SCN-003",
-      "execution_engine": "caldera",
-      "launchable": true,
-      "talking_points": {
-        "general": [
-          "The attacker sends a phishing email to lure the victim into executing a malicious payload.",
-          "The goal is to install malware that allows the attacker to maintain persistence on the network.",
-          "Sophos XDR detects this attack by analyzing network traffic and endpoint activity, preventing the attacker from establishing a foothold."
-        ]
-      },
-      "se_runbook": "Launch scn003-phishing-persistence with standard settings. Show how the attacker sends a phishing email and executes a malicious payload. Demonstrate how Sophos XDR detects the attack and prevents it from succeeding.",
-      "detection_notes": "This demo triggers multiple Sophos XDR alerts, including 'Phishing Email Detected' and 'Malicious Payload Executed'.",
-      "id": "SCN-CASE-067631",
-      "product": "endpoint",
-      "source": "ai-generated",
-      "status": "pending",
-      "case_id": "CASE-1772603036525",
-      "submitted_by": "Jason",
-      "submitted_at": "2026-03-04T05:43:56.525Z",
-      "expires_at": null,
-      "session_id": null,
-      "atomic_tests": [],
-      "industry": "universal"
-    },
-    {
-      "id": "SCN-ENRICH-109251",
-      "product": "endpoint",
-      "title": "I need a pacific rim attack that was used against Sophos",
-      "description": "I need a pacific rim attack that was used against Sophos",
-      "mitre_tactics": [],
-      "mitre_techniques": [],
-      "tools": [],
-      "audience": "technical",
-      "difficulty": "medium",
-      "duration_minutes": 4,
-      "platform": "windows",
-      "caldera_ability": "",
-      "caldera_adversary_id": "",
-      "execution_engine": "caldera",
-      "launchable": false,
-      "talking_points": {
-        "general": [
-          "Review and edit this AI-generated scenario"
-        ]
-      },
-      "se_runbook": "",
-      "detection_notes": "",
-      "source": "se-enrichment",
-      "status": "ephemeral",
-      "session_id": null,
-      "expires_at": "2026-03-05T05:45:09.251Z",
-      "generated_at": "2026-03-04T05:44:40.600Z",
-      "atomic_tests": []
-    },
-    {
-      "id": "SCN-ENRICH-713488",
-      "product": "endpoint",
-      "title": "need phishing with mimikats",
-      "description": "need phishing with mimikats",
-      "mitre_tactics": [],
-      "mitre_techniques": [],
-      "tools": [],
-      "audience": "technical",
-      "difficulty": "medium",
-      "duration_minutes": 4,
-      "platform": "windows",
-      "caldera_ability": "",
-      "caldera_adversary_id": "",
-      "execution_engine": "caldera",
-      "launchable": false,
-      "talking_points": {
-        "general": [
-          "Review and edit this AI-generated scenario"
-        ]
-      },
-      "se_runbook": "",
-      "detection_notes": "",
-      "source": "se-enrichment",
-      "status": "ephemeral",
-      "session_id": null,
-      "expires_at": "2026-03-05T13:25:13.488Z",
-      "generated_at": "2026-03-04T13:24:41.989Z",
-      "atomic_tests": []
-    },
-    {
-      "title": "Sophos Detection Test",
-      "description": "A simulated attack on a Windows system, showcasing Sophos MDR capabilities.",
-      "mitre_tactics": [
-        "T1059.001",
-        "T1037",
-        "T1651"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Cobalt Strike Attack"
-        }
-      ],
-      "tools": [
-        "cobalt strike",
-        "Metasploit"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "sophos-sandbox",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Sophos Advanced Threat Detection",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point 1: Advanced threat detection capabilities",
-          "Key Point 2: Simulated attack to demonstrate MDR effectiveness"
-        ],
-        "healthcare": [],
-        "financial_services": [
-          "Security best practices for financial services"
-        ],
-        "manufacturing": [
-          "Manufacturing-specific security considerations"
-        ],
-        "retail": [
-          "Retailer-specific security measures"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-297637",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1772636287646",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "recent customer case on BEC",
-      "description": "I'm going old school give me a Stuxnet",
-      "mitre_tactics": [],
-      "mitre_techniques": [
-        {
-          "id": "T1037.001",
-          "name": "T1037.001"
-        },
-        {
-          "id": "T1566.002",
-          "name": "T1566.002"
-        }
-      ],
-      "tools": [
-        "mimikatz"
-      ],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": []
-      },
-      "se_runbook": {
-        "setup": "",
-        "steps": [],
-        "talking_points_timing": ""
-      },
-      "id": "SCN-CASE-699420",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1772642690027",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Phishing with Mimikats Demo",
-      "description": "A simulated phishing attack using mimikats to test MDR capabilities.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Spear Phishing"
-        }
-      ],
-      "tools": [
-        "phishing tool",
-        "mimikats"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "Windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Spear Phishing Alert",
-          "severity": "High"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1",
-          "Key point 2"
-        ],
-        "healthcare": [],
-        "financial_services": [],
-        "manufacturing": [],
-        "retail": []
-      },
-      "se_runbook": {
-        "setup": "Configure MDR environment for demo",
-        "steps": [
-          "Step 1: Set up phishing simulation",
-          "Step 2: Run mimikats attack",
-          "Step 3: Review expected detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-903116",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Phishing Mimikats Attack",
-      "description": "A phishing attack utilizing mimikats to evade detection, targeting a Windows-based environment.",
-      "mitre_tactics": [
-        "Tactic1"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "T1234.001"
-        },
-        {
-          "id": "T1234.001",
-          "name": "Evasion Techniques"
-        }
-      ],
-      "tools": [
-        "tool1",
-        "tool2"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Phishing Mimikats Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1",
-          "Key point 2"
-        ],
-        "healthcare": [
-          "Healthcare-specific insight"
-        ],
-        "financial_services": [
-          "Financial-specific insight"
-        ],
-        "manufacturing": [
-          "Manufacturing-specific insight"
-        ],
-        "retail": [
-          "Retail-specific insight"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-909479",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Mimikrats Phishing Attack Demo",
-      "description": "A simulated phishing attack using Mimikrats, a type of AI-powered phishing tool, to test the ability to detect and respond to advanced threats.",
-      "mitre_tactics": [
-        "TA0001",
-        "TA0002"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Phishing Attack Using AI"
-        }
-      ],
-      "tools": [
-        "Mimikrats Phishing Tool",
-        "Spear Phishing Tool"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "Windows 10",
-      "execution_engine": "Atomic",
-      "expected_detections": [
-        {
-          "detection": "Malware Infection Alert",
-          "severity": "High"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1: AI-powered phishing attacks are becoming increasingly sophisticated.",
-          "Key point 2: The importance of having a robust security strategy to detect and respond to such threats."
-        ],
-        "healthcare": [
-          "Healthcare-specific insight: Protecting sensitive patient data from advanced threats."
-        ],
-        "financial_services": [
-          "Financial-specific insight: Implementing security measures to prevent financial loss due to phishing attacks"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-916183",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Pacific Rim Attack on Sophos",
-      "description": "Sophos was targeted by a Pacific Rim-based attack, leaving its systems vulnerable to exploitation.",
-      "mitre_tactics": [
-        "Exploitation of Weakness"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Network Scanning"
-        }
-      ],
-      "tools": [
-        "Malware",
-        "Exploit Kits"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "Atomic Test Engine",
-      "audience": "Technical",
-      "platform": "Windows",
-      "execution_engine": "Atomic",
-      "expected_detections": [
-        {
-          "detection": "Sophos Security Alert 2023-02-14",
-          "severity": "High"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point: Pacific Rim attacks are becoming increasingly sophisticated.",
-          "Key Point: Sophos must stay vigilant to protect its systems from modern threats."
-        ],
-        "healthcare": [
-          "Healthcare organizations should also be aware of the risks posed by Pacific Rim-based attacks"
-        ],
-        "financial_services": [
-          "Financial institutions must prioritize network security to prevent data breaches"
-        ],
-        "manufacturing": [
-          "Manufacturing companies can use our MDR solution to detect and respond to Pacific Rim attacks"
-        ],
-        "retail": [
-          "Retailers should monitor their networks for signs of Pacific Rim-based exploitation"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: Configure environment",
-          "Step 2: Run simulation",
-          "Step 3: Review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-924575",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-109251",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Pacific Rim Attack on Sophos",
-      "description": "A sophisticated attack targeting Sophos, a leading cybersecurity solution provider.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Elevated Privilege"
-        }
-      ],
-      "tools": [
-        "PowerShell",
-        "DLL Injection"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "Windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Sophos ETP Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key exploit of unknown vulnerability",
-          "Potential lateral movement in network"
-        ],
-        "healthcare": [
-          "Insights on healthcare-specific data protection"
-        ],
-        "financial_services": [
-          "Financial sector insights and potential attack vectors"
-        ],
-        "manufacturing": [
-          "Manufacturing industry vulnerabilities and risks"
-        ],
-        "retail": [
-          "Retail sector security best practices"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-930345",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-109251",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Pacific Rim Attack on Sophos",
-      "description": "A sophisticated cyberattack simulates a Pacific Rim threat against Sophos, testing its detection capabilities.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "T1234.001"
-        },
-        {
-          "id": "T1234.002",
-          "name": "Technique Name 2"
-        }
-      ],
-      "tools": [
-        "tool1",
-        "tool2"
-      ],
-      "atomic_tests": [
-        "T1234.001-1",
-        "T1234.001-2"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "specific detection alert name 1",
-          "severity": "high"
-        },
-        {
-          "detection": "specific detection alert name 2",
-          "severity": "medium"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "key point 1",
-          "key point 2"
-        ],
-        "healthcare": [
-          "healthcare-specific insight"
-        ],
-        "financial_services": [
-          "financial-specific insight"
-        ],
-        "manufacturing": [
-          "manufacturing-specific insight"
-        ],
-        "retail": [
-          "retail-specific insight"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-937821",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-109251",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Phishing with Mimikats Demo",
-      "description": "This demo showcases a phishing attack using mimikats, demonstrating how MDR can detect and respond to such threats.",
-      "mitre_tactics": [
-        "Evasion"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Use of Mimikats"
-        }
-      ],
-      "tools": [
-        "Social Engineering Tools"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "Windows",
-      "execution_engine": "Atomic",
-      "expected_detections": [
-        {
-          "detection": "Phishing Alert",
-          "severity": "High"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1",
-          "Key point 2"
-        ],
-        "healthcare": [
-          "Healthcare-specific insight"
-        ],
-        "financial_services": [
-          "Financial-specific insight"
-        ],
-        "manufacturing": [
-          "Manufacturing-specific insight"
-        ],
-        "retail": [
-          "Retail-specific insight"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-944582",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Mimikata Phishing Attack Demo",
-      "description": "A simulated Mimikata phishing attack that mimics a legitimate email from a trusted source, highlighting the importance of threat hunting and detection.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Spear Phishing"
-        }
-      ],
-      "tools": [
-        "Phishing Tool",
-        "Malware Simulator"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Mimikata Phishing Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point: Mimikata attacks are becoming increasingly sophisticated.",
-          "Key Point 2: Threat actors use social engineering tactics to gain access to sensitive data.",
-          "Key Point 3: Detecting Mimikata attacks requires advanced threat hunting skills and technology."
-        ],
-        "healthcare": [
-          "Healthcare-specific insight: Protecting patient data is of utmost importance in today's healthcare landscape."
-        ],
-        "financial_services": [
-          "Financial services must stay vigilant against Mimikata attacks to maintain customer trust."
-        ],
-        "manufacturing": [
-          "Manufacturing companies should prioritize employee education and awareness to prevent Mimikata phishing attacks."
-        ],
-        "retail": [
-          "Retailers must monitor their networks for suspicious activity to prevent data breaches."
-        ]
-      },
-      "id": "SCN-CASE-951184",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "Phishing Mimikats Demo",
-      "description": "Real-world phishing scenario with mimikats, testing MDR's ability to detect and respond to unknown threats.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Technique Name"
-        }
-      ],
-      "tools": [
-        "tool1",
-        "tool2"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "specific detection alert name",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1: Understanding mimikats threats",
-          "Key point 2: Importance of MDR in detection"
-        ],
-        "healthcare": [],
-        "financial_services": [
-          "Financial services are vulnerable to mimikats attacks",
-          "Key point 3: Identifying and mitigating mimikats threats"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Configuring environment for demo simulation",
-        "steps": [
-          "Step 1: Configuring Windows environment",
-          "Step 2: Running phishing simualtion",
-          "Step 3: Reviewing detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-957049",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-ENRICH-713488",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "title": "DISD",
-      "description": "Customer fell victim to phishing attack, escalated privs...and used cobalt strike",
-      "mitre_tactics": [],
-      "mitre_techniques": [
-        {
-          "id": "T1566",
-          "name": "T1566"
-        }
-      ],
-      "tools": [],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": []
-      },
-      "se_runbook": {
-        "setup": "",
-        "steps": [],
-        "talking_points_timing": ""
-      },
-      "id": "SCN-CASE-944046",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1772987931250",
-      "submitted_by": "Bob",
-      "industry": "universal"
-    },
-    {
-      "title": "Bluescope Incident Response",
-      "description": "A Red Team Exercise scenario simulating a Lockbit ransomware attack on a Windows-based system, highlighting the importance of timely incident response and managed detection & response capabilities.",
-      "mitre_tactics": [
-        "Tactic1",
-        "Tactic2"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Lateral Movement"
-        }
-      ],
-      "tools": [
-        "unknown malware"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Suspicious Network Activity",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Point 1: Importance of Incident Response",
-          "Key Point 2: Managed Detection & Response Capabilities"
-        ],
-        "healthcare": [
-          "Healthcare-Specific Insights on Ransomware Attacks"
-        ],
-        "financial_services": [
-          "Financial-Specific Considerations for Lockbit Ransomware"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-429161",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1773102419643",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "id": "SCN-872530",
-      "product": "endpoint",
-      "title": "Phishing with Mimikatz Attack",
-      "description": "Attackers use phishing to trick victims into installing Mimikatz, then leverage the tool to steal sensitive credentials.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Use of Mimikatz to obtain credentials without authorization"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "SMBv1"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Endpoint Detection and Response (EDR) software",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Phishing with Mimikatz Attack is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-10T19:27:47.058Z",
-      "source": "ollama-enriched"
-    },
-    {
-      "title": "Phishing with Mimikatz Attack",
-      "description": "Attackers trick victims into installing Mimikatz, then steal sensitive credentials.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Privilege Escalation"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "SMBv1"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "slug-id",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "suspicious SMB connections",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point 1"
-        ],
-        "healthcare": [
-          "Healthcare-specific insight"
-        ],
-        "financial_services": [
-          "Financial-specific insight"
-        ],
-        "manufacturing": [
-          "Manufacturing-specific insight"
-        ],
-        "retail": [
-          "Retail-specific insight"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-917532",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-872530",
-      "submitted_by": "SE Session",
-      "industry": "universal"
-    },
-    {
-      "title": "Phishing with Mimikatz Attack Demo",
-      "description": "Attackers trick victims into installing Mimikatz, then leverage the tool to steal sensitive credentials.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Use of Privilege Escalation Tools"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "SMBv1"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "security-threats",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "mock",
-      "expected_detections": [
-        {
-          "detection": "Phishing Attack Detected",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key point: Phishing attacks are a common vector for credential theft.",
-          "Mimikatz is a popular tool used to steal credentials."
-        ],
-        "healthcare": [
-          "Healthcare organizations must be vigilant against phishing attacks to protect patient data"
-        ],
-        "financial_services": [
-          "Financial institutions should ensure their networks are secure from lateral movement attacks like Mimikatz"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-923419",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "SCN-872530",
-      "submitted_by": "SE Session",
-      "industry": "universal"
-    },
-    {
-      "title": "DISD",
-      "description": "Phishing attack, loaded Mimikats, and moved laterally using a lolbin",
-      "mitre_tactics": [],
-      "mitre_techniques": [
-        {
-          "id": "T1037.005",
-          "name": "T1037.005"
-        }
-      ],
-      "tools": [],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": []
-      },
-      "se_runbook": {
-        "setup": "",
-        "steps": [],
-        "talking_points_timing": ""
-      },
-      "id": "SCN-CASE-050071",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1773251038604",
-      "submitted_by": "Jason",
-      "industry": "universal"
-    },
-    {
-      "id": "SCN-080540",
-      "product": "endpoint",
-      "title": "Mimikatz",
-      "description": "A post-exploitation tool used to steal credentials, Mimikatz is a powerful tool that can be used by attackers to gain access to sensitive information.",
-      "mitre_tactics": [
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "Precomputed Credentials"
-        }
-      ],
-      "tools": [
-        "mimikatz"
-      ],
-      "difficulty": "easy",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "what fires",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Mimikatz is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-11T17:44:37.008Z",
-      "source": "ollama-enriched"
-    },
-    {
-      "title": "Lockbit Phishing and Lateral Movement Demo",
-      "description": "This demo showcases a simulated Lockbit phishing attack that moves laterally across a network, highlighting the importance of MDR in detecting and responding to such threats.",
-      "mitre_tactics": [
-        "T1566.001"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1234.001",
-          "name": "Phishing Attack Simulation"
-        }
-      ],
-      "tools": [
-        "Phishing Email Tool",
-        "Lateral Movement Tool"
-      ],
-      "atomic_tests": [
-        "T1234.001-1"
-      ],
-      "caldera_ability": "security-intelligence",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "real-time",
-      "expected_detections": [
-        {
-          "detection": "Lockbit Phishing Alert",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Key Points 1 and 2",
-          "Manufacturing-Specific Insight"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Pre-demo setup notes for the SE",
-        "steps": [
-          "Step 1: configure environment",
-          "Step 2: run simulation",
-          "Step 3: review detections"
-        ],
-        "talking_points_timing": "Mention talking points after first alert fires"
-      },
-      "id": "SCN-CASE-926447",
-      "product": "endpoint",
-      "source": "case-submission",
-      "case_id": "CASE-1773412916801",
-      "submitted_by": "",
-      "industry": "universal",
-      "status": "approved"
-    },
-    {
-      "id": "SCN-971941",
-      "product": "endpoint",
-      "title": "Custom Scenario",
-      "description": "{\"title\":\"Phishing Attack with Mimikatz\",mitre_tactics\":[\"Credential Access\"],\"mitre_techniques\":[{\"id\":\"T1003.001\",\"name\":\"Use of Privilege Escalation Tools (e.g., Mimikatz)\"}],\"tools\":[\"Mimikatz\"],\"",
-      "mitre_tactics": [
-        "Unknown"
-      ],
-      "mitre_techniques": [],
-      "tools": [],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": [
-          "Custom Scenario is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-13T14:42:48.302Z",
-      "source": "ollama-enriched"
     },
     {
       "id": "SCN-010",
@@ -2482,7 +638,7 @@
       ],
       "talking_points": {
         "universal": [
-          "Brute force attacks remain one of the most common initial access techniques. NDR detects the network pattern — rapid connection attempts to authentication ports — even if individual login attempts don't generate endpoint alerts.",
+          "Brute force attacks remain one of the most common initial access techniques. NDR detects the network pattern \u2014 rapid connection attempts to authentication ports \u2014 even if individual login attempts don't generate endpoint alerts.",
           "Unlike endpoint detection which requires an agent on the target, NDR sees brute force attempts against any device on the network including IoT, printers, and unmanaged systems."
         ],
         "financial_services": [
@@ -2503,7 +659,7 @@
           "Watch CALDERA execute brute force attempts (~30 seconds)",
           "Switch to NDR console to show brute force detection alerts"
         ],
-        "talking_points_timing": "Deliver talking points while brute force attempts are running — the live CALDERA feed shows connection attempts in real time"
+        "talking_points_timing": "Deliver talking points while brute force attempts are running \u2014 the live CALDERA feed shows connection attempts in real time"
       },
       "status": "approved",
       "launchable": true,
@@ -2550,7 +706,7 @@
       ],
       "talking_points": {
         "universal": [
-          "Data exfiltration over UDP is harder to detect than TCP because UDP is connectionless — there's no handshake to monitor. NDR uses traffic volume analysis and behavioral baselines to catch bulk UDP transfers.",
+          "Data exfiltration over UDP is harder to detect than TCP because UDP is connectionless \u2014 there's no handshake to monitor. NDR uses traffic volume analysis and behavioral baselines to catch bulk UDP transfers.",
           "Attackers increasingly use UDP for exfiltration because many firewalls and proxies focus on TCP/HTTP inspection. NDR provides visibility into all protocol types."
         ],
         "financial_services": [
@@ -2564,14 +720,14 @@
         ]
       },
       "se_runbook": {
-        "setup": "NDR sensor must be monitoring the network segment. The target IP (203.0.113.100) is a safe RFC 5737 documentation address — packets are sent but won't be delivered.",
+        "setup": "NDR sensor must be monitoring the network segment. The target IP (203.0.113.100) is a safe RFC 5737 documentation address \u2014 packets are sent but won't be delivered.",
         "steps": [
           "Show the NDR dashboard with no active alerts",
           "Launch SCN-011 from the SE Console",
           "Watch CALDERA create and transmit the 10MB UDP payload (~15 seconds)",
           "Switch to NDR console to show data exfiltration alert"
         ],
-        "talking_points_timing": "Deliver talking points while the UDP transfer is in progress — the CALDERA feed shows bytes sent in real time"
+        "talking_points_timing": "Deliver talking points while the UDP transfer is in progress \u2014 the CALDERA feed shows bytes sent in real time"
       },
       "status": "approved",
       "launchable": true,
@@ -2626,7 +782,7 @@
       ],
       "talking_points": {
         "universal": [
-          "Web application attacks are the #1 initial access vector. NDR inspects HTTP traffic for attack patterns — XSS, SQLi, RCE injection — regardless of whether the target application is vulnerable.",
+          "Web application attacks are the #1 initial access vector. NDR inspects HTTP traffic for attack patterns \u2014 XSS, SQLi, RCE injection \u2014 regardless of whether the target application is vulnerable.",
           "NDR provides defense-in-depth: even if a WAF misses an attack, NDR detects the malicious payload pattern in network traffic."
         ],
         "financial_services": [
@@ -2647,7 +803,7 @@
           "Watch CALDERA send 13 attack payloads (~30 seconds)",
           "Switch to NDR console to show Flow Risk 1, 2, 3, and 26 alerts"
         ],
-        "talking_points_timing": "Deliver talking points after the attacks complete — show each Flow Risk category in the NDR console"
+        "talking_points_timing": "Deliver talking points after the attacks complete \u2014 show each Flow Risk category in the NDR console"
       },
       "status": "approved",
       "launchable": true,
@@ -2753,7 +909,7 @@
       "talking_points": {
         "universal": [
           "Exploit kits and vulnerability scanners probe web servers using distinctive URL patterns. NDR detects these patterns in real time, alerting before an exploit succeeds.",
-          "This detection works regardless of the destination — NDR inspects the URL structure in transit, not the server response."
+          "This detection works regardless of the destination \u2014 NDR inspects the URL structure in transit, not the server response."
         ],
         "financial_services": [
           "Automated exploit scanners constantly probe financial web infrastructure. NDR catches these probes even when they target non-standard ports or paths."
@@ -2820,7 +976,7 @@
       ],
       "talking_points": {
         "universal": [
-          "Port scanning is a foundational reconnaissance technique in nearly every attack chain. NDR detects the scanning pattern — rapid connection attempts across multiple hosts and ports — in real time.",
+          "Port scanning is a foundational reconnaissance technique in nearly every attack chain. NDR detects the scanning pattern \u2014 rapid connection attempts across multiple hosts and ports \u2014 in real time.",
           "Unlike firewall logs that only show blocked connections, NDR detects port scans across the entire network including east-west traffic between internal segments."
         ],
         "financial_services": [
@@ -2841,7 +997,7 @@
           "Watch CALDERA scan 10 hosts across 45 ports (~60 seconds)",
           "Switch to NDR console to show port scan / reconnaissance alert"
         ],
-        "talking_points_timing": "Deliver talking points while the scan is in progress — the live CALDERA feed shows discovered open ports"
+        "talking_points_timing": "Deliver talking points while the scan is in progress \u2014 the live CALDERA feed shows discovered open ports"
       },
       "status": "approved",
       "launchable": true,
@@ -2877,14 +1033,14 @@
       "execution_engine": "caldera",
       "expected_detections": [
         {
-          "detection": "Event log tampering — Security/System/Application logs cleared",
+          "detection": "Event log tampering \u2014 Security/System/Application logs cleared",
           "severity": "critical"
         }
       ],
       "talking_points": {
         "universal": [
           "Event log clearing is one of the strongest indicators that an attacker was on the system. There is almost never a legitimate reason to clear the Security log on an endpoint.",
-          "Sophos detects log clearing in real time — the attacker can't erase evidence without generating an alert first."
+          "Sophos detects log clearing in real time \u2014 the attacker can't erase evidence without generating an alert first."
         ],
         "financial_services": [
           "Regulatory requirements (PCI DSS, SOX) mandate log retention. An attacker clearing logs triggers both a security alert and a compliance violation."
@@ -2897,7 +1053,7 @@
         ]
       },
       "se_runbook": {
-        "setup": "Victim VM must be running with Sophos agent. This test clears real event logs — they will be regenerated naturally over time.",
+        "setup": "Victim VM must be running with Sophos agent. This test clears real event logs \u2014 they will be regenerated naturally over time.",
         "steps": [
           "Show Sophos Central with no active alerts",
           "Launch SCN-016 from the SE Console",
@@ -2920,7 +1076,7 @@
       "id": "SCN-017",
       "product": "endpoint",
       "title": "Encoded PowerShell Execution",
-      "description": "Executes Base64-encoded PowerShell commands using the -EncodedCommand flag. Simulates attacker obfuscation — encoding commands to bypass simple string-based detection rules.",
+      "description": "Executes Base64-encoded PowerShell commands using the -EncodedCommand flag. Simulates attacker obfuscation \u2014 encoding commands to bypass simple string-based detection rules.",
       "mitre_tactics": [
         "Execution"
       ],
@@ -2951,7 +1107,7 @@
       "talking_points": {
         "universal": [
           "Base64-encoded PowerShell is one of the top behavioral indicators of malicious activity. Legitimate scripts almost never use -EncodedCommand.",
-          "Sophos decodes and inspects PowerShell commands regardless of encoding — attackers can't hide behind Base64 obfuscation."
+          "Sophos decodes and inspects PowerShell commands regardless of encoding \u2014 attackers can't hide behind Base64 obfuscation."
         ],
         "financial_services": [
           "Encoded PowerShell is the primary delivery mechanism for banking trojans and credential stealers targeting financial institutions."
@@ -2987,7 +1143,7 @@
       "id": "SCN-018",
       "product": "endpoint",
       "title": "LOLBin File Download (certutil)",
-      "description": "Uses certutil.exe — a legitimate Windows certificate utility — to download a file from the internet. This is the most common Living Off The Land (LOLBin) technique where attackers abuse built-in tools instead of deploying their own.",
+      "description": "Uses certutil.exe \u2014 a legitimate Windows certificate utility \u2014 to download a file from the internet. This is the most common Living Off The Land (LOLBin) technique where attackers abuse built-in tools instead of deploying their own.",
       "mitre_tactics": [
         "Execution"
       ],
@@ -3007,20 +1163,20 @@
       "execution_engine": "caldera",
       "expected_detections": [
         {
-          "detection": "Suspicious certutil usage — LOLBin file download",
+          "detection": "Suspicious certutil usage \u2014 LOLBin file download",
           "severity": "high"
         }
       ],
       "talking_points": {
         "universal": [
           "Living Off The Land attacks use built-in Windows tools instead of deploying malware. certutil is the #1 abused LOLBin for file downloads.",
-          "Sophos monitors over 30 LOLBins for suspicious usage patterns — even though the tools are legitimate, their abuse is detectable by behavioral analysis."
+          "Sophos monitors over 30 LOLBins for suspicious usage patterns \u2014 even though the tools are legitimate, their abuse is detectable by behavioral analysis."
         ],
         "financial_services": [
           "LOLBin attacks bypass allowlisting because certutil is a signed Microsoft binary. Behavioral detection is the only way to catch this."
         ],
         "healthcare": [
-          "Healthcare environments often rely on allowlisting for security. LOLBin attacks bypass this control entirely — endpoint detection is essential."
+          "Healthcare environments often rely on allowlisting for security. LOLBin attacks bypass this control entirely \u2014 endpoint detection is essential."
         ],
         "manufacturing": [
           "Manufacturing systems often have limited security tooling. LOLBin detection catches attacks that use only built-in Windows capabilities."
@@ -3078,7 +1234,7 @@
       "talking_points": {
         "universal": [
           "WMI is present on every Windows system and can execute commands both locally and remotely. Attackers use it because it leaves minimal forensic artifacts compared to running commands directly.",
-          "Sophos monitors WMI for suspicious process creation chains — legitimate WMI usage has predictable patterns that differ from attacker behavior."
+          "Sophos monitors WMI for suspicious process creation chains \u2014 legitimate WMI usage has predictable patterns that differ from attacker behavior."
         ],
         "financial_services": [
           "WMI-based lateral movement is a key technique in APT attacks targeting financial institutions. Detecting WMI abuse blocks a critical attack path."
@@ -3141,7 +1297,7 @@
       "talking_points": {
         "universal": [
           "Service creation is one of the most reliable persistence mechanisms on Windows. Attackers create services with legitimate-sounding names to blend in with normal system services.",
-          "Sophos detects service creation by correlating the parent process, binary path, and timing — not just the service name."
+          "Sophos detects service creation by correlating the parent process, binary path, and timing \u2014 not just the service name."
         ],
         "financial_services": [
           "Backdoor services on financial systems enable persistent access for data theft. Detecting unauthorized service creation stops persistence before it takes hold."
@@ -3345,7 +1501,7 @@
       "talking_points": {
         "universal": [
           "Command & Control is how attackers maintain access and send instructions to compromised systems. The firewall detects C2 traffic patterns even when the malware uses legitimate protocols like HTTP.",
-          "Beaconing detection identifies the regular interval callbacks that characterize C2 communication — a pattern that stands out from normal web browsing."
+          "Beaconing detection identifies the regular interval callbacks that characterize C2 communication \u2014 a pattern that stands out from normal web browsing."
         ],
         "financial_services": [
           "APT groups targeting financial institutions rely on C2 channels for long-term persistent access. Firewall C2 detection disrupts these campaigns."
@@ -3413,7 +1569,7 @@
       "talking_points": {
         "universal": [
           "Phishing is the #1 initial access vector in breaches. The Sophos Firewall blocks known phishing sites using SophosLabs threat intelligence before the user can interact with the page.",
-          "URL categorization is updated continuously from SophosLabs — new phishing sites are categorized within minutes of discovery."
+          "URL categorization is updated continuously from SophosLabs \u2014 new phishing sites are categorized within minutes of discovery."
         ],
         "financial_services": [
           "Banking phishing is the most common form of financial fraud. Firewall web filtering blocks phishing sites targeting banking credentials."
@@ -3488,7 +1644,7 @@
       ],
       "talking_points": {
         "universal": [
-          "Web filtering is more than just blocking inappropriate content — it's a critical security layer that prevents access to known malicious infrastructure.",
+          "Web filtering is more than just blocking inappropriate content \u2014 it's a critical security layer that prevents access to known malicious infrastructure.",
           "The Sophos Firewall categorizes millions of URLs across threat categories. This test shows blocking across 5 different threat types in seconds."
         ],
         "financial_services": [
@@ -3557,7 +1713,7 @@
       "talking_points": {
         "universal": [
           "DNS tunneling is one of the stealthiest exfiltration techniques because DNS traffic is rarely blocked and often not inspected. Attackers encode stolen data into DNS queries that pass through most firewalls.",
-          "Sophos Firewall DNS inspection detects anomalous query patterns — unusually long subdomains, high query frequency, and Base64-like encoding in domain names."
+          "Sophos Firewall DNS inspection detects anomalous query patterns \u2014 unusually long subdomains, high query frequency, and Base64-like encoding in domain names."
         ],
         "financial_services": [
           "DNS tunneling has been used to exfiltrate credit card data from POS systems. Firewall DNS inspection catches this exfiltration channel."
@@ -3577,7 +1733,7 @@
           "Watch CALDERA send 20 encoded DNS queries (~15 seconds)",
           "Show the firewall DNS inspection alerts for anomalous queries"
         ],
-        "talking_points_timing": "Explain how DNS tunneling works while queries are being sent — point out the encoded subdomain labels in the CALDERA feed"
+        "talking_points_timing": "Explain how DNS tunneling works while queries are being sent \u2014 point out the encoded subdomain labels in the CALDERA feed"
       },
       "status": "approved",
       "launchable": true,
@@ -3593,7 +1749,7 @@
       "id": "SCN-027",
       "product": "firewall",
       "title": "Firewall: Policy Violation (Outbound SSH/RDP)",
-      "description": "Attempts outbound SSH and RDP connections to 5 external IP addresses. Tests firewall egress policy enforcement — management protocols should be blocked from leaving the network.",
+      "description": "Attempts outbound SSH and RDP connections to 5 external IP addresses. Tests firewall egress policy enforcement \u2014 management protocols should be blocked from leaving the network.",
       "mitre_tactics": [
         "Execution"
       ],
@@ -3625,7 +1781,7 @@
       "talking_points": {
         "universal": [
           "Egress filtering is a security best practice that most organizations neglect. Blocking outbound SSH and RDP prevents attackers from establishing reverse tunnels after compromising an endpoint.",
-          "The Sophos Firewall enforces protocol-level egress policies — not just port blocking, but application-aware filtering that catches tunneled protocols."
+          "The Sophos Firewall enforces protocol-level egress policies \u2014 not just port blocking, but application-aware filtering that catches tunneled protocols."
         ],
         "financial_services": [
           "PCI DSS requires egress filtering for cardholder data environments. Blocking outbound management protocols prevents data exfiltration via reverse shells."
@@ -3656,774 +1812,6 @@
       "session_id": null,
       "caldera_adversary_id": "scn027-policy-violation",
       "caldera_group": "red"
-    },
-    {
-      "id": "SCN-APPR-968843",
-      "title": "Approved Case Scenario",
-      "description": "",
-      "mitre_tactics": [],
-      "mitre_techniques": [],
-      "tools": [],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [],
-      "talking_points": {
-        "universal": [
-          "Based on a real-world incident case",
-          "Threat actor: Unknown",
-          "Submitted by: MDR Team"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Original case source: Unknown. Context: None",
-        "steps": [
-          "Review case details with customer",
-          "Configure target environment",
-          "Launch simulation and observe detections"
-        ],
-        "talking_points_timing": "Introduce talking points after initial detection fires"
-      },
-      "source": "case-approved",
-      "case_id": "",
-      "submitted_by": "",
-      "industry": "universal"
-    },
-    {
-      "id": "SCN-726902",
-      "title": "Ransomware Detection Test",
-      "description": "This test simulates ransomware behavior by encrypting files and modifying system registry entries to validate detection capabilities. The simulation helps security teams verify their ability to identify and respond to ransomware attacks in a controlled environment.",
-      "mitre_tactics": [
-        "Impact",
-        "Defense Evasion"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1486",
-          "name": "Data Encrypted for Impact"
-        },
-        {
-          "id": "T1112",
-          "name": "Modify Registry"
-        }
-      ],
-      "tools": [
-        "PowerShell",
-        "Custom Ransomware Simulator"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "File encryption activity monitoring",
-          "severity": "high"
-        },
-        {
-          "detection": "Registry modification alerts",
-          "severity": "medium"
-        },
-        {
-          "detection": "Suspicious PowerShell execution",
-          "severity": "medium"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Ransomware Detection Test is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-19T15:22:01.812Z",
-      "source": "ai-enriched",
-      "ai_provider": "anthropic"
-    },
-    {
-      "id": "SCN-099433",
-      "title": "Supply Chain Compromise with Credential Harvesting",
-      "description": "Attackers leverage compromised supply chain components to establish persistence through scheduled tasks and harvest credentials from the Security Account Manager. This attack combines initial access through trusted software with credential theft to enable lateral movement and privilege escalation.",
-      "mitre_tactics": [
-        "Persistence",
-        "Credential Access"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1053.005",
-          "name": "Scheduled Task/Job: Scheduled Task"
-        },
-        {
-          "id": "T1003.002",
-          "name": "OS Credential Dumping: Security Account Manager"
-        }
-      ],
-      "tools": [
-        "schtasks",
-        "reg",
-        "mimikatz"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "atomic",
-      "expected_detections": [
-        {
-          "detection": "Scheduled task creation with suspicious parameters or uncommon executables",
-          "severity": "medium"
-        },
-        {
-          "detection": "Registry access to SAM hive with non-system processes",
-          "severity": "high"
-        },
-        {
-          "detection": "LSASS memory access patterns consistent with credential dumping",
-          "severity": "high"
-        },
-        {
-          "detection": "Unusual process spawning from scheduled tasks",
-          "severity": "medium"
-        },
-        {
-          "detection": "File system access to SAM database files",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Supply Chain Compromise with Credential Harvesting is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-19T15:28:12.238Z",
-      "source": "ai-enriched",
-      "ai_provider": "anthropic"
-    },
-    {
-      "id": "SCN-AI-146328",
-      "product": "endpoint",
-      "title": "Phishing to Mimikatz to Ransomware Chain",
-      "description": "Complete attack chain starting with spear-phishing email delivering malicious attachment that downloads Mimikatz for credential harvesting, deploys CALDERA for lateral movement, and culminates in ransomware deployment. This scenario demonstrates how modern APT groups chain multiple attack vectors for maximum impact.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Credential Access",
-        "Command and Control",
-        "Impact"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1566.001",
-          "name": "Spearphishing Attachment"
-        },
-        {
-          "id": "T1003.001",
-          "name": "LSASS Memory"
-        },
-        {
-          "id": "T1059.001",
-          "name": "PowerShell"
-        },
-        {
-          "id": "T1486",
-          "name": "Data Encrypted for Impact"
-        }
-      ],
-      "tools": [
-        "PowerShell",
-        "Mimikatz",
-        "CALDERA",
-        "Ransomware"
-      ],
-      "atomic_tests": [],
-      "caldera_ability": "custom-146328",
-      "caldera_adversary_id": "custom-146328",
-      "caldera_group": "red",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "caldera",
-      "expected_detections": [
-        {
-          "detection": "Malicious PowerShell execution with obfuscation",
-          "severity": "high"
-        },
-        {
-          "detection": "Mimikatz credential dumping from LSASS",
-          "severity": "critical"
-        },
-        {
-          "detection": "Suspicious network connections to C2",
-          "severity": "high"
-        },
-        {
-          "detection": "Ransomware file encryption behavior",
-          "severity": "critical"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "This demonstrates how attackers chain multiple techniques - starting with social engineering, they quickly escalate to credential theft and ransomware deployment within minutes",
-          "Notice how Sophos Endpoint detects each stage of the attack chain - from the initial malicious PowerShell to the final ransomware behavior patterns"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Ensure Windows 11 VM with Sophos Endpoint installed, PowerShell execution policy allows scripts, and network connectivity for C2 simulation",
-        "steps": [
-          "Execute the phishing simulation PowerShell to show initial access",
-          "Demonstrate credential dumping detection when Mimikatz simulation runs",
-          "Show lateral movement and C2 communication alerts",
-          "Highlight ransomware behavior detection and automatic response"
-        ],
-        "talking_points_timing": "Deliver talking points after each major detection phase - after PowerShell detection, after credential dumping alerts, and during ransomware prevention"
-      },
-      "status": "approved",
-      "launchable": true,
-      "source": "ai-enriched",
-      "submitted_by": "Scenario Studio",
-      "submitted_at": "2026-03-19T15:28:44.989Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-AI-900918",
-      "product": "endpoint",
-      "title": "Ransomware Attack with Credential Dumping & File Encryption",
-      "description": "This scenario simulates a complete ransomware attack chain where an attacker dumps credentials using Mimikatz, escalates privileges, and encrypts files across the network. The simulation demonstrates how modern ransomware groups combine credential theft with file encryption to maximize damage and ransom demands.",
-      "mitre_tactics": [
-        "Credential Access",
-        "Defense Evasion",
-        "Impact"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1003.001",
-          "name": "LSASS Memory"
-        },
-        {
-          "id": "T1059.001",
-          "name": "PowerShell"
-        },
-        {
-          "id": "T1486",
-          "name": "Data Encrypted for Impact"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "PowerShell",
-        "Custom Ransomware Simulator"
-      ],
-      "atomic_tests": [],
-      "caldera_ability": "custom-900918",
-      "caldera_adversary_id": "custom-900918",
-      "caldera_group": "red",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "caldera",
-      "expected_detections": [
-        {
-          "detection": "Suspicious process accessing LSASS memory",
-          "severity": "critical"
-        },
-        {
-          "detection": "Mass file encryption activity detected",
-          "severity": "critical"
-        },
-        {
-          "detection": "Credential dumping tool execution",
-          "severity": "high"
-        },
-        {
-          "detection": "Ransomware-like behavior pattern",
-          "severity": "critical"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Sophos XDR correlates credential dumping attempts with subsequent file encryption to identify ransomware attacks in their early stages",
-          "Our behavioral analysis can detect mass file encryption even when using legitimate Windows APIs, preventing ransomware execution before significant damage occurs",
-          "The combination of memory protection and real-time file monitoring creates multiple detection layers that ransomware must bypass simultaneously"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Ensure Windows Defender is disabled temporarily for demo purposes. Have sample non-critical files in Documents folder. Verify PowerShell execution policy allows script execution.",
-        "steps": [
-          "Execute the PowerShell simulation to show credential dumping attempt",
-          "Demonstrate how Sophos detects LSASS memory access patterns",
-          "Show file encryption simulation and real-time Sophos blocking",
-          "Display the correlation of events in Sophos Central dashboard"
-        ],
-        "talking_points_timing": "Deliver talking points after each major detection event - after credential dump attempt, during file encryption simulation, and during final dashboard review"
-      },
-      "status": "approved",
-      "launchable": true,
-      "source": "ai-enriched",
-      "submitted_by": "Scenario Studio",
-      "submitted_at": "2026-03-19T16:47:59.569Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-AI-588742",
-      "product": "endpoint",
-      "title": "Manufacturing Ransomware Attack via Spear Phishing",
-      "description": "A comprehensive attack simulation targeting a manufacturing company through spear-phishing, credential dumping, lateral movement, and ransomware deployment. This scenario demonstrates the full attack chain from initial compromise to production system encryption that Sophos Intercept X detects and blocks.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Defense Evasion",
-        "Credential Access",
-        "Lateral Movement",
-        "Impact"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1566.001",
-          "name": "Phishing: Spearphishing Attachment"
-        },
-        {
-          "id": "T1059.005",
-          "name": "Command and Scripting Interpreter: Visual Basic"
-        },
-        {
-          "id": "T1003.001",
-          "name": "OS Credential Dumping: LSASS Memory"
-        },
-        {
-          "id": "T1550.002",
-          "name": "Use Alternate Authentication Material: Pass the Hash"
-        },
-        {
-          "id": "T1490",
-          "name": "Inhibit System Recovery"
-        },
-        {
-          "id": "T1486",
-          "name": "Data Encrypted for Impact"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "PsExec",
-        "VSSAdmin",
-        "Custom Ransomware"
-      ],
-      "atomic_tests": [],
-      "caldera_ability": "custom-588742",
-      "caldera_adversary_id": "custom-588742",
-      "caldera_group": "red",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "caldera",
-      "expected_detections": [
-        {
-          "detection": "Malicious Office macro execution blocked",
-          "severity": "high"
-        },
-        {
-          "detection": "LSASS memory access attempt detected",
-          "severity": "critical"
-        },
-        {
-          "detection": "Pass-the-Hash lateral movement blocked",
-          "severity": "critical"
-        },
-        {
-          "detection": "Volume Shadow Copy deletion prevented",
-          "severity": "high"
-        },
-        {
-          "detection": "Ransomware behavior and file encryption blocked",
-          "severity": "critical"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "This attack chain represents 80% of successful ransomware incidents targeting manufacturing - Sophos blocks it at multiple stages before any damage occurs",
-          "Notice how Intercept X doesn't just detect the final ransomware payload, but identifies and stops the entire attack progression from the initial macro through credential theft",
-          "The CryptoGuard technology specifically protects your production data shares, even if an unknown ransomware variant bypassed other defenses"
-        ]
-      },
-      "se_runbook": {
-        "setup": "Ensure Sophos Central demo tenant is configured with manufacturing-themed device names. Have a test file share mapped to simulate production floor data.",
-        "steps": [
-          "Execute the simulation script showing each attack phase",
-          "Open Sophos Central to show real-time detections appearing",
-          "Navigate to the Threat Cases to show the correlated attack chain",
-          "Demonstrate the blocked actions in the device timeline",
-          "Show how CryptoGuard would have protected file shares as the final safety net"
-        ],
-        "talking_points_timing": "Deliver talking points after showing each major detection category - after macro block, after credential protection, and after ransomware prevention"
-      },
-      "status": "approved",
-      "launchable": true,
-      "source": "ai-enriched",
-      "submitted_by": "Scenario Studio",
-      "submitted_at": "2026-03-20T02:09:25.894Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-069412",
-      "title": "BEC Phishing to Ransomware with Data Exfiltration",
-      "description": "Business Email Compromise attack uses phishing to deliver initial payload that establishes persistence via scheduled tasks, performs credential harvesting and data collection, then deploys ransomware while exfiltrating sensitive data. This multi-stage attack combines financial fraud tactics with destructive malware deployment for maximum impact.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Persistence",
-        "Collection",
-        "Exfiltration",
-        "Impact"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1190",
-          "name": "Exploit Public-Facing Application"
-        },
-        {
-          "id": "T1566",
-          "name": "Phishing"
-        },
-        {
-          "id": "T1053.005",
-          "name": "Scheduled Task/Job: Scheduled Task"
-        }
-      ],
-      "tools": [
-        "PowerShell",
-        "certutil",
-        "WinRAR",
-        "Cobalt Strike",
-        "Mimikatz"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "endpoint",
-      "expected_detections": [
-        {
-          "detection": "Email with suspicious attachment or link from external sender",
-          "severity": "medium"
-        },
-        {
-          "detection": "Process spawning from Office application executing PowerShell",
-          "severity": "high"
-        },
-        {
-          "detection": "Scheduled task creation with suspicious command line arguments",
-          "severity": "high"
-        },
-        {
-          "detection": "Large volume of file encryption activity",
-          "severity": "critical"
-        },
-        {
-          "detection": "Suspicious network connections to external IPs",
-          "severity": "high"
-        },
-        {
-          "detection": "Creation of ransom note files across multiple directories",
-          "severity": "critical"
-        },
-        {
-          "detection": "Unusual data compression and staging activities",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "BEC Phishing to Ransomware with Data Exfiltration is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-20T15:21:01.279Z",
-      "source": "ai-enriched",
-      "ai_provider": "anthropic"
-    },
-    {
-      "id": "SCN-MAN-087337",
-      "product": "endpoint",
-      "title": "ransomware with phishing",
-      "description": "I need a BEC attack that loads reansomware and performs data exfil",
-      "mitre_tactics": [
-        "initial-access",
-        "execution"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1190",
-          "name": "T1190"
-        },
-        {
-          "id": "T1566",
-          "name": "T1566"
-        },
-        {
-          "id": "T1053.005",
-          "name": "T1053.005"
-        }
-      ],
-      "tools": [],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "caldera_adversary_id": "",
-      "caldera_group": "red",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "caldera",
-      "expected_detections": [
-        {
-          "severity": "medium",
-          "detection": "Email with suspicious attachment or link from external sender"
-        },
-        {
-          "severity": "high",
-          "detection": "Process spawning from Office application executing PowerShell"
-        },
-        {
-          "severity": "high",
-          "detection": "Scheduled task creation with suspicious command line arguments"
-        },
-        {
-          "severity": "critical",
-          "detection": "Large volume of file encryption activity"
-        },
-        {
-          "severity": "high",
-          "detection": "Suspicious network connections to external IPs"
-        },
-        {
-          "severity": "critical",
-          "detection": "Creation of ransom note files across multiple directories"
-        },
-        {
-          "severity": "high",
-          "detection": "Unusual data compression and staging activities"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "BEC Phishing to Ransomware with Data Exfiltration is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "se_runbook": {},
-      "status": "approved",
-      "launchable": false,
-      "source": "hand-authored",
-      "submitted_by": "Scenario Studio",
-      "submitted_at": "2026-03-20T15:21:27.332Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-334753",
-      "title": "Supply Chain Attack with Credential Harvesting and Lateral Movement",
-      "description": "A multi-stage attack beginning with a supply chain compromise that delivers phishing payloads, followed by credential harvesting using Mimikatz and lateral movement via pass-the-hash techniques. The attack includes defense evasion through Windows event log clearing to maintain persistence and avoid detection.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Defense Evasion",
-        "Credential Access",
-        "Lateral Movement"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1566",
-          "name": "Phishing"
-        },
-        {
-          "id": "T1070.001",
-          "name": "Clear Windows Event Logs"
-        },
-        {
-          "id": "T1550.002",
-          "name": "Pass the Hash"
-        }
-      ],
-      "tools": [
-        "Mimikatz",
-        "Email client",
-        "PowerShell"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "endpoint",
-      "expected_detections": [
-        {
-          "detection": "Phishing email attachment execution with suspicious process spawning",
-          "severity": "high"
-        },
-        {
-          "detection": "Mimikatz process execution and LSASS memory access patterns",
-          "severity": "critical"
-        },
-        {
-          "detection": "Windows Event Log clearing via wevtutil or PowerShell",
-          "severity": "high"
-        },
-        {
-          "detection": "NTLM hash extraction from memory",
-          "severity": "critical"
-        },
-        {
-          "detection": "Pass-the-Hash authentication anomalies across network segments",
-          "severity": "high"
-        },
-        {
-          "detection": "Abnormal lateral movement patterns to multiple endpoints",
-          "severity": "medium"
-        },
-        {
-          "detection": "Credential dumping tools spawned from compromised supply chain software",
-          "severity": "critical"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Supply Chain Attack with Credential Harvesting and Lateral Movement is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-20T16:15:24.447Z",
-      "source": "ai-enriched",
-      "ai_provider": "anthropic"
-    },
-    {
-      "id": "SCN-MAN-346656",
-      "product": "endpoint",
-      "title": "supply chain",
-      "description": "supply chain with mimi katz and lateral movement",
-      "mitre_tactics": [
-        "initial-access",
-        "defense-evasion"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1566",
-          "name": "T1566"
-        },
-        {
-          "id": "T1070.001",
-          "name": "T1070.001"
-        },
-        {
-          "id": "T1550.002",
-          "name": "T1550.002"
-        }
-      ],
-      "tools": [],
-      "atomic_tests": [],
-      "caldera_ability": "",
-      "caldera_adversary_id": "",
-      "caldera_group": "red",
-      "audience": "Technical",
-      "platform": "windows",
-      "execution_engine": "caldera",
-      "expected_detections": [
-        {
-          "severity": "high",
-          "detection": "Phishing email attachment execution with suspicious process spawning"
-        },
-        {
-          "severity": "critical",
-          "detection": "Mimikatz process execution and LSASS memory access patterns"
-        },
-        {
-          "severity": "high",
-          "detection": "Windows Event Log clearing via wevtutil or PowerShell"
-        },
-        {
-          "severity": "critical",
-          "detection": "NTLM hash extraction from memory"
-        },
-        {
-          "severity": "high",
-          "detection": "Pass-the-Hash authentication anomalies across network segments"
-        },
-        {
-          "severity": "medium",
-          "detection": "Abnormal lateral movement patterns to multiple endpoints"
-        },
-        {
-          "severity": "critical",
-          "detection": "Credential dumping tools spawned from compromised supply chain software"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Supply Chain Attack with Credential Harvesting and Lateral Movement is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "se_runbook": {},
-      "status": "approved",
-      "launchable": false,
-      "source": "hand-authored",
-      "submitted_by": "Scenario Studio",
-      "submitted_at": "2026-03-20T16:15:46.651Z",
-      "expires_at": null,
-      "session_id": null
-    },
-    {
-      "id": "SCN-307027",
-      "title": "Supply Chain Phishing to Ransomware",
-      "description": "Attackers compromise the supply chain through phishing to gain initial access, then deploy mimikatz for credential harvesting before executing ransomware. This multi-stage attack leverages trusted relationships and harvested credentials to maximize impact across the target environment.",
-      "mitre_tactics": [
-        "Initial Access",
-        "Credential Access",
-        "Impact"
-      ],
-      "mitre_techniques": [
-        {
-          "id": "T1190",
-          "name": "Exploit Public-Facing Application"
-        },
-        {
-          "id": "T1566",
-          "name": "Phishing"
-        },
-        {
-          "id": "T1003.001",
-          "name": "LSASS Memory"
-        }
-      ],
-      "tools": [
-        "mimikatz",
-        "ransomware"
-      ],
-      "difficulty": "medium",
-      "platform": "windows",
-      "execution_engine": "endpoint",
-      "expected_detections": [
-        {
-          "detection": "Email security gateway blocks malicious attachment or URL",
-          "severity": "medium"
-        },
-        {
-          "detection": "Endpoint detection of suspicious process execution from email attachment",
-          "severity": "high"
-        },
-        {
-          "detection": "LSASS memory access by mimikatz or similar credential dumping tool",
-          "severity": "high"
-        },
-        {
-          "detection": "Unusual process behavior and memory manipulation consistent with credential harvesting",
-          "severity": "high"
-        },
-        {
-          "detection": "Mass file encryption activity and ransomware note creation",
-          "severity": "critical"
-        },
-        {
-          "detection": "Network traffic to known malicious C2 infrastructure",
-          "severity": "high"
-        }
-      ],
-      "talking_points": {
-        "universal": [
-          "Supply Chain Phishing to Ransomware is commonly observed in MDR cases - analysts detect this in real time",
-          "Watch the alert fire within seconds in the MDR console"
-        ]
-      },
-      "generated_at": "2026-03-20T16:48:19.320Z",
-      "source": "ai-enriched",
-      "ai_provider": "anthropic"
     }
   ]
 }
