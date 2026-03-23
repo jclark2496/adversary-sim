@@ -108,6 +108,19 @@ up:
 	else \
 		echo "✅ Workflows loaded ($$WF_COUNT found)"; \
 	fi
+	@echo "▶ Waiting for CALDERA then compiling sandcat (AMD64)..."
+	@for i in $$(seq 1 18); do \
+		if docker inspect --format='{{.State.Health.Status}}' $(CALDERA_CTR) 2>/dev/null | grep -q healthy; then \
+			$(MAKE) --no-print-directory sandcat; \
+			break; \
+		fi; \
+		if [ $$i -eq 18 ]; then \
+			echo "⚠️  CALDERA not ready after 90s — run 'make sandcat' manually once it starts"; \
+			break; \
+		fi; \
+		printf "."; \
+		sleep 5; \
+	done
 
 .PHONY: down
 down:
