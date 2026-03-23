@@ -473,7 +473,7 @@ select.ctrl option {
 }
 .nav-cat-divider {
   height: 1px;
-  background: rgba(0,168,224,0.08);
+  background: rgba(255,255,255,0.12);
   margin: 6px 10px;
 }
 
