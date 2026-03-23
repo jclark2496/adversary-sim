@@ -1831,12 +1831,16 @@ Return the response with emphasis on expected_detections and talking_points fiel
     initCustomSelects();
     $('editov').classList.add('open');
     $('editd').classList.add('open');
+    var fab = document.querySelector('.tour-fab');
+    if (fab) fab.style.display = 'none';
   }
 
   function closeEdit() {
     A.editId = null;
     $('editov').classList.remove('open');
     $('editd').classList.remove('open');
+    var fab = document.querySelector('.tour-fab');
+    if (fab) fab.style.display = '';
   }
 
   async function saveEdit() {
