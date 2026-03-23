@@ -640,11 +640,23 @@ function navigate(dir) { goToSlide(currentSlide + dir); }
 
 // ── Keyboard navigation ───────────────────────────────────────
 // activeRdpClient: set when mouse enters an RDP panel; cleared on leave.
-// Keyboard events route to RDP when active, else to slide nav.
+// One Guacamole.Keyboard at module level — created after DOM ready, routes
+// to whichever RDP client is currently hovered.
 let activeRdpClient = null;
+let rdpKeyboard     = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  rdpKeyboard = new Guacamole.Keyboard(document);
+  rdpKeyboard.onkeydown = function(keysym) {
+    if (activeRdpClient) { activeRdpClient.sendKeyEvent(1, keysym); return true; }
+  };
+  rdpKeyboard.onkeyup = function(keysym) {
+    if (activeRdpClient) { activeRdpClient.sendKeyEvent(0, keysym); return true; }
+  };
+});
 
 document.addEventListener('keydown', e => {
-  if (activeRdpClient) return; // let Guacamole.Keyboard handle it
+  if (activeRdpClient) return; // Guacamole.Keyboard handles it
   if      (e.key === 'ArrowRight') navigate(1);
   else if (e.key === 'ArrowLeft')  navigate(-1);
   else if (e.key === 'Escape')     window.location.href = '/';
@@ -762,32 +774,40 @@ async function connectRDP(ip, containerId, loadingId) {
     });
     container.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-    // Keyboard: route keystrokes to RDP when mouse is inside the panel
-    const keyboard = new Guacamole.Keyboard(document);
-    keyboard.onkeydown = function(keysym) {
-      if (activeRdpClient === client) client.sendKeyEvent(1, keysym);
-    };
-    keyboard.onkeyup = function(keysym) {
-      if (activeRdpClient === client) client.sendKeyEvent(0, keysym);
-    };
+    // Route keyboard to this client while mouse is inside the panel
     container.addEventListener('mouseenter', function() { activeRdpClient = client; });
     container.addEventListener('mouseleave', function() { activeRdpClient = null; });
+
     client.getDisplay().onresize = scaleToFit;
+
+    // Show tunnel-level errors in the loading overlay
+    tunnel.onerror = function(status) {
+      if (loading) {
+        const txt = loading.querySelector('.rdp-loading-text');
+        if (txt) txt.textContent = 'Tunnel error: ' + (status.message || JSON.stringify(status));
+      }
+    };
 
     // Hide loading overlay once connected and scale applied
     client.onstatechange = function(state) {
-      if (state === Guacamole.Client.State.CONNECTED) {
+      const STATE = Guacamole.Client.State;
+      if (state === STATE.CONNECTED) {
         setTimeout(() => {
           scaleToFit();
           if (loading) loading.style.display = 'none';
         }, 600);
+      } else if (state === STATE.DISCONNECTED) {
+        if (loading) {
+          const txt = loading.querySelector('.rdp-loading-text');
+          if (txt && loading.style.display !== 'none') txt.textContent = 'Disconnected — check VM and Guacamole';
+        }
       }
     };
 
     client.onerror = function(err) {
       if (loading) {
         const txt = loading.querySelector('.rdp-loading-text');
-        if (txt) txt.textContent = 'RDP error: ' + (err.message || err);
+        if (txt) txt.textContent = 'RDP error: ' + (err.message || JSON.stringify(err));
       }
     };
 
