@@ -722,7 +722,8 @@
     }
     .wiz-csel-list {
       display:none; position:absolute; top:calc(100% + 3px); left:0; right:0;
-      background:var(--bg-card); border:1px solid var(--border-dim); border-radius:5px;
+      background:rgba(8,20,52,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.10); border-radius:5px;
       z-index:600; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.5);
     }
     .wiz-csel.open .wiz-csel-list { display:block; }
