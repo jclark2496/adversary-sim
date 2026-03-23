@@ -659,7 +659,11 @@ async function connectRDP(ip, frameId, loadingId) {
     const auth  = await authR.json();
     const token = auth.authToken;
 
-    // 2. Create RDP connection
+    // 2. Create RDP connection — use parent container dimensions so Guacamole
+    //    negotiates the correct resolution (frame itself is display:none at this point)
+    const parent = frame.parentElement;
+    const rdpW = String(parent ? parent.clientWidth  : window.innerWidth);
+    const rdpH = String(parent ? parent.clientHeight : window.innerHeight);
     const connR = await fetch(
       `${GUAC_PROXY}/api/session/data/${GUAC_DS}/connections?token=${token}`,
       {
@@ -677,6 +681,8 @@ async function connectRDP(ip, frameId, loadingId) {
             security:           'any',
             'enable-wallpaper': 'true',
             'enable-theming':   'true',
+            width:              rdpW,
+            height:             rdpH,
           },
           attributes: {
             'max-connections':          '2',
@@ -689,9 +695,9 @@ async function connectRDP(ip, frameId, loadingId) {
     const conn   = await connR.json();
     const connId = conn.identifier;
 
-    // 3. Build client URL and load iframe
+    // 3. Build client URL — token must be in the hash fragment for Angular auto-auth
     const clientId = btoa(`${connId}\0c\0${GUAC_DS}`);
-    const rdpURL   = `${GUAC_PROXY}/?token=${token}#/client/${encodeURIComponent(clientId)}`;
+    const rdpURL   = `${GUAC_PROXY}/#/client/${encodeURIComponent(clientId)}?token=${token}`;
 
     frame.src = rdpURL;
     frame.style.display = '';
