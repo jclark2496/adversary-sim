@@ -77,8 +77,8 @@
 
     .search-input {
       flex: 1;
-      background: rgba(3,7,30,.7);
-      border: 1px solid rgba(0,168,224,.14);
+      background: rgba(7,16,31,0.50);
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: 6px;
       padding: 12px 16px;
       color: var(--text-primary);
@@ -142,8 +142,8 @@
 
     .no-results {
       padding: 28px 24px;
-      background: rgba(3,7,30,.5);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.07);
+      background: rgba(20,50,110,0.18);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 8px;
       font-family: var(--fm);
       font-size: 12px;
@@ -153,8 +153,10 @@
     .no-results strong { color: var(--text-sec); }
 
     .result-card {
-      background: rgba(8,15,46,.7);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.1);
+      background: rgba(20,50,110,0.22);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: 8px;
       margin-bottom: 16px;
       overflow: hidden;
@@ -169,8 +171,8 @@
 
     .result-header {
       padding: 14px 18px 10px;
-      border-bottom: 1px solid rgba(var(--accent-cyan-rgb),.07);
-      background: rgba(3,7,30,.4);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(20,50,110,0.18);
     }
 
     .result-section {
@@ -315,8 +317,10 @@
     .chip-expanded {
       margin-top: 12px;
       padding: 16px 18px;
-      background: rgba(3,7,30,.6);
-      border: 1px solid rgba(var(--accent-cyan-rgb),.1);
+      background: rgba(20,50,110,0.20);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 6px;
       display: none;
       animation: fadeUp .2s ease forwards;
@@ -330,7 +334,9 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: rgba(8,15,46,.95);
+      background: rgba(7,16,31,0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(var(--accent-cyan-rgb),.3);
       border-radius: 6px;
       padding: 10px 18px;
