@@ -64,9 +64,7 @@
     .ph {
       flex-shrink: 0; padding: 16px 18px 13px;
       border-bottom: 1px solid var(--border-dim);
-      background: rgba(8,20,52,0.78);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8,20,52,0.82);
     }
 
     #hdr-controls {
@@ -1250,8 +1248,6 @@
               <button class="dropdown-item" onclick="openEnrichCard()">Enrich with AI</button>
             </div>
           </div>
-          <button id="nav-booth-duty" class="nav-tab nav-btn beta-btn" style="display:none" onclick="window.open('/demo.html','_blank')">Booth Duty</button>
-          <button id="nav-stage-dive" class="nav-tab nav-btn beta-btn" style="display:none" onclick="openStageDive()">Stage Dive</button>
         </nav>
         <div id="hdr-controls">
         <button class="tour-help-btn" id="tour-help-btn" title="Page help" style="display:none">?</button>
@@ -2938,16 +2934,12 @@
     var boothDuty = localStorage.getItem('rh_booth_duty') === 'on';
     var stageDive = localStorage.getItem('rh_stage_dive') === 'on';
 
-    // Booth Duty
-    var btnBD = document.getElementById('nav-booth-duty');
+    // Booth Duty (dropdown only)
     var ddBD = document.getElementById('dd-booth-duty');
-    if (btnBD) btnBD.style.display = boothDuty ? '' : 'none';
     if (ddBD) ddBD.style.display = boothDuty ? '' : 'none';
 
-    // Stage Dive
-    var btnSD = document.getElementById('nav-stage-dive');
+    // Stage Dive (dropdown only)
     var ddSD = document.getElementById('dd-stage-dive');
-    if (btnSD) btnSD.style.display = stageDive ? '' : 'none';
     if (ddSD) ddSD.style.display = stageDive ? '' : 'none';
 
     // Show beta section wrapper if either beta feature is on
