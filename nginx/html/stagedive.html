@@ -785,45 +785,61 @@ async function connectRDP(ip, containerId, loadingId, attempt) {
 
     client.getDisplay().onresize = scaleToFit;
 
-    // Tunnel errors (e.g. 519 = upstream timeout) — retry automatically
+    // Track whether we connected successfully — suppresses spurious DISCONNECTED messages
+    let everConnected = false;
+    let retrying      = false;
+
+    function scheduleRetry(code) {
+      if (retrying) return;
+      retrying = true;
+      const next = attempt + 1;
+      if (loading) {
+        const txt = loading.querySelector('.rdp-loading-text');
+        if (txt) txt.textContent = `Connecting... (attempt ${next}/${MAX_RDP_RETRIES})`;
+      }
+      // Always evict the cached token so the retry gets a fresh one
+      guacToken = null;
+      setTimeout(() => connectRDP(ip, containerId, loadingId, next), RDP_RETRY_DELAY);
+    }
+
+    // Tunnel errors (e.g. 519 upstream timeout, auth failures)
     tunnel.onerror = function(status) {
+      if (everConnected) return; // already showed the desktop — ignore stray errors
       const code = status && status.code ? status.code : status;
       if (attempt < MAX_RDP_RETRIES) {
-        const next = attempt + 1;
-        if (loading) {
-          const txt = loading.querySelector('.rdp-loading-text');
-          if (txt) txt.textContent = `VM unreachable (${code}) — retrying ${next}/${MAX_RDP_RETRIES}...`;
-        }
-        // Clear stale connection objects before retry
-        try { client.disconnect(); } catch(e) {}
-        // Evict cached token on auth errors (codes 400–403) so next attempt re-auths
-        if (code >= 400 && code < 500) guacToken = null;
-        setTimeout(() => connectRDP(ip, containerId, loadingId, next), RDP_RETRY_DELAY);
+        scheduleRetry(code);
       } else {
         if (loading) {
           const txt = loading.querySelector('.rdp-loading-text');
-          if (txt) txt.textContent = `RDP failed after ${MAX_RDP_RETRIES} attempts (${code}) — check VM is running and RDP is enabled`;
+          if (txt) txt.textContent = `Could not reach VM after ${MAX_RDP_RETRIES} attempts (${code}) — verify RDP is enabled and VM is running`;
         }
       }
     };
 
-    // Hide loading overlay once connected and scale applied
+    // Hide loading overlay once connected; retry if we disconnect before ever showing
     client.onstatechange = function(state) {
       const STATE = Guacamole.Client.State;
       if (state === STATE.CONNECTED) {
+        everConnected = true;
         setTimeout(() => {
           scaleToFit();
           if (loading) loading.style.display = 'none';
         }, 600);
-      } else if (state === STATE.DISCONNECTED) {
-        if (loading) {
-          const txt = loading.querySelector('.rdp-loading-text');
-          if (txt && loading.style.display !== 'none') txt.textContent = 'Disconnected — check VM and Guacamole';
+      } else if (state === STATE.DISCONNECTED && !everConnected && !retrying) {
+        // Disconnected before we ever showed the desktop — treat as retriable failure
+        if (attempt < MAX_RDP_RETRIES) {
+          scheduleRetry('disconnect');
+        } else {
+          if (loading) {
+            const txt = loading.querySelector('.rdp-loading-text');
+            if (txt) txt.textContent = `Connection dropped — verify Guacamole and VM are reachable`;
+          }
         }
       }
     };
 
     client.onerror = function(err) {
+      if (everConnected) return;
       if (loading) {
         const txt = loading.querySelector('.rdp-loading-text');
         if (txt) txt.textContent = 'RDP error: ' + (err.message || JSON.stringify(err));
