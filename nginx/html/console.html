@@ -1147,10 +1147,11 @@ async function connectRDP() {
     document.getElementById('guac-spin-txt').textContent = 'Launching RDP session…';
     setRdpStatus(`Connecting to ${ip}…`);
 
-    // 3. Build client URL — Guacamole reads ?token= for auto-auth
+    // 3. Build client URL — token must be in the hash fragment so Angular's
+    //    $location.search() picks it up for auto-auth (not before the #)
     // Client ID = base64(connId + NUL + 'c' + NUL + dataSource)
     const clientId = btoa(`${guacConnId}\0c\0${GUAC_DS}`);
-    const rdpURL   = `${GUAC_PROXY}/?token=${guacToken}#/client/${encodeURIComponent(clientId)}`;
+    const rdpURL   = `${GUAC_PROXY}/#/client/${encodeURIComponent(clientId)}?token=${guacToken}`;
 
     const frame = document.getElementById('guac-frame');
     frame.src = rdpURL;
