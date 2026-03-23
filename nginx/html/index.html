@@ -962,11 +962,13 @@
     .nav-tab:hover { color:var(--text-primary); background:rgba(var(--accent-cyan-rgb),.06); }
     .nav-tab.active { color:var(--accent-cyan); background:rgba(var(--accent-cyan-rgb),.1); }
     .nav-dropdown { position:relative; }
+    .ph-tools-dd { margin-left:auto; }
     .nav-dropdown .dropdown-items {
-      display:none; position:absolute; top:100%; left:0; margin-top:4px;
-      background:var(--bg-card); border:1px solid var(--border-acc);
+      display:none; position:absolute; top:100%; right:0; left:auto; margin-top:4px;
+      background:rgba(8,20,52,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.10);
       border-radius:6px; padding:4px; min-width:180px; z-index:200;
-      box-shadow:0 8px 24px rgba(0,0,0,.4);
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
     }
     .nav-dropdown.open .dropdown-items { display:block; }
     .dropdown-item {
@@ -1237,18 +1239,17 @@
         <span class="wm-accent wm-accent-cyan">ADVERSARY</span>
         <span class="wm-slash">//</span>
         <span class="wm-page wm-page-cyan">se_console</span>
-        <nav class="main-nav">
-          <button class="nav-tab" data-view="submit" onclick="switchView('submit')">Submit Case</button>
-          <div class="nav-dropdown" id="tools-dropdown">
-            <button class="nav-tab" onclick="toggleToolsDropdown()">Tools ▾</button>
-            <div class="dropdown-items">
-              <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=kali'">Kali Terminal</button>
-              <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=atomic'">Atomic Red Team</button>
-              <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=caldera'">CALDERA</button>
-              <button class="dropdown-item" onclick="openEnrichCard()">Enrich with AI</button>
-            </div>
+        <div class="nav-dropdown ph-tools-dd" id="tools-dropdown">
+          <button class="nav-tab" onclick="toggleToolsDropdown()">Tools ▾</button>
+          <div class="dropdown-items">
+            <button class="dropdown-item" data-view="submit" onclick="toggleToolsDropdown();switchView('submit')">Submit Case</button>
+            <div style="height:1px;background:var(--border-dim);margin:3px 4px;"></div>
+            <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=kali'">Kali Terminal</button>
+            <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=atomic'">Atomic Red Team</button>
+            <button class="dropdown-item" onclick="window.location.href='/tools.html?tool=caldera'">CALDERA</button>
+            <button class="dropdown-item" onclick="toggleToolsDropdown();openEnrichCard()">Enrich with AI</button>
           </div>
-        </nav>
+        </div>
         <div id="hdr-controls">
         <button class="tour-help-btn" id="tour-help-btn" title="Page help" style="display:none">?</button>
           <div class="nav-wrap" id="nav-wrap">
@@ -2900,7 +2901,7 @@
      NAV TABS + TOOLS DROPDOWN
   ===================================================== */
   function switchView(view) {
-    document.querySelectorAll('.nav-tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    document.querySelectorAll('[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === view));
     if (view === 'submit') {
       openWizard();
     }
