@@ -20,7 +20,7 @@ services:
 
   # ---------------------------------------------------------------------------
   # MITRE CALDERA — Adversary Emulation Server
-  # Built from source: caldera:local (v5.1.0, native ARM64)
+  # Multi-arch image: ghcr.io/jclark2496/caldera:5.1.0 (linux/amd64 + linux/arm64)
   # UI: http://localhost:8888   red: red/admin   blue: blue/admin
   # ---------------------------------------------------------------------------
   caldera:
