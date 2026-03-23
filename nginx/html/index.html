@@ -3120,6 +3120,33 @@ function sdLoadIPs() {
   var uEl = document.getElementById('sd-unmanaged-ip');
   if (mEl) mEl.value = managed;
   if (uEl) uEl.value = unmanaged;
+
+  // Auto-populate from LabOps VM list if either IP is missing
+  if (managed && unmanaged) return;
+  var endpoints = ['/labops/api/vms'];
+  var labopsUrl = localStorage.getItem('labopsUrl') || '';
+  if (labopsUrl) endpoints.push(labopsUrl.replace(/\/$/, '') + '/api/vms');
+  (function tryNext(i) {
+    if (i >= endpoints.length) return;
+    fetch(endpoints[i], { signal: AbortSignal.timeout(4000) })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+    .then(function(data) {
+      var vms = (data.vms || data.data || (Array.isArray(data) ? data : []));
+      var foundManaged = '', foundUnmanaged = '';
+      vms.forEach(function(v) {
+        if (!v.ip || v.status !== 'running') return;
+        var tags = (v.tags || '').split(';').filter(Boolean);
+        var name = (v.name || '').toLowerCase();
+        var isLabVm   = tags.includes('lab-vm');
+        var isUnmanaged = tags.includes('unmanaged') || name.includes('unmanaged');
+        if (isLabVm && isUnmanaged && !foundUnmanaged) foundUnmanaged = v.ip;
+        if (isLabVm && !isUnmanaged && !foundManaged)  foundManaged   = v.ip;
+      });
+      if (!managed && foundManaged && mEl)     { mEl.value = foundManaged; }
+      if (!unmanaged && foundUnmanaged && uEl) { uEl.value = foundUnmanaged; }
+    })
+    .catch(function() { tryNext(i + 1); });
+  })(0);
 }
 
 function sdSaveIPs() {
