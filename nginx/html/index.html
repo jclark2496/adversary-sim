@@ -1167,6 +1167,65 @@
       transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     }
     .sd-close-btn:hover { color: #f0f5ff; border-color: #f0f5ff; background: rgba(240,245,255,0.08); }
+    /* Setup section */
+    #sd-setup-toggle {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 14px;
+      transition: color 0.2s;
+      display: block;
+    }
+    #sd-setup-toggle:hover { color: rgba(255,255,255,0.85); }
+    #sd-setup-panel {
+      display: none;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,168,224,0.2);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .sd-setup-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .sd-setup-row:last-child { margin-bottom: 0; }
+    .sd-setup-label {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: rgba(0,168,224,0.85);
+      width: 150px;
+      flex-shrink: 0;
+    }
+    .sd-setup-input {
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      color: #fff;
+      padding: 8px 12px;
+    }
+    .sd-setup-input:focus { border-color: #00A8E0; outline: none; }
+    .sd-setup-save {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #00A8E0;
+      background: transparent;
+      border: 1px solid rgba(0,168,224,0.4);
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sd-setup-save:hover { background: rgba(0,168,224,0.15); }
   </style>
 </head>
 <body>
@@ -3016,8 +3075,8 @@ function openStageDive() {
   if (!overlay) return;
   overlay.style.display = '';
   setTimeout(function() { overlay.style.opacity = '1'; }, 10);
-  // Reset to prompt state
   sdReset();
+  sdLoadIPs();
 }
 
 function sdClose() {
@@ -3033,6 +3092,11 @@ function sdReset() {
   document.getElementById('sd-output').innerHTML = '';
   document.getElementById('sd-input').disabled = false;
   document.getElementById('sd-submit').disabled = false;
+  // Collapse setup panel on reset
+  var panel = document.getElementById('sd-setup-panel');
+  var tog = document.getElementById('sd-setup-toggle');
+  if (panel) panel.style.display = 'none';
+  if (tog) tog.textContent = '⚙ Setup ▾';
 }
 
 function sdEscape(str) {
@@ -3041,62 +3105,129 @@ function sdEscape(str) {
   });
 }
 
+function sdToggleSetup() {
+  var panel = document.getElementById('sd-setup-panel');
+  var btn = document.getElementById('sd-setup-toggle');
+  var isOpen = panel.style.display === '';
+  panel.style.display = isOpen ? 'none' : '';
+  btn.textContent = isOpen ? '⚙ Setup ▾' : '⚙ Setup ▴';
+}
+
+function sdLoadIPs() {
+  var managed = localStorage.getItem('sd_managed_ip') || '';
+  var unmanaged = localStorage.getItem('sd_unmanaged_ip') || '';
+  var mEl = document.getElementById('sd-managed-ip');
+  var uEl = document.getElementById('sd-unmanaged-ip');
+  if (mEl) mEl.value = managed;
+  if (uEl) uEl.value = unmanaged;
+}
+
+function sdSaveIPs() {
+  var managed = (document.getElementById('sd-managed-ip').value || '').trim();
+  var unmanaged = (document.getElementById('sd-unmanaged-ip').value || '').trim();
+  localStorage.setItem('sd_managed_ip', managed);
+  localStorage.setItem('sd_unmanaged_ip', unmanaged);
+  var btn = document.querySelector('.sd-setup-save');
+  if (!btn) return;
+  var orig = btn.textContent;
+  btn.textContent = '✓ Saved';
+  setTimeout(function() { btn.textContent = orig; }, 1500);
+}
+
+function sdShowError(out, input, err) {
+  var msg = sdEscape((err && err.message) ? err.message : 'request failed');
+  out.innerHTML = '&gt; error: ' + msg + '\n&gt; try again.';
+  setTimeout(function() {
+    out.style.display = 'none';
+    document.getElementById('sd-prompt').style.display = '';
+    input.disabled = false;
+    document.getElementById('sd-submit').disabled = false;
+  }, 2500);
+}
+
+function sdLaunchAndRedirect(adversaryId, scenarioName, managedIp, unmanagedIp, out) {
+  return fetch('/caldera/api/v2/operations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'KEY': 'MDRLABRED' },
+    body: JSON.stringify({
+      name: 'Stage Dive \u2014 ' + scenarioName,
+      adversary: { adversary_id: adversaryId },
+      planner: { id: '788107d5-dc1e-4204-9269-38df0186d3e7' },
+      group: 'red',
+      auto_close: false,
+      state: 'running',
+      obfuscator: 'plain-text'
+    })
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('CALDERA launch failed (' + res.status + ')');
+    return res.json();
+  })
+  .then(function(op) {
+    var opId = op.id;
+    if (!opId) throw new Error('No operation ID returned from CALDERA');
+    var params = new URLSearchParams({ operation_id: opId, scenario_name: scenarioName });
+    if (managedIp) params.set('managed_ip', managedIp);
+    if (unmanagedIp) params.set('unmanaged_ip', unmanagedIp);
+    window.location.href = '/stagedive.html?' + params.toString();
+  });
+}
+
 function sdSubmit() {
   var input = document.getElementById('sd-input');
   var description = input.value.trim();
   if (!description) return;
 
-  // Disable inputs, show loading
+  var managedIp = localStorage.getItem('sd_managed_ip') || '';
+  var unmanagedIp = localStorage.getItem('sd_unmanaged_ip') || '';
+  var aiMode = localStorage.getItem('rh_sd_ai_mode') === 'true';
+
   input.disabled = true;
   document.getElementById('sd-submit').disabled = true;
   document.getElementById('sd-prompt').style.display = 'none';
   var out = document.getElementById('sd-output');
   out.style.display = '';
-  out.innerHTML = '&gt; building scenario...\n&gt; <span class="sd-cursor">_</span>';
 
-  fetch('/api/scenario-build', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode: 'ai', description: description })
-  })
-  .then(function(res) {
-    if (!res.ok) throw new Error('request failed \u2014 check your connection');
-    return res.json();
-  })
-  .then(function(data) {
-    // Build success output — escape all API-supplied fields
-    var lines = ['&gt; done.', '&gt;', '&gt; ' + sdEscape(data.title || 'Untitled Scenario')];
-    lines.push('&gt; ──────────────────────────────────────');
-    lines.push('&gt; MITRE');
-    if (data.mitre_techniques && data.mitre_techniques.length) {
-      data.mitre_techniques.forEach(function(t) {
-        lines.push('&gt;   ' + sdEscape(t.id) + ' · ' + sdEscape(t.name));
-      });
-    }
-    lines.push('&gt;');
-    lines.push('&gt; EXPECTED DETECTIONS');
-    if (data.expected_detections && data.expected_detections.length) {
-      data.expected_detections.forEach(function(d) {
-        var sev = d.severity ? '[' + sdEscape(d.severity).toUpperCase() + '] ' : '';
-        lines.push('&gt;   ' + sev + sdEscape(d.detection));
-      });
-    }
-    lines.push('&gt; ──────────────────────────────────────');
-    lines.push('&gt; Scenario ready. Find it in the SE Console to launch.');
-
-    out.innerHTML = lines.join('\n') + '\n<button class="sd-close-btn" onclick="sdClose()">← Close and go to scenarios</button>';
-  })
-  .catch(function(err) {
-    var msg = sdEscape((err && err.message) ? err.message : 'request failed \u2014 check your connection');
-    out.innerHTML = '&gt; error: ' + msg + '\n&gt; try again.';
-    // Re-enable after short delay so SE can read the error
+  if (aiMode) {
+    // AI mode: call n8n scenario builder, then launch whatever it returns
+    out.innerHTML = '&gt; analyzing threat...\n&gt; <span class="sd-cursor">_</span>';
+    fetch('/api/scenario-build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'ai', description: description })
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('request failed \u2014 check your connection');
+      return res.json();
+    })
+    .then(function(data) {
+      if (!data.caldera_ability) throw new Error('AI scenario has no CALDERA adversary \u2014 cannot launch');
+      out.innerHTML = '&gt; analyzing threat...\n&gt; scenario locked: ' + sdEscape(data.title || 'AI Scenario') + '\n&gt; launching...\n&gt; <span class="sd-cursor">_</span>';
+      return sdLaunchAndRedirect(data.caldera_ability, data.title || 'AI Scenario', managedIp, unmanagedIp, out);
+    })
+    .catch(function(err) { sdShowError(out, input, err); });
+  } else {
+    // Hero scenario mode: theatrical build animation → auto-launch pre-set scenario
+    var heroId = localStorage.getItem('sd_hero_scenario_id') || 'scn008-ransomware-simulation';
+    out.innerHTML = '&gt; analyzing threat...\n&gt; <span class="sd-cursor">_</span>';
     setTimeout(function() {
-      out.style.display = 'none';
-      document.getElementById('sd-prompt').style.display = '';
-      input.disabled = false;
-      document.getElementById('sd-submit').disabled = false;
-    }, 2000);
-  });
+      out.innerHTML = '&gt; analyzing threat...\n&gt; mapping techniques...\n&gt; <span class="sd-cursor">_</span>';
+    }, 600);
+    setTimeout(function() {
+      fetch('/scenarios.json')
+      .then(function(r) { return r.json(); })
+      .then(function(catalog) {
+        var scenarios = (catalog && catalog.scenarios) ? catalog.scenarios : [];
+        var found = scenarios.find(function(s) {
+          return s.caldera_ability === heroId || s.id === heroId;
+        });
+        var scenarioName = found ? found.title : 'Ransomware Simulation';
+        out.innerHTML = '&gt; analyzing threat...\n&gt; mapping techniques...\n&gt; scenario locked: ' + sdEscape(scenarioName) + '\n&gt; launching...\n&gt; <span class="sd-cursor">_</span>';
+        return sdLaunchAndRedirect(heroId, scenarioName, managedIp, unmanagedIp, out);
+      })
+      .catch(function(err) { sdShowError(out, input, err); });
+    }, 1500);
+  }
 }
 
 // Wire up close and submit buttons after DOM ready
@@ -3115,6 +3246,20 @@ document.addEventListener('DOMContentLoaded', function() {
   <button id="sd-close">✕ close</button>
   <div id="sd-terminal">
     <div class="sd-line dim">$ stage-dive --init</div>
+    <button id="sd-setup-toggle" onclick="sdToggleSetup()">⚙ Setup ▾</button>
+    <div id="sd-setup-panel">
+      <div class="sd-setup-row">
+        <span class="sd-setup-label">Managed VM IP</span>
+        <input id="sd-managed-ip" class="sd-setup-input" type="text" placeholder="e.g. 192.168.1.100">
+      </div>
+      <div class="sd-setup-row">
+        <span class="sd-setup-label">Unmanaged VM IP</span>
+        <input id="sd-unmanaged-ip" class="sd-setup-input" type="text" placeholder="e.g. 192.168.1.101">
+      </div>
+      <div class="sd-setup-row">
+        <button class="sd-setup-save" onclick="sdSaveIPs()">Save IPs</button>
+      </div>
+    </div>
     <div id="sd-prompt">
       <textarea id="sd-input" placeholder="Describe the attack..."></textarea>
       <button id="sd-submit">Build Scenario →</button>

@@ -127,6 +127,43 @@ body::after {
 .rh-toggle[aria-pressed="true"] .rh-toggle-dot { left: 20px; background: #00ff41; }
 .rh-toggle[aria-pressed="true"] .rh-toggle-label { color: #00ff41; }
 
+/* Stage Dive config */
+.sd-config {
+  margin-top: 14px;
+  border-top: 1px solid #1e6b2a;
+  padding-top: 14px;
+}
+.sd-config-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.sd-config-label {
+  font-size: 11px;
+  color: #3a9c4a;
+  width: 130px;
+  flex-shrink: 0;
+}
+.sd-config-select {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: #0d0d0d;
+  border: 1px solid #1e6b2a;
+  border-radius: 4px;
+  color: #00ff41;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.sd-config-select:focus { outline: none; border-color: #00ff41; }
+.sd-ai-warning {
+  font-size: 11px;
+  color: #c47f00;
+  margin-top: 6px;
+  display: none;
+}
+
 /* Roadmap cards */
 .roadmap-card {
   margin-bottom: 20px;
@@ -207,11 +244,27 @@ body::after {
     <!-- Stage Dive -->
     <div class="feature-card">
       <div class="feature-name">Stage Dive</div>
-      <div class="feature-desc">Describe an attack in plain English. AI builds the full scenario. You run the demo.<br>Ask someone in the audience for a scenario on stage — type it in, and deliver the attack live in immersive mode.</div>
+      <div class="feature-desc">Ask the audience for an attack scenario on stage — type it in, and the attack launches live in cinematic TED Talk mode (3-slide presentation: attacker view, unmanaged victim, Sophos-protected comparison).</div>
       <button class="rh-toggle" data-key="rh_stage_dive" aria-pressed="false">
         <span class="rh-toggle-track"><span class="rh-toggle-dot"></span></span>
         <span class="rh-toggle-label">OFF</span>
       </button>
+      <div class="sd-config">
+        <div class="sd-config-row">
+          <span class="sd-config-label">Hero Scenario</span>
+          <select id="sd-hero-select" class="sd-config-select">
+            <option value="scn008-ransomware-simulation">Loading...</option>
+          </select>
+        </div>
+        <div class="sd-config-row">
+          <span class="sd-config-label">AI Mode</span>
+          <button class="rh-toggle" id="sd-ai-toggle" aria-pressed="false">
+            <span class="rh-toggle-track"><span class="rh-toggle-dot"></span></span>
+            <span class="rh-toggle-label">OFF</span>
+          </button>
+        </div>
+        <div class="sd-ai-warning" id="sd-ai-warning">⚠ AI-generated scenarios may fail in production demos. Use hero scenario for reliability.</div>
+      </div>
     </div>
 
     <hr class="section-rule">
@@ -271,6 +324,49 @@ function setToggle(btn, isOn) {
 }
 
 initToggles();
+
+// ── Stage Dive config ───────────────────────────────────────
+(function() {
+  // Populate hero scenario dropdown
+  var select = document.getElementById('sd-hero-select');
+  var savedHero = localStorage.getItem('sd_hero_scenario_id') || 'scn008-ransomware-simulation';
+  fetch('/scenarios.json')
+  .then(function(r) { return r.json(); })
+  .then(function(catalog) {
+    var scenarios = (catalog && catalog.scenarios) ? catalog.scenarios : [];
+    var calderaScenarios = scenarios.filter(function(s) { return s.execution_engine === 'caldera'; });
+    select.innerHTML = '';
+    calderaScenarios.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s.caldera_ability || s.id;
+      opt.textContent = s.id + ' — ' + s.title;
+      if (opt.value === savedHero) opt.selected = true;
+      select.appendChild(opt);
+    });
+    if (!select.value) select.options[0] && (select.options[0].selected = true);
+  })
+  .catch(function() {
+    select.innerHTML = '<option value="scn008-ransomware-simulation">SCN-008 — Ransomware Simulation</option>';
+  });
+
+  select.addEventListener('change', function() {
+    localStorage.setItem('sd_hero_scenario_id', select.value);
+  });
+
+  // AI Mode toggle
+  var aiToggle = document.getElementById('sd-ai-toggle');
+  var aiWarning = document.getElementById('sd-ai-warning');
+  var aiOn = localStorage.getItem('rh_sd_ai_mode') === 'true';
+  setToggle(aiToggle, aiOn);
+  aiWarning.style.display = aiOn ? '' : 'none';
+
+  aiToggle.addEventListener('click', function() {
+    var nowOn = aiToggle.getAttribute('aria-pressed') !== 'true';
+    localStorage.setItem('rh_sd_ai_mode', nowOn ? 'true' : 'false');
+    setToggle(aiToggle, nowOn);
+    aiWarning.style.display = nowOn ? '' : 'none';
+  });
+})();
 </script>
 </body>
 </html>
