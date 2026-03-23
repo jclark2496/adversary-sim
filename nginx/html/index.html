@@ -331,7 +331,7 @@
     #lbtn:hover:not(:disabled)::after { opacity:1; }
     #lbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 28px rgba(255,105,0,.50); }
     #lbtn:active:not(:disabled) { transform:translateY(0); }
-    #lbtn:disabled { opacity:.44; cursor:not-allowed; }
+    #lbtn:disabled { opacity:.62; cursor:not-allowed; }
     #lbtn .bsp { display:none; width:16px; height:16px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .55s linear infinite; }
     #lbtn.busy .bsp { display:block; }
     #lbtn.busy .btx { opacity:0; }
@@ -341,7 +341,8 @@
     ============================================================ */
     #rp {
       flex:1; height:100vh; display:flex; flex-direction:column;
-      background:var(--bg-deep); position:relative;
+      background:rgba(20,50,110,0.22); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+      border-left:1px solid rgba(255,255,255,0.08); position:relative;
     }
     .rs {
       flex:1; overflow-y:auto; padding:40px 36px 24px;
