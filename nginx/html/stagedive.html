@@ -712,17 +712,8 @@ async function connectRDP(ip, containerId, loadingId) {
     displayEl.style.left = '0';
     container.appendChild(displayEl);
 
-    // Wire up mouse so the VM is interactive
-    const mouse = new Guacamole.Mouse(displayEl);
-    mouse.onEach(['mousedown','mouseup','mousemove'], function(e) {
-      // Compensate for display scale so coordinates map correctly
-      const scale = client.getDisplay().getScale();
-      if (scale && scale !== 1) {
-        e.state.x = Math.round(e.state.x / scale);
-        e.state.y = Math.round(e.state.y / scale);
-      }
-      client.sendMouseState(e.state);
-    });
+    // Track display scale in closure so mouse handler can compensate
+    let displayScale = 1;
 
     // Auto-scale to fill container whenever the remote desktop resizes
     function scaleToFit() {
@@ -731,9 +722,40 @@ async function connectRDP(ip, containerId, loadingId) {
       const cw = container.clientWidth;
       const ch = container.clientHeight;
       if (dw > 0 && dh > 0 && cw > 0 && ch > 0) {
-        client.getDisplay().scale(Math.min(cw / dw, ch / dh));
+        displayScale = Math.min(cw / dw, ch / dh);
+        client.getDisplay().scale(displayScale);
       }
     }
+
+    // Wire up mouse via native container events — getBoundingClientRect gives
+    // visual coords, divide by displayScale to get native RDP coordinates.
+    const btns = { left: false, middle: false, right: false };
+    function sendMouse(e, l, m, r) {
+      const rect = container.getBoundingClientRect();
+      const state = new Guacamole.Mouse.State(
+        Math.round((e.clientX - rect.left)  / displayScale),
+        Math.round((e.clientY - rect.top)   / displayScale),
+        l, m, r, false, false
+      );
+      client.sendMouseState(state);
+    }
+    container.addEventListener('mousedown', function(e) {
+      if (e.button === 0) btns.left   = true;
+      else if (e.button === 1) btns.middle = true;
+      else if (e.button === 2) btns.right  = true;
+      sendMouse(e, btns.left, btns.middle, btns.right);
+      e.preventDefault();
+    });
+    container.addEventListener('mouseup', function(e) {
+      if (e.button === 0) btns.left   = false;
+      else if (e.button === 1) btns.middle = false;
+      else if (e.button === 2) btns.right  = false;
+      sendMouse(e, btns.left, btns.middle, btns.right);
+    });
+    container.addEventListener('mousemove', function(e) {
+      sendMouse(e, btns.left, btns.middle, btns.right);
+    });
+    container.addEventListener('contextmenu', function(e) { e.preventDefault(); });
     client.getDisplay().onresize = scaleToFit;
 
     // Hide loading overlay once connected and scale applied
