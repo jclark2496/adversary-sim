@@ -30,8 +30,8 @@
 
   /* Text */
   --text-primary:  #e8f0ff;
-  --text-sec:      rgba(232,240,255,0.82);
-  --text-dim:      rgba(232,240,255,0.62);
+  --text-sec:      rgba(232,240,255,0.90);
+  --text-dim:      rgba(232,240,255,0.76);
   --text-label:    #c4d8ec;
 
   /* Borders — off-white glass borders */
