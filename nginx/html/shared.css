@@ -557,13 +557,14 @@ select.ctrl option {
 
 /* ── Driver.js theme overrides ──────────────────────────────────────────── */
 .driver-popover {
-  background: rgba(7,16,31,0.95) !important;
-  border: 1px solid rgba(0,168,224,0.40) !important;
-  box-shadow: 0 0 24px rgba(0,168,224,0.15) !important;
+  background: rgba(20,50,110,0.35) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.08) !important;
   border-radius: 10px !important;
-  max-width: 280px !important;
+  max-width: 290px !important;
   font-family: var(--fm) !important;
-  backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
 }
 .driver-popover-title {
   color: #00A8E0 !important;
@@ -575,35 +576,41 @@ select.ctrl option {
   margin-bottom: 8px !important;
 }
 .driver-popover-description {
-  color: #e2e8f0 !important;
+  color: rgba(232,240,255,0.90) !important;
   font-size: 12px !important;
   line-height: 1.6 !important;
 }
 .driver-popover-progress-text {
-  color: #64748b !important;
+  color: rgba(232,240,255,0.42) !important;
   font-size: 10px !important;
 }
 .driver-popover-next-btn {
-  background: transparent !important;
-  border: 1px solid #00A8E0 !important;
-  color: #00A8E0 !important;
+  background: #FF6900 !important;
+  border: none !important;
+  color: #fff !important;
   border-radius: 4px !important;
-  padding: 4px 12px !important;
+  padding: 5px 14px !important;
   font-size: 11px !important;
   font-family: var(--fm) !important;
   text-shadow: none !important;
+  box-shadow: 0 2px 10px rgba(255,105,0,0.35) !important;
 }
 .driver-popover-next-btn:hover {
-  background: rgba(0,168,224,0.08) !important;
+  background: #ff7a1a !important;
+  box-shadow: 0 2px 16px rgba(255,105,0,0.55) !important;
 }
 .driver-popover-prev-btn,
 .driver-popover-close-btn {
-  color: #64748b !important;
+  color: rgba(232,240,255,0.45) !important;
   background: transparent !important;
   border: none !important;
   font-size: 11px !important;
   font-family: var(--fm) !important;
   text-shadow: none !important;
+}
+.driver-popover-prev-btn:hover,
+.driver-popover-close-btn:hover {
+  color: rgba(232,240,255,0.80) !important;
 }
 .driver-highlighted-element {
   border: 2px solid rgba(0,168,224,0.60) !important;
