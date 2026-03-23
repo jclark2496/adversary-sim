@@ -57,26 +57,25 @@
           New-Item -ItemType Directory -Path $encDir -Force | Out-Null
 
           # Ransom note on Desktop root (very visible)
-          @"
-YOUR FILES HAVE BEEN ENCRYPTED
-================================
-[SOPHOS SE DEMO — SIMULATION ONLY. NO FILES WERE ACTUALLY ENCRYPTED]
-
-All your documents, photos, databases and other important files have
-been encrypted with military-grade AES-256 encryption.
-
-Recovery ID : $recoverId
-Deadline    : 72 hours from time of infection
-Contact     : recovery@darknet.onion
-
-DO NOT attempt to recover files yourself.
-DO NOT contact law enforcement or your IT team.
-DO NOT restart or shut down this machine.
-
-Send 2.5 Bitcoin to wallet: 1SophosDemoWalletNotReal$recoverId
-
-[THIS IS A SOPHOS MDR SALES DEMO. NO ACTUAL ENCRYPTION OCCURRED.]
-"@ | Out-File $noteFile -Encoding UTF8
+          '' | Out-File $noteFile -Encoding UTF8
+          Add-Content $noteFile 'YOUR FILES HAVE BEEN ENCRYPTED'
+          Add-Content $noteFile '================================'
+          Add-Content $noteFile '[SOPHOS SE DEMO — SIMULATION ONLY. NO FILES WERE ACTUALLY ENCRYPTED]'
+          Add-Content $noteFile ''
+          Add-Content $noteFile 'All your documents, photos, databases and other important files have'
+          Add-Content $noteFile 'been encrypted with military-grade AES-256 encryption.'
+          Add-Content $noteFile ''
+          Add-Content $noteFile "Recovery ID : $recoverId"
+          Add-Content $noteFile 'Deadline    : 72 hours from time of infection'
+          Add-Content $noteFile 'Contact     : recovery@darknet.onion'
+          Add-Content $noteFile ''
+          Add-Content $noteFile 'DO NOT attempt to recover files yourself.'
+          Add-Content $noteFile 'DO NOT contact law enforcement or your IT team.'
+          Add-Content $noteFile 'DO NOT restart or shut down this machine.'
+          Add-Content $noteFile ''
+          Add-Content $noteFile "Send 2.5 Bitcoin to wallet: 1SophosDemoWalletNotReal$recoverId"
+          Add-Content $noteFile ''
+          Add-Content $noteFile '[THIS IS A SOPHOS MDR SALES DEMO. NO ACTUAL ENCRYPTION OCCURRED.]'
 
           # Visible .encrypted file markers in ENCRYPTED_FILES folder
           $fakeFiles = @(

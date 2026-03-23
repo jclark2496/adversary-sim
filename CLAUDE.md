@@ -381,6 +381,7 @@ Note: `s.ps1` uses `CALDERA_HOST` as a placeholder. nginx `sub_filter` replaces 
 | SCN-025 | scn025-malware-site-block | 1 |
 | SCN-026 | scn026-dns-tunneling | 1 |
 | SCN-027 | scn027-policy-violation | 1 |
+| SCN-028 | scn028-live-attack-chain | 4 |
 
 ### Ability IDs
 
@@ -398,6 +399,7 @@ scn019-a1-wmi-execution, scn020-a1-service-creation
 scn021-a1-eicar-download, scn022-a1-ips-detection, scn023-a1-c2-detection
 scn024-a1-phishing-block, scn025-a1-malware-site-block, scn026-a1-dns-tunneling
 scn027-a1-policy-violation
+scn028-a1-recon, scn028-a2-lsass-dump, scn028-a3-persistence, scn028-a4-ransomware-impact
 ```
 
 ### Launching an Operation via API
