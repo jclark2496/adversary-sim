@@ -95,16 +95,9 @@ public class DemoWallpaper {
     $g.SmoothingMode     = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
 
-    # --- Background gradient ---
-    # Protected: dark navy (Sophos brand dark)
-    # Unprotected: Stage Dive royal blue gradient (#2455a0 -> #0e2850)
-    if ($protected) {
-        $bgA = [System.Drawing.Color]::FromArgb(255,  4, 12, 35)
-        $bgB = [System.Drawing.Color]::FromArgb(255,  7, 20, 52)
-    } else {
-        $bgA = [System.Drawing.Color]::FromArgb(255, 36, 85, 160)   # #2455a0
-        $bgB = [System.Drawing.Color]::FromArgb(255, 14, 40,  80)   # #0e2850
-    }
+    # --- Background gradient --- same dark navy for both themes
+    $bgA = [System.Drawing.Color]::FromArgb(255,  4, 12, 35)
+    $bgB = [System.Drawing.Color]::FromArgb(255,  7, 20, 52)
     $bgBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
         [System.Drawing.Point]::new(0, 0),
         [System.Drawing.Point]::new(0, $H),
