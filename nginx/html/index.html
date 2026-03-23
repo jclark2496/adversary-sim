@@ -2268,6 +2268,7 @@
 
   // Auto-discovered VMs from LabOps API
   // Uses internal nginx proxy /labops/api/ — no external URL needed, works in LabOps mode only
+  // Also auto-sets labopsUrl for the nav link (same host, port 8080) when LabOps is detected
   var discoveredVms = [];
   async function fetchLabVms() {
     try {
@@ -2277,6 +2278,12 @@
       const vms = (data.vms || data.data || (Array.isArray(data) ? data : [])).filter(v => v.status === 'running' && v.ip);
       discoveredVms = vms.map(v => ({ ip: v.ip, label: v.name || ('VM ' + v.vmid) }));
       renderSavedTargets();
+      // Auto-set labopsUrl for nav link if not already configured
+      if (!localStorage.getItem('labopsUrl')) {
+        const autoUrl = window.location.protocol + '//' + window.location.hostname + ':8080';
+        localStorage.setItem('labopsUrl', autoUrl);
+        labmgrUpdateDot(autoUrl);
+      }
     } catch(e) {}
   }
   function addSavedTarget() {

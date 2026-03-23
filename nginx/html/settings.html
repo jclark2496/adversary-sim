@@ -777,25 +777,22 @@
     saveBtn.textContent = 'SAVE SETTINGS';
   }
 
-  /* ── LabOps test ──────────────────────────────────────────── */
+  /* ── LabOps test — uses internal proxy, not external URL ──── */
   async function stgLabopsTest() {
     var btn = document.getElementById('stg-labops-test');
     var statusEl = document.getElementById('stg-labops-status');
-    var url = document.getElementById('stg-labops-url').value.trim().replace(/\/+$/, '');
-    if (!url) {
-      statusEl.innerHTML = '<span class="dot dim"></span><span style="color:rgba(235,246,255,.65)">Not configured</span>';
-      return;
-    }
     btn.textContent = 'TESTING...'; btn.disabled = true;
     try {
-      var r = await fetch(url + '/health', { mode: 'cors', signal: AbortSignal.timeout(8000) });
+      var r = await fetch('/labops/api/vms', { signal: AbortSignal.timeout(8000) });
       if (r.ok) {
-        statusEl.innerHTML = '<span class="dot green"></span><span style="color:#00FF41">Connected</span>';
+        var d = await r.json();
+        var count = (d.vms || []).length;
+        statusEl.innerHTML = '<span class="dot green"></span><span style="color:#00FF41">Connected &mdash; ' + count + ' VM' + (count !== 1 ? 's' : '') + ' found</span>';
       } else {
-        statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Unreachable (HTTP ' + r.status + ')</span>';
+        statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Lab Manager not detected (not running in LabOps mode)</span>';
       }
     } catch(e) {
-      statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Unreachable</span>';
+      statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Lab Manager not detected (not running in LabOps mode)</span>';
     }
     btn.textContent = 'TEST'; btn.disabled = false;
   }
