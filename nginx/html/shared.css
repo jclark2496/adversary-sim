@@ -342,8 +342,8 @@ input, select, textarea { font-family: inherit; }
 
 /* ── Input Controls ────────────────────────────────────────── */
 .ctrl {
-  background: rgba(var(--bg-deep-rgb),0.6);
-  border: 1px solid var(--border-dim);
+  background: rgba(7,16,31,0.45);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 5px;
   padding: 7px 10px;
   color: var(--text-primary);
@@ -373,7 +373,7 @@ select.ctrl {
 }
 
 select.ctrl option {
-  background: #0e2850;
+  background: #0a1a40;
   color: var(--text-primary);
 }
 
