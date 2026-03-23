@@ -1070,12 +1070,12 @@
       color: #c060f0;
     }
 
-    /* ── Stage Dive overlay — stage-optimized (high visibility) ─ */
+    /* ── Stage Dive overlay — Sophos-branded, stage-optimized ─── */
     #stage-dive-overlay {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: linear-gradient(150deg, #0c2d5c 0%, #1a4a8a 100%);
+      background: linear-gradient(150deg, #001f3d 0%, #003865 55%, #004f8f 100%);
       opacity: 0;
       transition: opacity 0.25s ease;
       font-family: 'Courier New', monospace;
@@ -1087,67 +1087,70 @@
       width: 92%;
       max-width: 960px;
       padding: 60px 72px;
-      border: 2px solid #f0f5ff;
+      border: 2px solid #00A8E0;
       border-radius: 12px;
-      box-shadow: 0 0 80px rgba(240,245,255,0.08), 0 24px 64px rgba(0,0,0,0.4);
+      box-shadow: 0 0 80px rgba(0,168,224,0.18), 0 0 200px rgba(0,168,224,0.06), 0 24px 64px rgba(0,0,0,0.5);
     }
     .sd-line {
-      color: #f0f5ff;
+      color: #ffffff;
       font-size: 18px;
       margin-bottom: 32px;
     }
-    .sd-line.dim { color: rgba(240,245,255,0.55); }
+    .sd-line.dim { color: rgba(0,168,224,0.7); }
     #sd-close {
       position: absolute;
       top: 24px;
       right: 28px;
       font-size: 14px;
       font-family: 'Courier New', monospace;
-      color: rgba(240,245,255,0.5);
+      color: rgba(0,168,224,0.6);
       background: none;
       border: none;
       cursor: pointer;
       transition: color 0.2s ease;
     }
-    #sd-close:hover { color: #f0f5ff; }
+    #sd-close:hover { color: #00A8E0; }
     #sd-input {
       width: 100%;
       min-height: 160px;
       font-family: 'Courier New', monospace;
       font-size: 19px;
-      color: #f0f5ff;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(240,245,255,0.45);
+      color: #ffffff;
+      background: rgba(0,168,224,0.06);
+      border: 1px solid rgba(0,168,224,0.4);
       border-radius: 8px;
       padding: 18px 20px;
       resize: vertical;
       display: block;
     }
-    #sd-input::placeholder { color: rgba(240,245,255,0.35); }
-    #sd-input:focus { border-color: #f0f5ff; outline: none; background: rgba(255,255,255,0.09); }
+    #sd-input::placeholder { color: rgba(0,168,224,0.4); }
+    #sd-input:focus { border-color: #00A8E0; outline: none; background: rgba(0,168,224,0.1); }
     #sd-submit {
       margin-top: 20px;
       font-family: 'Courier New', monospace;
       font-size: 17px;
-      color: #f0f5ff;
-      background: transparent;
-      border: 2px solid #f0f5ff;
+      color: #ffffff;
+      background: #FF6900;
+      border: none;
       border-radius: 8px;
       padding: 16px 44px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
-    #sd-submit:hover { background: rgba(240,245,255,0.1); }
+    #sd-submit:hover { background: #e55d00; box-shadow: 0 0 24px rgba(255,105,0,0.4); }
     #sd-submit:disabled { opacity: 0.35; cursor: not-allowed; }
     #sd-output {
       font-size: 18px;
-      color: #f0f5ff;
+      color: #ffffff;
       white-space: pre-wrap;
       line-height: 1.75;
     }
     .sd-cursor {
       display: inline-block;
       animation: sd-blink 1s step-end infinite;
+      color: #00A8E0;
     }
     @keyframes sd-blink { 50% { opacity: 0; } }
     .sd-close-btn {
