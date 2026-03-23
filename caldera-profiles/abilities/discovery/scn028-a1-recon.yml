@@ -1,0 +1,73 @@
+---
+- id: scn028-a1-recon
+  name: "SCN-028 | Phase 1: Recon & Enumeration (Visible Terminal)"
+  description: |
+    Opens a visible attacker terminal on the victim desktop and performs reconnaissance:
+    hostname, current user privileges, local admin group, IP config.
+    Writes recon_results.txt directly to the Desktop — visible to the live audience.
+    Maps to T1082 (System Information Discovery) and T1069.001 (Local Groups).
+  tactic: discovery
+  technique:
+    attack_id: T1082
+    name: "System Information Discovery"
+  platforms:
+    windows:
+      psh:
+        command: |
+          $vmHost = $env:COMPUTERNAME
+          $vmUser = whoami
+          $vmIP   = (Get-NetIPAddress -AddressFamily IPv4 |
+                     Where-Object { $_.IPAddress -ne '127.0.0.1' -and $_.PrefixOrigin -ne 'WellKnown' } |
+                     Select-Object -First 1).IPAddress
+          if (-not $vmIP) { $vmIP = 'N/A' }
+          $vmOS   = (Get-WmiObject Win32_OperatingSystem).Caption -replace 'Microsoft ',''
+          $admins = (net localgroup administrators 2>&1) -join "`n"
+
+          # Drop recon artifact on Desktop
+          $desktop = [Environment]::GetFolderPath('Desktop')
+          $outFile = "$desktop\recon_results.txt"
+          "=== ATTACKER RECON OUTPUT ===" | Out-File $outFile -Encoding UTF8
+          "Timestamp : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File $outFile -Append
+          "Hostname  : $vmHost"  | Out-File $outFile -Append
+          "User      : $vmUser"  | Out-File $outFile -Append
+          "IP        : $vmIP"    | Out-File $outFile -Append
+          "OS        : $vmOS"    | Out-File $outFile -Append
+          ""                     | Out-File $outFile -Append
+          "--- LOCAL ADMINISTRATORS ---" | Out-File $outFile -Append
+          $admins | Out-File $outFile -Append
+
+          # Build and launch visible attacker terminal
+          $sp = "$env:TEMP\sd_phase1.ps1"
+          '' | Out-File $sp -Encoding UTF8
+          Add-Content $sp 'try { $host.UI.RawUI.BackgroundColor = "Black"; $host.UI.RawUI.ForegroundColor = "White"; Clear-Host } catch {}'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  SOPHOS // STAGE DIVE  -  LIVE ATTACK CHAIN" -ForegroundColor DarkRed'
+          Add-Content $sp 'Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  PHASE 1 — RECONNAISSANCE" -ForegroundColor Yellow'
+          Add-Content $sp 'Write-Host "  T1082 · T1069  |  System & Group Discovery" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp "  `$h = hostname; Write-Host `"  [*] Target hostname : `$h`" -ForegroundColor White"
+          Add-Content $sp "  `$u = whoami;   Write-Host `"  [*] Running as      : `$u`" -ForegroundColor White"
+          Add-Content $sp "  `$i = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { `$_.IPAddress -ne '127.0.0.1' -and `$_.PrefixOrigin -ne 'WellKnown' } | Select-Object -First 1).IPAddress; Write-Host `"  [*] IP address      : `$i`" -ForegroundColor White"
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Enumerating local administrator group..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 1'
+          Add-Content $sp '  net localgroup administrators 2>&1 | Select-Object -Skip 6 | Where-Object { $_ -match "\S" -and $_ -notmatch "---" -and $_ -notmatch "command completed" } | ForEach-Object { Write-Host "      $_" -ForegroundColor Gray }'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Mapping high-CPU processes..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 1'
+          Add-Content $sp '  Get-Process | Sort-Object CPU -Descending | Select-Object -First 6 | ForEach-Object { Write-Host ("  {0,-28} PID: {1,-8}" -f $_.Name, $_.Id) -ForegroundColor Gray }'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [+] Recon complete. Results saved to Desktop\recon_results.txt" -ForegroundColor Green'
+          Add-Content $sp 'Write-Host ""'
+
+          Start-Process powershell -ArgumentList '-NoProfile','-NoExit','-ExecutionPolicy','Bypass','-File',$sp -WindowStyle Normal
+          Start-Sleep -Seconds 4
+
+          Write-Output "[+] Recon complete: $vmHost / $vmUser / $vmIP"
+          Write-Output "[+] Artifact dropped: Desktop\recon_results.txt"
+        cleanup: |
+          Remove-Item "$([Environment]::GetFolderPath('Desktop'))\recon_results.txt" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$env:TEMP\sd_phase1.ps1" -Force -ErrorAction SilentlyContinue
+          Write-Output "Cleanup complete"

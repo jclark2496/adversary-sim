@@ -1,0 +1,104 @@
+---
+- id: scn028-a4-ransomware-impact
+  name: "SCN-028 | Phase 4: Ransomware Impact — Desktop Artifacts (Visible Terminal)"
+  description: |
+    Opens a visible attacker terminal and drops ransomware artifacts directly on the
+    victim Desktop: a ransom note (README_RECOVER_FILES.txt) and a folder of five
+    simulated .encrypted file markers. Audience can see the files appearing in the
+    RDP view in real time. No files are actually encrypted — markers are benign.
+    On the Sophos-protected VM, file behavior detection fires on .encrypted extension
+    proliferation and ransom note creation patterns.
+    Maps to T1486 (Data Encrypted for Impact).
+  tactic: impact
+  technique:
+    attack_id: T1486
+    name: "Data Encrypted for Impact"
+  platforms:
+    windows:
+      psh:
+        command: |
+          $desktop   = [Environment]::GetFolderPath('Desktop')
+          $encDir    = "$desktop\ENCRYPTED_FILES"
+          $noteFile  = "$desktop\README_RECOVER_FILES.txt"
+          $recoverId = [guid]::NewGuid().ToString().ToUpper()
+
+          # Build and launch visible attacker terminal
+          $sp = "$env:TEMP\sd_phase4.ps1"
+          '' | Out-File $sp -Encoding UTF8
+          Add-Content $sp 'try { $host.UI.RawUI.BackgroundColor = "Black"; $host.UI.RawUI.ForegroundColor = "White"; Clear-Host } catch {}'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  SOPHOS // STAGE DIVE  -  LIVE ATTACK CHAIN" -ForegroundColor DarkRed'
+          Add-Content $sp 'Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  PHASE 4 — RANSOMWARE IMPACT" -ForegroundColor Yellow'
+          Add-Content $sp 'Write-Host "  T1486  |  Data Encrypted for Impact" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [*] Deploying ransomware payload..." -ForegroundColor White'
+          Add-Content $sp 'Start-Sleep -Seconds 1'
+          Add-Content $sp 'Write-Host "  [*] Enumerating files across all drives..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 1'
+          Add-Content $sp 'Write-Host "  [*] Encrypting files..." -ForegroundColor Cyan'
+          Add-Content $sp 'Start-Sleep -Seconds 2'
+          Add-Content $sp 'Write-Host "  [+] Encryption complete" -ForegroundColor Green'
+          Add-Content $sp 'Write-Host "  [+] Ransom note dropped: Desktop\README_RECOVER_FILES.txt" -ForegroundColor Green'
+          Add-Content $sp 'Write-Host "  [+] Encrypted files: Desktop\ENCRYPTED_FILES\" -ForegroundColor Green'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [!] WITHOUT Sophos: attack chain complete" -ForegroundColor Red'
+          Add-Content $sp 'Write-Host "      Recon → Credentials stolen → Persistence installed → Ransomware deployed" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+          Add-Content $sp 'Write-Host "  [!] WITH Sophos Intercept X: blocked at Phase 2 (credential theft)" -ForegroundColor Cyan'
+          Add-Content $sp 'Write-Host "      T1003.001 alert fired — attacker never reached Phase 3 or 4" -ForegroundColor DarkGray'
+          Add-Content $sp 'Write-Host ""'
+
+          Start-Process powershell -ArgumentList '-NoProfile','-NoExit','-ExecutionPolicy','Bypass','-File',$sp -WindowStyle Normal
+          Start-Sleep -Seconds 2
+
+          # Create encrypted files folder and artifacts on Desktop
+          New-Item -ItemType Directory -Path $encDir -Force | Out-Null
+
+          # Ransom note on Desktop root (very visible)
+          @"
+YOUR FILES HAVE BEEN ENCRYPTED
+================================
+[SOPHOS SE DEMO — SIMULATION ONLY. NO FILES WERE ACTUALLY ENCRYPTED]
+
+All your documents, photos, databases and other important files have
+been encrypted with military-grade AES-256 encryption.
+
+Recovery ID : $recoverId
+Deadline    : 72 hours from time of infection
+Contact     : recovery@darknet.onion
+
+DO NOT attempt to recover files yourself.
+DO NOT contact law enforcement or your IT team.
+DO NOT restart or shut down this machine.
+
+Send 2.5 Bitcoin to wallet: 1SophosDemoWalletNotReal$recoverId
+
+[THIS IS A SOPHOS MDR SALES DEMO. NO ACTUAL ENCRYPTION OCCURRED.]
+"@ | Out-File $noteFile -Encoding UTF8
+
+          # Visible .encrypted file markers in ENCRYPTED_FILES folder
+          $fakeFiles = @(
+            'Q1_Financial_Report.xlsx',
+            'Employee_Database.sql',
+            'Customer_Records.csv',
+            'Backup_Credentials.txt',
+            'Strategic_Plan_2026.docx'
+          )
+          foreach ($fn in $fakeFiles) {
+            "SOPHOS_DEMO_ENCRYPTED_$(([guid]::NewGuid()).ToString().ToUpper())" |
+              Out-File "$encDir\${fn}.encrypted" -Encoding UTF8
+          }
+          # Copy ransom note into folder too
+          Copy-Item $noteFile "$encDir\README_RECOVER_FILES.txt"
+
+          $count = (Get-ChildItem $encDir -Filter '*.encrypted').Count
+          Write-Output "[+] Ransom note: $noteFile"
+          Write-Output "[+] Encrypted markers: $encDir ($count files)"
+          Write-Output "[+] Attack chain complete on unmanaged host"
+        cleanup: |
+          Remove-Item "$([Environment]::GetFolderPath('Desktop'))\README_RECOVER_FILES.txt" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$([Environment]::GetFolderPath('Desktop'))\ENCRYPTED_FILES" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item "$env:TEMP\sd_phase4.ps1" -Force -ErrorAction SilentlyContinue
+          Write-Output "Cleanup complete"

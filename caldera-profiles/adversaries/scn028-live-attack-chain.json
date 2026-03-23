@@ -1,0 +1,13 @@
+{
+  "adversary_id": "scn028-live-attack-chain",
+  "name": "SCN-028 | Live Attack Chain: Credential Theft to Ransomware",
+  "description": "Purpose-built Stage Dive scenario. Four-phase kill chain with visible attacker terminals and Desktop artifacts designed for on-stage demos. Phase 1: Recon (T1082). Phase 2: LSASS credential theft via comsvcs.dll — primary Sophos Intercept X trigger (T1003.001). Phase 3: Scheduled task persistence (T1053.005). Phase 4: Ransomware artifacts on Desktop (T1486). On the unmanaged VM all phases complete visibly. On the Sophos-protected VM, Intercept X blocks at Phase 2 and fires a critical alert.",
+  "tags": ["stage-dive", "kill-chain", "credential-access", "ransomware", "t1003.001", "t1053.005", "t1486", "demo-ready", "visible-execution"],
+  "atomic_ordering": [
+    "scn028-a1-recon",
+    "scn028-a2-lsass-dump",
+    "scn028-a3-persistence",
+    "scn028-a4-ransomware-impact"
+  ],
+  "objective": "default"
+}

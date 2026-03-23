@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "last_updated": "2026-03-20",
+  "last_updated": "2026-03-23",
   "scenarios": [
     {
       "id": "SCN-001",
@@ -1811,6 +1811,88 @@
       "expires_at": null,
       "session_id": null,
       "caldera_adversary_id": "scn027-policy-violation",
+      "caldera_group": "red"
+    },
+    {
+      "id": "SCN-028",
+      "product": "endpoint",
+      "title": "Live Attack Chain: Credential Theft to Ransomware",
+      "description": "Full four-phase kill chain designed for on-stage demos. Visible attacker terminals open on the victim desktop at each phase. Recon → LSASS credential theft (Sophos detection trigger) → Scheduled task persistence → Ransomware artifacts on the Desktop. On the unmanaged VM the full chain completes visibly. On the Sophos-protected VM, Intercept X blocks at Phase 2 with a live alert.",
+      "mitre_tactics": [
+        "Discovery",
+        "Credential Access",
+        "Persistence",
+        "Impact"
+      ],
+      "mitre_techniques": [
+        { "id": "T1082",     "name": "System Information Discovery" },
+        { "id": "T1069.001", "name": "Permission Groups Discovery: Local Groups" },
+        { "id": "T1003.001", "name": "OS Credential Dumping: LSASS Memory" },
+        { "id": "T1053.005", "name": "Scheduled Task/Job: Scheduled Task" },
+        { "id": "T1486",     "name": "Data Encrypted for Impact" }
+      ],
+      "tools": [
+        "comsvcs.dll (built-in)",
+        "rundll32.exe",
+        "schtasks.exe",
+        "PowerShell"
+      ],
+      "atomic_tests": [
+        "T1003.001-1",
+        "T1053.005-1",
+        "T1486-1"
+      ],
+      "caldera_ability": "scn028-live-attack-chain",
+      "audience": "Executive/Technical",
+      "platform": "windows",
+      "execution_engine": "caldera",
+      "expected_detections": [
+        { "detection": "LSASS memory access by non-system process (comsvcs.dll MiniDump)", "severity": "critical" },
+        { "detection": "Suspicious scheduled task registration at logon (WindowsUpdateHelper)", "severity": "high" },
+        { "detection": "Ransom note file creation on user Desktop", "severity": "critical" },
+        { "detection": "Mass .encrypted extension file creation", "severity": "critical" }
+      ],
+      "talking_points": {
+        "universal": [
+          "This is the exact kill chain we see in real MDR cases — recon, credential theft, persistence, ransomware",
+          "Notice the unmanaged VM: the attack completes in full, step by step, completely visible",
+          "On the Sophos-protected VM, Intercept X stopped it at Phase 2 — the attacker never reached ransomware",
+          "One blocked LSASS dump prevented the entire attack chain from completing"
+        ],
+        "financial_services": [
+          "Stolen credentials from LSASS give the attacker access to every system those credentials can reach — trading systems, core banking, payment rails",
+          "The scheduled task means the attacker survives a reboot and re-establishes access even after an incident response"
+        ],
+        "healthcare": [
+          "In a healthcare breach, Phase 2 is where clinical systems become reachable — one credential dump gives access to EHR, PACS, and clinical workstations",
+          "Ransomware on clinical systems is a patient safety event, not just an IT event"
+        ],
+        "manufacturing": [
+          "The persistence mechanism in Phase 3 is how attackers bridge from IT to OT — a scheduled task on an IT workstation can reach engineering systems",
+          "We've seen this exact chain in manufacturing incidents targeting SCADA and PLC systems"
+        ]
+      },
+      "se_runbook": {
+        "setup": "Run s.ps1 on both victim VMs before the demo. Both VMs should have sandcat agent running. Verify Sophos is active on the protected VM. Both VMs should show their custom wallpaper. Open Stage Dive from the SE Console nav.",
+        "steps": [
+          "Open Stage Dive — navigate to Slide 2 (unmanaged victim) and Slide 3 (split view)",
+          "Launch SCN-028 from the SE Console",
+          "Slide 2: watch the attacker terminal open on the unmanaged victim — narrate Phase 1 recon",
+          "Phase 2: LSASS dump runs — on unmanaged it succeeds, credential_dump_complete.txt appears on Desktop",
+          "Switch to Slide 3 (split view): Sophos alert fires on the protected VM at Phase 2",
+          "Continue narrating as Phases 3 and 4 complete on the unmanaged VM",
+          "Phase 4: ransom note + ENCRYPTED_FILES folder appear on the unmanaged Desktop — the close"
+        ],
+        "talking_points_timing": "Deliver talking points during Phase 2 while Sophos alert is visible — maximum impact"
+      },
+      "status": "approved",
+      "launchable": true,
+      "source": "hand-authored",
+      "submitted_by": "SE Demo Lab",
+      "submitted_at": "2026-03-23T00:00:00Z",
+      "expires_at": null,
+      "session_id": null,
+      "caldera_adversary_id": "scn028-live-attack-chain",
       "caldera_group": "red"
     }
   ]
