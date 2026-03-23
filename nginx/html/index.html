@@ -64,7 +64,11 @@
     .ph {
       flex-shrink: 0; padding: 16px 18px 13px;
       border-bottom: 1px solid var(--border-dim);
-      background: rgba(8,20,52,0.82);
+      background: rgba(8,20,52,0.50);
+    }
+    .scn-search {
+      flex-shrink: 0; padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border-dim);
     }
 
     #hdr-controls {
@@ -91,7 +95,7 @@
     }
 
     /* search */
-    .sw { position: relative; margin-bottom: 10px; }
+    .sw { position: relative; }
     .si {
       position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
       color: var(--text-dim); pointer-events: none;
@@ -1285,7 +1289,10 @@
         </div>
       </div>
 
-      <!-- Search -->
+    </div>
+
+    <!-- Search -->
+    <div class="scn-search">
       <div class="sw">
         <svg class="si" width="14" height="14" viewBox="0 0 16 16" fill="none"
              stroke="currentColor" stroke-width="1.6">
