@@ -1110,6 +1110,9 @@ async function connectRDP() {
     setRdpStatus('Creating connection…');
 
     // 2. Create the RDP connection via REST API
+    const guacWrap = document.getElementById('guac-wrap');
+    const rdpW = String(guacWrap ? guacWrap.clientWidth  : 1280);
+    const rdpH = String(guacWrap ? guacWrap.clientHeight : 800);
     const connR = await fetch(
       `${GUAC_PROXY}/api/session/data/${GUAC_DS}/connections?token=${guacToken}`,
       {
@@ -1126,7 +1129,9 @@ async function connectRDP() {
             'ignore-cert':   'true',
             security:        'any',
             'resize-method': 'reconnect',
-            'enable-font-smoothing': 'true'
+            'enable-font-smoothing': 'true',
+            width:           rdpW,
+            height:          rdpH
           },
           attributes: {
             'max-connections':          '2',
