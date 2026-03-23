@@ -264,6 +264,7 @@
       top: 86px; bottom: 0; left: 0; right: 0;
       border: none;
       background: #000;
+      z-index: 1;
     }
     #rdp-loading-2 {
       position: absolute;
@@ -271,6 +272,7 @@
       background: #06080f;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 18px;
+      z-index: 2;
     }
 
     /* ─────────────────────────────────────────────
@@ -358,6 +360,7 @@
       top: 48px; bottom: 0; left: 0; right: 0;
       border: none;
       background: #000;
+      z-index: 1;
     }
     #rdp-loading-3 {
       position: absolute;
@@ -365,6 +368,7 @@
       background: #000;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 16px;
+      z-index: 2;
     }
 
     /* ── Shared loading elements ── */
@@ -686,6 +690,7 @@ async function connectRDP(ip, frameId, loadingId) {
             security:           'any',
             'enable-wallpaper': 'true',
             'enable-theming':   'true',
+            'resize-method':    'display-update',
             width:              rdpW,
             height:             rdpH,
           },
@@ -704,8 +709,10 @@ async function connectRDP(ip, frameId, loadingId) {
     const clientId = btoa(`${connId}\0c\0${GUAC_DS}`);
     const rdpURL   = `${GUAC_PROXY}/#/client/${encodeURIComponent(clientId)}?token=${token}`;
 
-    frame.src = rdpURL;
+    // Show frame BEFORE loading URL so Guacamole's Angular app boots with the
+    // correct iframe viewport dimensions (display:none = 0×0 viewport on init)
     frame.style.display = '';
+    frame.src = rdpURL;
     frame.onload = () => { setTimeout(() => { if (loading) loading.style.display = 'none'; }, 700); };
 
   } catch (err) {
