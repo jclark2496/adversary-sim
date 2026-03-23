@@ -151,12 +151,6 @@ input, select, textarea { font-family: inherit; }
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(7,16,31,0.80);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(var(--accent-cyan-rgb),0.10);
 }
 
 .shared-hdr-btn {
