@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stage Dive — Sophos</title>
   <link rel="stylesheet" href="shared.css">
+  <script src="/guacamole/guacamole-common-js/all.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -429,7 +430,7 @@
       <div class="rdp-spinner"></div>
       <div class="rdp-loading-text">Connecting to victim...</div>
     </div>
-    <iframe id="guac-frame-2" style="display:none"></iframe>
+    <div id="guac-frame-2" style="display:none; position:absolute; top:86px; bottom:0; left:0; right:0; overflow:hidden; background:#000;"></div>
   </div>
 
   <!-- ════════════ SLIDE 3 — SPLIT VIEW ════════════ -->
@@ -448,7 +449,7 @@
         <div class="rdp-spinner"></div>
         <div class="rdp-loading-text">Connecting to managed VM...</div>
       </div>
-      <iframe id="guac-frame-3" style="display:none"></iframe>
+      <div id="guac-frame-3" style="display:none; position:absolute; top:48px; bottom:0; left:0; right:0; overflow:hidden; background:#000;"></div>
     </div>
   </div>
 
@@ -646,9 +647,10 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Guacamole RDP ─────────────────────────────────────────────
-async function connectRDP(ip, frameId, loadingId) {
-  const loading = document.getElementById(loadingId);
-  const frame   = document.getElementById(frameId);
+// Uses guacamole-common-js directly (no Angular iframe) so we control scaling.
+async function connectRDP(ip, containerId, loadingId) {
+  const loading   = document.getElementById(loadingId);
+  const container = document.getElementById(containerId);
 
   if (!ip) {
     if (loading) loading.querySelector('.rdp-loading-text').textContent =
@@ -657,7 +659,7 @@ async function connectRDP(ip, frameId, loadingId) {
   }
 
   try {
-    // 1. Authenticate with Guacamole (reuse cached token to avoid 429)
+    // 1. Authenticate (reuse cached token to avoid 429)
     if (!guacToken) {
       const fd = new URLSearchParams({ username: GUAC_ADMIN, password: GUAC_ADMIN_PW });
       const authR = await fetch(`${GUAC_PROXY}/api/tokens`, { method: 'POST', body: fd });
@@ -667,19 +669,17 @@ async function connectRDP(ip, frameId, loadingId) {
     }
     const token = guacToken;
 
-    // 2. Create RDP connection — use window dimensions since carousel slides
-    //    are translated off-screen and return clientWidth=0; frame-3 is in the
-    //    right half of the split view so gets half the width
-    const isHalf = frameId === 'guac-frame-3';
-    const rdpW = String(isHalf ? Math.floor(window.innerWidth / 2) : window.innerWidth);
-    const rdpH = String(window.innerHeight);
+    // 2. Create RDP connection via REST — request dimensions matching the container
+    container.style.display = '';  // show now so clientWidth/Height are real
+    const rdpW = String(container.clientWidth  || window.innerWidth);
+    const rdpH = String(container.clientHeight || window.innerHeight);
     const connR = await fetch(
       `${GUAC_PROXY}/api/session/data/${GUAC_DS}/connections?token=${token}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name:       `stagedive-${frameId}-${Date.now()}`,
+          name:       `stagedive-${containerId}-${Date.now()}`,
           protocol:   'rdp',
           parameters: {
             hostname:           ip,
@@ -690,14 +690,10 @@ async function connectRDP(ip, frameId, loadingId) {
             security:           'any',
             'enable-wallpaper': 'true',
             'enable-theming':   'true',
-            'resize-method':    'display-update',
             width:              rdpW,
             height:             rdpH,
           },
-          attributes: {
-            'max-connections':          '2',
-            'max-connections-per-user': '2',
-          }
+          attributes: { 'max-connections': '2', 'max-connections-per-user': '2' }
         })
       }
     );
@@ -705,15 +701,51 @@ async function connectRDP(ip, frameId, loadingId) {
     const conn   = await connR.json();
     const connId = conn.identifier;
 
-    // 3. Build client URL — token must be in the hash fragment for Angular auto-auth
-    const clientId = btoa(`${connId}\0c\0${GUAC_DS}`);
-    const rdpURL   = `${GUAC_PROXY}/#/client/${encodeURIComponent(clientId)}?token=${token}`;
+    // 3. Connect via WebSocket tunnel using guacamole-common-js
+    //    This bypasses the Angular app so we control display scaling directly.
+    const tunnel = new Guacamole.WebSocketTunnel(`${GUAC_PROXY}/websocket-tunnel`);
+    const client = new Guacamole.Client(tunnel);
 
-    // Show frame BEFORE loading URL so Guacamole's Angular app boots with the
-    // correct iframe viewport dimensions (display:none = 0×0 viewport on init)
-    frame.style.display = '';
-    frame.src = rdpURL;
-    frame.onload = () => { setTimeout(() => { if (loading) loading.style.display = 'none'; }, 700); };
+    // Add the display canvas to the container
+    const displayEl = client.getDisplay().getElement();
+    displayEl.style.position = 'absolute';
+    displayEl.style.top = '0';
+    displayEl.style.left = '0';
+    container.appendChild(displayEl);
+
+    // Auto-scale to fill container whenever the remote desktop resizes
+    function scaleToFit() {
+      const dw = client.getDisplay().getWidth();
+      const dh = client.getDisplay().getHeight();
+      const cw = container.clientWidth;
+      const ch = container.clientHeight;
+      if (dw > 0 && dh > 0 && cw > 0 && ch > 0) {
+        client.getDisplay().scale(Math.min(cw / dw, ch / dh));
+      }
+    }
+    client.getDisplay().onresize = scaleToFit;
+
+    // Hide loading overlay once connected and scale applied
+    client.onstatechange = function(state) {
+      if (state === Guacamole.Client.State.CONNECTED) {
+        setTimeout(() => {
+          scaleToFit();
+          if (loading) loading.style.display = 'none';
+        }, 600);
+      }
+    };
+
+    client.onerror = function(err) {
+      if (loading) {
+        const txt = loading.querySelector('.rdp-loading-text');
+        if (txt) txt.textContent = 'RDP error: ' + (err.message || err);
+      }
+    };
+
+    // Connect: token + data source + connection ID
+    client.connect(
+      `token=${encodeURIComponent(token)}&GUAC_DATA_SOURCE=${GUAC_DS}&GUAC_ID=${encodeURIComponent(connId)}&GUAC_TYPE=c`
+    );
 
   } catch (err) {
     if (loading) {
