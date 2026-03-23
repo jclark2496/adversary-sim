@@ -13,15 +13,17 @@ if ($sophos) {
     Write-Host "[+] No Sophos found. Good." -ForegroundColor Green
 }
 
-# Step 2: Enable Remote Desktop + disable firewall
-Write-Host "[*] Enabling Remote Desktop..." -ForegroundColor Cyan
-Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' `
-  -Name 'fDenyTSConnections' -Value 0
-Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
-  -Name 'UserAuthentication' -Value 0   # disable NLA so Guacamole connects without creds negotiation
-Set-Service -Name TermService -StartupType Automatic
-Start-Service -Name TermService -ErrorAction SilentlyContinue
-Write-Host "[+] Remote Desktop enabled." -ForegroundColor Green
+# Step 2: Enable Remote Desktop if not already on (only touches service if disabled)
+Write-Host "[*] Checking Remote Desktop..." -ForegroundColor Cyan
+$rdpKey = 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
+if ((Get-ItemProperty $rdpKey -ErrorAction SilentlyContinue).fDenyTSConnections -ne 0) {
+    Set-ItemProperty $rdpKey -Name 'fDenyTSConnections' -Value 0
+    Set-Service -Name TermService -StartupType Automatic -ErrorAction SilentlyContinue
+    Start-Service -Name TermService -ErrorAction SilentlyContinue
+    Write-Host "[+] Remote Desktop enabled." -ForegroundColor Green
+} else {
+    Write-Host "[+] Remote Desktop already enabled." -ForegroundColor Green
+}
 
 Write-Host "[*] Disabling Windows Firewall..." -ForegroundColor Cyan
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
