@@ -270,12 +270,35 @@ The main differences from a local Mac setup:
 4. **HTTPS** — use Certbot with the webroot method if you have a domain pointed at the VPS
 
 ### How do I set up HTTPS for my domain on the VPS?
-1. Point your domain's A record to the VPS IP
-2. Wait for DNS to propagate (check with `dig +short yourdomain.com`)
-3. Install Certbot: `sudo apt install certbot`
-4. Run: `sudo certbot certonly --webroot -w /path/to/webroot -d yourdomain.com`
-5. Add an HTTPS server block to your nginx config with the cert paths
-6. Add a renewal hook: the cert auto-renews via systemd timer twice daily
+
+**Option A — Cloudflare proxy (recommended, easiest)**
+
+Cloudflare acts as a TLS terminator so your server never needs port 443 open externally.
+
+1. Add your domain to Cloudflare (free tier works)
+2. In your registrar (GoDaddy, Namecheap, etc.), replace the nameservers with Cloudflare's assigned nameservers
+3. In Cloudflare DNS, add A records for `@`, `www`, and any subdomains pointing to your VPS IP — set each to **Proxied** (orange cloud)
+4. In Cloudflare **SSL/TLS → Overview**, set mode to **Full** (not Flexible — Flexible causes redirect loops)
+5. Done — HTTPS works immediately once DNS propagates (5–30 min)
+
+No server-side changes required. Port 443 does not need to be open on your VPS firewall.
+
+**Option B — Certbot / Let's Encrypt (direct HTTPS)**
+
+Use this if you don't want Cloudflare in the path. Requires port 80 and 443 open on your VPS.
+
+1. Point your domain A record to your VPS IP, wait for propagation
+2. Install Certbot: `sudo apt install certbot`
+3. Obtain a cert (webroot method, while containers are running):
+   ```bash
+   sudo certbot certonly --webroot \
+     -w /var/lib/docker/volumes/... \
+     -d yourdomain.com -d www.yourdomain.com
+   ```
+4. Mount the cert into auth-gate-nginx via `docker-compose.override.yml`
+5. Add an HTTPS server block to `auth-gate/nginx/https.conf`
+6. Add a post-renewal hook to reload nginx: `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh`
+7. Port 443 must be open in your VPS/cloud firewall — check your provider's firewall settings if external HTTPS is blocked despite the server being configured correctly
 
 ### Windows VMs can't reach the CALDERA server on the VPS.
 The sandcat agent needs to reach the VPS on port 8888. Check:
