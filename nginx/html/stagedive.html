@@ -491,6 +491,7 @@ let pollTick     = null;
 let timerTick    = null;
 let opStart      = Date.now();
 const rdpConnected = {};  // slideIndex -> true/false
+let   guacToken    = null; // cached across both RDP connections
 
 // ── Init page ─────────────────────────────────────────────────
 document.getElementById('scenario-name').textContent   = SCENARIO;
@@ -652,12 +653,15 @@ async function connectRDP(ip, frameId, loadingId) {
   }
 
   try {
-    // 1. Authenticate with Guacamole
-    const fd = new URLSearchParams({ username: GUAC_ADMIN, password: GUAC_ADMIN_PW });
-    const authR = await fetch(`${GUAC_PROXY}/api/tokens`, { method: 'POST', body: fd });
-    if (!authR.ok) throw new Error(`Guacamole auth failed (${authR.status})`);
-    const auth  = await authR.json();
-    const token = auth.authToken;
+    // 1. Authenticate with Guacamole (reuse cached token to avoid 429)
+    if (!guacToken) {
+      const fd = new URLSearchParams({ username: GUAC_ADMIN, password: GUAC_ADMIN_PW });
+      const authR = await fetch(`${GUAC_PROXY}/api/tokens`, { method: 'POST', body: fd });
+      if (!authR.ok) throw new Error(`Guacamole auth failed (${authR.status})`);
+      const auth = await authR.json();
+      guacToken  = auth.authToken;
+    }
+    const token = guacToken;
 
     // 2. Create RDP connection — use window dimensions since carousel slides
     //    are translated off-screen and return clientWidth=0; frame-3 is in the
