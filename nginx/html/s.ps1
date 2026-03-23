@@ -13,7 +13,16 @@ if ($sophos) {
     Write-Host "[+] No Sophos found. Good." -ForegroundColor Green
 }
 
-# Step 2: Disable Windows Firewall
+# Step 2: Enable Remote Desktop + disable firewall
+Write-Host "[*] Enabling Remote Desktop..." -ForegroundColor Cyan
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' `
+  -Name 'fDenyTSConnections' -Value 0
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
+  -Name 'UserAuthentication' -Value 0   # disable NLA so Guacamole connects without creds negotiation
+Set-Service -Name TermService -StartupType Automatic
+Start-Service -Name TermService -ErrorAction SilentlyContinue
+Write-Host "[+] Remote Desktop enabled." -ForegroundColor Green
+
 Write-Host "[*] Disabling Windows Firewall..." -ForegroundColor Cyan
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 Write-Host "[+] Firewall disabled." -ForegroundColor Green

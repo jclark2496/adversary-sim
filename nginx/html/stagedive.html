@@ -664,7 +664,12 @@ document.addEventListener('keydown', e => {
 
 // ── Guacamole RDP ─────────────────────────────────────────────
 // Uses guacamole-common-js directly (no Angular iframe) so we control scaling.
-async function connectRDP(ip, containerId, loadingId) {
+// Retries up to MAX_RDP_RETRIES times on tunnel errors (e.g. 519 upstream timeout).
+const MAX_RDP_RETRIES = 3;
+const RDP_RETRY_DELAY = 8000; // ms between retries
+
+async function connectRDP(ip, containerId, loadingId, attempt) {
+  attempt = attempt || 1;
   const loading   = document.getElementById(loadingId);
   const container = document.getElementById(containerId);
 
@@ -780,11 +785,25 @@ async function connectRDP(ip, containerId, loadingId) {
 
     client.getDisplay().onresize = scaleToFit;
 
-    // Show tunnel-level errors in the loading overlay
+    // Tunnel errors (e.g. 519 = upstream timeout) — retry automatically
     tunnel.onerror = function(status) {
-      if (loading) {
-        const txt = loading.querySelector('.rdp-loading-text');
-        if (txt) txt.textContent = 'Tunnel error: ' + (status.message || JSON.stringify(status));
+      const code = status && status.code ? status.code : status;
+      if (attempt < MAX_RDP_RETRIES) {
+        const next = attempt + 1;
+        if (loading) {
+          const txt = loading.querySelector('.rdp-loading-text');
+          if (txt) txt.textContent = `VM unreachable (${code}) — retrying ${next}/${MAX_RDP_RETRIES}...`;
+        }
+        // Clear stale connection objects before retry
+        try { client.disconnect(); } catch(e) {}
+        // Evict cached token on auth errors (codes 400–403) so next attempt re-auths
+        if (code >= 400 && code < 500) guacToken = null;
+        setTimeout(() => connectRDP(ip, containerId, loadingId, next), RDP_RETRY_DELAY);
+      } else {
+        if (loading) {
+          const txt = loading.querySelector('.rdp-loading-text');
+          if (txt) txt.textContent = `RDP failed after ${MAX_RDP_RETRIES} attempts (${code}) — check VM is running and RDP is enabled`;
+        }
       }
     };
 
