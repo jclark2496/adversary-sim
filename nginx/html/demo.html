@@ -7,7 +7,7 @@
 <style>
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; color: #e8f0ff; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: radial-gradient(ellipse at 35% 25%, #2455a0 0%, #1a4080 25%, #0e2850 60%, #070f1e 100%); background-attachment: fixed; color: #e8f0ff; }
 
 /* ── FONTS ── */
 :root {
@@ -15,14 +15,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
   --font-mono: 'Cascadia Code', 'Cascadia Mono', 'Courier New', monospace;
 
   /* Colors */
-  --sophos-blue:    #0065BD;
+  --sophos-blue:    #00A8E0;
   --win-dark:       #202020;
   --win-titlebar:   #1a1a1a;
   --ps-body:        #012456;
   --success-green:  #6CCB5F;
   --block-blue:     #6ab4ff;
   --ransom-red:     #cc0000;
-  --platform-bg:    #0a0e18;
+  --platform-bg:    #070f1e;
   --enc-orange:     #ce9178;
   --err-red:        #f14c4c;
   --teal-ok:        #4ec9b0;
@@ -40,8 +40,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
   height: 48px; flex-shrink: 0;
   display: flex; align-items: center; gap: 14px;
   padding: 0 20px;
-  background: rgba(10,14,24,0.98);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(7,16,31,0.88);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ch-pill {
   font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
@@ -49,7 +50,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
   font-family: var(--font-ui); white-space: nowrap;
 }
 .ch-pill.ch1 { background: rgba(255,50,50,0.15); border: 1px solid rgba(255,50,50,0.4); color: #ff6666; }
-.ch-pill.ch2 { background: rgba(0,101,189,0.15); border: 1px solid rgba(0,101,189,0.4); color: #6ab4ff; }
+.ch-pill.ch2 { background: rgba(0,168,224,0.15); border: 1px solid rgba(0,168,224,0.4); color: #6ab4ff; }
 #hdr-title   { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: var(--font-ui); }
 #hdr-sub     { font-size: 11px; color: rgba(232,240,255,0.4); font-family: var(--font-ui); margin-top: 1px; }
 #op-timer    { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: rgba(232,240,255,0.35); letter-spacing: 0.08em; }
@@ -63,8 +64,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 /* Attacker panel (left) */
 #atk-panel {
   flex: 1; display: flex; flex-direction: column;
-  background: #0d1117; border-radius: 8px;
+  background: rgba(20,50,110,0.22); border-radius: 8px;
   border: 1px solid rgba(255,50,50,0.2);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   overflow: hidden; min-width: 0;
 }
 #atk-panel.ch2-style { border-color: rgba(255,255,255,0.08); }
@@ -125,7 +127,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
   background: rgba(255,255,255,0.06);
   font-size: 9.5px; color: rgba(255,255,255,0.65);
 }
-.tb-app.sophos { background: rgba(0,101,189,0.12); border: 1px solid rgba(0,101,189,0.2); }
+.tb-app.sophos { background: rgba(0,168,224,0.12); border: 1px solid rgba(0,168,224,0.2); }
 .tb-app.notepad { display: none; }
 #tb-clock { margin-left: auto; font-size: 9px; color: rgba(255,255,255,0.5); text-align: right; line-height: 1.5; }
 
@@ -262,14 +264,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 }
 .feed-item.fi-done    { opacity:0.5; }
 .feed-item.fi-running { background:rgba(255,180,0,0.04); border-left-color:#ffb400; }
-.feed-item.fi-blocked { background:rgba(0,101,189,0.06); border-left-color:#0065BD; }
+.feed-item.fi-blocked { background:rgba(0,168,224,0.06); border-left-color:#00A8E0; }
 .feed-item.fi-stopped { background:rgba(0,242,179,0.06); border-left-color:#00f2b3; }
 
 .fi-time    { color:rgba(232,240,255,0.25); flex-shrink:0; font-size:10px; padding-top:1px; min-width:34px; }
 .fi-content { flex:1; min-width:0; }
 .fi-tactic  { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; font-family:var(--font-ui); }
 .fi-name    { font-size:12px; color:rgba(232,240,255,0.85); margin-bottom:2px; }
-.fi-name.struck { text-decoration:line-through; text-decoration-color:rgba(0,101,189,0.5); color:rgba(232,240,255,0.45); }
+.fi-name.struck { text-decoration:line-through; text-decoration-color:rgba(0,168,224,0.5); color:rgba(232,240,255,0.45); }
 .fi-cmd     { font-size:10px; color:rgba(232,240,255,0.35); }
 .fi-reason  { font-size:10px; color:var(--block-blue); margin-top:3px; display:none; }
 .fi-reason.visible { display:block; }
@@ -281,7 +283,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 .s-done    { background:rgba(255,50,50,0.1);   color:#ff7777;  border:1px solid rgba(255,50,50,0.2); }
 .s-running { background:rgba(255,180,0,0.12);  color:#ffb400;  border:1px solid rgba(255,180,0,0.3); }
 .s-waiting { background:rgba(255,255,255,0.04);color:rgba(232,240,255,0.3); border:1px solid rgba(255,255,255,0.08); }
-.s-blocked { background:rgba(0,101,189,0.15);  color:#6ab4ff;  border:1px solid rgba(0,101,189,0.35); }
+.s-blocked { background:rgba(0,168,224,0.15);  color:#6ab4ff;  border:1px solid rgba(0,168,224,0.35); }
 .s-stopped { background:rgba(0,242,179,0.1);   color:#00f2b3;  border:1px solid rgba(0,242,179,0.3); }
 
 .feed-div { margin:6px 14px; border:none; border-top:1px solid rgba(255,255,255,0.05); }
@@ -289,7 +291,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e18; c
 /* Block counter */
 #block-counter {
   margin:8px 14px; padding:7px 12px;
-  background:rgba(0,101,189,0.08); border:1px solid rgba(0,101,189,0.2);
+  background:rgba(0,168,224,0.08); border:1px solid rgba(0,168,224,0.2);
   border-radius:6px; display:none; align-items:center; gap:10px;
   font-family:var(--font-ui);
 }
@@ -454,7 +456,7 @@ const SVG_WIN_CONTROLS = `
 
 function sophosShieldSVG(size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="6" fill="#0065BD"/>
+    <rect width="32" height="32" rx="6" fill="#00A8E0"/>
     <path d="M16 4L6 8.5V16.5C6 21.8 10.4 26.7 16 28C21.6 26.7 26 21.8 26 16.5V8.5L16 4Z" fill="white" fill-opacity="0.15"/>
     <path d="M16 5.5L7 9.7V16.8C7 21.6 11 26.1 16 27.3C21 26.1 25 21.6 25 16.8V9.7L16 5.5Z" fill="white" fill-opacity="0.08"/>
     <text x="16" y="21" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="800" fill="white">S</text>

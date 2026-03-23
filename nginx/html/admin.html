@@ -380,9 +380,9 @@
     }
     .act-delete:hover { border-color: rgba(255,68,68,.4); color: var(--c-fail); background: rgba(255,68,68,.06); }
     .act-approve {
-      background: rgba(0,242,179,.08); border: 1px solid rgba(0,242,179,.3); color: var(--accent-green);
+      background: rgba(0,200,100,.08); border: 1px solid rgba(0,200,100,.3); color: var(--accent-green);
     }
-    .act-approve:hover { background: rgba(0,242,179,.15); border-color: rgba(0,242,179,.5); }
+    .act-approve:hover { background: rgba(0,200,100,.15); border-color: rgba(0,200,100,.5); }
 
     /* empty state */
     .tbl-empty {
@@ -697,8 +697,8 @@
     .tb-tech-lab {
       font-size: 8px; font-weight: 600; text-transform: uppercase;
       letter-spacing: .06em; color: var(--accent-green);
-      background: rgba(0,242,179,.08); padding: 1px 5px;
-      border-radius: 3px; border: 1px solid rgba(0,242,179,.2);
+      background: rgba(0,200,100,.08); padding: 1px 5px;
+      border-radius: 3px; border: 1px solid rgba(0,200,100,.2);
       flex-shrink: 0;
     }
 
@@ -711,7 +711,7 @@
       background: rgba(var(--accent-cyan-rgb),.06); border: 1px solid rgba(var(--accent-cyan-rgb),.18);
       color: var(--accent-cyan); font-family: var(--fm); font-size: 11px; font-weight: 500;
     }
-    .wiz-chip.in-lab { background: rgba(0,242,179,.07); border-color: rgba(0,242,179,.25); color: var(--accent-green); }
+    .wiz-chip.in-lab { background: rgba(0,200,100,.07); border-color: rgba(0,200,100,.25); color: var(--accent-green); }
     .wiz-chip-rm { background: none; border: none; cursor: pointer; padding: 0; color: rgba(var(--accent-cyan-rgb),.4); font-size: 13px; transition: color .12s; }
     .wiz-chip-rm:hover { color: var(--text-primary); }
     .tech-lab-sm { font-size: 9px; opacity: .7; }
@@ -1963,7 +1963,7 @@ Return the response with emphasis on expected_detections and talking_points fiel
   function toast(msg, type = 'default') {
     const t = document.createElement('div');
     const colorMap = {
-      default: ['rgba(0,242,179,.4)', 'var(--accent-green)'],
+      default: ['rgba(0,200,100,.4)', 'var(--accent-green)'],
       error:   ['rgba(255,68,68,.4)',  'var(--c-fail)'],
       warn:    ['rgba(255,152,0,.4)',  '#FF9800']
     };

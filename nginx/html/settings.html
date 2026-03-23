@@ -87,17 +87,17 @@
 
     .stg-card {
       background: #0d1225;
-      border: 1px solid rgba(0,237,255,.07);
+      border: 1px solid rgba(0,168,224,.07);
       border-radius: 6px;
       padding: 14px 12px;
       text-align: center;
       cursor: pointer;
       transition: all .15s;
     }
-    .stg-card:hover { border-color: rgba(0,237,255,.38); }
+    .stg-card:hover { border-color: rgba(0,168,224,.38); }
     .stg-card.active {
-      background: rgba(0,237,255,.08);
-      border-color: rgba(0,237,255,.4);
+      background: rgba(0,168,224,.08);
+      border-color: rgba(0,168,224,.4);
     }
 
     .stg-cname {
@@ -122,7 +122,7 @@
     .stg-input {
       flex: 1;
       background: rgba(3,7,30,.7);
-      border: 1px solid rgba(0,237,255,.10);
+      border: 1px solid rgba(0,168,224,.10);
       border-radius: 5px;
       padding: 9px 12px;
       color: #EBF6FF;
@@ -145,15 +145,15 @@
       font-weight: 700;
       letter-spacing: .08em;
       padding: 9px 16px;
-      background: rgba(0,237,255,.08);
-      border: 1px solid rgba(0,237,255,.3);
+      background: rgba(0,168,224,.08);
+      border: 1px solid rgba(0,168,224,.3);
       border-radius: 5px;
       color: var(--accent-cyan);
       cursor: pointer;
       white-space: nowrap;
       transition: all .15s;
     }
-    .stg-test:hover { background: rgba(0,237,255,.14); border-color: rgba(0,237,255,.5); }
+    .stg-test:hover { background: rgba(0,168,224,.14); border-color: rgba(0,168,224,.5); }
     .stg-test:disabled { opacity: .5; cursor: default; }
 
     .stg-status {
@@ -178,12 +178,12 @@
     }
     .stg-status.info {
       display: flex; align-items: center; gap: 8px;
-      background: rgba(0,237,255,.04);
-      border: 1px solid rgba(0,237,255,.18);
+      background: rgba(0,168,224,.04);
+      border: 1px solid rgba(0,168,224,.18);
       color: var(--text-sec);
     }
 
-    .stg-divider { height: 1px; background: rgba(0,237,255,.07); margin: 20px 0 4px; }
+    .stg-divider { height: 1px; background: rgba(0,168,224,.07); margin: 20px 0 4px; }
 
     .stg-labops-status {
       margin-top: 10px;
@@ -234,7 +234,7 @@
       border-color: rgba(0,255,65,.2);
     }
     .upd-badge.avail {
-      color: #FFB300;
+      color: #FF6900;
       background: rgba(255,179,0,.06);
       border-color: rgba(255,179,0,.28);
     }
@@ -304,7 +304,7 @@
     .upd-btn.apply {
       background: rgba(255,179,0,.1);
       border: 1px solid rgba(255,179,0,.4);
-      color: #FFB300;
+      color: #FF6900;
     }
     .upd-btn.apply:hover { background: rgba(255,179,0,.18); }
     .upd-btn.rollback {
@@ -372,14 +372,14 @@
       font-weight: 700;
       letter-spacing: .1em;
       padding: 10px 24px;
-      background: rgba(0,237,255,.12);
-      border: 1px solid rgba(0,237,255,.38);
+      background: rgba(0,168,224,.12);
+      border: 1px solid rgba(0,168,224,.38);
       border-radius: 5px;
       color: var(--accent-cyan);
       cursor: pointer;
       transition: all .15s;
     }
-    .settings-save-btn:hover { background: rgba(0,237,255,.2); box-shadow: 0 0 14px rgba(var(--accent-cyan-rgb),.18); }
+    .settings-save-btn:hover { background: rgba(0,168,224,.2); box-shadow: 0 0 14px rgba(var(--accent-cyan-rgb),.18); }
     .settings-save-btn:disabled { opacity: .45; cursor: default; }
 
     .save-status {
@@ -440,11 +440,11 @@
     }
 
     .kb-btn.primary {
-      background: rgba(0,237,255,.08);
-      border: 1px solid rgba(0,237,255,.3);
+      background: rgba(0,168,224,.08);
+      border: 1px solid rgba(0,168,224,.3);
       color: var(--accent-cyan);
     }
-    .kb-btn.primary:hover { background: rgba(0,237,255,.15); border-color: rgba(0,237,255,.5); }
+    .kb-btn.primary:hover { background: rgba(0,168,224,.15); border-color: rgba(0,168,224,.5); }
 
     .kb-btn.secondary {
       background: transparent;
@@ -979,7 +979,7 @@
     if (!existing) {
       existing = document.createElement('div');
       existing.id = 'stg-toast';
-      existing.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(8,15,46,.95);border:1px solid rgba(0,237,255,.3);border-radius:6px;padding:10px 18px;font-family:var(--fm);font-size:11px;color:var(--accent-cyan);z-index:999;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;';
+      existing.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(8,15,46,.95);border:1px solid rgba(0,168,224,.3);border-radius:6px;padding:10px 18px;font-family:var(--fm);font-size:11px;color:var(--accent-cyan);z-index:999;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;';
       document.body.appendChild(existing);
     }
     existing.textContent = msg;

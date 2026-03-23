@@ -13,13 +13,13 @@
     ============================================================ */
     :root {
       --glow-sel: 0 0 0 1px var(--accent-cyan), 0 0 20px rgba(var(--accent-cyan-rgb),0.18), inset 0 0 12px rgba(var(--accent-cyan-rgb),0.04);
-      --sev-crit-rgb:      181,41,247;
-      --sev-high-rgb:      32,6,247;
+      --sev-crit-rgb:      255,59,48;
+      --sev-high-rgb:      0,168,224;
       --sev-med-rgb:       0,156,251;
       --sev-low-rgb:       106,136,155;
-      --accent-purple-rgb: 90,0,255;
-      --text-accent-blue:  #8ca8ff;
-      --text-accent-purple:#b09fff;
+      --accent-purple-rgb: 0,168,224;
+      --text-accent-blue:  #00A8E0;
+      --text-accent-purple:#7ecff5;
     }
 
 
@@ -37,12 +37,7 @@
       width: 100%; height: 100%; overflow: hidden;
     }
 
-    /* dot-grid bg */
-    body::before {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background-image: radial-gradient(circle, rgba(var(--accent-cyan-rgb),0.065) 1px, transparent 1px);
-      background-size: 28px 28px;
-    }
+    /* dot-grid removed — gradient bg from shared.css */
 
     /* ============================================================
        SHELL
@@ -319,21 +314,22 @@
 
     #lbtn {
       width:100%; padding:11px 16px;
-      background:linear-gradient(130deg,#1900e8,#4200cc 60%,#5A00FF);
-      border-radius:6px; color:var(--text-primary);
+      background: #FF6900;
+      border-radius:6px; color:#fff;
       font-family:var(--ft); font-weight:700; font-size:14px;
       letter-spacing:.18em; text-transform:uppercase;
       position:relative; overflow:hidden;
       transition:transform .15s, box-shadow .15s, opacity .15s;
       display:flex; align-items:center; justify-content:center; gap:8px;
+      box-shadow: 0 4px 20px rgba(255,105,0,0.30);
     }
     #lbtn::after {
       content:''; position:absolute; inset:0;
-      background:linear-gradient(90deg,transparent,rgba(var(--accent-cyan-rgb),.13),transparent);
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent);
       opacity:0; transition:opacity .2s;
     }
     #lbtn:hover:not(:disabled)::after { opacity:1; }
-    #lbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 24px rgba(var(--accent-purple-rgb),.44),0 0 32px rgba(var(--accent-cyan-rgb),.12); }
+    #lbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 28px rgba(255,105,0,.50); }
     #lbtn:active:not(:disabled) { transform:translateY(0); }
     #lbtn:disabled { opacity:.44; cursor:not-allowed; }
     #lbtn .bsp { display:none; width:16px; height:16px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .55s linear infinite; }
@@ -453,7 +449,7 @@
     .xrhd { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
     .xrlbl { font-family:var(--ft); font-weight:700; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-cyan); }
     .xbar { height:2px; background:rgba(var(--accent-cyan-rgb),.1); border-radius:2px; overflow:hidden; margin-bottom:9px; }
-    .xbf  { height:100%; background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan)); border-radius:2px; animation:pr 1.6s ease-in-out infinite; }
+    .xbf  { height:100%; background:linear-gradient(90deg,var(--accent-navy),var(--accent-cyan)); border-radius:2px; animation:pr 1.6s ease-in-out infinite; }
     @keyframes pr { 0%{width:0;margin-left:0} 50%{width:65%;margin-left:18%} 100%{width:0;margin-left:100%} }
     .xstgs { display:flex; flex-direction:column; gap:4px; }
     .xstg  { display:flex; align-items:center; gap:8px; font-size:11px; color:rgba(var(--text-rgb),0.65); }
