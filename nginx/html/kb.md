@@ -278,10 +278,12 @@ Cloudflare acts as a TLS terminator so your server never needs port 443 open ext
 1. Add your domain to Cloudflare (free tier works)
 2. In your registrar (GoDaddy, Namecheap, etc.), replace the nameservers with Cloudflare's assigned nameservers
 3. In Cloudflare DNS, add A records for `@`, `www`, and any subdomains pointing to your VPS IP — set each to **Proxied** (orange cloud)
-4. In Cloudflare **SSL/TLS → Overview**, set mode to **Full** (not Flexible — Flexible causes redirect loops)
+4. In Cloudflare **SSL/TLS → Overview**, set mode to **Flexible**
 5. Done — HTTPS works immediately once DNS propagates (5–30 min)
 
-No server-side changes required. Port 443 does not need to be open on your VPS firewall.
+No server-side changes required. Port 443 does not need to be open on your VPS firewall. Cloudflare terminates TLS at the edge and forwards to your origin on port 80.
+
+> **Note:** Do not use Full or Full (Strict) SSL mode — some VPS providers (including Hetzner) block port 443 at the network level regardless of firewall rules, which would cause Cloudflare 522 errors.
 
 **Option B — Certbot / Let's Encrypt (direct HTTPS)**
 
