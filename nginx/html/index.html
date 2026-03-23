@@ -2271,19 +2271,33 @@
   // Also auto-sets labopsUrl for the nav link (same host, port 8080) when LabOps is detected
   var discoveredVms = [];
   async function fetchLabVms() {
+    // Try internal proxy first (same host, LabOps mode)
     try {
       const res = await fetch('/labops/api/vms', { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        const data = await res.json();
+        const vms = (data.vms || data.data || (Array.isArray(data) ? data : [])).filter(v => v.status === 'running' && v.ip);
+        discoveredVms = vms.map(v => ({ ip: v.ip, label: v.name || ('VM ' + v.vmid) }));
+        renderSavedTargets();
+        // Auto-set labopsUrl for nav link if not already configured
+        if (!localStorage.getItem('labopsUrl')) {
+          const autoUrl = window.location.protocol + '//' + window.location.hostname + ':8080';
+          localStorage.setItem('labopsUrl', autoUrl);
+          labmgrUpdateDot(autoUrl);
+        }
+        return;
+      }
+    } catch(e) {}
+    // Fall back to manually-configured labopsUrl (LabOps on a different host)
+    const labopsUrl = localStorage.getItem('labopsUrl') || '';
+    if (!labopsUrl) return;
+    try {
+      const res = await fetch(labopsUrl.replace(/\/$/, '') + '/api/vms', { signal: AbortSignal.timeout(5000) });
       if (!res.ok) return;
       const data = await res.json();
       const vms = (data.vms || data.data || (Array.isArray(data) ? data : [])).filter(v => v.status === 'running' && v.ip);
       discoveredVms = vms.map(v => ({ ip: v.ip, label: v.name || ('VM ' + v.vmid) }));
       renderSavedTargets();
-      // Auto-set labopsUrl for nav link if not already configured
-      if (!localStorage.getItem('labopsUrl')) {
-        const autoUrl = window.location.protocol + '//' + window.location.hostname + ':8080';
-        localStorage.setItem('labopsUrl', autoUrl);
-        labmgrUpdateDot(autoUrl);
-      }
     } catch(e) {}
   }
   function addSavedTarget() {

@@ -777,22 +777,40 @@
     saveBtn.textContent = 'SAVE SETTINGS';
   }
 
-  /* ── LabOps test — uses internal proxy, not external URL ──── */
+  /* ── LabOps test — tries internal proxy first, then manual URL ── */
   async function stgLabopsTest() {
     var btn = document.getElementById('stg-labops-test');
     var statusEl = document.getElementById('stg-labops-status');
     btn.textContent = 'TESTING...'; btn.disabled = true;
+    // Try internal proxy first (same host)
     try {
-      var r = await fetch('/labops/api/vms', { signal: AbortSignal.timeout(8000) });
+      var r = await fetch('/labops/api/vms', { signal: AbortSignal.timeout(5000) });
       if (r.ok) {
         var d = await r.json();
         var count = (d.vms || []).length;
-        statusEl.innerHTML = '<span class="dot green"></span><span style="color:#00FF41">Connected &mdash; ' + count + ' VM' + (count !== 1 ? 's' : '') + ' found</span>';
+        statusEl.innerHTML = '<span class="dot green"></span><span style="color:#00FF41">Connected (same host) &mdash; ' + count + ' VM' + (count !== 1 ? 's' : '') + ' found</span>';
+        btn.textContent = 'TEST'; btn.disabled = false;
+        return;
+      }
+    } catch(e) {}
+    // Fall back to manually-entered URL
+    var url = document.getElementById('stg-labops-url').value.trim().replace(/\/+$/, '');
+    if (!url) {
+      statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Lab Manager not detected &mdash; enter URL if on a different host</span>';
+      btn.textContent = 'TEST'; btn.disabled = false;
+      return;
+    }
+    try {
+      var r2 = await fetch(url + '/api/vms', { signal: AbortSignal.timeout(8000) });
+      if (r2.ok) {
+        var d2 = await r2.json();
+        var count2 = (d2.vms || []).length;
+        statusEl.innerHTML = '<span class="dot green"></span><span style="color:#00FF41">Connected (remote) &mdash; ' + count2 + ' VM' + (count2 !== 1 ? 's' : '') + ' found</span>';
       } else {
-        statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Lab Manager not detected (not running in LabOps mode)</span>';
+        statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Unreachable at ' + url + '</span>';
       }
     } catch(e) {
-      statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Lab Manager not detected (not running in LabOps mode)</span>';
+      statusEl.innerHTML = '<span class="dot red"></span><span style="color:#FF4444">Unreachable at ' + url + '</span>';
     }
     btn.textContent = 'TEST'; btn.disabled = false;
   }
