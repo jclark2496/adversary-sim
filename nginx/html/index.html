@@ -3108,8 +3108,8 @@ function sdEscape(str) {
 function sdToggleSetup() {
   var panel = document.getElementById('sd-setup-panel');
   var btn = document.getElementById('sd-setup-toggle');
-  var isOpen = panel.style.display === '';
-  panel.style.display = isOpen ? 'none' : '';
+  var isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
   btn.textContent = isOpen ? '⚙ Setup ▾' : '⚙ Setup ▴';
 }
 
