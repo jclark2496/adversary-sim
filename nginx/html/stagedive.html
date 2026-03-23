@@ -480,6 +480,8 @@ const GUAC_PROXY   = '/guacamole';
 const GUAC_DS      = 'postgresql';
 let   GUAC_ADMIN    = 'guacadmin';
 let   GUAC_ADMIN_PW = 'guacadmin';
+let   VICTIM_USER   = 'demo';
+let   VICTIM_PASS   = '';
 
 // ── State ─────────────────────────────────────────────────────
 let currentSlide = 0;
@@ -500,6 +502,8 @@ fetch('/api/config')
   .then(cfg => {
     if (cfg.guacAdmin)   GUAC_ADMIN    = cfg.guacAdmin;
     if (cfg.guacAdminPw) GUAC_ADMIN_PW = cfg.guacAdminPw;
+    if (cfg.victimUser)  VICTIM_USER   = cfg.victimUser;
+    if (cfg.victimPass)  VICTIM_PASS   = cfg.victimPass;
   })
   .catch(() => {});
 
@@ -667,7 +671,10 @@ async function connectRDP(ip, frameId, loadingId) {
           parameters: {
             hostname:           ip,
             port:               '3389',
+            username:           VICTIM_USER,
+            password:           VICTIM_PASS,
             'ignore-cert':      'true',
+            security:           'any',
             'enable-wallpaper': 'true',
             'enable-theming':   'true',
           },
