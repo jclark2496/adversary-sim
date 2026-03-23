@@ -639,7 +639,12 @@ function goToSlide(n) {
 function navigate(dir) { goToSlide(currentSlide + dir); }
 
 // ── Keyboard navigation ───────────────────────────────────────
+// activeRdpClient: set when mouse enters an RDP panel; cleared on leave.
+// Keyboard events route to RDP when active, else to slide nav.
+let activeRdpClient = null;
+
 document.addEventListener('keydown', e => {
+  if (activeRdpClient) return; // let Guacamole.Keyboard handle it
   if      (e.key === 'ArrowRight') navigate(1);
   else if (e.key === 'ArrowLeft')  navigate(-1);
   else if (e.key === 'Escape')     window.location.href = '/';
@@ -756,6 +761,17 @@ async function connectRDP(ip, containerId, loadingId) {
       sendMouse(e, btns.left, btns.middle, btns.right);
     });
     container.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+    // Keyboard: route keystrokes to RDP when mouse is inside the panel
+    const keyboard = new Guacamole.Keyboard(document);
+    keyboard.onkeydown = function(keysym) {
+      if (activeRdpClient === client) client.sendKeyEvent(1, keysym);
+    };
+    keyboard.onkeyup = function(keysym) {
+      if (activeRdpClient === client) client.sendKeyEvent(0, keysym);
+    };
+    container.addEventListener('mouseenter', function() { activeRdpClient = client; });
+    container.addEventListener('mouseleave', function() { activeRdpClient = null; });
     client.getDisplay().onresize = scaleToFit;
 
     // Hide loading overlay once connected and scale applied
