@@ -190,3 +190,123 @@ The selected scenario has no `caldera_ability` value or the adversary doesn't ex
 
 ### Operation shows all abilities as "Discarded" with no output
 Classic stale agent problem. Go to CALDERA → Campaigns → Agents → untrust all agents except the current one → re-launch the operation.
+
+---
+
+## Sophos Endpoint Installation
+
+### How do I install Sophos Endpoint on my lab VM?
+Use the **Template Studio** in LabOps (Templates page). Paste your Sophos Central installer URL (found in Sophos Central → Protect Devices → Windows) into the Sophos URL field and click Save. Then click **Install Sophos on Managed VM** — this pushes the installer directly to the managed VM via QEMU guest agent. A progress log streams below the button.
+
+### Where do I find my Sophos Central installer URL?
+Log into Sophos Central → Devices → Protect Devices → Choose Windows → Copy the installer URL. This URL is unique to your Sophos Central tenant. Every SE has a different URL tied to their own account.
+
+### The Sophos installer ran but the endpoint isn't showing in Sophos Central.
+The installer runs silently with `--quiet` so no UI appears. Wait 2–3 minutes — Sophos registers asynchronously. Check Sophos Central → Devices. If it still doesn't appear after 5 minutes:
+1. RDP into the VM and check if `SophosSetup.exe` completed: look in `C:\Windows\Temp\`
+2. Check Windows Event Viewer for installation errors
+3. Verify the installer URL was correct and not expired
+
+### The "Install Sophos on Managed VM" button is grayed out.
+The button only activates after a Sophos Central URL is saved. Paste your URL in the Sophos URL field and click Save first.
+
+### Can I install Sophos on the unmanaged VM too?
+You can, but don't — the unmanaged template is intentionally kept clean (no AV) to show attack scenarios without protection. Keep it as the "before" VM.
+
+---
+
+## Lab Manager & Adversary Sim — Combined Setup
+
+### I have both LabOps and Adversary Sim installed. How do they connect?
+When Adversary Sim detects the `labops-net` Docker network, it automatically joins it and uses LabOps's Guacamole instance for RDP. No manual configuration needed. The SE Console will also auto-discover your lab VMs from LabOps and display them as clickable target chips.
+
+### The SE Console shows green VM chips with a "VM" tag. What are those?
+Those are your live Proxmox VMs pulled automatically from LabOps. Click any chip to auto-fill the target IP field. The chips refresh on every page load. Green = Managed (Sophos installed), same green style = Unmanaged VM (shows the Proxmox name as label).
+
+### I dismissed a VM chip by accident and it's not coming back.
+Dismissed chips are stored in your browser's localStorage. Open the browser console (F12 → Console) and run:
+```javascript
+localStorage.removeItem('dismissedVms'); location.reload();
+```
+
+### The VM chips aren't appearing even though LabOps is running.
+The SE Console fetches VMs via an internal proxy — this only works when both platforms are running on the same Docker network (`labops-net`). Check:
+1. LabOps is running: `make status` in the labops directory
+2. Adversary Sim detected LabOps mode: check `.labops-mode` file in the adversary-sim directory
+3. Both are on `labops-net`: `docker network inspect labops-net`
+
+### Lab Manager URL shows "Unreachable" in Settings even though LabOps is running.
+The Test button checks the internal proxy, not the external URL. If you see "Lab Manager not detected" it means the internal proxy can't reach LabOps — check that both are on the same Docker network. The URL field in Settings is only needed if LabOps is on a different host (enter `http://<labops-ip>:8082` in that case).
+
+---
+
+## Attack Targets (DVWA & Juice Shop)
+
+### How do I start DVWA or Juice Shop?
+Go to LabOps → Templates → Attack Targets section. Click **Start** on DVWA or Juice Shop. The container pulls and starts — first launch takes 1–2 minutes for the image download.
+
+### Where do I access DVWA and Juice Shop after starting them?
+- DVWA: `http://<your-host-ip>:8086` — default login: admin / password
+- Juice Shop: `http://<your-host-ip>:8087` — no login required to browse
+
+### How do I use DVWA as an attack target in a demo?
+DVWA is a web app target, not a Windows endpoint. In NDR web attack scenarios, your Windows VM *attacks* DVWA — the Windows VM is still the victim IP in the SE Console. DVWA is what gets attacked. Set DVWA security level to Low in its settings for demos (admin/password → DVWA Security).
+
+### DVWA shows a database error on first load.
+Click **Setup / Reset DB** on the DVWA home page. This initializes the MySQL database inside the container.
+
+### I stopped DVWA but the port is still in use.
+Stop removes the container entirely. If the port still appears in use, check for other processes: `sudo lsof -i :8086`. You may need to wait a few seconds for the port to release.
+
+---
+
+## VPS / Remote Deployment
+
+### I'm running this on a VPS (Hetzner, AWS, etc.) — what's different?
+The main differences from a local Mac setup:
+1. **CALDERA_HOST** — set this to your VPS public IP in `.env` so the `s.ps1` sandcat bootstrap points to the right server
+2. **Firewall** — ensure ports 80, 443, 8081, 8888, 7010-7012 are open
+3. **No ARM64** — VPS machines are x86-64, so all containers run natively (faster than Mac with Rosetta)
+4. **HTTPS** — use Certbot with the webroot method if you have a domain pointed at the VPS
+
+### How do I set up HTTPS for my domain on the VPS?
+1. Point your domain's A record to the VPS IP
+2. Wait for DNS to propagate (check with `dig +short yourdomain.com`)
+3. Install Certbot: `sudo apt install certbot`
+4. Run: `sudo certbot certonly --webroot -w /path/to/webroot -d yourdomain.com`
+5. Add an HTTPS server block to your nginx config with the cert paths
+6. Add a renewal hook: the cert auto-renews via systemd timer twice daily
+
+### Windows VMs can't reach the CALDERA server on the VPS.
+The sandcat agent needs to reach the VPS on port 8888. Check:
+1. Port 8888 is open in your VPS firewall/security group
+2. `CALDERA_HOST` in `.env` is set to the VPS public IP
+3. Run `make sandcat` to recompile the agent after any config change
+4. Re-deploy the sandcat one-liner from the updated `s.ps1`
+
+---
+
+## Common LabOps Issues
+
+### The LabOps dashboard shows no VMs even though Proxmox has VMs.
+LabOps only shows VMs with IDs 200–299. Check:
+1. Proxmox API credentials are correct in `.env` (`PROXMOX_URL`, `PROXMOX_TOKEN_ID`, `PROXMOX_TOKEN_SECRET`)
+2. Your VMs are in the ID range 200–299
+3. The LabOps API container is running: `docker ps | grep labops-api`
+
+### Connect RDP button opens Guacamole but shows a black/blank screen.
+1. Wait 15–20 seconds — Windows RDP takes time to initialize
+2. Verify RDP is enabled on the VM (Windows Settings → Remote Desktop → On)
+3. Check that `LAB_VM_PASSWORD` in `.env` matches the Windows user password
+4. Try hard-refreshing the Guacamole tab (Ctrl+Shift+R)
+
+### The Proxmox console shows "connection timed out" when I try to access a VM.
+This is a stale WebSocket issue, not a VM problem. Hard-refresh the Proxmox browser tab (Ctrl+Shift+R or Cmd+Shift+R). If that doesn't work, use the LabOps "Connect RDP" button instead — it uses Guacamole which is more reliable for demos.
+
+### VM tags aren't showing correctly (managed/unmanaged badge is wrong).
+LabOps reads Proxmox tags to determine VM type. Tags must include:
+- `lab-vm` — required for the VM to appear in the list
+- `unmanaged` — marks the VM as having no Sophos
+- `windows11` or `windows-server` — determines the OS label
+To fix: set the correct tags in Proxmox → VM → Options → Tags.
+
