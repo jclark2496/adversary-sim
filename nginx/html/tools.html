@@ -30,7 +30,7 @@
       position: relative; z-index: 100;
       flex-shrink: 0;
     }
-    .hdr-left { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+    .hdr-left { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; flex: 1; }
     .hdr-sep {
       width: 1px; height: 22px;
       background: rgba(var(--accent-cyan-rgb), .18);
@@ -231,6 +231,7 @@
         <button class="tool-tab" id="tab-atomic"  onclick="switchTab('atomic')">● ATOMIC</button>
         <button class="tool-tab" id="tab-caldera" onclick="switchTab('caldera')">◈ CALDERA</button>
       </div>
+      <button class="done-btn" onclick="window.close()||location.assign('/index.html')">DONE</button>
     </div>
     <div class="hdr-right">
       <div class="nav-wrap" id="nav-wrap">
@@ -239,7 +240,6 @@
           <button class="nav-it" onclick="navToggle();window.location.href='index.html'">← SE Console</button>
           <div class="nav-cat-divider"></div>
           <div class="nav-cat">Red Team</div>
-          <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
           <button class="nav-it" onclick="navToggle();window.location.href='/admin.html'">Scenario Studio</button>
           <div class="nav-cat-divider"></div>
           <div class="nav-cat">Platform</div>
@@ -252,7 +252,6 @@
           <button class="nav-it" onclick="navToggle();window.location.href='/help.html'">Help &amp; Troubleshooting</button>
         </div>
       </div>
-      <button class="done-btn" onclick="window.close()||location.assign('/index.html')">DONE</button>
     </div>
   </header>
 
