@@ -44,7 +44,7 @@ help:
 # ── Install (first-time) ──────────────────────────────────────────────────────
 
 .PHONY: install
-install: _install-deps _check-docker _env _generate-s-ps1 _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _setup-n8n-owner _import-workflows sandcat profiles mitre-update
+install: _install-deps _check-docker _env _setup-ai _setup-tools _detect-labops _generate-caldera-keys _ghcr-auth _pull-caldera _up _wait-healthy _setup-n8n-owner _import-workflows sandcat profiles mitre-update
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════╗"
 	@echo "║   Sophos Adversary Simulation Platform — Ready              ║"
