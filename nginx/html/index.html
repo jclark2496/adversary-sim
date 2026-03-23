@@ -1059,12 +1059,12 @@
       color: #d940f5;
     }
     .beta-btn {
-      border-color: rgba(180,60,255,0.3) !important;
-      color: #c060f0 !important;
+      border-color: rgba(255,105,0,0.28) !important;
+      color: rgba(255,140,40,0.85) !important;
     }
     .nav-it.beta-btn {
-      border: 1px solid rgba(180,60,255,0.3);
-      color: #c060f0;
+      border: 1px solid rgba(255,105,0,0.18);
+      color: rgba(255,140,40,0.85);
     }
 
     /* ── Stage Dive overlay — Sophos-branded, stage-optimized ─── */
@@ -1256,8 +1256,12 @@
           <div class="nav-wrap" id="nav-wrap">
             <button class="nav-btn" id="nav-btn" onclick="navToggle()">&#x2630; Menu <span class="update-dot" id="update-dot"></span></button>
             <div class="nav-dd" id="nav-dd">
-              <button id="dd-booth-duty" class="nav-it beta-btn" style="display:none" onclick="navToggle();window.open('/demo.html','_blank')">Booth Duty</button>
-              <button id="dd-stage-dive" class="nav-it beta-btn" style="display:none" onclick="navToggle();openStageDive()">Stage Dive</button>
+              <div id="dd-beta-section" style="display:none">
+                <div class="nav-cat">Beta</div>
+                <button id="dd-booth-duty" class="nav-it beta-btn" style="display:none" onclick="navToggle();window.open('/demo.html','_blank')">Booth Duty</button>
+                <button id="dd-stage-dive" class="nav-it beta-btn" style="display:none" onclick="navToggle();openStageDive()">Stage Dive</button>
+                <div class="nav-cat-divider"></div>
+              </div>
               <div class="nav-cat">Red Team</div>
               <button class="nav-it" onclick="navToggle();window.open('/console.html','_blank')">Attack Console</button>
               <button class="nav-it" onclick="navToggle();window.location.href='/admin.html'">Scenario Studio</button>
@@ -2943,6 +2947,10 @@
     var ddSD = document.getElementById('dd-stage-dive');
     if (btnSD) btnSD.style.display = stageDive ? '' : 'none';
     if (ddSD) ddSD.style.display = stageDive ? '' : 'none';
+
+    // Show beta section wrapper if either beta feature is on
+    var betaSection = document.getElementById('dd-beta-section');
+    if (betaSection) betaSection.style.display = (boothDuty || stageDive) ? '' : 'none';
   })();
 
   /* =====================================================
